@@ -1,0 +1,37 @@
+{
+  "tabs": {
+    "home": "Home",
+    "browse": "Browse",
+    "sell": "Sell",
+    "inbox": "Inbox",
+    "profile": "Profile"
+  },
+  "common": {
+    "placeholderScreen": "Placeholder screen",
+    "language": "Language",
+    "restartNote": "The layout direction changes after the app restarts"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "open": "Open the design gallery",
+    "colours": "Colours",
+    "typeScale": "Type scale",
+    "buttons": "Buttons",
+    "badges": "Badges",
+    "chips": "Chips",
+    "switch": "Switch",
+    "sample": "Pre-loved, loved again",
+    "hebrewSample": "בגדים אהובים, חיים שניים",
+    "primary": "Primary",
+    "outline": "Outline",
+    "ghost": "Ghost",
+    "sold": "Sold",
+    "reserved": "Reserved",
+    "cancelled": "Cancelled",
+    "priceDrop": "Price drop",
+    "info": "Frequent uploads",
+    "all": "All",
+    "dresses": "Dresses",
+    "bundleDiscounts": "Bundle discounts"
+  }
+}

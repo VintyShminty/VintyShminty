@@ -1,0 +1,37 @@
+{
+  "tabs": {
+    "home": "בית",
+    "browse": "גלישה",
+    "sell": "מכירה",
+    "inbox": "הודעות",
+    "profile": "פרופיל"
+  },
+  "common": {
+    "placeholderScreen": "מסך זמני",
+    "language": "שפה",
+    "restartNote": "כיוון המסך משתנה אחרי הפעלה מחדש של האפליקציה"
+  },
+  "gallery": {
+    "title": "גלריה",
+    "open": "פתיחת גלריית העיצוב",
+    "colours": "צבעים",
+    "typeScale": "סולם טיפוגרפיה",
+    "buttons": "כפתורים",
+    "badges": "תגיות",
+    "chips": "צ'יפים",
+    "switch": "מתג",
+    "sample": "Pre-loved, loved again",
+    "hebrewSample": "בגדים אהובים, חיים שניים",
+    "primary": "ראשי",
+    "outline": "מסגרת",
+    "ghost": "שקוף",
+    "sold": "נמכר",
+    "reserved": "שמור",
+    "cancelled": "בוטל",
+    "priceDrop": "הורדת מחיר",
+    "info": "העלאות תכופות",
+    "all": "הכול",
+    "dresses": "שמלות",
+    "bundleDiscounts": "הנחות על חבילות"
+  }
+}
