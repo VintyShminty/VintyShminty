@@ -17,4 +17,8 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 
 ## Vinty
 
-None recorded yet. Added by the `compile-memory` skill.
+- **Decide once, then reuse the pattern.** Category pickers and filters all use the same full-screen push, so screens cannot drift apart. Source: D-010 and D-014 in `docs/design.md`.
+- **Park open questions with a suggested default.** The evening log listed each open design question with a default, and Eden decided them from there. Source: log 2026-10-12 evening, D-011 to D-014.
+- **Accepted risks get a name, a reason and a recheck date.** A vulnerability with no fix is accepted explicitly, never silenced. Source: `pnpm-workspace.yaml`, commit `4c4e85f`.
+- **Right to left means start and end, never left and right.** Source: log 2026-10-12 evening, commit `4abebb7`.
+- **A helper that restarts mid-task is safe if finished work is already pushed.** Source: log 2026-10-12 evening.

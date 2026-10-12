@@ -28,7 +28,7 @@ Every milestone ends with something you can use on your phone, in both languages
 
 ## Foundations already in place
 
-- **Design:** The Vinty look adapted for the phone, Espresso and cream palette, Aileron with Heebo for Hebrew, item card option C, chips and badges option B, bottom tab bar with Browse category panels (`docs/design.md`, decisions D-001 to D-010).
+- **Design:** The Vinty look adapted for the phone, Espresso and cream palette, Aileron with Heebo for Hebrew, item card option C, chips and badges option B, bottom tab bar with Browse category panels (`docs/design.md`, decisions D-001 to D-014).
 - **Components:** 63 components mapped from the spec with a build order (`docs/components.md`), shown in the component sheets in `docs/mockups/` (English and Hebrew).
 - **Tech:** Expo app with NativeWind and React Native Reusables, Fastify server, Postgres with Drizzle, automatic checks on every upload, agent skills and instructions (`CLAUDE.md`).
 - **Expo project:** account `vintys-team`, project `vinty`, app name on the phone "Vinty".

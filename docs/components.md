@@ -211,7 +211,7 @@ Inline tappable text such as Learn more or How you are covered.
 
 Five stars that show an average or one review score.
 
-- **Variants and states:** Sizes: 12, 16, 32. Variants: display (part-filled last star), with count, large score. Gold is not in our palette, so stars use the accent colour.
+- **Variants and states:** Sizes: 12, 16, 32. Variants: display (part-filled last star), with count, large score. Stars use the espresso accent, not gold (D-012). Unfilled stars use the border colour.
 - **Screens:** Item page, Seller profile, Own profile, Conversation thread
 - **Source:** Custom (Composed from Icon)
 - **Phase:** First flows
@@ -236,7 +236,7 @@ A centred window for a quick yes or no decision.
 
 ### BottomSheet
 
-A window that slides up from the bottom over a dimmed page. The base for filters, pickers, offers and price breakdown.
+A window that slides up from the bottom over a dimmed page. The base for option lists, offers and price breakdown. Filters and category pickers are full-screen panels instead (D-010, D-014).
 
 - **Variants and states:** Heights: content-sized, 88% tall. Header: the TopBar title style with an optional back arrow and a close. States: closed, open, dragging. 20px top corners, 300ms ease-out.
 - **Screens:** Catalog and filters, Item page, Sell form
@@ -368,7 +368,7 @@ One full-screen level of the category tree. It slides in from the trailing edge 
 
 One line in a category panel: an icon, a label and a chevron when it has children.
 
-- **Variants and states:** Variants: branch (chevron, opens another panel), leaf (no chevron, opens the feed), All (grid icon, opens the feed for the whole level). States: default, pressed. 56px tall, hairline below.
+- **Variants and states:** Variants: branch (chevron, opens another panel), leaf (no chevron, opens the feed), All (grid icon, opens the feed for the whole level). States: default, pressed. 56px tall, hairline below. Label in regular weight, 400, on every variant including All (D-013).
 - **Screens:** Browse, Sell form, Catalog and filters
 - **Source:** Custom (Composed from Pressable, Icon and Text. Looks like ListRow with a leading icon, kept separate so category rows stay uniform. Also used by CategoryPicker, where a leaf row swaps the chevron for a radio)
 - **Phase:** First flows
@@ -517,13 +517,13 @@ The box at the bottom of a chat where you type, attach a photo and send.
 - **Source:** Custom (Composed from TextField styling and IconButton)
 - **Phase:** First flows
 
-### FilterSheet
+### FilterPanel
 
-The page of filters: sort, category, size, brand, condition, colour and price, with one Show results button.
+The full-screen page of filters: sort, category, size, brand, condition, colour and price, with one Show results button.
 
-- **Variants and states:** Header: Close, Filter, Clear all. Rows show the current value. Sub-pages: price range, size list, brand list with search. Button shows live count.
+- **Variants and states:** Header: Close, Filter, Clear all. Rows show the current value. Sub-pages: price range, size list, brand list with search. Button shows live count. A full-screen panel pushed in from the trailing edge over the results, not a bottom sheet (D-014). Sub-pages push the same way.
 - **Screens:** Search and results, Catalog and filters
-- **Source:** Gorhom Bottom Sheet (Gorhom Bottom Sheet (88%) holding ListRows, price fields and a sticky button)
+- **Source:** Custom (Expo Router stack in a full-screen modal push, the same slide as CategoryPanel. Composed from TopBar, ListRow, Chip, TextField and a sticky Button)
 - **Phase:** First flows
 
 ### OptionListSheet
@@ -614,8 +614,8 @@ Things Vinted has that we are deliberately leaving out for now.
 4. **Item page.** PhotoCarousel, SellerRow, Banner (safety card), PriceBreakdown, StickyActionBar, OfferSheet.
 5. **Sell form.** PhotoUploader, PickerRow, OptionListSheet, CategoryPicker, then Dialog for save changes.
 6. **Inbox and chat.** ConversationRow, ItemStrip, MessageBubble, MessageComposer, OfferBubble, OrderTimeline.
-7. **Search and filters.** FilterSheet and the results states.
+7. **Search and filters.** FilterPanel and the results states.
 8. **Profiles and orders.** ProfileHeader, ReviewSummary, ReviewRow, then My orders on ItemStrip.
 9. **Later.** BalanceHeader, Collapsible, Progress.
 
-Decision for Eden when we reach StarRating: Vinted uses gold stars, and gold is not in our palette. Default is the accent brown. Gold would be a new token.
+Decided: StarRating uses the espresso accent, not gold (D-012).
