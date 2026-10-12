@@ -42,9 +42,12 @@ export const notifications = pgTable(
     /** Values used to fill the sentence, such as the item title or an amount. */
     data: jsonb("data").notNull().default(sql`'{}'::jsonb`),
     readAt: ts("read_at"),
+    /** When a push was sent for it. Counting these per day enforces the user's daily push limit. */
+    pushedAt: ts("pushed_at"),
     createdAt: createdAt(),
   },
   (t) => [
+    index("notifications_pushed_idx").on(t.userId, t.pushedAt).where(sql`${t.pushedAt} is not null`),
     index("notifications_user_idx").on(t.userId, t.createdAt.desc()),
     index("notifications_unread_idx").on(t.userId).where(sql`${t.readAt} is null`),
   ],

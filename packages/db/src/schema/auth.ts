@@ -1,4 +1,5 @@
 import { LOCALES, USER_ROLES } from "@vinty/shared";
+import { sql } from "drizzle-orm";
 import { boolean, index, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { createdAt, pk, ts, updatedAt } from "./_helpers.js";
 
@@ -9,28 +10,33 @@ export const userRoleEnum = pgEnum("user_role", USER_ROLES);
  * Better Auth tables. Names and columns follow Better Auth 1.7 (user, session, account, verification)
  * with plural table names, so the auth config needs `usePlural: true` and
  * `advanced.database.generateId: "uuid"`.
- * Extra columns on users come from two Better Auth plugins (username, admin) and our own `locale`.
- * Everything else about a person lives in `profiles` and `user_settings`.
+ * Extra columns on users come from two Better Auth plugins (username, admin).
+ * Everything else about a person lives in `profiles` and `user_settings` (language included).
  */
-export const users = pgTable("users", {
-  id: pk(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").notNull().default(false),
-  image: text("image"),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-  // username plugin
-  username: text("username").unique(),
-  displayUsername: text("display_username"),
-  // admin plugin
-  role: userRoleEnum("role").notNull().default("user"),
-  banned: boolean("banned").notNull().default(false),
-  banReason: text("ban_reason"),
-  banExpires: ts("ban_expires"),
-  // our own
-  locale: localeEnum("locale").notNull().default("he"),
-});
+export const users = pgTable(
+  "users",
+  {
+    id: pk(),
+    name: text("name").notNull(),
+    email: text("email").notNull().unique(),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    image: text("image"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    // username plugin
+    username: text("username").unique(),
+    displayUsername: text("display_username"),
+    // admin plugin
+    role: userRoleEnum("role").notNull().default("user"),
+    banned: boolean("banned").notNull().default(false),
+    banReason: text("ban_reason"),
+    banExpires: ts("ban_expires"),
+  },
+  (t) => [
+    // Member search by username prefix (Items / Members tab).
+    index("users_username_prefix_idx").on(sql`lower(${t.username}) text_pattern_ops`),
+  ],
+);
 
 export const sessions = pgTable(
   "sessions",

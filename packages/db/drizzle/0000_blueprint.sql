@@ -11,7 +11,7 @@ CREATE TYPE "public"."system_message_event" AS ENUM('order_paid', 'order_shipped
 CREATE TYPE "public"."actor_role" AS ENUM('buyer', 'seller', 'system', 'admin');--> statement-breakpoint
 CREATE TYPE "public"."delivery_method" AS ENUM('pickup_point', 'home');--> statement-breakpoint
 CREATE TYPE "public"."order_cancel_reason" AS ENUM('buyer_cancelled', 'seller_cancelled', 'payment_failed', 'payment_expired', 'shipping_timeout', 'item_unavailable', 'other');--> statement-breakpoint
-CREATE TYPE "public"."order_event" AS ENUM('pay', 'ship', 'deliver', 'confirm_received', 'auto_complete', 'cancel', 'open_dispute', 'refund', 'release');--> statement-breakpoint
+CREATE TYPE "public"."order_event" AS ENUM('create', 'pay', 'ship', 'deliver', 'confirm_received', 'auto_complete', 'cancel', 'open_dispute', 'refund', 'release');--> statement-breakpoint
 CREATE TYPE "public"."order_status" AS ENUM('pending_payment', 'paid', 'shipped', 'delivered', 'completed', 'cancelled', 'disputed', 'refunded');--> statement-breakpoint
 CREATE TYPE "public"."payment_status" AS ENUM('pending', 'succeeded', 'failed', 'refunded');--> statement-breakpoint
 CREATE TYPE "public"."referral_status" AS ENUM('pending', 'qualified', 'rewarded', 'void');--> statement-breakpoint
@@ -68,7 +68,6 @@ CREATE TABLE "users" (
 	"banned" boolean DEFAULT false NOT NULL,
 	"ban_reason" text,
 	"ban_expires" timestamp with time zone,
-	"locale" "locale" DEFAULT 'he' NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email"),
 	CONSTRAINT "users_username_unique" UNIQUE("username")
 );
@@ -143,6 +142,7 @@ CREATE TABLE "notifications" (
 	"conversation_id" uuid,
 	"data" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"read_at" timestamp with time zone,
+	"pushed_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -861,6 +861,7 @@ ALTER TABLE "sizes" ADD CONSTRAINT "sizes_size_group_id_size_groups_id_fk" FOREI
 CREATE INDEX "accounts_user_id_idx" ON "accounts" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "accounts_provider_idx" ON "accounts" USING btree ("provider_id","account_id");--> statement-breakpoint
 CREATE INDEX "sessions_user_id_idx" ON "sessions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "users_username_prefix_idx" ON "users" USING btree (lower("username") text_pattern_ops);--> statement-breakpoint
 CREATE INDEX "verifications_identifier_idx" ON "verifications" USING btree ("identifier");--> statement-breakpoint
 CREATE INDEX "conversations_buyer_inbox_idx" ON "conversations" USING btree ("buyer_id","last_message_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "conversations_seller_inbox_idx" ON "conversations" USING btree ("seller_id","last_message_at" DESC NULLS LAST);--> statement-breakpoint
@@ -868,6 +869,7 @@ CREATE INDEX "offers_conversation_idx" ON "offers" USING btree ("conversation_id
 CREATE INDEX "offers_buyer_day_idx" ON "offers" USING btree ("buyer_id","created_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "offers_pending_expiry_idx" ON "offers" USING btree ("expires_at") WHERE "offers"."status" = 'pending';--> statement-breakpoint
 CREATE UNIQUE INDEX "offers_one_pending_per_conversation" ON "offers" USING btree ("conversation_id") WHERE "offers"."status" = 'pending';--> statement-breakpoint
+CREATE INDEX "notifications_pushed_idx" ON "notifications" USING btree ("user_id","pushed_at") WHERE "notifications"."pushed_at" is not null;--> statement-breakpoint
 CREATE INDEX "notifications_user_idx" ON "notifications" USING btree ("user_id","created_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE INDEX "notifications_unread_idx" ON "notifications" USING btree ("user_id") WHERE "notifications"."read_at" is null;--> statement-breakpoint
 CREATE INDEX "reports_queue_idx" ON "reports" USING btree ("status","created_at");--> statement-breakpoint
@@ -923,6 +925,7 @@ CREATE INDEX "profiles_holiday_idx" ON "profiles" USING btree ("holiday_mode_ena
 CREATE INDEX "push_tokens_user_idx" ON "push_tokens" USING btree ("user_id") WHERE "push_tokens"."revoked_at" is null;--> statement-breakpoint
 CREATE INDEX "user_brands_brand_idx" ON "user_brands" USING btree ("brand_id");--> statement-breakpoint
 CREATE INDEX "brands_popularity_idx" ON "brands" USING btree ("popularity" DESC NULLS LAST,"name");--> statement-breakpoint
+CREATE INDEX "brands_name_prefix_idx" ON "brands" USING btree (lower("name") text_pattern_ops);--> statement-breakpoint
 CREATE INDEX "categories_parent_idx" ON "categories" USING btree ("parent_id","sort_order");--> statement-breakpoint
 CREATE INDEX "categories_path_prefix_idx" ON "categories" USING btree ("path" text_pattern_ops);--> statement-breakpoint
 CREATE INDEX "category_size_groups_group_idx" ON "category_size_groups" USING btree ("size_group_id");--> statement-breakpoint

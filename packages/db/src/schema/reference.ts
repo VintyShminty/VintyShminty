@@ -189,7 +189,11 @@ export const brands = pgTable(
     isActive: boolean("is_active").notNull().default(true),
     createdAt: createdAt(),
   },
-  (t) => [index("brands_popularity_idx").on(t.popularity.desc(), t.name)],
+  (t) => [
+    index("brands_popularity_idx").on(t.popularity.desc(), t.name),
+    // Brand picker search ("Search for brands").
+    index("brands_name_prefix_idx").on(sql`lower(${t.name}) text_pattern_ops`),
+  ],
 );
 
 /**

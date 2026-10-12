@@ -31,6 +31,7 @@ export const ORDER_STATUSES = [
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const ORDER_EVENTS = [
+  "create",
   "pay",
   "ship",
   "deliver",

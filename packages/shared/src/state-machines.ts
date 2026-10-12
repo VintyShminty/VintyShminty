@@ -26,6 +26,8 @@ export const ORDER_TRANSITIONS: Readonly<Record<OrderStatus, Partial<Record<Orde
 
 /** Who is allowed to fire each order event. */
 export const ORDER_EVENT_ACTORS: Readonly<Record<OrderEvent, readonly ActorRole[]>> = {
+  /** Not a transition. Written once to the timeline when the order is first placed. */
+  create: ["buyer"],
   pay: ["buyer", "system"],
   ship: ["seller", "system"],
   deliver: ["system", "buyer"],

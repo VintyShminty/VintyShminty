@@ -1,5 +1,5 @@
 {
-  "id": "2b7069d0-0b6b-4f4f-96fc-fc674cd7d13d",
+  "id": "956f6454-43b1-40a2-a1bc-5ea2fba37509",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -345,17 +345,25 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
-        },
-        "locale": {
-          "name": "locale",
-          "type": "locale",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'he'"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "users_username_prefix_idx": {
+          "name": "users_username_prefix_idx",
+          "columns": [
+            {
+              "expression": "lower(\"username\") text_pattern_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
@@ -1061,6 +1069,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "pushed_at": {
+          "name": "pushed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -1070,6 +1084,28 @@
         }
       },
       "indexes": {
+        "notifications_pushed_idx": {
+          "name": "notifications_pushed_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "pushed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"notifications\".\"pushed_at\" is not null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "notifications_user_idx": {
           "name": "notifications_user_idx",
           "columns": [
@@ -6040,6 +6076,21 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "brands_name_prefix_idx": {
+          "name": "brands_name_prefix_idx",
+          "columns": [
+            {
+              "expression": "lower(\"name\") text_pattern_ops",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {},
@@ -7301,6 +7352,7 @@
       "name": "order_event",
       "schema": "public",
       "values": [
+        "create",
         "pay",
         "ship",
         "deliver",
