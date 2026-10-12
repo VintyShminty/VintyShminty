@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { ORDER_STATUSES } from "@vinty/shared";
 import { is } from "drizzle-orm";
 import { type AnyPgTable, getTableConfig, PgTable } from "drizzle-orm/pg-core";
@@ -81,5 +83,16 @@ describe("schema", () => {
     const listing = getTableConfig(schema.listings).columns;
     expect(listing.find((c) => c.name === "price_minor")?.dataType).toBe("number");
     expect(listing.find((c) => c.name === "currency")?.default).toBe("ILS");
+  });
+
+  it("documents every table in docs/blueprint/data-model.md", () => {
+    const doc = readFileSync(
+      fileURLToPath(new URL("../../../docs/blueprint/data-model.md", import.meta.url)),
+      "utf8",
+    );
+    for (const table of tables) {
+      const name = getTableConfig(table).name;
+      expect(doc, `${name} is missing from data-model.md`).toContain(`### \`${name}\``);
+    }
   });
 });
