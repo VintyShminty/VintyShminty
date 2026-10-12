@@ -1,3 +1,5 @@
+/* Colour variables are generated from theme/tokens.js by the plugin in tailwind.config.js.
+   Light mode only (D-002): there is no dark variable set. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
