@@ -15,7 +15,10 @@
     "db:up": "docker compose up -d --wait postgres",
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @vinty/db generate",
-    "db:migrate": "pnpm --filter @vinty/db migrate"
+    "db:migrate": "pnpm --filter @vinty/db migrate",
+    "db:seed": "pnpm --filter @vinty/db seed",
+    "db:seed:reference": "pnpm --filter @vinty/db seed:reference",
+    "db:reset": "pnpm --filter @vinty/db reset"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
