@@ -508,7 +508,6 @@
       "denied": "Allow Vinty to use your photos or camera in the phone's Settings"
     }
   },
-<<<<<<< HEAD
   "item": {
     "more": "More options",
     "reportItem": "Report this item",
@@ -597,10 +596,9 @@
     "count_other": "{{count}} sizes chosen",
     "pick": "Choose your sizes",
     "max": "You can choose up to {{count}} sizes"
-=======
+  },
   "browse": {
     "favourite": "Add to favourites",
     "unfavourite": "Remove from favourites"
->>>>>>> origin/m3-app-browse
   }
 }
