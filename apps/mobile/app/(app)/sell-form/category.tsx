@@ -16,6 +16,8 @@ import { useLocalName, useReference } from "@/lib/reference";
 import { useSellStore } from "@/lib/sell-store";
 import { colors } from "@/theme";
 
+const SELL_HIDDEN_ROOTS = ["designer"];
+
 type SearchHit = { node: CategoryNode; path: string; icon: string | null };
 
 /**
@@ -35,8 +37,13 @@ export default function CategoryPanel() {
   const [query, setQuery] = useState("");
   const isHe = i18n.language === "he";
 
-  const tree = reference.data?.categories ?? [];
-  const node = parent ? findCategory(tree, parent) : null;
+  const allCategories = reference.data?.categories ?? [];
+  // The sell picker shows eight top rows, without Designer (spec, Category picker). Browse keeps Designer.
+  const tree = useMemo(
+    () => allCategories.filter((c) => !SELL_HIDDEN_ROOTS.includes(c.slug)),
+    [allCategories],
+  );
+  const node = parent ? findCategory(allCategories, parent) : null;
   const rows = node ? node.children : tree;
 
   const hits = useMemo<SearchHit[]>(() => {
@@ -111,7 +118,7 @@ export default function CategoryPanel() {
   // The icon of a row: its own, or the nearest one above it.
   const iconFor = (row: CategoryNode) => {
     if (row.icon) return categoryIcon(row.icon);
-    const trail = categoryTrail(tree, row.id);
+    const trail = categoryTrail(allCategories, row.id);
     return categoryIcon(trail.findLast((p) => p.icon)?.icon);
   };
 

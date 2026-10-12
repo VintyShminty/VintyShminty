@@ -64,11 +64,16 @@ export function newPerson(label = "t") {
   };
 }
 
-/** Removes every account the tests created, including the ones that were closed and renamed. */
-export async function cleanupTestUsers(database: Database, ids: string[]) {
+/**
+ * Removes every account the tests created, including the ones that were closed and renamed.
+ * `onlyIds` removes just the given accounts, so a test file never deletes users another file (running at the same
+ * time) still needs.
+ */
+export async function cleanupTestUsers(database: Database, ids: string[], { onlyIds = false } = {}) {
   const db = database.db;
-  const conditions = [like(users.email, "vt-%@test.invalid")];
+  const conditions = onlyIds ? [] : [like(users.email, "vt-%@test.invalid")];
   if (ids.length > 0) conditions.push(inArray(users.id, ids));
+  if (conditions.length === 0) return;
   await db.delete(users).where(or(...conditions));
 }
 

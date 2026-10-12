@@ -478,7 +478,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
             case "ownPair":
               return (
                 <View className="flex-row gap-md px-lg pt-lg">
-                  {item.items.map((listing, i) =>
+                  {item.items.map((listing) =>
                     listing ? (
                       <OwnListingCard
                         key={listing.id}
@@ -490,7 +490,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
                         }
                       />
                     ) : (
-                      <View key={`empty-${i}`} className="flex-1" />
+                      <View key="filler" className="flex-1" />
                     ),
                   )}
                 </View>

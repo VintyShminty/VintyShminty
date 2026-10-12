@@ -75,7 +75,7 @@ describe.skipIf(!databaseUrl)("selling", () => {
   });
   afterAll(async () => {
     await ctx.database.db.delete(brandRequests).where(eq(brandRequests.userId, seller.id));
-    await cleanupTestUsers(ctx.database, createdIds);
+    await cleanupTestUsers(ctx.database, createdIds, { onlyIds: true });
     await ctx.close();
   });
 
