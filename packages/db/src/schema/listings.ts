@@ -196,7 +196,10 @@ export const listingViews = pgTable(
     viewerKey: text("viewer_key").notNull(),
     day: date("day", { mode: "string" }).notNull(),
   },
-  (t) => [primaryKey({ columns: [t.listingId, t.viewerKey, t.day] }), index("listing_views_day_idx").on(t.day)],
+  (t) => [
+    primaryKey({ columns: [t.listingId, t.viewerKey, t.day] }),
+    index("listing_views_day_idx").on(t.day),
+  ],
 );
 
 /** A search the user saved with the bookmark. `filters` is the same object the search endpoint takes. */

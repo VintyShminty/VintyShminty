@@ -1,0 +1,342 @@
+import {
+  blocks,
+  type Database,
+  favourites,
+  follows,
+  listingColours,
+  listingPhotos,
+  listings,
+  profiles,
+  userBrands,
+  userSettings,
+  userSizes,
+  users,
+} from "@vinty/db";
+import {
+  type CategoryNode,
+  findCategory,
+  type ListingCard,
+  type ReferenceData,
+  SEARCH_TOTAL_CAP,
+  type SearchFilters,
+  type UserSummary,
+} from "@vinty/shared";
+import { and, eq, inArray, type SQL, sql } from "drizzle-orm";
+import type { FastifyInstance } from "fastify";
+import { decodeCursor, encodeCursor } from "./cursor.js";
+import { buyerPrice, type ListingRow, toPhoto } from "./listings.js";
+
+type Db = NonNullable<Database["db"]>;
+
+/** Listings a buyer can see in the feed and in search. Sold ones are only reachable from Favourites and profiles. */
+export const BROWSABLE_STATUSES = ["active", "reserved"] as const;
+
+/** One "looks newer" step of the personalised feed: every match makes an item look this much newer. */
+export const FEED_BOOST_MS = 6 * 60 * 60 * 1000;
+
+const MAX_TOKENS = 8;
+
+/** Seconds since 1970 in milliseconds. The whole sort key lives in the database, so no precision is lost. */
+const bumpedMs = sql`(extract(epoch from ${listings.bumpedAt}) * 1000)::bigint`;
+
+/** Everything a listing needs to leave out for this viewer: holiday sellers, closed accounts, blocked people. */
+export function visibilityConditions(viewerId: string | undefined): SQL[] {
+  const conditions: SQL[] = [
+    sql`not exists (select 1 from ${profiles} where ${profiles.userId} = ${listings.sellerId} and (${profiles.holidayModeEnabled} or ${profiles.deletedAt} is not null))`,
+  ];
+  if (viewerId) {
+    conditions.push(
+      sql`not exists (select 1 from ${blocks} where (${blocks.blockerId} = ${viewerId} and ${blocks.blockedId} = ${listings.sellerId}) or (${blocks.blockerId} = ${listings.sellerId} and ${blocks.blockedId} = ${viewerId}))`,
+    );
+  }
+  return conditions;
+}
+
+/** The category and everything below it. Empty when the id is not in the tree. */
+export function categorySubtreeIds(tree: readonly CategoryNode[], categoryId: string): string[] {
+  const root = findCategory(tree, categoryId);
+  if (!root) return [];
+  const ids: string[] = [];
+  const walk = (node: CategoryNode) => {
+    ids.push(node.id);
+    for (const child of node.children) walk(child);
+  };
+  walk(root);
+  return ids;
+}
+
+/** Words of the search text: letters and digits only (Hebrew and English), so they are safe in a tsquery. */
+export function searchTokens(q: string | undefined): string[] {
+  if (!q) return [];
+  const clean = q.normalize("NFKC").toLowerCase().replace(/\p{M}/gu, "");
+  return (clean.match(/[\p{L}\p{N}]+/gu) ?? []).slice(0, MAX_TOKENS);
+}
+
+export const likeEscape = (text: string) => text.replace(/[\\%_]/g, (c) => `\\${c}`);
+
+/** Each word must match: as the start of a word (full text) or anywhere in the title or brand (plain substring). */
+function textConditions(tokens: string[]): SQL[] {
+  return tokens.map((token) => {
+    const like = `%${likeEscape(token)}%`;
+    return sql`(${listings.searchVector} @@ to_tsquery('simple', ${`${token}:*`}) or ${listings.title} ilike ${like} or coalesce(${listings.brandName}, '') ilike ${like})`;
+  });
+}
+
+type Filters = Omit<SearchFilters, "sort" | "q"> & { sort?: SearchFilters["sort"]; q?: string };
+
+/** The filters the person set (category, brand, size, price, text and so on). No visibility rules. */
+export function filterConditions(filters: Filters, reference: Pick<ReferenceData, "categories">): SQL[] {
+  const conditions: SQL[] = [];
+  if (filters.categoryId) {
+    const ids = categorySubtreeIds(reference.categories, filters.categoryId);
+    conditions.push(ids.length > 0 ? inArray(listings.categoryId, ids) : sql`false`);
+  }
+  if (filters.brandIds?.length) conditions.push(inArray(listings.brandId, filters.brandIds));
+  if (filters.sizeIds?.length) conditions.push(inArray(listings.sizeId, filters.sizeIds));
+  if (filters.conditionIds?.length) conditions.push(inArray(listings.conditionId, filters.conditionIds));
+  if (filters.materialIds?.length) conditions.push(inArray(listings.materialId, filters.materialIds));
+  if (filters.patternIds?.length) conditions.push(inArray(listings.patternId, filters.patternIds));
+  if (filters.colourIds?.length) {
+    conditions.push(
+      sql`exists (select 1 from ${listingColours} where ${listingColours.listingId} = ${listings.id} and ${inArray(listingColours.colourId, filters.colourIds)})`,
+    );
+  }
+  if (filters.priceMinMinor !== undefined)
+    conditions.push(sql`${listings.priceMinor} >= ${filters.priceMinMinor}`);
+  if (filters.priceMaxMinor !== undefined)
+    conditions.push(sql`${listings.priceMinor} <= ${filters.priceMaxMinor}`);
+  if (filters.sellerId) conditions.push(eq(listings.sellerId, filters.sellerId));
+  conditions.push(...textConditions(searchTokens(filters.q)));
+  return conditions;
+}
+
+/** The WHERE of search and catalog: live listings, visibility for this viewer, then the filters. */
+export function searchConditions(
+  filters: Filters,
+  reference: Pick<ReferenceData, "categories">,
+  viewerId: string | undefined,
+): SQL[] {
+  return [
+    inArray(listings.status, [...BROWSABLE_STATUSES]),
+    ...visibilityConditions(viewerId),
+    ...filterConditions(filters, reference),
+  ];
+}
+
+export type SortSpec = { key: SQL; dir: "asc" | "desc" };
+
+/**
+ * The sort of a search. Every sort is one number per row plus the id, so a cursor is just `{ k, i }`.
+ * Relevance packs the text score above the recency: score * 1e13 + bumped time in ms (a score is at most about 1000).
+ */
+export function sortSpec(sort: SearchFilters["sort"], q: string | undefined): SortSpec {
+  if (sort === "price_asc") return { key: sql`coalesce(${listings.priceMinor}, 0)::bigint`, dir: "asc" };
+  if (sort === "price_desc") return { key: sql`coalesce(${listings.priceMinor}, 0)::bigint`, dir: "desc" };
+  const tokens = searchTokens(q);
+  if (sort === "relevance" && tokens.length > 0) {
+    const query = tokens.map((t) => `${t}:*`).join(" & ");
+    const titleHit = tokens.map((t) => sql`${listings.title} ilike ${`%${likeEscape(t)}%`}`);
+    const allInTitle = sql.join(titleHit, sql` and `);
+    return {
+      key: sql`(floor(ts_rank(${listings.searchVector}, to_tsquery('simple', ${query})) * 1000)::bigint + (case when ${allInTitle} then 300 else 0 end)) * 10000000000000 + ${bumpedMs}`,
+      dir: "desc",
+    };
+  }
+  return { key: bumpedMs, dir: "desc" };
+}
+
+export type CardRow = {
+  listing: ListingRow;
+  coverKey: string | null;
+  coverWidth: number | null;
+  coverHeight: number | null;
+  coverPlaceholder: string | null;
+  sortKey: string | null;
+};
+
+/** `k` is kept as text: a relevance key can be larger than a JavaScript number holds exactly. */
+type CursorShape = { k: string; i: string };
+
+/** Runs a keyset page: rows in sort order, one extra row tells whether there is a next page. */
+export async function queryCardRows(
+  db: Db,
+  opts: { where: SQL[]; sort: SortSpec; cursor: string | undefined; limit: number },
+): Promise<{ rows: CardRow[]; nextCursor: string | null }> {
+  const { sort, limit } = opts;
+  const cursor = decodeCursor<CursorShape>(opts.cursor);
+  const valid =
+    cursor &&
+    /^-?\d{1,19}$/.test(String(cursor.k)) &&
+    typeof cursor.i === "string" &&
+    /^[0-9a-f-]{36}$/i.test(cursor.i);
+  const where = [...opts.where];
+  if (valid) {
+    const cmp = sort.dir === "desc" ? sql`<` : sql`>`;
+    where.push(sql`(${sort.key}, ${listings.id}) ${cmp} (${String(cursor.k)}::bigint, ${cursor.i}::uuid)`);
+  }
+  const order =
+    sort.dir === "desc"
+      ? sql`${sort.key} desc, ${listings.id} desc`
+      : sql`${sort.key} asc, ${listings.id} asc`;
+  const rows = await db
+    .select({
+      listing: listings,
+      coverKey: listingPhotos.objectKey,
+      coverWidth: listingPhotos.width,
+      coverHeight: listingPhotos.height,
+      coverPlaceholder: listingPhotos.placeholder,
+      sortKey: sql<string>`(${sort.key})::text`,
+    })
+    .from(listings)
+    .leftJoin(listingPhotos, and(eq(listingPhotos.listingId, listings.id), eq(listingPhotos.position, 0)))
+    .where(and(...where))
+    .orderBy(order)
+    .limit(limit + 1);
+  const page = rows.slice(0, limit);
+  const last = page.at(-1);
+  return {
+    rows: page,
+    nextCursor:
+      rows.length > limit && last?.sortKey != null
+        ? encodeCursor({ k: last.sortKey, i: last.listing.id })
+        : null,
+  };
+}
+
+/** How many listings match, counted up to 500 (the app shows "500+"). */
+export async function countMatches(db: Db, where: SQL[]): Promise<{ total: number; totalCapped: boolean }> {
+  const rows = await db
+    .select({ one: sql<number>`1` })
+    .from(listings)
+    .where(and(...where))
+    .limit(SEARCH_TOTAL_CAP + 1);
+  return { total: Math.min(rows.length, SEARCH_TOTAL_CAP), totalCapped: rows.length > SEARCH_TOTAL_CAP };
+}
+
+/** Which of these listings the viewer has hearted. */
+export async function favouritedIds(db: Db, viewerId: string, listingIds: string[]): Promise<Set<string>> {
+  if (listingIds.length === 0) return new Set();
+  const rows = await db
+    .select({ id: favourites.listingId })
+    .from(favourites)
+    .where(and(eq(favourites.userId, viewerId), inArray(favourites.listingId, listingIds)));
+  return new Set(rows.map((r) => r.id));
+}
+
+/** Seller summaries (name, photo, rating) for a set of cards, in one query. */
+export async function loadSellerSummaries(
+  { db, storage }: Pick<FastifyInstance, "db" | "storage">,
+  sellerIds: string[],
+): Promise<Map<string, UserSummary>> {
+  const result = new Map<string, UserSummary>();
+  if (sellerIds.length === 0) return result;
+  const rows = await db
+    .select({
+      id: users.id,
+      username: users.username,
+      displayUsername: users.displayUsername,
+      avatarKey: profiles.avatarKey,
+      count: profiles.memberReviewCount,
+      sum: profiles.memberRatingSum,
+    })
+    .from(users)
+    .innerJoin(profiles, eq(profiles.userId, users.id))
+    .where(inArray(users.id, sellerIds));
+  for (const r of rows) {
+    result.set(r.id, {
+      id: r.id,
+      username: r.displayUsername ?? r.username,
+      avatarUrl: r.avatarKey ? storage.publicUrl(r.avatarKey) : null,
+      ratingAverage: r.count > 0 ? Math.round((r.sum / r.count) * 100) / 100 : null,
+      reviewCount: r.count,
+    });
+  }
+  return result;
+}
+
+/** Turns query rows into the cards the app draws. `isFavourited` is only present for a signed in viewer. */
+export async function toCards(
+  app: Pick<FastifyInstance, "db" | "storage">,
+  reference: ReferenceData,
+  rows: CardRow[],
+  opts: { viewerId?: string | undefined; withSeller?: boolean } = {},
+): Promise<ListingCard[]> {
+  const { db, storage } = app;
+  const sizeLabels = new Map<string, string>();
+  for (const group of reference.sizeGroups) for (const s of group.sizes) sizeLabels.set(s.id, s.label);
+  const conditionSlugs = new Map(reference.conditions.map((c) => [c.id, c.slug]));
+  const [hearted, sellers] = await Promise.all([
+    opts.viewerId
+      ? favouritedIds(
+          db,
+          opts.viewerId,
+          rows.map((r) => r.listing.id),
+        )
+      : null,
+    opts.withSeller ? loadSellerSummaries(app, [...new Set(rows.map((r) => r.listing.sellerId))]) : null,
+  ]);
+  const now = new Date();
+  return rows.map(({ listing: l, coverKey, coverWidth, coverHeight, coverPlaceholder }) => {
+    const price = l.priceMinor ?? 0;
+    const seller = sellers?.get(l.sellerId);
+    return {
+      id: l.id,
+      status: l.status,
+      title: l.title,
+      brandName: l.brandName,
+      sizeLabel: l.sizeId ? (sizeLabels.get(l.sizeId) ?? null) : null,
+      conditionSlug: l.conditionId ? (conditionSlugs.get(l.conditionId) ?? null) : null,
+      priceMinor: price,
+      buyerPriceMinor: buyerPrice(reference, price, l.currency) ?? price,
+      previousPriceMinor: l.previousPriceMinor,
+      currency: l.currency,
+      cover:
+        coverKey && coverWidth && coverHeight
+          ? toPhoto(storage, {
+              objectKey: coverKey,
+              width: coverWidth,
+              height: coverHeight,
+              placeholder: coverPlaceholder,
+            })
+          : null,
+      favouriteCount: l.favouriteCount,
+      ...(hearted ? { isFavourited: hearted.has(l.id) } : {}),
+      isBumped: Boolean(l.bumpedUntil && l.bumpedUntil > now),
+      ...(seller ? { seller } : {}),
+    };
+  });
+}
+
+/**
+ * The feed's "looks newer by" points for a signed in person who keeps personalisation on. Each point shifts a
+ * listing 6 hours towards the top: +4 a seller they follow, +3 a category they favourited, +2 a brand they favourited
+ * or follow, +2 a size from their personalisation list. Not signed in or switched off: 0 for everything.
+ */
+export async function feedBoost(db: Db, viewerId: string | undefined): Promise<SQL> {
+  if (!viewerId) return sql`0`;
+  const [settings] = await db
+    .select({ on: userSettings.personaliseFeed })
+    .from(userSettings)
+    .where(eq(userSettings.userId, viewerId))
+    .limit(1);
+  if (settings && !settings.on) return sql`0`;
+  const hearted = sql`select l2.category_id, l2.brand_id from ${favourites} f join ${listings} l2 on l2.id = f.listing_id where f.user_id = ${viewerId}`;
+  return sql`(
+    (case when exists (select 1 from ${follows} where ${follows.followerId} = ${viewerId} and ${follows.followeeId} = ${listings.sellerId}) then 4 else 0 end)
+    + (case when ${listings.categoryId} in (select category_id from (${hearted}) h where category_id is not null) then 3 else 0 end)
+    + (case when ${listings.brandId} in (select brand_id from (${hearted}) h where brand_id is not null union select ${userBrands.brandId} from ${userBrands} where ${userBrands.userId} = ${viewerId}) then 2 else 0 end)
+    + (case when ${listings.sizeId} in (select ${userSizes.sizeId} from ${userSizes} where ${userSizes.userId} = ${viewerId}) then 2 else 0 end)
+  )`;
+}
+
+/** Feed order: bump time plus the personal boost. */
+export const personalSort = (boost: SQL): SortSpec => ({
+  key: sql`(${bumpedMs} + ${boost} * ${FEED_BOOST_MS}::bigint)`,
+  dir: "desc",
+});
+
+/** Trending: hearts count 5, views count 1, then newest first. */
+export const trendingSort = (): SortSpec => ({
+  key: sql`(least(${listings.favouriteCount} * 5 + ${listings.viewCount}, 900000)::bigint * 10000000000000 + ${bumpedMs})`,
+  dir: "desc",
+});
