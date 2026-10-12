@@ -100,9 +100,10 @@ function Text({ className, variant, weight, font, asChild = false, ...props }: T
     <Component
       className={cn(
         textVariants({ variant: resolvedVariant }),
-        // "Natural" alignment follows the phone's language, not the app's. A Hebrew phone running the app in English
-        // would right-align English text. So alignment follows the app language, and className can still override it.
-        i18n.language === "he" ? "text-right" : "text-left",
+        // Start edge of the layout. React Native swaps "left" and "right" when the layout is right to left,
+        // so "text-left" means the start edge in both languages (right in Hebrew, left in English). The old
+        // "text-right for Hebrew" got swapped back to the left. className can still override (text-center).
+        "text-left",
         family === "heebo" ? HEEBO[resolvedWeight] : AILERON[resolvedWeight],
         ctx.className,
         className,
