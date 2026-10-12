@@ -1,3 +1,1 @@
-export type HealthResponse = {
-  ok: boolean;
-};
+export * from "./health.js";
