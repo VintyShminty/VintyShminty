@@ -116,6 +116,7 @@ A square tick box for yes or no choices, and for picking several options from a 
 - **Screens:** Filter page (size, brand, condition), Sell form
 - **Source:** Reusables: Checkbox
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 (`components/ui/checkbox.tsx`, a small custom box instead of the Reusables package, no new dependency)
 
 ### Radio
 
@@ -125,6 +126,7 @@ A round dot for picking exactly one option from a list.
 - **Screens:** Category picker (leaf rows), Filter page (sort), Sell form (parcel size)
 - **Source:** Reusables: Radio Group
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 (`components/ui/radio.tsx`, custom, no new dependency)
 
 ### Switch
 
@@ -242,6 +244,7 @@ A window that slides up from the bottom over a dimmed page. The base for option 
 - **Screens:** Catalog and filters, Item page, Sell form
 - **Source:** Gorhom Bottom Sheet (Gorhom Bottom Sheet with our header, fill and backdrop)
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 as `Sheet` (`components/ui/sheet.tsx`, Gorhom Bottom Sheet, fully opaque window fill)
 
 ### ActionMenu
 
@@ -300,6 +303,7 @@ The tile for one listing: tall rounded photo, brand, description, size and condi
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
 - **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badge is the standard Badge component, outline style, D-008)
 - **Phase:** First flows
+- **Status:** Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
 
 ### HeartPill
 
@@ -372,6 +376,7 @@ One line in a category panel: an icon, a label and a chevron when it has childre
 - **Screens:** Browse, Sell form, Catalog and filters
 - **Source:** Custom (Composed from Pressable, Icon and Text. Looks like ListRow with a leading icon, kept separate so category rows stay uniform. Also used by CategoryPicker, where a leaf row swaps the chevron for a radio)
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 (`components/category-row.tsx`, regular weight labels per D-013, chevron or radio)
 
 ### ItemGrid
 
@@ -426,6 +431,7 @@ The big swipeable photo at the top of the item page with page dots.
 - **Screens:** Item page
 - **Source:** Custom (Composed from Photo with a paging scroll view. Reusables has no carousel)
 - **Phase:** First flows
+- **Status:** First version built in Milestone 2 for the own item page (`components/photo-carousel.tsx`, swipe and a 1 / 3 counter). The full photo viewer comes with the item page in Milestone 3
 
 ### SellerRow
 
@@ -534,6 +540,7 @@ A sheet with a flat list of options to pick from, such as size, brand, condition
 - **Screens:** Sell form, Catalog and filters
 - **Source:** Gorhom Bottom Sheet (Gorhom Bottom Sheet with a Checkbox or Radio list and optional search)
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 (`components/sell/option-list-sheet.tsx`, single and multiple choice, Done in the header for multiple) plus the brand variant with search (`components/sell/brand-sheet.tsx`)
 
 ### CategoryPicker
 
@@ -543,6 +550,7 @@ Category selection inside a form (D-010). A full-screen panel that slides in fro
 - **Screens:** Sell form, Catalog and filters
 - **Source:** Custom (Expo Router stack in a full-screen modal push, the same slide as CategoryPanel. Composed from TopBar, SearchBar, CategoryRow and Radio)
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 for the Sell form (`app/(app)/sell-form/category.tsx`). The Filter variant with All rows comes with Milestone 3
 
 ### PhotoUploader
 
@@ -552,6 +560,7 @@ The row of photo tiles on the sell form where you add, remove and order your pic
 - **Screens:** Sell form
 - **Source:** Custom (Composed from Photo, IconButton and Expo Image Picker)
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 (`components/sell/photo-uploader.tsx`). Tap a photo to make it the cover or move it earlier or later
 
 ### PickerRow
 
@@ -561,6 +570,7 @@ An outlined form row that opens a sheet. A plus means empty, a pencil means fill
 - **Screens:** Sell form
 - **Source:** Custom (Composed from ListRow with an outline)
 - **Phase:** First flows
+- **Status:** Built in Milestone 2 (`components/ui/picker-row.tsx`)
 
 ### PriceBreakdown
 

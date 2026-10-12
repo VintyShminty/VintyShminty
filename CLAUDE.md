@@ -11,7 +11,7 @@ pnpm workspace (pnpm 11, Node 22 via `.nvmrc`), TypeScript 6 everywhere.
 - `packages/db`: Drizzle ORM with postgres-js. Migrations in `packages/db/drizzle`.
 - `packages/shared`: Zod schemas and types shared by app and server.
 
-The data model is designed (Milestone 0, `docs/blueprint/`). Milestone 1 added Better Auth (email and password, username, 6 digit email codes, sessions), profile, settings, avatar uploads, Face ID unlock and the Hebrew and English switch.
+The data model is designed (Milestone 0, `docs/blueprint/`). Milestone 1 added Better Auth (email and password, username, 6 digit email codes, sessions), profile, settings, avatar uploads, Face ID unlock and the Hebrew and English switch. Milestone 2 added selling: the sell form with category panels and pickers, photo uploads, drafts, own listings and the selling API.
 
 Not added yet (they need decisions or credentials): payments, Socket.IO, Cloudflare R2 (MinIO stands in for it), a real email provider (Mailpit catches mail in development), push notifications, Google and Apple sign in (prepared, off until credentials exist).
 
@@ -65,6 +65,10 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 - Server env vars are in `apps/server/.env.example`. Google sign in needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, Apple sign in needs `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` and `APPLE_APP_BUNDLE_IDENTIFIER`. Each provider switches on when its values are set. In production `BETTER_AUTH_SECRET` must be a real secret.
 - The app finds the server through `EXPO_PUBLIC_API_URL` (default `http://localhost:3000`, right for the iOS Simulator). On a real phone put your Mac's address in `apps/mobile/.env`.
 - Face ID is a phone setting kept in secure storage (`lib/lock-store.ts`), locking after 5 minutes away (`LOCK_AFTER_MS`). Expo Go on iOS cannot show Face ID (no usage description), so in development inside Expo Go the app asks with a plain Match or Do not match dialog. Real Face ID and real right to left need a development build (`npx expo run:ios`, needs CocoaPods).
+- Selling rules (required rows per category, price, photos) live once in `packages/shared/src/listing-rules.ts` and run in the app and on the server. The sell form keeps its values in a small Zustand store (`lib/sell-store.ts`) because they move between the form, the category panels and the pickers.
+- The sell form is a native full-screen modal, which sits above the app's sheet host, so `app/(app)/sell-form/_layout.tsx` has its own `BottomSheetModalProvider`. Any other full-screen modal with sheets needs the same.
+- Server tests that touch the database run only with `DATABASE_URL` set: `DATABASE_URL=postgres://vinty:vinty@localhost:5432/vintyshminty pnpm test` after `pnpm db:reset`.
+- To test the sell form in the Simulator, add photos to its library: `xcrun simctl addmedia booted packages/db/seed-assets/01-dress.jpg`.
 - The shared package imports its own files as `./x.js`. Metro cannot do that, so `apps/mobile/metro.config.js` retries without the extension for files in `packages/`.
 
 ## Rules
