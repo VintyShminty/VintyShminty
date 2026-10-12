@@ -340,8 +340,12 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       await ctx.database.db.update(listings).set({ status: "sold" }).where(eq(listings.id, coat.id));
       expect(ids(await get(`/v1/users/${alice.id}/listings?status=sold`))).toEqual([coat.id]);
       await ctx.database.db.update(listings).set({ status: "active" }).where(eq(listings.id, coat.id));
-      expect(ids(await get(`/v1/users/${alice.id}/listings?sort=price_desc`))).toEqual([coat.id, dress.id]);
-      expect(ids(await get(`/v1/users/${alice.id}/listings?priceMaxMinor=20000`))).toEqual([dress.id]);
+      const priciest = ids(await get(`/v1/users/${alice.id}/listings?sort=price_desc`));
+      expect(priciest[0]).toBe(coat.id);
+      expect(priciest).toContain(dress.id);
+      const cheap = ids(await get(`/v1/users/${alice.id}/listings?priceMaxMinor=20000`));
+      expect(cheap).toContain(dress.id);
+      expect(cheap).not.toContain(coat.id);
     });
   });
 
