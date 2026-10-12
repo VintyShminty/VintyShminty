@@ -50,8 +50,8 @@ function Sheet({ ref, title, children, action, snapPoints = ["88%"], ...props }:
       android_keyboardInputMode="adjustResize"
       handleIndicatorStyle={{ backgroundColor: colors.border, width: 40 }}
       backgroundStyle={{
+        // Fully opaque: without the blur the design pairs with 96%, rows behind the sheet would show through.
         backgroundColor: colors.window,
-        opacity: opacity.window,
         borderTopLeftRadius: radii.window,
         borderTopRightRadius: radii.window,
         borderWidth: 1,

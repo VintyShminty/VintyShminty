@@ -114,6 +114,15 @@ export default function SellForm() {
     }
   }, [id, existing.data, start]);
 
+  // A new listing starts with the first parcel size (Small), tagged Recommended (spec, Shipping).
+  const firstParcel = reference.data?.parcelSizes[0]?.id;
+  useEffect(() => {
+    if (id || !firstParcel) return;
+    useSellStore.setState((s) =>
+      s.values.parcelSizeId ? s : { values: { ...s.values, parcelSizeId: firstParcel } },
+    );
+  }, [id, firstParcel]);
+
   const brandRef = useRef<BottomSheetModal>(null);
   const sizeRef = useRef<BottomSheetModal>(null);
   const conditionRef = useRef<BottomSheetModal>(null);
@@ -200,10 +209,12 @@ export default function SellForm() {
         publish,
       });
       useSellStore.setState({ dirty: false });
-      if (publish || editingLive) {
+      if (publish) {
+        // Close the form and land on the new listing's own page.
         router.dismissAll();
         router.push({ pathname: "/listing/[id]", params: { id: saved.id } });
       } else {
+        // A saved draft or an edit: back to where the form was opened (the listing page shows the change).
         router.back();
       }
       return true;
@@ -340,6 +351,7 @@ export default function SellForm() {
             prefix="₪"
             placeholder="0"
             keyboardType="decimal-pad"
+            selectTextOnFocus
             value={values.priceText}
             onChangeText={(priceText) => {
               set({ priceText: priceText.replace(/[^\d.,]/g, "") });
@@ -372,7 +384,9 @@ export default function SellForm() {
         className="gap-sm border-t border-border-subtle bg-background px-lg pt-md"
         style={{ paddingBottom: insets.bottom + 8 }}
       >
-        {banner ? <Banner variant="error">{banner}</Banner> : null}
+        {banner && (banner !== t("sell.checkFields") || Object.keys(errors).length > 0) ? (
+          <Banner variant="error">{banner}</Banner>
+        ) : null}
         {editingLive ? (
           <Button size="lg" loading={save.isPending} onPress={() => void submit(false)}>
             <Text>{t("sell.saveChanges")}</Text>

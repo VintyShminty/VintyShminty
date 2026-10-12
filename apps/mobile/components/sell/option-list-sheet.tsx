@@ -3,7 +3,6 @@ import { type ReactNode, type Ref, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Radio } from "@/components/ui/radio";
 import { Sheet } from "@/components/ui/sheet";
@@ -72,23 +71,31 @@ function OptionListSheet({
       title={title}
       onDismiss={() => setDraft(selected)}
       action={
-        clearable && (mode === "single" ? selected.length > 0 : draft.length > 0)
+        mode === "multi"
           ? {
-              label: t("sell.clear"),
+              label: t("common.done"),
               onPress: () => {
-                onChange([]);
-                setDraft([]);
+                onChange(draft);
                 close();
               },
             }
-          : undefined
+          : clearable && selected.length > 0
+            ? {
+                label: t("sell.clear"),
+                onPress: () => {
+                  onChange([]);
+                  setDraft([]);
+                  close();
+                },
+              }
+            : undefined
       }
     >
       <BottomSheetFlatList
         data={options}
         keyExtractor={(o: Option) => o.id}
         ListHeaderComponent={header ? <View className="px-lg pb-sm">{header}</View> : null}
-        contentContainerStyle={{ paddingBottom: mode === "multi" ? 96 : insets.bottom + 24 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
         renderItem={({ item }: { item: Option }) => {
           const on = draft.includes(item.id);
           const disabled = mode === "multi" && full && !on;
@@ -129,22 +136,6 @@ function OptionListSheet({
           );
         }}
       />
-      {mode === "multi" ? (
-        <View
-          className="absolute inset-x-0 bottom-0 border-t border-border-subtle bg-background px-lg pt-md"
-          style={{ paddingBottom: insets.bottom + 12 }}
-        >
-          <Button
-            size="lg"
-            onPress={() => {
-              onChange(draft);
-              close();
-            }}
-          >
-            <Text>{t("common.done")}</Text>
-          </Button>
-        </View>
-      ) : null}
     </Sheet>
   );
 }

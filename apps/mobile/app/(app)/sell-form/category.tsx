@@ -145,6 +145,7 @@ export default function CategoryPanel() {
               placeholderTextColor={colors.text4}
               selectionColor={colors.accent}
               autoCorrect={false}
+              autoCapitalize="none"
               returnKeyType="search"
               accessibilityLabel={t("sell.findCategory")}
               className="flex-1 font-aileron-400 text-body text-text-1 rtl:font-heebo-400"
