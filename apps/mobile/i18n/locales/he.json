@@ -334,5 +334,10 @@
     "yearsAgo_one": "לפני שנה",
     "yearsAgo_two": "לפני שנתיים",
     "yearsAgo_other": "לפני {{count}} שנים"
+  },
+  "dev": {
+    "fakeBiometricBody": "Expo Go לא יכול להציג את מסך Face ID האמיתי, אז זו הדמיה. ב-development build מופיע המסך האמיתי.",
+    "fakeBiometricFail": "לא תואם",
+    "fakeBiometricPass": "תואם"
   }
 }

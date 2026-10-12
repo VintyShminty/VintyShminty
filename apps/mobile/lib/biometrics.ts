@@ -1,5 +1,8 @@
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useEffect, useState } from "react";
+import { Alert, Platform } from "react-native";
+import i18n from "@/i18n";
 
 export type BiometricKind = "faceId" | "touchId" | "generic";
 
@@ -38,8 +41,30 @@ export function useBiometricSupport(): BiometricSupport | null {
 
 export type BiometricResult = { success: boolean; error?: string };
 
+/**
+ * Expo Go on iOS cannot show the real Face ID sheet (Apple needs a usage description in the app itself, and Expo Go
+ * has none). In development inside Expo Go we ask with a plain dialog instead, so the whole flow can still be tried.
+ * A development build or the App Store build uses the real thing.
+ */
+const isExpoGoOnIos =
+  __DEV__ && Platform.OS === "ios" && Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+function simulatedPrompt(promptMessage: string): Promise<BiometricResult> {
+  return new Promise((resolve) => {
+    Alert.alert(promptMessage, i18n.t("dev.fakeBiometricBody"), [
+      {
+        text: i18n.t("dev.fakeBiometricFail"),
+        style: "cancel",
+        onPress: () => resolve({ success: false, error: "simulated" }),
+      },
+      { text: i18n.t("dev.fakeBiometricPass"), onPress: () => resolve({ success: true }) },
+    ]);
+  });
+}
+
 /** Shows the system Face ID sheet. The password fallback is our own button, so the system one is turned off. */
 export async function promptBiometric(promptMessage: string, cancelLabel: string): Promise<BiometricResult> {
+  if (isExpoGoOnIos) return simulatedPrompt(promptMessage);
   try {
     const result = await LocalAuthentication.authenticateAsync({
       promptMessage,

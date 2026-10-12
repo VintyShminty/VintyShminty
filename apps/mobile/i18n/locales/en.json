@@ -328,5 +328,10 @@
     "monthsAgo_other": "{{count}} months ago",
     "yearsAgo_one": "{{count}} year ago",
     "yearsAgo_other": "{{count}} years ago"
+  },
+  "dev": {
+    "fakeBiometricBody": "Expo Go cannot show the real Face ID sheet, so this pretends. A development build shows the real one.",
+    "fakeBiometricFail": "Do not match",
+    "fakeBiometricPass": "Match"
   }
 }

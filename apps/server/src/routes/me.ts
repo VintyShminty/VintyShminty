@@ -39,7 +39,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { ApiError } from "../lib/errors.js";
 import { loadMe } from "../lib/profiles.js";
-import { keyBelongsToUser } from "../lib/storage.js";
+import { keyBelongsToUser, MAX_UPLOAD_BYTES } from "../lib/storage.js";
 
 const DELETED_NAME = "Deleted member";
 
@@ -86,6 +86,16 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
         throw ApiError.invalid("That photo was not uploaded by you", {
           avatarKey: "validation.avatar.invalid",
         });
+      }
+
+      if (input.avatarKey) {
+        const size = await app.storage.size(input.avatarKey);
+        if (size === null)
+          throw ApiError.invalid("That photo was not uploaded", { avatarKey: "validation.avatar.invalid" });
+        if (size > MAX_UPLOAD_BYTES.avatar) {
+          void app.storage.remove(input.avatarKey).catch(() => {});
+          throw ApiError.invalid("That photo is too big", { avatarKey: "validation.upload.tooBig" });
+        }
       }
 
       const userChanges: Partial<typeof users.$inferInsert> = {};

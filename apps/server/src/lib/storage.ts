@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "../env.js";
 
@@ -37,6 +37,8 @@ export interface Storage {
   }): Promise<PresignedUpload>;
   /** Address the app loads a stored file from. */
   publicUrl(key: string): string;
+  /** Size in bytes of a stored file, or null when it is not there. */
+  size(key: string): Promise<number | null>;
   /** Best effort. A failure is logged by the caller, never shown to the user. */
   remove(key: string): Promise<void>;
 }
@@ -66,18 +68,18 @@ export function createStorage(env: Env): Storage {
   const expiresInSeconds = 300;
 
   return {
-    async presignUpload({ userId, purpose, contentType, byteSize }) {
+    async presignUpload({ userId, purpose, contentType }) {
       const key = `${FOLDER[purpose]}/${userId}/${randomUUID()}.${EXTENSION[contentType] ?? "jpg"}`;
       const command = new PutObjectCommand({
         Bucket: env.S3_BUCKET,
         Key: key,
         ContentType: contentType,
-        ContentLength: byteSize,
       });
       const uploadUrl = await getSignedUrl(client, command, {
         expiresIn: expiresInSeconds,
-        // Content-Type and Content-Length are signed, so the app must send exactly these.
-        signableHeaders: new Set(["content-type", "content-length"]),
+        // Only the content type is signed. Phones upload without a Content-Length (streamed), so the size
+        // limit is checked afterwards with size() when the key is saved.
+        signableHeaders: new Set(["content-type"]),
       });
       return {
         key,
@@ -87,6 +89,14 @@ export function createStorage(env: Env): Storage {
       };
     },
     publicUrl: (key) => `${base}/${key}`,
+    async size(key) {
+      try {
+        const head = await client.send(new HeadObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
+        return head.ContentLength ?? null;
+      } catch {
+        return null;
+      }
+    },
     async remove(key) {
       await client.send(new DeleteObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
     },

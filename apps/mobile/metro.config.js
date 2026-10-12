@@ -11,7 +11,11 @@ const withStyles = withNativeWind(config, { input: "./global.css", inlineRem: 16
 const resolveRequest = withStyles.resolver.resolveRequest;
 withStyles.resolver.resolveRequest = (context, moduleName, platform) => {
   const resolve = resolveRequest ?? context.resolveRequest;
-  if (moduleName.startsWith(".") && moduleName.endsWith(".js") && context.originModulePath.includes("/packages/")) {
+  if (
+    moduleName.startsWith(".") &&
+    moduleName.endsWith(".js") &&
+    context.originModulePath.includes("/packages/")
+  ) {
     try {
       return resolve(context, moduleName.slice(0, -3), platform);
     } catch {

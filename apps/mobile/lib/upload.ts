@@ -1,4 +1,5 @@
 import { type UploadResponse, uploadResponseSchema } from "@vinty/shared";
+import * as FileSystem from "expo-file-system/legacy";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { api } from "@/lib/api";
@@ -29,19 +30,27 @@ export async function uploadAvatar(uri: string): Promise<UploadResponse> {
     compress: 0.8,
     format: ImageManipulator.SaveFormat.JPEG,
   });
-  const blob = await (await fetch(small.uri)).blob();
+  const info = await FileSystem.getInfoAsync(small.uri);
+  const byteSize = info.exists ? info.size : 0;
   const upload = await api<UploadResponse>("/v1/uploads", {
     method: "POST",
     body: {
       purpose: "avatar",
       contentType: "image/jpeg",
-      byteSize: blob.size,
+      byteSize,
       width: small.width,
       height: small.height,
     },
     schema: uploadResponseSchema,
   });
-  const put = await fetch(upload.uploadUrl, { method: "PUT", headers: upload.headers, body: blob });
-  if (!put.ok) throw new Error(`Upload failed (${put.status})`);
+  // A native upload streams the file with the right headers. (fetch with a Blob body signs differently.)
+  const put = await FileSystem.uploadAsync(upload.uploadUrl, small.uri, {
+    httpMethod: "PUT",
+    headers: upload.headers,
+    uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+  });
+  if (put.status < 200 || put.status >= 300) {
+    throw new Error(`Upload failed (${put.status}) ${__DEV__ ? put.body : ""}`.trim());
+  }
   return upload;
 }

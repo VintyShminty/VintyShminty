@@ -4,7 +4,7 @@ import { BIO_MAX, type EditProfileForm, editProfileFormSchema } from "@vinty/sha
 import { useRouter } from "expo-router";
 import { Camera, Globe } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
 import { FormInput } from "@/components/form-input";
@@ -40,7 +40,6 @@ export default function EditProfile() {
   useEffect(() => {
     if (me) reset({ name: me.name, bio: me.profile.bio ?? "", city: me.profile.city ?? "" });
   }, [me, reset]);
-  const bio = useWatch({ control, name: "bio" }) ?? "";
 
   if (!me) {
     return (
@@ -66,7 +65,8 @@ export default function EditProfile() {
     try {
       const upload = await uploadAvatar(picked.uri);
       setPhoto({ uri: picked.uri, key: upload.key });
-    } catch {
+    } catch (err) {
+      if (__DEV__) console.warn("Avatar upload failed:", err);
       setBanner(t("editProfile.uploadFailed"));
     } finally {
       setUploading(false);
@@ -150,7 +150,7 @@ export default function EditProfile() {
             placeholder={t("fields.aboutPlaceholder")}
             multiline
             maxLength={BIO_MAX}
-            footerEnd={`${bio.length}/${BIO_MAX}`}
+            showCount
           />
           <FormInput
             control={control}

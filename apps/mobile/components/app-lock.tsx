@@ -54,7 +54,7 @@ function AppLock({ kind, onUsePassword }: { kind: BiometricKind; onUsePassword: 
       style={{ paddingTop: insets.top + 96, paddingBottom: insets.bottom + 24 }}
       accessibilityViewIsModal
     >
-      <Text weight={800} className="text-primary" style={{ fontSize: 28, letterSpacing: -1 }}>
+      <Text weight={800} className="text-primary" style={{ fontSize: 28, lineHeight: 34, letterSpacing: -1 }}>
         Vinty
       </Text>
       <View className="mt-2xl h-20 w-20 items-center justify-center rounded-full bg-accent-tint">

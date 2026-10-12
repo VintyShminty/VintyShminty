@@ -29,6 +29,9 @@ export const fakeStorage: Storage = {
     };
   },
   publicUrl: (key) => `http://storage.test/${key}`,
+  async size() {
+    return 2048;
+  },
   async remove() {},
 };
 

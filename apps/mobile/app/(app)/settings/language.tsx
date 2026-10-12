@@ -43,7 +43,7 @@ export default function Language() {
             <View
               className={`min-h-[58px] flex-row items-center gap-md px-lg ${index < SUPPORTED_LANGUAGES.length - 1 ? "border-b border-border-subtle" : ""}`}
             >
-              <Text weight={500} className="flex-1 py-md">
+              <Text weight={500} font={language === "he" ? "heebo" : "aileron"} className="flex-1 py-md">
                 {t(`languages.${language}`)}
               </Text>
               {selected ? <Icon as={Check} size={20} className="text-primary" /> : null}
