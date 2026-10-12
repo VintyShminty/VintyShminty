@@ -3,44 +3,60 @@ import "@/i18n";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Tabs } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import type { LucideIcon } from "lucide-react-native";
-import { House, LayoutGrid, MessageCircle, PlusCircle, User } from "lucide-react-native";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import type { ColorValue } from "react-native";
+import { AppState } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AppLock } from "@/components/app-lock";
+import { authClient } from "@/lib/auth-client";
+import { useBiometricSupport } from "@/lib/biometrics";
 import { useAppFonts } from "@/lib/fonts";
+import { useIsLocked, useLockStore } from "@/lib/lock-store";
 import { queryClient } from "@/lib/query-client";
 import { ensureLayoutDirection } from "@/lib/rtl";
 import { colors } from "@/theme";
 
 void SplashScreen.preventAutoHideAsync();
 
-function tabIcon(Icon: LucideIcon) {
-  return ({ color, size }: { color: ColorValue; size: number }) => (
-    <Icon color={color as string} size={size} strokeWidth={1.75} />
-  );
-}
-
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useAppFonts();
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
+  const { data: session, isPending } = authClient.useSession();
+  const userId = session?.user.id;
+  const signedIn = Boolean(session);
+  const locked = useIsLocked(userId);
+  const support = useBiometricSupport();
 
   useEffect(() => {
     ensureLayoutDirection(i18n.language);
   }, [i18n.language]);
 
+  // Keep the splash screen up until the fonts are ready and we know whether someone is logged in,
+  // so the first thing on screen is the right screen.
+  const ready = (fontsLoaded || Boolean(fontError)) && !isPending;
   useEffect(() => {
-    if (fontsLoaded || fontError) void SplashScreen.hideAsync();
-  }, [fontsLoaded, fontError]);
+    if (ready) void SplashScreen.hideAsync();
+  }, [ready]);
 
-  if (!fontsLoaded && !fontError) return null;
+  // Coming back after a while asks for Face ID again.
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "background") useLockStore.getState().noteBackground();
+      else if (state === "active") useLockStore.getState().noteForeground(userId);
+    });
+    return () => sub.remove();
+  }, [userId]);
 
-  const labelFamily = i18n.language === "he" ? "Heebo-600" : "Aileron-600";
+  if (!ready) return null;
+
+  const usePassword = async () => {
+    await authClient.signOut();
+    queryClient.clear();
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -48,38 +64,19 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <BottomSheetModalProvider>
             <StatusBar style="dark" />
-            <Tabs
-              screenOptions={{
-                headerShown: false,
-                tabBarActiveTintColor: colors.accent,
-                tabBarInactiveTintColor: colors.text3,
-                tabBarStyle: {
-                  backgroundColor: colors.background,
-                  borderTopColor: colors.borderSubtle,
-                  borderTopWidth: 1,
-                },
-                tabBarLabelStyle: {
-                  fontFamily: labelFamily,
-                  fontSize: 10,
-                  letterSpacing: 1,
-                  textTransform: "uppercase",
-                },
-                sceneStyle: { backgroundColor: colors.background },
-              }}
+            <Stack
+              screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
             >
-              <Tabs.Screen name="index" options={{ title: t("tabs.home"), tabBarIcon: tabIcon(House) }} />
-              <Tabs.Screen
-                name="browse"
-                options={{ title: t("tabs.browse"), tabBarIcon: tabIcon(LayoutGrid) }}
-              />
-              <Tabs.Screen name="sell" options={{ title: t("tabs.sell"), tabBarIcon: tabIcon(PlusCircle) }} />
-              <Tabs.Screen
-                name="inbox"
-                options={{ title: t("tabs.inbox"), tabBarIcon: tabIcon(MessageCircle) }}
-              />
-              <Tabs.Screen name="profile" options={{ title: t("tabs.profile"), tabBarIcon: tabIcon(User) }} />
-              <Tabs.Screen name="(dev)/gallery" options={{ href: null }} />
-            </Tabs>
+              <Stack.Protected guard={!signedIn}>
+                <Stack.Screen name="(auth)" />
+              </Stack.Protected>
+              <Stack.Protected guard={signedIn}>
+                <Stack.Screen name="(app)" />
+              </Stack.Protected>
+            </Stack>
+            {signedIn && locked ? (
+              <AppLock kind={support?.kind ?? "generic"} onUsePassword={usePassword} />
+            ) : null}
             <PortalHost />
           </BottomSheetModalProvider>
         </QueryClientProvider>

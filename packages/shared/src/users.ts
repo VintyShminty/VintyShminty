@@ -64,7 +64,7 @@ export const updateProfileInputSchema = z
   .object({
     username: usernameSchema,
     /** Display name. */
-    name: z.string().trim().min(1, "validation.name.tooLong").max(NAME_MAX, "validation.name.tooLong"),
+    name: z.string().trim().min(1, "validation.name.required").max(NAME_MAX, "validation.name.tooLong"),
     bio: z.string().trim().max(BIO_MAX, "validation.bio.tooLong").nullable(),
     city: z.string().trim().max(CITY_MAX, "validation.city.tooLong").nullable(),
     countryCode: z.string().length(2),

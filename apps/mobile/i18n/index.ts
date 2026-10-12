@@ -1,6 +1,7 @@
 import { getLocales } from "expo-localization";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { readPref } from "@/lib/secure-prefs";
 import en from "./locales/en.json";
 import he from "./locales/he.json";
 
@@ -11,10 +12,17 @@ export function isRtlLanguage(language: string) {
   return language === "he";
 }
 
-/** The device language if we support it, otherwise English. */
+export const LANGUAGE_PREF_KEY = "vinty.language";
+
+const isSupported = (code: string | null | undefined): code is Language =>
+  (SUPPORTED_LANGUAGES as readonly string[]).includes(code ?? "");
+
+/** The language the person picked in the app, else the device language if we support it, else English. */
 export function detectLanguage(): Language {
-  const code = getLocales()[0]?.languageCode ?? "en";
-  return (SUPPORTED_LANGUAGES as readonly string[]).includes(code) ? (code as Language) : "en";
+  const picked = readPref(LANGUAGE_PREF_KEY);
+  if (isSupported(picked)) return picked;
+  const code = getLocales()[0]?.languageCode;
+  return isSupported(code) ? code : "en";
 }
 
 void i18n.use(initReactI18next).init({

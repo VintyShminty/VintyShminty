@@ -20,6 +20,7 @@ export const VALIDATION_MESSAGES = [
   "validation.password.mismatch",
   "validation.password.same",
   "validation.code.invalid",
+  "validation.name.required",
   "validation.name.tooLong",
   "validation.bio.tooLong",
   "validation.city.tooLong",
@@ -103,6 +104,17 @@ export const changePasswordFormSchema = z
     message: "validation.password.same",
   });
 export type ChangePasswordForm = z.infer<typeof changePasswordFormSchema>;
+
+/** The Edit profile form. Empty text boxes are sent to the server as null. */
+export const editProfileFormSchema = z.object({
+  name: z.string().trim().min(1, "validation.name.required").max(NAME_MAX, "validation.name.tooLong"),
+  bio: z.string().trim().max(BIO_MAX, "validation.bio.tooLong"),
+  city: z.string().trim().max(CITY_MAX, "validation.city.tooLong"),
+});
+export type EditProfileForm = z.infer<typeof editProfileFormSchema>;
+
+export const changeUsernameFormSchema = z.object({ username: usernameSchema });
+export type ChangeUsernameForm = z.infer<typeof changeUsernameFormSchema>;
 
 export const verifyCodeInputSchema = z.object({ otp: otpSchema });
 
