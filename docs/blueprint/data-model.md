@@ -826,7 +826,7 @@ Used by: Server rules, the app reads a few (offer limit) from `GET /v1/reference
 | `description` | text | yes |  |
 | `updated_at` | timestamptz | no | default now() |
 
-Seeded keys: `default_currency`, `offer_daily_limit` (10), `offer_expiry_hours` (48), `accepted_offer_hold_hours` (24), `checkout_hold_minutes` (30), `ship_by_days` (5), `auto_complete_hours_after_delivery` (48), `auto_review_rating` (5), `listing_max_photos` (20), `listing_min_price_minor`, `referral_reward_minor`, `referral_min_order_minor`, `bundle_min_items`, `single_market`.
+Seeded keys: `default_currency`, `offer_daily_limit` (15), `offer_expiry_hours` (48), `accepted_offer_hold_hours` (24), `checkout_hold_minutes` (30), `ship_by_days` (5), `auto_complete_hours_after_delivery` (48), `auto_review_rating` (5), `listing_max_photos` (20), `listing_min_price_minor`, `referral_reward_minor`, `referral_min_order_minor`, `bundle_min_items`, `single_market`.
 ## Listings
 
 A listing is one item for sale. There is only ever one of each item, so there is no stock count.
@@ -1249,7 +1249,7 @@ stateDiagram-v2
     accepted --> [*] : order created
 ```
 
-A counter offer is a **new** offer row whose `parent_offer_id` points at the one it answers, and the parent becomes `countered`. So a negotiation is a chain of rows and the thread shows each as a bubble with the old price struck through. Only one offer per conversation can be `pending` (a partial unique index). The accepted amount becomes the item price of the order. The daily limit (10 offers in a rolling 24 hours per buyer, `offer_daily_limit`) is counted from `offers` by `(buyer_id, created_at)`.
+A counter offer is a **new** offer row whose `parent_offer_id` points at the one it answers, and the parent becomes `countered`. So a negotiation is a chain of rows and the thread shows each as a bubble with the old price struck through. Only one offer per conversation can be `pending` (a partial unique index). The accepted amount becomes the item price of the order. The daily limit (15 offers in a rolling 24 hours per buyer, `offer_daily_limit`) is counted from `offers` by `(buyer_id, created_at)`.
 
 The transitions are implemented once, as pure functions, in `packages/shared/src/state-machines.ts` (`nextOfferStatus`, `canOfferTransition`).
 
@@ -1714,6 +1714,15 @@ Measured on the sample data scaled to 23,900 listings: the 20 newest active Wome
 Rule from CLAUDE.md: any schema change (a table, a column, an index, an enum) updates this page in the same commit. The test `packages/db/src/schema.test.ts` checks that the table list stays in step with the schema, and the section "Entity list" above must list every table.
 
 ## Open decisions
+
+### Decided 2026-10-12 (Eden)
+
+- **Market:** Israel and ILS only (`single_market = true`). Item 1 below is closed.
+- **Buyer protection fee:** 5 percent of the item price, no fixed part, a general placeholder to revisit. Item 2 is closed.
+- **Referral reward:** 50 shekels each, kept for now. Item 3 is closed.
+- **Hebrew search quality:** deferred, not part of the current milestones. Item 4 stays open for later.
+- **Offer and order timings:** offers expire after 48 hours, accepted offer hold 24 hours, checkout hold 30 minutes, 5 days to ship, auto complete 48 hours after delivery, and **15 offers per buyer per day**. Items 9 and 10 are closed except the offer presets.
+
 
 These need an answer from Eden before or during the milestone named. Each has a default that the schema already assumes.
 

@@ -1,16 +1,13 @@
 import type { Named } from "./types.js";
 
-/** Buyer protection fee. Spec: about 5% plus 0.70 EUR. The ILS fixed part is a placeholder, see Open decisions. */
-export const feeRuleSeed = [
-  { currency: "ILS", buyerFeeBasisPoints: 500, buyerFeeFixedMinor: 250 },
-  { currency: "EUR", buyerFeeBasisPoints: 500, buyerFeeFixedMinor: 70 },
-];
+/** Buyer protection fee. Decided 2026-10-12: 5% of the item price, no fixed part (general placeholder, to be revisited). ILS only. */
+export const feeRuleSeed = [{ currency: "ILS", buyerFeeBasisPoints: 500, buyerFeeFixedMinor: 0 }];
 
 export const platformSettingSeed: { key: string; value: unknown; description: string }[] = [
   { key: "default_currency", value: "ILS", description: "Currency used when a user has not picked one" },
   {
     key: "offer_daily_limit",
-    value: 10,
+    value: 15,
     description: "How many offers one buyer may send per rolling 24 hours",
   },
   { key: "offer_expiry_hours", value: 48, description: "Hours before an unanswered offer expires" },
@@ -55,7 +52,7 @@ export const platformSettingSeed: { key: string; value: unknown; description: st
   {
     key: "single_market",
     value: true,
-    description: "True while only ILS and Israel are supported (open decision O-ILS)",
+    description: "True: Israel and ILS only (decided 2026-10-12)",
   },
 ];
 

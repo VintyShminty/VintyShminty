@@ -27,6 +27,7 @@ apps/mobile/tests/          Vitest, includes the hard-coded colour guard
 apps/server/src/            env.ts, app.ts, plugins/, routes/, lib/
 docs/design.md              Design source of truth and decision log (D-001 onward)
 docs/components.md          Component inventory
+docs/roadmap.md                Milestones, scope and status (source of truth, update when a milestone starts or ships)
 docs/blueprint/data-model.md   Every table, state machine and open decision (Milestone 0 blueprint)
 docs/blueprint/api.md          The API contract by milestone, Socket.IO events, push types
 packages/db/src/schema/     Drizzle schema split by domain. packages/db/src/seed/ has the reference and sample seeds
@@ -56,6 +57,7 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 
 ## Rules
 
+- Update `docs/roadmap.md` status when a milestone starts or ships.
 - Schema changes (a table, column, index or enum) must update `docs/blueprint/data-model.md` in the same commit. A test fails if a table is missing from it. Enum value lists live in `packages/shared/src/enums.ts` and feed both the database and zod.
 - Money is an integer in minor units plus a currency code. The order and offer state machines are pure functions in `packages/shared/src/state-machines.ts`. Change them there, nowhere else.
 - Follow `docs/design.md`. Record every new design decision there in the same format as D-001 to D-010.

@@ -61,7 +61,7 @@ Status of the schemas: the ones for Milestones 1 and 2 already exist in the shar
 | Writes (create, update, delete) | 60 per minute |
 | Uploads (presign) | 30 per minute |
 | Messages | 60 per minute per user, and 20 per minute per conversation |
-| Offers | 10 per rolling 24 hours per buyer (a business rule from `platform_settings.offer_daily_limit`, not just a rate limit) |
+| Offers | 15 per rolling 24 hours per buyer (a business rule from `platform_settings.offer_daily_limit`, not just a rate limit) |
 | Reports | 10 per hour |
 
 ## Milestone 1: Accounts
