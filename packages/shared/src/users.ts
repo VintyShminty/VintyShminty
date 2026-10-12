@@ -1,12 +1,16 @@
 import { z } from "zod";
-import { idSchema, isoDateTimeSchema, localeSchema, pageSchema, photoSchema } from "./common.js";
+import { BIO_MAX, CITY_MAX, NAME_MAX, usernameSchema } from "./auth.js";
+import {
+  idSchema,
+  isoDateTimeSchema,
+  localeSchema,
+  localisedNameSchema,
+  pageSchema,
+  photoSchema,
+} from "./common.js";
 import { NOTIFICATION_CHANNELS, NOTIFICATION_TYPES } from "./enums.js";
 
-export const usernameSchema = z
-  .string()
-  .min(3)
-  .max(24)
-  .regex(/^[a-zA-Z0-9_.]+$/, "Letters, numbers, dots and underscores only");
+export { usernameSchema };
 
 /** Summary used on cards, rows and chat headers. */
 export const userSummarySchema = z.object({
@@ -20,6 +24,8 @@ export const userSummarySchema = z.object({
 export type UserSummary = z.infer<typeof userSummarySchema>;
 
 export const publicProfileSchema = userSummarySchema.extend({
+  /** Display name, shown under the username. */
+  name: z.string(),
   bio: z.string().nullable(),
   city: z.string().nullable(),
   countryCode: z.string().length(2),
@@ -32,7 +38,7 @@ export const publicProfileSchema = userSummarySchema.extend({
   automaticReview: z.object({ count: z.number().int(), average: z.number().nullable() }),
   emailVerified: z.boolean(),
   googleVerified: z.boolean(),
-  badges: z.array(z.object({ slug: z.string(), icon: z.string() })),
+  badges: z.array(z.object({ slug: z.string(), icon: z.string(), name: localisedNameSchema })),
   holidayMode: z.boolean(),
   /** Relation to the viewer. Absent when not signed in. */
   viewer: z.object({ isFollowing: z.boolean(), isBlocked: z.boolean() }).optional(),
@@ -57,10 +63,13 @@ export type Me = z.infer<typeof meSchema>;
 export const updateProfileInputSchema = z
   .object({
     username: usernameSchema,
-    bio: z.string().max(500).nullable(),
-    city: z.string().max(80).nullable(),
+    /** Display name. */
+    name: z.string().trim().min(1, "validation.name.tooLong").max(NAME_MAX, "validation.name.tooLong"),
+    bio: z.string().trim().max(BIO_MAX, "validation.bio.tooLong").nullable(),
+    city: z.string().trim().max(CITY_MAX, "validation.city.tooLong").nullable(),
     countryCode: z.string().length(2),
-    avatarKey: z.string().nullable(),
+    /** Key returned by POST /v1/uploads with purpose avatar. Null removes the photo. */
+    avatarKey: z.string().max(300).nullable(),
   })
   .partial();
 export type UpdateProfileInput = z.infer<typeof updateProfileInputSchema>;
