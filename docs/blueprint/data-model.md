@@ -23,7 +23,7 @@ Version 1 covers everything in the Vinted app spec except real payments and real
 | Accounts (Better Auth) | `users`, `sessions`, `accounts`, `verifications` |
 | People | `profiles`, `user_settings`, `notification_preferences`, `addresses`, `follows`, `blocks`, `user_sizes`, `user_brands`, `push_tokens`, `badge_definitions`, `user_badges`, `referrals`, `vouchers` |
 | Reference data | `currencies`, `categories`, `category_size_groups`, `size_groups`, `sizes`, `conditions`, `colours`, `materials`, `patterns`, `brands`, `brand_requests`, `parcel_sizes`, `fee_rules`, `bump_plans`, `platform_settings` |
-| Listings | `listings`, `listing_photos`, `listing_colours`, `listing_price_history`, `favourites`, `saved_searches`, `recent_searches`, `bundle_discount_tiers`, `bundles`, `bundle_items`, `bumps` |
+| Listings | `listings`, `listing_photos`, `listing_colours`, `listing_price_history`, `favourites`, `listing_views`, `saved_searches`, `recent_searches`, `bundle_discount_tiers`, `bundles`, `bundle_items`, `bumps` |
 | Messaging | `conversations`, `messages`, `offers` |
 | Orders | `orders`, `order_items`, `order_events`, `payments`, `shipments` |
 | Reviews | `reviews` |
@@ -1027,6 +1027,24 @@ Indexes:
 - `favourites_user_idx`: btree on (user_id, created_at DESC NULLS LAST)
 
 The Favourite items page keeps showing sold items, as in the spec, so deleting a sold listing's favourites is not done.
+
+### `listing_views`
+
+One row per viewer per listing per day. It exists so the item page can count a view once per viewer per day (added in Milestone 3).
+
+Used by: Item page (view count), own listing stats.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `listing_id` | uuid | no | refers to listings.id, on delete cascade |
+| `viewer_key` | text | no | `u:<user id>` for a signed in viewer, `a:<hash of the address>` for a visitor |
+| `day` | date | no | The UTC day of the view |
+
+Composite primary key: (listing_id, viewer_key, day). The server inserts with `on conflict do nothing` and adds 1 to `listings.view_count` only when a row was really inserted. The owner's own views are not counted.
+
+Indexes:
+
+- `listing_views_day_idx`: btree on (day), so old days can be pruned by a nightly job
 
 ### `saved_searches`
 
