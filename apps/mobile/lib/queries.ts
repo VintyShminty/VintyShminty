@@ -1,16 +1,29 @@
 import { infiniteQueryOptions, queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  type Brand,
+  brandSchema,
   type ListingCard,
+  type ListingDetail,
+  type ListingDraftInput,
   listingCardSchema,
+  listingDetailSchema,
   type Me,
+  type MyListingStatus,
+  type MyListingsPage,
   meSchema,
+  myListingsPageSchema,
   type NotificationType,
   notificationPreferenceSchema,
+  type PricePreview,
   type PublicProfile,
   pageSchema,
+  pricePreviewSchema,
   publicProfileSchema,
+  type ReferenceData,
   type ReviewsPage,
+  referenceDataSchema,
   reviewsPageSchema,
+  type UpdateListingStatusInput,
   type UpdateProfileInput,
   type UserSettings,
   userSettingsSchema,
@@ -142,4 +155,119 @@ export function isPreferenceEnabled(
   channel: "push" | "email",
 ) {
   return list?.find((p) => p.type === type && p.channel === channel)?.enabled ?? true;
+}
+
+// ---- Selling (Milestone 2) ----
+
+/** Categories, sizes, conditions and the rest. Changes rarely, so it stays fresh for an hour. */
+export const referenceQuery = () =>
+  queryOptions({
+    queryKey: ["reference"],
+    queryFn: () => api<ReferenceData>("/v1/reference", { schema: referenceDataSchema }),
+    staleTime: 60 * 60 * 1000,
+  });
+
+const brandsPage = pageSchema(brandSchema);
+export const brandsQuery = (q: string) =>
+  queryOptions({
+    queryKey: ["brands", q],
+    queryFn: () =>
+      api<{ items: Brand[]; nextCursor: string | null }>(`/v1/brands?limit=40&q=${encodeURIComponent(q)}`, {
+        schema: brandsPage,
+      }),
+    staleTime: 10 * 60 * 1000,
+  });
+
+export const pricePreviewQuery = (priceMinor: number) =>
+  queryOptions({
+    queryKey: ["price-preview", priceMinor],
+    queryFn: () =>
+      api<PricePreview>(`/v1/pricing/preview?priceMinor=${priceMinor}`, { schema: pricePreviewSchema }),
+    staleTime: 10 * 60 * 1000,
+  });
+
+export const myListingsQuery = (status: MyListingStatus) =>
+  infiniteQueryOptions({
+    queryKey: ["my-listings", status],
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      api<MyListingsPage>(
+        `/v1/me/listings?status=${status}&limit=20${pageParam ? `&cursor=${encodeURIComponent(pageParam)}` : ""}`,
+        { schema: myListingsPageSchema },
+      ),
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+
+export const ownListingQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["own-listing", id],
+    queryFn: () => api<ListingDetail>(`/v1/me/listings/${id}`, { schema: listingDetailSchema }),
+  });
+
+/** After any listing change: the own list, the item page and the profile numbers are refreshed. */
+function useRefreshListings() {
+  const queryClient = useQueryClient();
+  return (listing?: ListingDetail) => {
+    if (listing) queryClient.setQueryData(["own-listing", listing.id], listing);
+    void queryClient.invalidateQueries({ queryKey: ["my-listings"] });
+    void queryClient.invalidateQueries({ queryKey: ["listings"] });
+    void queryClient.invalidateQueries({ queryKey: ["profile"] });
+    void queryClient.invalidateQueries({ queryKey: ["me"] });
+  };
+}
+
+export function useSaveListing() {
+  const refresh = useRefreshListings();
+  return useMutation({
+    mutationFn: ({ id, input, publish }: { id?: string; input: ListingDraftInput; publish: boolean }) => {
+      if (!id) {
+        return api<ListingDetail>("/v1/listings", {
+          method: "POST",
+          body: { ...input, publish },
+          schema: listingDetailSchema,
+        });
+      }
+      return api<ListingDetail>(`/v1/listings/${id}`, {
+        method: "PATCH",
+        body: input,
+        schema: listingDetailSchema,
+      }).then((saved) =>
+        publish && saved.status === "draft"
+          ? api<ListingDetail>(`/v1/listings/${id}/publish`, { method: "POST", schema: listingDetailSchema })
+          : saved,
+      );
+    },
+    onSuccess: (listing) => refresh(listing),
+  });
+}
+
+export function useListingStatus() {
+  const refresh = useRefreshListings();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: UpdateListingStatusInput["status"] }) =>
+      api<ListingDetail>(`/v1/listings/${id}/status`, {
+        method: "PATCH",
+        body: { status },
+        schema: listingDetailSchema,
+      }),
+    onSuccess: (listing) => refresh(listing),
+  });
+}
+
+export function useDeleteListing() {
+  const queryClient = useQueryClient();
+  const refresh = useRefreshListings();
+  return useMutation({
+    mutationFn: (id: string) => api(`/v1/listings/${id}`, { method: "DELETE" }),
+    onSuccess: (_data, id) => {
+      queryClient.removeQueries({ queryKey: ["own-listing", id] });
+      refresh();
+    },
+  });
+}
+
+export function useRequestBrand() {
+  return useMutation({
+    mutationFn: (name: string) => api("/v1/brand-requests", { method: "POST", body: { name } }),
+  });
 }

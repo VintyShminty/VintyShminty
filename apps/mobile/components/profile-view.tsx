@@ -1,5 +1,12 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import type { ListingCard as ListingCardData, PublicProfile, ReviewItem, ReviewsPage } from "@vinty/shared";
+import type {
+  ListingCard as ListingCardData,
+  MyListingCard,
+  MyListingStatus,
+  PublicProfile,
+  ReviewItem,
+  ReviewsPage,
+} from "@vinty/shared";
 import { useRouter } from "expo-router";
 import {
   Award,
@@ -14,8 +21,9 @@ import {
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Pressable, View } from "react-native";
+import { FlatList, Pressable, ScrollView, View } from "react-native";
 import { ListingCard } from "@/components/listing-card";
+import { OwnListingCard } from "@/components/own-listing-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
@@ -28,7 +36,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import { Tabs } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
-import { profileQuery, userListingsQuery, userReviewsQuery } from "@/lib/queries";
+import { myListingsQuery, profileQuery, userListingsQuery, userReviewsQuery } from "@/lib/queries";
 import { formatDate, timeAgo } from "@/lib/time";
 
 // Lucide icon for each badge icon name in the database. Unknown names fall back to a medal.
@@ -42,6 +50,7 @@ const BADGE_ICONS: Record<string, LucideIcon> = {
 type TabKey = "listings" | "reviews" | "about";
 type Row =
   | { kind: "pair"; items: [ListingCardData, ListingCardData | undefined] }
+  | { kind: "ownPair"; items: [MyListingCard, MyListingCard | undefined] }
   | { kind: "review"; review: ReviewItem }
   | { kind: "reviewSummary"; summary: ReviewsPage["summary"] | null }
   | { kind: "about" }
@@ -274,14 +283,32 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const router = useRouter();
   const [tab, setTab] = useState<TabKey>("listings");
   const [status, setStatus] = useState<"active" | "sold">("active");
+  const [ownStatus, setOwnStatus] = useState<MyListingStatus>("active");
   const [source, setSource] = useState<"all" | "member" | "automatic">("all");
 
   const profileQ = useQuery(profileQuery(userId));
-  const listingsQ = useInfiniteQuery({ ...userListingsQuery(userId, status), enabled: tab === "listings" });
+  const listingsQ = useInfiniteQuery({
+    ...userListingsQuery(userId, status),
+    enabled: tab === "listings" && !isSelf,
+  });
+  // Your own page shows every state of your listings, with views and favourites (spec, Own profile).
+  const ownQ = useInfiniteQuery({ ...myListingsQuery(ownStatus), enabled: tab === "listings" && isSelf });
+  const ownCounts = ownQ.data?.pages[0]?.counts;
   const reviewsQ = useInfiniteQuery({ ...userReviewsQuery(userId, source), enabled: tab === "reviews" });
 
   const rows = useMemo<Row[]>(() => {
     if (tab === "about") return [{ kind: "about" }];
+    if (tab === "listings" && isSelf) {
+      if (ownQ.isError && !ownQ.data) return [{ kind: "error", message: t("errors.loadFailed") }];
+      if (!ownQ.data) return [{ kind: "loading" }];
+      const items = ownQ.data.pages.flatMap((p) => p.items);
+      if (items.length === 0) return [{ kind: "empty", message: t(`profile.ownEmpty.${ownStatus}`) }];
+      const pairs: Row[] = [];
+      for (let i = 0; i < items.length; i += 2) {
+        pairs.push({ kind: "ownPair", items: [items[i] as MyListingCard, items[i + 1]] });
+      }
+      return pairs;
+    }
     if (tab === "listings") {
       if (listingsQ.isError && !listingsQ.data) return [{ kind: "error", message: t("errors.loadFailed") }];
       if (!listingsQ.data) return [{ kind: "loading" }];
@@ -304,7 +331,19 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
       ? items.map((review) => ({ kind: "review" as const, review }))
       : [{ kind: "empty", message: t("profile.noReviews") }];
     return [{ kind: "reviewSummary", summary: reviewsQ.data.pages[0]?.summary ?? null }, ...body];
-  }, [tab, status, listingsQ.data, listingsQ.isError, reviewsQ.data, reviewsQ.isError, t]);
+  }, [
+    tab,
+    status,
+    isSelf,
+    ownStatus,
+    ownQ.data,
+    ownQ.isError,
+    listingsQ.data,
+    listingsQ.isError,
+    reviewsQ.data,
+    reviewsQ.isError,
+    t,
+  ]);
 
   if (profileQ.isPending) {
     return (
@@ -330,6 +369,8 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const profile = profileQ.data;
 
   const fetchMore = () => {
+    if (tab === "listings" && isSelf && ownQ.hasNextPage && !ownQ.isFetchingNextPage)
+      void ownQ.fetchNextPage();
     if (tab === "listings" && listingsQ.hasNextPage && !listingsQ.isFetchingNextPage)
       void listingsQ.fetchNextPage();
     if (tab === "reviews" && reviewsQ.hasNextPage && !reviewsQ.isFetchingNextPage)
@@ -357,7 +398,13 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
       />
       <FlatList
         data={rows}
-        keyExtractor={(row, index) => (row.kind === "review" ? row.review.id : `${row.kind}-${index}`)}
+        keyExtractor={(row, index) =>
+          row.kind === "review"
+            ? row.review.id
+            : row.kind === "ownPair"
+              ? `own-${row.items[0].id}`
+              : `${row.kind}-${index}`
+        }
         onEndReached={fetchMore}
         onEndReachedThreshold={0.6}
         showsVerticalScrollIndicator={false}
@@ -365,7 +412,24 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
         ListHeaderComponent={
           <View>
             <ProfileHeader profile={profile} isSelf={isSelf} tab={tab} onTab={setTab} />
-            {tab === "listings" ? (
+            {tab === "listings" && isSelf ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="gap-sm px-lg pt-lg"
+              >
+                {(["active", "draft", "reserved", "sold", "hidden"] as const).map((key) => (
+                  <Chip
+                    key={key}
+                    label={t(`profile.ownStatus.${key}`)}
+                    count={ownCounts?.[key]}
+                    selected={ownStatus === key}
+                    onPress={() => setOwnStatus(key)}
+                  />
+                ))}
+              </ScrollView>
+            ) : null}
+            {tab === "listings" && !isSelf ? (
               <View className="flex-row gap-sm px-lg pt-lg">
                 <Chip
                   label={t("profile.active")}
@@ -397,7 +461,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
           </View>
         }
         ListFooterComponent={
-          (tab === "listings" && listingsQ.isFetchingNextPage) ||
+          (tab === "listings" && (listingsQ.isFetchingNextPage || ownQ.isFetchingNextPage)) ||
           (tab === "reviews" && reviewsQ.isFetchingNextPage) ? (
             <Spinner />
           ) : null
@@ -409,6 +473,26 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
                 <View className="flex-row gap-md px-lg pt-lg">
                   <ListingCard listing={item.items[0]} />
                   {item.items[1] ? <ListingCard listing={item.items[1]} /> : <View className="flex-1" />}
+                </View>
+              );
+            case "ownPair":
+              return (
+                <View className="flex-row gap-md px-lg pt-lg">
+                  {item.items.map((listing, i) =>
+                    listing ? (
+                      <OwnListingCard
+                        key={listing.id}
+                        listing={listing}
+                        onPress={() =>
+                          listing.status === "draft"
+                            ? router.push({ pathname: "/sell-form", params: { id: listing.id } })
+                            : router.push({ pathname: "/listing/[id]", params: { id: listing.id } })
+                        }
+                      />
+                    ) : (
+                      <View key={`empty-${i}`} className="flex-1" />
+                    ),
+                  )}
                 </View>
               );
             case "review":
