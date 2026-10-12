@@ -11,6 +11,8 @@ Authority order for design work:
 4. Design handoffs and mockups (references, not rules).
 5. Current implementation details.
 
+Where nothing here is decided, follow the product spec (the Vinted UX deconstruction, which `docs/components.md` maps to our components).
+
 ## Principles
 
 - Make the user's next useful action visible before supporting tools or detail.
@@ -86,9 +88,9 @@ All pairs pass. Faint text on the raised surface (4.83:1) is the tightest, so do
 
 ## Typography
 
-Base design language. The typeface is Aileron (D-003), self-hosted.
+Base design language. The typeface is Aileron (D-003), self-hosted. Hebrew uses Heebo, paired with Aileron (D-011).
 
-- One family for UI, self-hosted, every weight used actually loaded (no browser-faked weights).
+- One family for UI, self-hosted, every weight used actually loaded (no browser-faked weights). Aileron for Latin letters and numbers, Heebo for Hebrew (D-011).
 - Signature: light display weight against heavy emphasis. Light weights (200-300) are for large headings only, never small text (D-005).
 
 | Element | Size | Weight | Notes |
@@ -155,7 +157,11 @@ Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), n
 
 **Bottom tab bar.** The default navigation (D-009). Five tabs: Home, Browse, Sell, Inbox, Profile. Solid background (no transparency, prevents bleed-through), hairline top border, sits above the home indicator (safe area). Labels uppercase, tracked, 10px, with an icon above. Active tab: accent icon and label (icon drawn with the text colour, never emoji). Inbox unread count as a small pill on the icon. It stays visible, with Browse active, while category panels push in.
 
-**Browse and category panels (D-009).** The Browse tab is a 2 column grid of main category tiles under the search bar. Tiles are light tinted (accent-tint), 12px radius, label top-left in bold, and a picture bottom-right (a Lucide line icon for now, illustration style to decide). Tapping a tile opens a full-screen panel that slides in from the trailing edge and pushes the current screen aside (see Motion). The panel has a top bar (back arrow, centred category title, search icon), an "All" row with a grid icon, then rows of icon, label and chevron separated by hairlines. A row with children pushes another panel the same way. A leaf row or "All" opens the item feed for that level. Back reverses the motion.
+**Browse and category panels (D-009).** The Browse tab is a 2 column grid of main category tiles under the search bar. Tiles are light tinted (accent-tint), 12px radius, label top-left in bold, and a picture bottom-right (a Lucide line icon for now, illustration style to decide). Tapping a tile opens a full-screen panel that slides in from the trailing edge and pushes the current screen aside (see Motion). The panel has a top bar (back arrow, centred category title, search icon), an "All" row with a grid icon, then rows of icon, label and chevron separated by hairlines. A row with children pushes another panel the same way. A leaf row or "All" opens the item feed for that level. Row labels use regular weight, 400 (D-013). Back reverses the motion.
+
+**Filter panel (D-014).** The Filter screen is a full-screen panel pushed in from the trailing edge over the results, the same push as the category panels. It is not a bottom sheet. It has a top bar (close X on the leading side, "Filter", Clear all), rows that show the current value, and a sticky Show results button with the live count. Its Category row opens the category panels (D-010).
+
+**Star ratings (D-012).** Stars use the espresso accent, filled for the score and outlined in the border colour for the rest. There is no gold in the palette.
 
 **Search bar.** Full width minus 16px side padding, 32px radius, hairline border, camera icon on the right for photo search. Focus: border brightens. Busy: input disabled, placeholder "Searching...".
 
@@ -247,7 +253,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Date:** 2026-10-12
 - **Area:** Design system, Components
 - **Status:** Approved
-- **Decision:** Build UI on React Native Reusables (the shadcn port for React Native, on NativeWind), restyled to the Vinty look (hairline borders, no shadows, 12px buttons, fully rounded pills). Use Gorhom Bottom Sheet for slide-up sheets: price breakdown, make an offer and short option lists. Category selection is not a sheet (D-010).
+- **Decision:** Build UI on React Native Reusables (the shadcn port for React Native, on NativeWind), restyled to the Vinty look (hairline borders, no shadows, 12px buttons, fully rounded pills). Use Gorhom Bottom Sheet for slide-up sheets: price breakdown, make an offer and short option lists. Category selection (D-010) and the Filter screen (D-014) are not sheets.
 - **Rationale:** Ready-made accessible parts that we own and can restyle, matching the NativeWind setup already in the app.
 - **Implementation:** Components live in the mobile app and read colour, radius and spacing from tokens only.
 - **References:** Components section above
@@ -312,6 +318,46 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** CategoryPicker in `docs/components.md`, built with an Expo Router stack in a full-screen modal push. Live in `docs/mockups/component-sheet.html` (CategoryPicker story).
 - **References:** D-009, D-004
 
+### D-011 : Hebrew typeface is Heebo, paired with Aileron
+
+- **Date:** 2026-10-12
+- **Area:** Typography, Right to left
+- **Status:** Approved
+- **Decision:** Hebrew text is set in Heebo. Aileron stays the face for Latin letters and numbers (D-003). The app picks the family from the current language. Closes O-003 (the currency was already decided as ILS).
+- **Rationale:** Heebo is a clean sans with a weight range close to Aileron's, so Hebrew and English screens feel like one product. It is free (OFL) and is already in the app.
+- **Implementation:** Heebo files and licence in the app's font folder, mapped per weight in the theme. Typography section above.
+- **References:** `docs/mockups/component-sheet-he.html`, D-003
+
+### D-012 : Star ratings use the espresso accent, not gold
+
+- **Date:** 2026-10-12
+- **Area:** Components, Colour
+- **Status:** Approved
+- **Decision:** StarRating draws filled stars in the espresso accent (#4B2E22), with unfilled stars in the border colour. No gold token is added.
+- **Rationale:** The palette is espresso and cream (D-006), and a gold would be a second accent that competes with the photos. Espresso on white measures 12.26:1.
+- **Implementation:** StarRating in `docs/components.md` and `apps/mobile/components/ui/star-rating.tsx` (already uses the accent token). Shown in both component sheets.
+- **References:** D-006
+
+### D-013 : CategoryRow labels use regular weight
+
+- **Date:** 2026-10-12
+- **Area:** Components, Typography
+- **Status:** Approved
+- **Decision:** CategoryRow labels are regular weight (400), including the All row, not semibold.
+- **Rationale:** Long lists of rows read calmer in regular weight, and the icon and chevron already give each row structure. It also follows the product spec.
+- **Implementation:** CategoryRow in `docs/components.md` and the Browse and category panels paragraph above. CategoryRow does not exist in the app yet, so build it at 400 from the start.
+- **References:** D-009, D-010
+
+### D-014 : The Filter screen is a full-screen pushed panel, not a bottom sheet
+
+- **Date:** 2026-10-12
+- **Area:** Navigation, Components
+- **Status:** Approved
+- **Decision:** The Filter screen is a full-screen panel that slides in from the trailing edge and pushes the results aside, like the category panels (D-009, D-010). It is not a bottom sheet. Sub-pages (price, size, brand) and the category picker push the same way. FilterSheet is renamed FilterPanel. D-004's list of bottom sheet uses no longer includes filters.
+- **Rationale:** The Filter screen has many rows and sub-pages, which is too much for a sheet. One push motion for every full-screen choice keeps the app consistent and keeps a clear way back.
+- **Implementation:** FilterPanel in `docs/components.md`, Filter panel paragraph above, Expo Router stack in a full-screen modal push. Live in both component sheets (FilterPanel story).
+- **References:** D-004, D-009, D-010, `docs/mockups/component-sheet.html`
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 
@@ -330,6 +376,6 @@ Proposals, not rules, until explicitly promoted above.
 
 | ID | Proposal | Decision needed |
 |---|---|---|
-| O-003 | Hebrew / RTL support: Hebrew font pairing, from docs/mockups/component-sheet-he.html. Heebo is paired with Aileron in the mockup (Aileron for Latin and numbers, Heebo for Hebrew). Currency is decided: ILS (₪) for the Hebrew/Israeli version, shown as ₪45 in whole shekels with a comma for thousands and a dot for decimals. | Confirm Heebo or pick another Hebrew font, and confirm the RTL motion and mirroring rules before building |
+| O-003 | Closed on 2026-10-12. Hebrew font is Heebo paired with Aileron (D-011). Currency is ILS (₪), shown as ₪45 in whole shekels with a comma for thousands and a dot for decimals. | None |
 
 ## Superseded decisions

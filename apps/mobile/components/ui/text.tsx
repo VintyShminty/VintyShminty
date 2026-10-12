@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * The one text component. Every variant is a named style of the type scale (docs/design.md).
  * Size, line height and tracking come from Tailwind (theme/tokens.js). The weight is a separate
  * font family because React Native needs one family name per weight. Latin text uses Aileron,
- * Hebrew uses Heebo (O-003), chosen from the current language.
+ * Hebrew uses Heebo (D-011), chosen from the current language.
  */
 const textVariants = cva("text-foreground", {
   variants: {
