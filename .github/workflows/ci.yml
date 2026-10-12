@@ -36,3 +36,29 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit:prod
+
+  semgrep:
+    runs-on: ubuntu-latest
+    # Code scanning with open source Semgrep (no account, no token, nothing leaves the runner).
+    # Blocks the pull request on any finding at severity ERROR. WARNING and INFO are listed in the
+    # job summary and never fail the job. Ignored paths are in .semgrepignore.
+    # Image: semgrep/semgrep 1.179.0, pinned by digest. Update the digest and this comment together.
+    container:
+      image: semgrep/semgrep@sha256:93963d9295a366f59e4850127b1550400ee7b388f04fe144e4a1f6325d96e01b # 1.179.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Excluded rules, each with a reason:
+      # - npm-missing-minimum-release-age: asks for an npm setting, but we install with pnpm, which has
+      #   minimumReleaseAge in pnpm-workspace.yaml (7 days).
+      # - pnpm-trust-policy: trustPolicy no-downgrade makes the install fail today because many Expo
+      #   packages are flagged. Recheck when Expo publishes with provenance (see the playbook).
+      - name: Scan
+        run: >
+          semgrep scan --metrics=off
+          --config p/default --config p/typescript --config p/react --config p/nodejs
+          --config p/expressjs --config p/secrets --config p/sql-injection --config p/jwt
+          --exclude-rule package_managers.npm.npm-missing-minimum-release-age.npm-missing-minimum-release-age
+          --exclude-rule package_managers.pnpm.pnpm-trust-policy.pnpm-trust-policy
+          --json-output=semgrep.json
+      - name: Summary and gate
+        run: python3 .github/scripts/semgrep-summary.py semgrep.json "$GITHUB_STEP_SUMMARY"

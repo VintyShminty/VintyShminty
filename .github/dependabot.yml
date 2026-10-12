@@ -1,0 +1,48 @@
+# Dependabot version updates. Security updates are switched on separately in the repo settings
+# and ignore everything below (cooldown, ignore, limits), so security fixes always come through.
+# Rules: docs/playbook/security-and-safety.md
+version: 2
+updates:
+  # The pnpm workspace (apps and packages). Dependabot reads pnpm-lock.yaml (lockfile version 9).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+    # Match our 7 day minimum release age (minimumReleaseAge in pnpm-workspace.yaml).
+    cooldown:
+      default-days: 7
+    # One pull request for all plain JavaScript updates instead of one per package.
+    groups:
+      npm-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    # The Expo SDK moves as one set. Upgrade it with `npx expo install --fix` (see the playbook),
+    # never by merging single bumps. Security updates for these packages still arrive.
+    ignore:
+      - dependency-name: expo
+      - dependency-name: expo-*
+      - dependency-name: "@expo/*"
+      - dependency-name: react-native
+      - dependency-name: react-native-*
+      - dependency-name: react
+      - dependency-name: react-dom
+      - dependency-name: "@types/react"
+
+  # Keeps the full commit SHA pins in .github/workflows up to date, with the version comment.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"

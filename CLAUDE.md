@@ -69,10 +69,11 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 
 ## Rules
 
+- Semgrep runs on every PR and ERROR findings block. Suppress only a proven false positive with `nosemgrep: <full rule id>` plus a reason, never blanket-disable (see `docs/playbook/security-and-safety.md`).
 - Update `docs/roadmap.md` status when a milestone starts or ships.
 - Schema changes (a table, column, index or enum) must update `docs/blueprint/data-model.md` in the same commit. A test fails if a table is missing from it. Enum value lists live in `packages/shared/src/enums.ts` and feed both the database and zod.
 - Money is an integer in minor units plus a currency code. The order and offer state machines are pure functions in `packages/shared/src/state-machines.ts`. Change them there, nowhere else.
-- Follow `docs/design.md`. Record every new design decision there in the same format as D-001 to D-010.
+- Follow `docs/design.md`. Record every new design decision there in the same format as D-001 to D-014. Where nothing is decided, follow the product spec (the Vinted UX deconstruction).
 - Colours, radii, spacing and type come from tokens only. Never write a hex or `rgb()` value in `app/`, `components/`, `lib/` or `i18n/`. `apps/mobile/tests/no-hardcoded-colours.test.ts` fails if you do. When a native prop needs a colour value, import it from `@/theme`.
 - Use logical start and end styles for RTL (the `Text` and `Input` components set the text alignment from the app language, because the phone's own language would otherwise decide, which is wrong for an English app on a Hebrew phone): `ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`, `text-start`. Never `left`, `right`, `pl-`, `pr-`, `ml-`, `mr-`. Place things with `justify-start` and `justify-end`, not a translate.
 - No hard-coded user-facing strings. Add a key to both `locales/en.json` and `locales/he.json` and use `t("...")`.
@@ -106,7 +107,7 @@ Dark mode is not built. The theme has no dark variables on purpose.
 
 ## Fonts
 
-Aileron for Latin, Heebo for Hebrew (O-003 in the design doc is still open, so this pairing is provisional). Files are in `apps/mobile/assets/fonts` with their licences (Aileron CC0, Heebo OFL). React Native needs one family name per weight, so Tailwind has `font-aileron-<weight>` and `font-heebo-<weight>`. The `Text` component chooses the family from the current language.
+Aileron for Latin, Heebo for Hebrew (D-011). Files are in `apps/mobile/assets/fonts` with their licences (Aileron CC0, Heebo OFL). React Native needs one family name per weight, so Tailwind has `font-aileron-<weight>` and `font-heebo-<weight>`. The `Text` component chooses the family from the current language.
 
 - Aileron files: 100, 300, 400, 600, 700, 800. Missing: 200, 500 (and 900). Mapping: 200 uses Light 300, 500 uses SemiBold 600.
 - Heebo files: 300 to 800 (generated as static instances from the Google Fonts variable font). Missing: 100, 200, which use 300.
@@ -155,7 +156,7 @@ React Native Reusables, react-hook-form, Gorhom Bottom Sheet and Socket.IO have 
 
 ## Where decisions live
 
-- Design decisions: `docs/design.md` (approved D-001 to D-010, open decisions at the bottom).
+- Design decisions: `docs/design.md` (approved D-001 to D-014, open decisions at the bottom).
 - Design method: `docs/playbook/design-philosophy.md`.
 - Components to build: `docs/components.md`.
 - Mockups for reference only: `docs/mockups/`.

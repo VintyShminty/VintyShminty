@@ -43,3 +43,5 @@ auditConfig:
   ignoreGhsas:
     - GHSA-86w9-cpqp-85rv
     - GHSA-vfj7-8cjw-p6xm
+# Transitive dependencies may not come from git or tarball links, only from the registry.
+blockExoticSubdeps: true

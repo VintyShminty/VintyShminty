@@ -64,7 +64,18 @@ When a bug went unnoticed for days, look for what hid the signal. Usual suspects
 - RULE: install scripts are an allowlist. `allowBuilds` in `pnpm-workspace.yaml` lists only packages that must run one (today only esbuild). Adding an entry needs a reason in the PR.
 - RULE: run `pnpm audit:prod` before every release and read the findings. CI runs it on every pull request and blocks on any high or critical finding. High findings are fixed or written down with a plan before release.
 - RULE: a high finding that cannot be fixed yet (no patched release exists) may be accepted only by adding its GHSA id to `auditConfig.ignoreGhsas` in `pnpm-workspace.yaml`, with a comment giving the reason (for example build tooling only, never shipped in the app) and a recheck date. Remove the entry as soon as a patched version is out.
+- RULE: Dependabot alerts get checked every week (GitHub, Security tab, Dependabot). A Dependabot security pull request is reviewed promptly, within a few days, and merged by Eden once CI is green. Version updates (`.github/dependabot.yml`) arrive weekly in one grouped pull request per ecosystem, with a 7 day cooldown to match the minimum release age.
+- RULE: Dependabot pull requests are not special. They need green CI and Eden's merge like any other. Expo SDK packages (`expo`, `expo-*`, `@expo/*`, `react`, `react-native`, `react-native-*`) are ignored for version updates on purpose, because the SDK moves as one set. Upgrade them with `npx expo install --fix` (see the `expo-upgrade` skill). Never merge a single Dependabot bump of one of them. Security updates for them still arrive and are handled the same way, checked against `npx expo-doctor`.
+- Limitation: Dependabot reads `pnpm-lock.yaml` (lockfile version 9) but does not understand every pnpm 11 setting. If a Dependabot pull request fails `pnpm install --frozen-lockfile`, fix it by hand in a normal branch rather than editing the lockfile in the bot branch.
 - Never run a script from a downloaded skill, template or README without reading it. Never run a skill step that sends data to a third party.
+
+## Code scanning (Semgrep)
+
+- RULE: Semgrep Community Edition runs on every pull request and on pushes to main (`semgrep` job in `.github/workflows/ci.yml`). It needs no account and sends nothing out. The image is pinned by digest, at least 7 days old.
+- RULE: a finding at severity ERROR blocks the pull request. WARNING and INFO findings show in the job summary and do not block, but read them and fix the real ones.
+- RULE: fix a real finding in code. Only a proven false positive may be suppressed, with a `nosemgrep: <full rule id>` comment on the line above the flagged line, plus a line saying why it is safe. Never a bare `nosemgrep`, never turn off a whole ruleset, never add a path to `.semgrepignore` to hide a finding. A rule excluded for the whole repo goes in the `--exclude-rule` list in `ci.yml` with a reason.
+- `.semgrepignore` holds only generated or vendored paths (migrations, native folders, mockups, skills).
+- Run it locally with the same command as the `semgrep` job in `ci.yml`, through Docker, before a large change to server code.
 
 ## Production data and risky actions
 
