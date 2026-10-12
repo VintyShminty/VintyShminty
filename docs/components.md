@@ -148,7 +148,7 @@ A small fully rounded outline pill used to filter and to switch views. The activ
 
 A tiny uppercase outlined pill with an icon that tells you a status or a quality (D-008).
 
-- **Variants and states:** Outline, icon and label always. Variants by meaning: sold and completed (success), reserved and in progress (warning), removed and cancelled (error), new, price drop, bumped and verified (accent), info such as frequent uploads (neutral). Works on a plain surface and on a photo (white fill). Text 10px tracked. Item cards use their own rectangular badges (see ItemCard).
+- **Variants and states:** Outline, icon and label always. Variants by meaning: sold and completed (success), reserved and in progress (warning), removed and cancelled (error), new, price drop, bumped and verified (accent), info such as frequent uploads (neutral). Works on a plain surface and on a photo (white fill). Text 10px tracked. Item cards use these same badges, bottom-left on the photo.
 - **Screens:** Item page, Seller profile, Own profile, Home feed, My orders
 - **Source:** Reusables: Badge (restyled to the outline pill)
 - **Phase:** First flows
@@ -296,7 +296,7 @@ The pieces that make this a second-hand marketplace. Built from Foundation and C
 
 The tile for one listing: tall rounded photo, brand, description, size and condition, and the price the buyer really pays (D-007, Option C, Badge forward).
 
-- **Variants and states:** Variants: browse (default), favourited (filled heart), sold (washed photo, green Sold badge, muted struck price, no heart), bumped (white badge), price drop (espresso badge, sale price in espresso, struck "Was: €X" line with the percentage off), own listing (price, views, favourites, Bump), loading (skeleton). States: default, pressed (scale 0.98). Layout: 12px rounded photo, white circle heart top-right, rectangular badge bottom-left, brand with favourite count, two line description, size and condition, price, buyer price with the shield.
+- **Variants and states:** Variants: browse (default), favourited (filled heart), sold (washed photo, green Sold badge, muted struck price, no heart), bumped (Bumped badge), price drop (Price drop badge, sale price in espresso, struck "Was: €X" line with the percentage off), own listing (price, views, favourites, Bump), loading (skeleton). States: default, pressed (scale 0.98). Layout: 12px rounded photo, white circle heart top-right, outline badge (Option B) bottom-left, brand with favourite count, two line description, size and condition, price, buyer price with the shield.
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
 - **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badges are small rectangles built inside the card, not the Badge component)
 - **Phase:** First flows
