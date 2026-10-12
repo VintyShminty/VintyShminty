@@ -4,7 +4,7 @@ What we build, mapped from the Vinted UX spec's app screens (`/Users/edenbachar/
 
 How to read it:
 - One component with variants, never five similar ones.
-- **Source** says where it comes from. "Reusables: X" is off the shelf from React Native Reusables, then restyled to Kept's look. "Gorhom Bottom Sheet" is the sheet library (D-004). "Custom" is built by us from primitives. "Expo/RN built-in" is already in the platform.
+- **Source** says where it comes from. "Reusables: X" is off the shelf from React Native Reusables, then restyled to the Vinty look. "Gorhom Bottom Sheet" is the sheet library (D-004). "Custom" is built by us from primitives. "Expo/RN built-in" is already in the platform.
 - **First flows** components are needed for browse feed, item page, sell form and inbox. **Later** ones wait.
 - Every colour, radius and space comes from tokens, never raw values.
 
