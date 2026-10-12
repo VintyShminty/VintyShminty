@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VintyShminty colour options</title>
+<style>
+@font-face{font-family:Aileron;font-weight:300;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-300-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:600;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-600-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-700-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:800;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-800-normal.woff2) format("woff2");font-display:swap}
+.opt-a{--bg:#FFFFFF;--surface:#FFF8F3;--pressed:#FBE9DC;--border:#E6D9CF;--border-subtle:#F1E8E0;--t1:#2A201A;--t2:#5A4A40;--t3:#6E5D52;--t4:#7F6E63;--fill:#FFC8A5;--on-accent:#4A2208;--accent:#A9431A;--accent-tint:#FFEADB;--chip-sel:#FFC8A5;--on-chip:#4A2208;--success:#1B7A43;--success-tint:#E6F4EA;--warning:#8A5300;--warning-tint:#FFF2D1;--error:#B3261E;--error-tint:#FDECEA}.opt-b{--bg:#FFFFFF;--surface:#FFFAF6;--pressed:#FBEADF;--border:#E8DAD0;--border-subtle:#F2E9E1;--t1:#2A201A;--t2:#5A4A40;--t3:#6E5D52;--t4:#7F6E63;--fill:#B24A22;--on-accent:#FFFFFF;--accent:#A9431A;--accent-tint:#FCE8DB;--chip-sel:#FCE8DB;--on-chip:#8F3714;--success:#1B7A43;--success-tint:#E6F4EA;--warning:#8A5300;--warning-tint:#FFF2D1;--error:#B3261E;--error-tint:#FDECEA}.opt-c{--bg:#FFFFFF;--surface:#FAF8F6;--pressed:#F1EDE9;--border:#E4DDD7;--border-subtle:#EFEAE5;--t1:#1F1A17;--t2:#58504A;--t3:#6B625B;--t4:#756C65;--fill:#1F1A17;--on-accent:#FFFFFF;--accent:#A9431A;--accent-tint:#FFEADB;--chip-sel:#FFD2B6;--on-chip:#3E1C08;--success:#1B7A43;--success-tint:#E6F4EA;--warning:#8A5300;--warning-tint:#FFF2D1;--error:#B3261E;--error-tint:#FDECEA}
+:root{--font:Aileron,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#FBFAF9;color:#221C18;font-family:var(--font);font-size:15px;line-height:1.5;overflow-x:hidden}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:1360px;margin:0 auto;padding:32px 20px 64px}
+.intro h1{font-size:40px;font-weight:300;letter-spacing:-.035em;line-height:1.02;margin:0 0 16px}
+.intro h1 b{font-weight:800}
+.intro p{max-width:720px;margin:0 0 12px;color:#4A413B}
+.how{max-width:720px;border:1px solid #E4DDD7;border-radius:20px;padding:16px 20px;margin:24px 0 32px;background:#fff}
+.how .lab{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#6B625B;margin-bottom:8px}
+.how ol{margin:0 0 0 18px;padding:0}.how li{margin:4px 0}
+.options{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:48px}
+@media(min-width:1260px){.options{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:20px}}
+.opt{min-width:0;display:flex;flex-direction:column;align-items:center}
+.oh{width:min(390px,100%);margin-bottom:16px;min-height:156px}@media(max-width:1259px){.oh{min-height:0}}
+.badge-l{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:1px solid #221C18;border-radius:999px;padding:3px 10px}
+.oh h2{font-size:28px;font-weight:800;margin:10px 0 4px;letter-spacing:-.02em}
+.oh p{margin:0;color:#4A413B;font-size:14px}
+.lab2{width:min(390px,100%);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#6B625B;margin:28px 0 8px}
+.frame{width:min(390px,100%);background:var(--bg);color:var(--t1);border:1px solid #D9D2CC;border-radius:44px;overflow:hidden;position:relative;font-size:14px}
+.frame.home{height:844px;display:flex;flex-direction:column}
+.status{display:flex;justify-content:space-between;align-items:center;padding:14px 28px 6px;font-weight:600;font-size:14px}
+.sb{width:60px;height:10px;border-radius:3px;background:var(--t1);opacity:.85}
+.feed{flex:1;overflow-y:auto;padding:4px 16px 16px;scrollbar-width:none}.feed::-webkit-scrollbar{display:none}
+.greet{margin:8px 0 14px}.lab,.sec{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t3)}
+.greet h3{margin:4px 0 0;font-size:34px;line-height:1;letter-spacing:-.035em;font-weight:300}.greet h3 b{font-weight:800}
+.sec{margin:20px 0 10px}
+.search{display:flex;align-items:center;gap:10px;border:1px solid var(--border);background:var(--surface);border-radius:32px;padding:0 16px;height:48px;color:var(--t3);font-size:16px}
+.search span{flex:1}.cam{color:var(--accent)}
+.chips{display:flex;gap:8px;margin-top:12px;overflow-x:auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;background:var(--surface);color:var(--t2);border:1px solid var(--border-subtle);white-space:nowrap}
+.chip.on{background:var(--chip-sel);color:var(--on-chip);border-color:var(--chip-sel)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px}
+.card{min-width:0}
+.ph{position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border-subtle)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.heart{position:absolute;left:8px;bottom:8px;display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.92);color:var(--t1);font-size:11px;font-weight:600;padding:3px 8px 3px 6px;border-radius:999px}
+.heart svg{width:13px;height:13px}
+.ribbon{position:absolute;top:10px;left:0;background:var(--success);color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px 4px 8px;border-radius:0 999px 999px 0}
+.brand{margin-top:8px;font-size:13px;font-weight:600}
+.sub{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.03em}
+.price{font-size:15px;font-weight:800;margin-top:2px}
+.inc{display:flex;align-items:center;gap:4px;color:var(--accent);font-size:12px;font-weight:600}.inc svg{width:13px;height:13px}
+.inc.big{font-size:14px;margin-top:2px}.inc.big svg{width:16px;height:16px}
+.tabs{display:flex;border-top:1px solid var(--border);background:var(--bg);padding:8px 4px 26px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--t3)}
+.tab span{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tab.on{color:var(--accent)}
+.frame.item{display:flex;flex-direction:column;border-radius:28px}
+.ibody{padding:8px 16px 20px}
+.bigprice{font-size:40px;font-weight:300;letter-spacing:-.035em;line-height:1.1}
+.prot{display:flex;align-items:center;gap:8px;margin-top:16px;justify-content:center}
+.link{color:var(--accent);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.link svg{width:16px;height:16px}
+.sticky{display:flex;gap:12px;padding:12px 16px 28px;border-top:1px solid var(--border);background:var(--bg)}
+.btn{font-family:inherit;height:48px;padding:0 20px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.btn.full{width:100%;margin-top:12px}
+.btn.primary{background:var(--fill);color:var(--on-accent);border:1px solid var(--fill)}
+.opt-a .btn.primary{border-color:#EFA87C}
+.btn.outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn.ghost{background:transparent;color:var(--t2);border:1px solid var(--border)}
+.sticky .btn{flex:1;padding:0 8px}
+.frame.comp{padding:4px 16px 20px;border-radius:28px}
+.row{display:flex;flex-wrap:wrap;gap:8px}.row .btn{height:40px;padding:0 14px;font-size:13px}
+.bdg{display:inline-flex;height:22px;align-items:center;padding:0 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.bdg.sold{background:var(--success);color:#fff}
+.bdg.tint{background:var(--accent-tint);color:var(--accent)}
+.bdg.warn{background:var(--warning-tint);color:var(--warning)}
+.bdg.err{background:var(--error-tint);color:var(--error)}
+.banner{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:12px;margin:8px 0;font-size:13px}
+.banner svg{margin-top:1px}
+.banner.info{background:var(--accent-tint);color:var(--accent)}
+.banner.warn{background:var(--warning-tint);color:var(--warning)}
+.field{margin-top:8px}.field label{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
+.inp{height:48px;border:1px solid var(--border);border-radius:12px;padding:0 14px;display:flex;align-items:center;font-size:16px;background:var(--bg)}
+.field.err .inp{border-color:var(--error);color:var(--t3)}.field.err small{color:var(--error);font-size:12px;display:block;margin-top:4px}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-subtle);font-size:15px}
+.sw1{width:48px;height:28px;border-radius:999px;background:var(--pressed);border:1px solid var(--border);position:relative;display:block}
+.sw1:after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid var(--border)}
+.sw1.on{background:var(--fill);border-color:var(--fill)}.sw1.on:after{left:22px;border-color:transparent}
+.opt-a .sw1.on{border-color:#EFA87C}
+.th{width:min(390px,100%);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#6B625B;margin:28px 0 8px}
+.ct{width:min(390px,100%);border-collapse:collapse;font-size:11px;background:#fff;border:1px solid #E4DDD7}
+.ct th,.ct td{text-align:left;padding:5px 6px;border-bottom:1px solid #F0EBE7;vertical-align:top}
+.ct th{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#6B625B;font-weight:600}
+.ct .num{white-space:nowrap}.pass{color:#1B7A43;font-weight:700}.fail{color:#B3261E;font-weight:700}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;border:1px solid #CFC7C0;margin:0 3px 0 0;vertical-align:-1px}
+.ct td:nth-child(2){font-size:10px;color:#5A524C}.ct td:nth-child(2) .dot:last-of-type{margin-left:6px}
+.tnote{width:min(390px,100%);font-size:12px;color:#4A413B;margin:8px 0 0}
+.sws{width:min(390px,100%);display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sw{display:flex;align-items:center;gap:8px;font-size:11px;border:1px solid #E4DDD7;background:#fff;border-radius:12px;padding:6px}
+.sw i{width:22px;height:22px;border-radius:6px;border:1px solid #D9D2CC;flex:none}
+.sw b{font-weight:600;flex:1;min-width:0}.sw code{font-family:ui-monospace,Menlo,monospace;color:#5A524C}
+.foot{margin-top:40px;font-size:12px;color:#6B625B;max-width:720px}
+@media(max-width:480px){.frame{border-radius:28px}.intro h1{font-size:32px}.frame.home{height:760px}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.500 3 8 7 10 4-2 7-5.500 7-10V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.500"/><rect x="13" y="4" width="7" height="7" rx="1.500"/><rect x="4" y="13" width="7" height="7" rx="1.500"/><rect x="13" y="13" width="7" height="7" rx="1.500"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 5h16v11h-5l-3 3-3-3H4z"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.500v.1"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 20h18z"/><path d="M12 10v5M12 17.500v.1"/></symbol>
+</defs></svg>
+<div class="wrap">
+<div class="intro"><h1><span style="font-weight:300">Pick the</span> <b>colour</b></h1>
+<p>VintyShminty needs a colour. This page shows three white-and-peach directions on the same screens, so you can compare them side by side. Peach takes the place of Vinted's teal everywhere it appeared: main buttons, outline buttons, links, the buyer price line, the active tab, selected filters, banners and badges. Green stays for sold, red for errors and amber for warnings.</p>
+<p>Light mode only. The clothing photos are real, because the palette has to frame photos, not fight them.</p></div>
+<div class="how"><div class="lab">How to choose</div><ol>
+<li>Look at the home feed first. Which one makes the photos look best?</li>
+<li>Look at the buttons in the item page bottom bar. Which one feels like the main action without shouting?</li>
+<li>Read the price lines at arm's length. Every option passes the accessibility contrast check, so choose by feel.</li>
+<li>Check the table under each option if you want proof. Every pair is measured.</li></ol></div>
+<div class="options"><section class="opt opt-a" id="opt-a">
+<header class="oh"><span class="badge-l">Option A</span><h2>Soft peach</h2><p>Primary buttons in a soft peach fill with deep brown text. Prices and links in a deeper terracotta that reads on white.</p></header>
+<div class="frame home"><div class="status"><span>9:41</span><span class="sb"></span></div>
+<div class="feed"><div class="greet"><div class="lab">Good morning</div><h3><span class="lt">Find your next</span> <b>favourite</b></h3></div>
+<div class="search"><svg><use href="#i-search"/></svg><span>Search for items</span><svg class="cam"><use href="#i-camera"/></svg></div>
+<div class="chips"><span class="chip on">All · 19</span><span class="chip">Women</span><span class="chip">Men</span><span class="chip">Shoes</span><span class="chip">Knitwear</span></div>
+<div class="sec">Fresh finds</div>
+<div class="grid"><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>3</span></div>
+<div class="brand">Zara</div><div class="sub">M · Very good</div><div class="price">€14,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€15,35 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>41</span><span class="ribbon">Sold</span></div>
+<div class="brand">Carhartt</div><div class="sub">L · Good</div><div class="price">€32,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€33,95 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>27</span></div>
+<div class="brand">Nike</div><div class="sub">EU 38 · Like new</div><div class="price">€45,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€47,25 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>5</span></div>
+<div class="brand">Weekday</div><div class="sub">S · Good</div><div class="price">€19,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€20,55 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>12</span></div>
+<div class="brand">Mango</div><div class="sub">S · Good</div><div class="price">€28,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€29,85 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>1</span></div>
+<div class="brand">Uniqlo</div><div class="sub">M · New with tag</div><div class="price">€9,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€10,05 incl.</div></div></div></div><nav class="tabs"><div class="tab on"><svg><use href="#i-home"/></svg><span>Home</span></div><div class="tab"><svg><use href="#i-grid"/></svg><span>Browse</span></div><div class="tab"><svg><use href="#i-plus"/></svg><span>Sell</span></div><div class="tab"><svg><use href="#i-inbox"/></svg><span>Inbox</span></div><div class="tab"><svg><use href="#i-user"/></svg><span>Profile</span></div></nav></div>
+<div class="lab2">Item page, bottom section</div>
+<div class="frame item"><div class="ibody">
+<div class="sec">Price</div>
+<div class="bigprice">€28,00</div>
+<div class="inc big"><svg><use href="#i-shield"/></svg>€29,85 incl. buyer protection</div>
+<div class="banner info"><svg><use href="#i-info"/></svg><span>Postage is calculated at checkout.</span></div>
+<button class="btn outline full">Ask seller</button>
+<a class="link prot"><svg><use href="#i-shield"/></svg>Every purchase is protected</a>
+</div>
+<div class="sticky"><button class="btn outline">Make an offer</button><button class="btn primary">Buy now</button></div></div>
+<div class="lab2">Components</div>
+<div class="frame comp"><div class="sec">Buttons</div>
+<div class="row"><button class="btn primary">Upload</button><button class="btn outline">Make an offer</button><button class="btn ghost">Cancel</button></div>
+<div class="sec">Filter pills</div>
+<div class="row"><span class="chip">All · 19</span><span class="chip on">Knitwear · 4</span></div>
+<div class="sec">Status badges</div>
+<div class="row"><span class="bdg sold">Sold</span><span class="bdg tint">New</span><span class="bdg warn">Reserved</span><span class="bdg err">Removed</span></div>
+<div class="sec">Banners</div>
+<div class="banner info"><svg><use href="#i-info"/></svg><span>Your item is live and visible to buyers.</span></div>
+<div class="banner warn"><svg><use href="#i-alert"/></svg><span>Add measurements to sell faster.</span></div>
+<div class="sec">Input and toggle</div>
+<div class="field"><label>Title</label><div class="inp">Vintage knit poncho</div></div>
+<div class="field err"><label>Price</label><div class="inp">Enter a price</div><small>Price is required</small></div>
+<div class="tog"><span>Hide from search</span><i class="sw1"></i></div>
+<div class="tog"><span>Allow offers</span><i class="sw1 on"></i></div></div>
+<h4 class="th">Measured contrast</h4><table class="ct"><thead><tr><th>Pair</th><th>Colours</th><th>Measured</th><th>Needs</th><th></th></tr></thead><tbody><tr><td>Primary text on page</td><td><span class="dot" style="background:#2A201A"></span>#2A201A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">15.91:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Secondary text on page</td><td><span class="dot" style="background:#5A4A40"></span>#5A4A40<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">8.44:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Muted text on page</td><td><span class="dot" style="background:#6E5D52"></span>#6E5D52<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">6.27:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Faint text on page</td><td><span class="dot" style="background:#7F6E63"></span>#7F6E63<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">4.87:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Muted text on raised surface</td><td><span class="dot" style="background:#6E5D52"></span>#6E5D52<span class="dot" style="background:#FFF8F3"></span>#FFF8F3</td><td class="num">5.96:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Faint text on raised surface</td><td><span class="dot" style="background:#7F6E63"></span>#7F6E63<span class="dot" style="background:#FFF8F3"></span>#FFF8F3</td><td class="num">4.63:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Primary button label</td><td><span class="dot" style="background:#4A2208"></span>#4A2208<span class="dot" style="background:#FFC8A5"></span>#FFC8A5</td><td class="num">9.23:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Price, links, outline button (accent on page)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.99:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Active tab icon and label (accent on page)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.99:1</td><td class="num">3:1</td><td class="pass">Pass</td></tr><tr><td>Price line on raised surface</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFF8F3"></span>#FFF8F3</td><td class="num">5.70:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Accent on tint (banner, badge)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFEADB"></span>#FFEADB</td><td class="num">5.15:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Selected chip label</td><td><span class="dot" style="background:#4A2208"></span>#4A2208<span class="dot" style="background:#FFC8A5"></span>#FFC8A5</td><td class="num">9.23:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Sold ribbon label</td><td><span class="dot" style="background:#FFFFFF"></span>#FFFFFF<span class="dot" style="background:#1B7A43"></span>#1B7A43</td><td class="num">5.37:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Success text on page</td><td><span class="dot" style="background:#1B7A43"></span>#1B7A43<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.37:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Success on success tint</td><td><span class="dot" style="background:#1B7A43"></span>#1B7A43<span class="dot" style="background:#E6F4EA"></span>#E6F4EA</td><td class="num">4.73:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Warning text on warning tint</td><td><span class="dot" style="background:#8A5300"></span>#8A5300<span class="dot" style="background:#FFF2D1"></span>#FFF2D1</td><td class="num">5.69:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Error text on page</td><td><span class="dot" style="background:#B3261E"></span>#B3261E<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">6.54:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Error on error tint</td><td><span class="dot" style="background:#B3261E"></span>#B3261E<span class="dot" style="background:#FDECEA"></span>#FDECEA</td><td class="num">5.72:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr></tbody></table><p class="tnote">Primary fill against the page: 1.49:1. Below 3:1, so the button edge is carried by its label and a hairline border, not by the fill alone.</p>
+<h4 class="th">Tokens</h4><div class="sws"><div class="sw"><i style="background:#FFFFFF"></i><b>Page bg</b><code>#FFFFFF</code></div><div class="sw"><i style="background:#FFF8F3"></i><b>Raised</b><code>#FFF8F3</code></div><div class="sw"><i style="background:#FBE9DC"></i><b>Pressed</b><code>#FBE9DC</code></div><div class="sw"><i style="background:#E6D9CF"></i><b>Border</b><code>#E6D9CF</code></div><div class="sw"><i style="background:#F1E8E0"></i><b>Border subtle</b><code>#F1E8E0</code></div><div class="sw"><i style="background:#2A201A"></i><b>Text 1</b><code>#2A201A</code></div><div class="sw"><i style="background:#5A4A40"></i><b>Text 2</b><code>#5A4A40</code></div><div class="sw"><i style="background:#6E5D52"></i><b>Text 3</b><code>#6E5D52</code></div><div class="sw"><i style="background:#7F6E63"></i><b>Text 4</b><code>#7F6E63</code></div><div class="sw"><i style="background:#FFC8A5"></i><b>Accent fill</b><code>#FFC8A5</code></div><div class="sw"><i style="background:#4A2208"></i><b>On-accent</b><code>#4A2208</code></div><div class="sw"><i style="background:#A9431A"></i><b>Accent text</b><code>#A9431A</code></div><div class="sw"><i style="background:#FFEADB"></i><b>Accent tint</b><code>#FFEADB</code></div><div class="sw"><i style="background:#FFC8A5"></i><b>Chip selected</b><code>#FFC8A5</code></div><div class="sw"><i style="background:#1B7A43"></i><b>Success</b><code>#1B7A43</code></div><div class="sw"><i style="background:#8A5300"></i><b>Warning</b><code>#8A5300</code></div><div class="sw"><i style="background:#B3261E"></i><b>Error</b><code>#B3261E</code></div></div>
+</section><section class="opt opt-b" id="opt-b">
+<header class="oh"><span class="badge-l">Option B</span><h2>Terracotta</h2><p>Primary buttons in deep terracotta with white text. Light peach tints for chips and banners.</p></header>
+<div class="frame home"><div class="status"><span>9:41</span><span class="sb"></span></div>
+<div class="feed"><div class="greet"><div class="lab">Good morning</div><h3><span class="lt">Find your next</span> <b>favourite</b></h3></div>
+<div class="search"><svg><use href="#i-search"/></svg><span>Search for items</span><svg class="cam"><use href="#i-camera"/></svg></div>
+<div class="chips"><span class="chip on">All · 19</span><span class="chip">Women</span><span class="chip">Men</span><span class="chip">Shoes</span><span class="chip">Knitwear</span></div>
+<div class="sec">Fresh finds</div>
+<div class="grid"><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>3</span></div>
+<div class="brand">Zara</div><div class="sub">M · Very good</div><div class="price">€14,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€15,35 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>41</span><span class="ribbon">Sold</span></div>
+<div class="brand">Carhartt</div><div class="sub">L · Good</div><div class="price">€32,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€33,95 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>27</span></div>
+<div class="brand">Nike</div><div class="sub">EU 38 · Like new</div><div class="price">€45,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€47,25 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>5</span></div>
+<div class="brand">Weekday</div><div class="sub">S · Good</div><div class="price">€19,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€20,55 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>12</span></div>
+<div class="brand">Mango</div><div class="sub">S · Good</div><div class="price">€28,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€29,85 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>1</span></div>
+<div class="brand">Uniqlo</div><div class="sub">M · New with tag</div><div class="price">€9,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€10,05 incl.</div></div></div></div><nav class="tabs"><div class="tab on"><svg><use href="#i-home"/></svg><span>Home</span></div><div class="tab"><svg><use href="#i-grid"/></svg><span>Browse</span></div><div class="tab"><svg><use href="#i-plus"/></svg><span>Sell</span></div><div class="tab"><svg><use href="#i-inbox"/></svg><span>Inbox</span></div><div class="tab"><svg><use href="#i-user"/></svg><span>Profile</span></div></nav></div>
+<div class="lab2">Item page, bottom section</div>
+<div class="frame item"><div class="ibody">
+<div class="sec">Price</div>
+<div class="bigprice">€28,00</div>
+<div class="inc big"><svg><use href="#i-shield"/></svg>€29,85 incl. buyer protection</div>
+<div class="banner info"><svg><use href="#i-info"/></svg><span>Postage is calculated at checkout.</span></div>
+<button class="btn outline full">Ask seller</button>
+<a class="link prot"><svg><use href="#i-shield"/></svg>Every purchase is protected</a>
+</div>
+<div class="sticky"><button class="btn outline">Make an offer</button><button class="btn primary">Buy now</button></div></div>
+<div class="lab2">Components</div>
+<div class="frame comp"><div class="sec">Buttons</div>
+<div class="row"><button class="btn primary">Upload</button><button class="btn outline">Make an offer</button><button class="btn ghost">Cancel</button></div>
+<div class="sec">Filter pills</div>
+<div class="row"><span class="chip">All · 19</span><span class="chip on">Knitwear · 4</span></div>
+<div class="sec">Status badges</div>
+<div class="row"><span class="bdg sold">Sold</span><span class="bdg tint">New</span><span class="bdg warn">Reserved</span><span class="bdg err">Removed</span></div>
+<div class="sec">Banners</div>
+<div class="banner info"><svg><use href="#i-info"/></svg><span>Your item is live and visible to buyers.</span></div>
+<div class="banner warn"><svg><use href="#i-alert"/></svg><span>Add measurements to sell faster.</span></div>
+<div class="sec">Input and toggle</div>
+<div class="field"><label>Title</label><div class="inp">Vintage knit poncho</div></div>
+<div class="field err"><label>Price</label><div class="inp">Enter a price</div><small>Price is required</small></div>
+<div class="tog"><span>Hide from search</span><i class="sw1"></i></div>
+<div class="tog"><span>Allow offers</span><i class="sw1 on"></i></div></div>
+<h4 class="th">Measured contrast</h4><table class="ct"><thead><tr><th>Pair</th><th>Colours</th><th>Measured</th><th>Needs</th><th></th></tr></thead><tbody><tr><td>Primary text on page</td><td><span class="dot" style="background:#2A201A"></span>#2A201A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">15.91:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Secondary text on page</td><td><span class="dot" style="background:#5A4A40"></span>#5A4A40<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">8.44:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Muted text on page</td><td><span class="dot" style="background:#6E5D52"></span>#6E5D52<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">6.27:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Faint text on page</td><td><span class="dot" style="background:#7F6E63"></span>#7F6E63<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">4.87:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Muted text on raised surface</td><td><span class="dot" style="background:#6E5D52"></span>#6E5D52<span class="dot" style="background:#FFFAF6"></span>#FFFAF6</td><td class="num">6.05:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Faint text on raised surface</td><td><span class="dot" style="background:#7F6E63"></span>#7F6E63<span class="dot" style="background:#FFFAF6"></span>#FFFAF6</td><td class="num">4.70:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Primary button label</td><td><span class="dot" style="background:#FFFFFF"></span>#FFFFFF<span class="dot" style="background:#B24A22"></span>#B24A22</td><td class="num">5.39:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Price, links, outline button (accent on page)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.99:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Active tab icon and label (accent on page)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.99:1</td><td class="num">3:1</td><td class="pass">Pass</td></tr><tr><td>Price line on raised surface</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFFAF6"></span>#FFFAF6</td><td class="num">5.78:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Accent on tint (banner, badge)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FCE8DB"></span>#FCE8DB</td><td class="num">5.05:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Selected chip label</td><td><span class="dot" style="background:#8F3714"></span>#8F3714<span class="dot" style="background:#FCE8DB"></span>#FCE8DB</td><td class="num">6.50:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Sold ribbon label</td><td><span class="dot" style="background:#FFFFFF"></span>#FFFFFF<span class="dot" style="background:#1B7A43"></span>#1B7A43</td><td class="num">5.37:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Success text on page</td><td><span class="dot" style="background:#1B7A43"></span>#1B7A43<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.37:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Success on success tint</td><td><span class="dot" style="background:#1B7A43"></span>#1B7A43<span class="dot" style="background:#E6F4EA"></span>#E6F4EA</td><td class="num">4.73:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Warning text on warning tint</td><td><span class="dot" style="background:#8A5300"></span>#8A5300<span class="dot" style="background:#FFF2D1"></span>#FFF2D1</td><td class="num">5.69:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Error text on page</td><td><span class="dot" style="background:#B3261E"></span>#B3261E<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">6.54:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Error on error tint</td><td><span class="dot" style="background:#B3261E"></span>#B3261E<span class="dot" style="background:#FDECEA"></span>#FDECEA</td><td class="num">5.72:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr></tbody></table><p class="tnote">Primary fill against the page: 5.39:1.</p>
+<h4 class="th">Tokens</h4><div class="sws"><div class="sw"><i style="background:#FFFFFF"></i><b>Page bg</b><code>#FFFFFF</code></div><div class="sw"><i style="background:#FFFAF6"></i><b>Raised</b><code>#FFFAF6</code></div><div class="sw"><i style="background:#FBEADF"></i><b>Pressed</b><code>#FBEADF</code></div><div class="sw"><i style="background:#E8DAD0"></i><b>Border</b><code>#E8DAD0</code></div><div class="sw"><i style="background:#F2E9E1"></i><b>Border subtle</b><code>#F2E9E1</code></div><div class="sw"><i style="background:#2A201A"></i><b>Text 1</b><code>#2A201A</code></div><div class="sw"><i style="background:#5A4A40"></i><b>Text 2</b><code>#5A4A40</code></div><div class="sw"><i style="background:#6E5D52"></i><b>Text 3</b><code>#6E5D52</code></div><div class="sw"><i style="background:#7F6E63"></i><b>Text 4</b><code>#7F6E63</code></div><div class="sw"><i style="background:#B24A22"></i><b>Accent fill</b><code>#B24A22</code></div><div class="sw"><i style="background:#FFFFFF"></i><b>On-accent</b><code>#FFFFFF</code></div><div class="sw"><i style="background:#A9431A"></i><b>Accent text</b><code>#A9431A</code></div><div class="sw"><i style="background:#FCE8DB"></i><b>Accent tint</b><code>#FCE8DB</code></div><div class="sw"><i style="background:#FCE8DB"></i><b>Chip selected</b><code>#FCE8DB</code></div><div class="sw"><i style="background:#1B7A43"></i><b>Success</b><code>#1B7A43</code></div><div class="sw"><i style="background:#8A5300"></i><b>Warning</b><code>#8A5300</code></div><div class="sw"><i style="background:#B3261E"></i><b>Error</b><code>#B3261E</code></div></div>
+</section><section class="opt opt-c" id="opt-c">
+<header class="oh"><span class="badge-l">Option C</span><h2>Ink and peach</h2><p>Primary buttons near-black with white text, close to Kept. Peach only as a highlight: selected chips, tints, badges and the price line.</p></header>
+<div class="frame home"><div class="status"><span>9:41</span><span class="sb"></span></div>
+<div class="feed"><div class="greet"><div class="lab">Good morning</div><h3><span class="lt">Find your next</span> <b>favourite</b></h3></div>
+<div class="search"><svg><use href="#i-search"/></svg><span>Search for items</span><svg class="cam"><use href="#i-camera"/></svg></div>
+<div class="chips"><span class="chip on">All · 19</span><span class="chip">Women</span><span class="chip">Men</span><span class="chip">Shoes</span><span class="chip">Knitwear</span></div>
+<div class="sec">Fresh finds</div>
+<div class="grid"><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>3</span></div>
+<div class="brand">Zara</div><div class="sub">M · Very good</div><div class="price">€14,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€15,35 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>41</span><span class="ribbon">Sold</span></div>
+<div class="brand">Carhartt</div><div class="sub">L · Good</div><div class="price">€32,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€33,95 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>27</span></div>
+<div class="brand">Nike</div><div class="sub">EU 38 · Like new</div><div class="price">€45,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€47,25 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>5</span></div>
+<div class="brand">Weekday</div><div class="sub">S · Good</div><div class="price">€19,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€20,55 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>12</span></div>
+<div class="brand">Mango</div><div class="sub">S · Good</div><div class="price">€28,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€29,85 incl.</div></div><div class="card"><div class="ph"><img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=70" alt="" loading="lazy" onerror="this.remove()"><span class="heart"><svg><use href="#i-heart"/></svg>1</span></div>
+<div class="brand">Uniqlo</div><div class="sub">M · New with tag</div><div class="price">€9,00</div><div class="inc"><svg><use href="#i-shield"/></svg>€10,05 incl.</div></div></div></div><nav class="tabs"><div class="tab on"><svg><use href="#i-home"/></svg><span>Home</span></div><div class="tab"><svg><use href="#i-grid"/></svg><span>Browse</span></div><div class="tab"><svg><use href="#i-plus"/></svg><span>Sell</span></div><div class="tab"><svg><use href="#i-inbox"/></svg><span>Inbox</span></div><div class="tab"><svg><use href="#i-user"/></svg><span>Profile</span></div></nav></div>
+<div class="lab2">Item page, bottom section</div>
+<div class="frame item"><div class="ibody">
+<div class="sec">Price</div>
+<div class="bigprice">€28,00</div>
+<div class="inc big"><svg><use href="#i-shield"/></svg>€29,85 incl. buyer protection</div>
+<div class="banner info"><svg><use href="#i-info"/></svg><span>Postage is calculated at checkout.</span></div>
+<button class="btn outline full">Ask seller</button>
+<a class="link prot"><svg><use href="#i-shield"/></svg>Every purchase is protected</a>
+</div>
+<div class="sticky"><button class="btn outline">Make an offer</button><button class="btn primary">Buy now</button></div></div>
+<div class="lab2">Components</div>
+<div class="frame comp"><div class="sec">Buttons</div>
+<div class="row"><button class="btn primary">Upload</button><button class="btn outline">Make an offer</button><button class="btn ghost">Cancel</button></div>
+<div class="sec">Filter pills</div>
+<div class="row"><span class="chip">All · 19</span><span class="chip on">Knitwear · 4</span></div>
+<div class="sec">Status badges</div>
+<div class="row"><span class="bdg sold">Sold</span><span class="bdg tint">New</span><span class="bdg warn">Reserved</span><span class="bdg err">Removed</span></div>
+<div class="sec">Banners</div>
+<div class="banner info"><svg><use href="#i-info"/></svg><span>Your item is live and visible to buyers.</span></div>
+<div class="banner warn"><svg><use href="#i-alert"/></svg><span>Add measurements to sell faster.</span></div>
+<div class="sec">Input and toggle</div>
+<div class="field"><label>Title</label><div class="inp">Vintage knit poncho</div></div>
+<div class="field err"><label>Price</label><div class="inp">Enter a price</div><small>Price is required</small></div>
+<div class="tog"><span>Hide from search</span><i class="sw1"></i></div>
+<div class="tog"><span>Allow offers</span><i class="sw1 on"></i></div></div>
+<h4 class="th">Measured contrast</h4><table class="ct"><thead><tr><th>Pair</th><th>Colours</th><th>Measured</th><th>Needs</th><th></th></tr></thead><tbody><tr><td>Primary text on page</td><td><span class="dot" style="background:#1F1A17"></span>#1F1A17<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">17.24:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Secondary text on page</td><td><span class="dot" style="background:#58504A"></span>#58504A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">7.89:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Muted text on page</td><td><span class="dot" style="background:#6B625B"></span>#6B625B<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.96:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Faint text on page</td><td><span class="dot" style="background:#756C65"></span>#756C65<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.14:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Muted text on raised surface</td><td><span class="dot" style="background:#6B625B"></span>#6B625B<span class="dot" style="background:#FAF8F6"></span>#FAF8F6</td><td class="num">5.63:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Faint text on raised surface</td><td><span class="dot" style="background:#756C65"></span>#756C65<span class="dot" style="background:#FAF8F6"></span>#FAF8F6</td><td class="num">4.85:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Primary button label</td><td><span class="dot" style="background:#FFFFFF"></span>#FFFFFF<span class="dot" style="background:#1F1A17"></span>#1F1A17</td><td class="num">17.24:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Price, links, outline button (accent on page)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.99:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Active tab icon and label (accent on page)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.99:1</td><td class="num">3:1</td><td class="pass">Pass</td></tr><tr><td>Price line on raised surface</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FAF8F6"></span>#FAF8F6</td><td class="num">5.66:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Accent on tint (banner, badge)</td><td><span class="dot" style="background:#A9431A"></span>#A9431A<span class="dot" style="background:#FFEADB"></span>#FFEADB</td><td class="num">5.15:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Selected chip label</td><td><span class="dot" style="background:#3E1C08"></span>#3E1C08<span class="dot" style="background:#FFD2B6"></span>#FFD2B6</td><td class="num">11.02:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Sold ribbon label</td><td><span class="dot" style="background:#FFFFFF"></span>#FFFFFF<span class="dot" style="background:#1B7A43"></span>#1B7A43</td><td class="num">5.37:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Success text on page</td><td><span class="dot" style="background:#1B7A43"></span>#1B7A43<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">5.37:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Success on success tint</td><td><span class="dot" style="background:#1B7A43"></span>#1B7A43<span class="dot" style="background:#E6F4EA"></span>#E6F4EA</td><td class="num">4.73:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Warning text on warning tint</td><td><span class="dot" style="background:#8A5300"></span>#8A5300<span class="dot" style="background:#FFF2D1"></span>#FFF2D1</td><td class="num">5.69:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Error text on page</td><td><span class="dot" style="background:#B3261E"></span>#B3261E<span class="dot" style="background:#FFFFFF"></span>#FFFFFF</td><td class="num">6.54:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr><tr><td>Error on error tint</td><td><span class="dot" style="background:#B3261E"></span>#B3261E<span class="dot" style="background:#FDECEA"></span>#FDECEA</td><td class="num">5.72:1</td><td class="num">4.5:1</td><td class="pass">Pass</td></tr></tbody></table><p class="tnote">Primary fill against the page: 17.24:1.</p>
+<h4 class="th">Tokens</h4><div class="sws"><div class="sw"><i style="background:#FFFFFF"></i><b>Page bg</b><code>#FFFFFF</code></div><div class="sw"><i style="background:#FAF8F6"></i><b>Raised</b><code>#FAF8F6</code></div><div class="sw"><i style="background:#F1EDE9"></i><b>Pressed</b><code>#F1EDE9</code></div><div class="sw"><i style="background:#E4DDD7"></i><b>Border</b><code>#E4DDD7</code></div><div class="sw"><i style="background:#EFEAE5"></i><b>Border subtle</b><code>#EFEAE5</code></div><div class="sw"><i style="background:#1F1A17"></i><b>Text 1</b><code>#1F1A17</code></div><div class="sw"><i style="background:#58504A"></i><b>Text 2</b><code>#58504A</code></div><div class="sw"><i style="background:#6B625B"></i><b>Text 3</b><code>#6B625B</code></div><div class="sw"><i style="background:#756C65"></i><b>Text 4</b><code>#756C65</code></div><div class="sw"><i style="background:#1F1A17"></i><b>Accent fill</b><code>#1F1A17</code></div><div class="sw"><i style="background:#FFFFFF"></i><b>On-accent</b><code>#FFFFFF</code></div><div class="sw"><i style="background:#A9431A"></i><b>Accent text</b><code>#A9431A</code></div><div class="sw"><i style="background:#FFEADB"></i><b>Accent tint</b><code>#FFEADB</code></div><div class="sw"><i style="background:#FFD2B6"></i><b>Chip selected</b><code>#FFD2B6</code></div><div class="sw"><i style="background:#1B7A43"></i><b>Success</b><code>#1B7A43</code></div><div class="sw"><i style="background:#8A5300"></i><b>Warning</b><code>#8A5300</code></div><div class="sw"><i style="background:#B3261E"></i><b>Error</b><code>#B3261E</code></div></div>
+</section></div>
+<p class="foot">Typeface is Aileron (loaded from a CDN, falls back to the system font if offline). Contrast uses the WCAG formula: 4.5:1 for body text, 3:1 for large text and icons. Photos from Unsplash.</p>
+</div></body></html>
