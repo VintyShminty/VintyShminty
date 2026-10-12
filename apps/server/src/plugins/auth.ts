@@ -113,6 +113,8 @@ export default fp<AuthPluginOptions>(
             if (key.toLowerCase() !== "set-cookie") reply.header(key, value);
           });
           if (setCookies.length > 0) reply.header("set-cookie", setCookies);
+          // False positive: this relays Better Auth's own JSON response, it is not user input rendered as HTML.
+          // nosemgrep: javascript.express.security.audit.xss.direct-response-write.direct-response-write
           return reply.send(response.body ? await response.text() : null);
         },
       });

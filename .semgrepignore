@@ -1,0 +1,12 @@
+# Paths Semgrep skips. Generated, vendored or not our code.
+node_modules/
+.git/
+pnpm-lock.yaml
+*.lock
+packages/db/drizzle/
+apps/mobile/ios/
+apps/mobile/android/
+.claude/skills/
+docs/mockups/
+dist/
+.expo/
