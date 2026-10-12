@@ -303,7 +303,7 @@ function Members({ q, bottom }: { q: string; bottom: number }) {
       renderItem={({ item }) => (
         <Pressable
           // The member page is built with the profile screens (/user/[id]).
-          onPress={() => router.push({ pathname: "/user/[id]", params: { id: item.id } } as never)}
+          onPress={() => router.push({ pathname: "/user/[id]", params: { id: item.id } })}
           role="button"
           accessibilityLabel={item.username ?? ""}
           className="active:bg-surface"

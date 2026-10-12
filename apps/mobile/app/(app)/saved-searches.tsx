@@ -15,6 +15,7 @@ import { ForwardIcon, TopBar } from "@/components/ui/top-bar";
 import { savedSearchesQuery, useDeleteSavedSearch, useUpdateSavedSearch } from "@/lib/item-queries";
 import { formatMoney } from "@/lib/money";
 import { useLocalName, useReference } from "@/lib/reference";
+import { useSearchStore } from "@/lib/search-store";
 import { colors } from "@/theme";
 
 function findCategory(nodes: CategoryNode[] | undefined, id: string): CategoryNode | undefined {
@@ -24,30 +25,6 @@ function findCategory(nodes: CategoryNode[] | undefined, id: string): CategoryNo
     if (inside) return inside;
   }
   return undefined;
-}
-
-/** The saved filters as the query string of the search screen: lists are comma separated (`brandIds=a,b`). */
-function searchParams(search: SavedSearch): Record<string, string> {
-  const { filters } = search;
-  const params: Record<string, string> = {};
-  const q = search.queryText ?? filters.q;
-  if (q) params.q = q;
-  if (filters.categoryId) params.categoryId = filters.categoryId;
-  for (const key of [
-    "brandIds",
-    "sizeIds",
-    "conditionIds",
-    "colourIds",
-    "materialIds",
-    "patternIds",
-  ] as const) {
-    const list = filters[key];
-    if (list && list.length > 0) params[key] = list.join(",");
-  }
-  if (filters.priceMinMinor !== undefined) params.priceMinMinor = String(filters.priceMinMinor);
-  if (filters.priceMaxMinor !== undefined) params.priceMaxMinor = String(filters.priceMaxMinor);
-  if (filters.sort && filters.sort !== "relevance") params.sort = filters.sort;
-  return params;
 }
 
 /** One saved search: the words, a short line of what is filtered, the alert switch and delete. Tap runs it again. */
@@ -97,7 +74,16 @@ function SavedSearchRow({ search }: { search: SavedSearch }) {
   return (
     <View className="border-b border-border-subtle px-lg py-md">
       <Pressable
-        onPress={() => router.push({ pathname: "/search", params: searchParams(search) })}
+        onPress={() => {
+          // The search screen reads its words and filters from the search store, so the saved search is put there.
+          const { q, ...rest } = filters;
+          useSearchStore.getState().reset("search", {
+            q: search.queryText ?? q ?? "",
+            filters: { ...rest, sort: rest.sort ?? "relevance" },
+            categoryName: category ? name(category.name) : null,
+          });
+          router.push("/search");
+        }}
         role="button"
         accessibilityLabel={[title, parts.join(", ")].filter(Boolean).join(", ")}
         className="flex-row items-center gap-md active:opacity-70"

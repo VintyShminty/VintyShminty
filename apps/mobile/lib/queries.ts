@@ -1,4 +1,10 @@
-import { infiniteQueryOptions, queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  type InfiniteData,
+  infiniteQueryOptions,
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   type Brand,
   brandSchema,
@@ -275,7 +281,7 @@ export function useRequestBrand() {
 
 // ---- Discovery (Milestone 3) ----
 // Query keys: ["feed", ...], ["search", ...], ["listing", id], ["similar", id], ["favourites", q],
-// ["saved-searches"], ["recent-searches"], ["members", q]. Favourite changes refresh all of them.
+// ["saved-searches"], ["recent-searches"], ["members", q].
 
 /** Hearts or un-hearts a listing. The heart itself moves straight away in the component. */
 export function useToggleFavourite() {
@@ -286,10 +292,20 @@ export function useToggleFavourite() {
         method: favourite ? "PUT" : "DELETE",
         schema: favouriteResultSchema,
       }),
-    onSettled: (_data, _err, { id }) => {
-      for (const key of ["feed", "search", "similar", "favourites", "listings"]) {
-        void queryClient.invalidateQueries({ queryKey: [key] });
+    // Lists of cards are patched in place rather than reloaded, so the Home feed does not reshuffle under your finger.
+    onSuccess: ({ favouriteCount }, { id, favourite }) => {
+      const patch = (card: ListingCard) =>
+        card.id === id ? { ...card, isFavourited: favourite, favouriteCount } : card;
+      for (const key of ["feed", "search", "similar", "listings"]) {
+        queryClient.setQueriesData<InfiniteData<{ items: ListingCard[] }>>({ queryKey: [key] }, (data) =>
+          data?.pages
+            ? { ...data, pages: data.pages.map((page) => ({ ...page, items: page.items.map(patch) })) }
+            : data,
+        );
       }
+    },
+    onSettled: (_data, _err, { id }) => {
+      void queryClient.invalidateQueries({ queryKey: ["favourites"] });
       void queryClient.invalidateQueries({ queryKey: ["listing", id] });
     },
   });
