@@ -328,9 +328,8 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 
 Proposals, not rules, until explicitly promoted above.
 
-None right now.
-
 | ID | Proposal | Decision needed |
 |---|---|---|
+| O-003 | Hebrew / RTL support: Hebrew font pairing, from docs/mockups/component-sheet-he.html. Heebo is paired with Aileron in the mockup (Aileron for Latin and numbers, Heebo for Hebrew). Currency is decided: ILS (₪) for the Hebrew/Israeli version, shown as ₪45 in whole shekels with a comma for thousands and a dot for decimals. | Confirm Heebo or pick another Hebrew font, and confirm the RTL motion and mirroring rules before building |
 
 ## Superseded decisions
