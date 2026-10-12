@@ -8,6 +8,13 @@
       "when": 1791832141126,
       "tag": "0000_blueprint",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791838936274,
+      "tag": "0001_brand_requests",
+      "breakpoints": true
     }
   ]
 }
