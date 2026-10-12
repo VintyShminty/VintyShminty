@@ -103,9 +103,18 @@ export async function signUpTestUser(ctx: TestContext, label: string, createdIds
   const res = await ctx.app.inject({
     method: "POST",
     url: "/api/auth/sign-up/email",
-    payload: { email: person.email, password: person.password, name: person.username, username: person.username },
+    payload: {
+      email: person.email,
+      password: person.password,
+      name: person.username,
+      username: person.username,
+    },
   });
   const body = res.json();
   createdIds.push(body.user.id);
-  return { token: res.headers["set-auth-token"] as string, id: body.user.id as string, username: person.username };
+  return {
+    token: res.headers["set-auth-token"] as string,
+    id: body.user.id as string,
+    username: person.username,
+  };
 }

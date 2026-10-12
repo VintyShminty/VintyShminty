@@ -58,8 +58,12 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
     return res.json() as { id: string };
   }
 
-  const call = (method: "GET" | "PUT" | "POST" | "PATCH" | "DELETE", url: string, token?: string, payload?: object) =>
-    ctx.app.inject({ method, url, headers: token ? bearer(token) : {}, ...(payload ? { payload } : {}) });
+  const call = (
+    method: "GET" | "PUT" | "POST" | "PATCH" | "DELETE",
+    url: string,
+    token?: string,
+    payload?: object,
+  ) => ctx.app.inject({ method, url, headers: token ? bearer(token) : {}, ...(payload ? { payload } : {}) });
 
   beforeAll(async () => {
     ctx = await buildTestApp();
@@ -118,14 +122,15 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
         .where(and(eq(notifications.userId, seller.id), eq(notifications.listingId, item.id)));
       expect(rows).toHaveLength(1);
       expect(rows[0]?.type).toBe("listing_favourited");
-      expect((rows[0]?.data as { count: number }).count).toBe(2);
+      expect((rows[0]?.data as { count?: number } | undefined)?.count).toBe(2);
     });
 
     it("refuses your own item, drafts and unknown listings", async () => {
       expect((await call("PUT", `/v1/listings/${item.id}/favourite`, seller.token)).statusCode).toBe(403);
       expect((await call("PUT", `/v1/listings/${draft.id}/favourite`, fan.token)).statusCode).toBe(404);
       expect(
-        (await call("PUT", "/v1/listings/00000000-0000-4000-8000-000000000000/favourite", fan.token)).statusCode,
+        (await call("PUT", "/v1/listings/00000000-0000-4000-8000-000000000000/favourite", fan.token))
+          .statusCode,
       ).toBe(404);
       expect(
         (await call("DELETE", "/v1/listings/00000000-0000-4000-8000-000000000000/favourite", fan.token))
@@ -146,7 +151,9 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
 
       const paged = (await call("GET", "/v1/me/favourites?limit=1", fan.token)).json();
       expect(paged.nextCursor).toBeTruthy();
-      const rest = (await call("GET", `/v1/me/favourites?limit=1&cursor=${paged.nextCursor}`, fan.token)).json();
+      const rest = (
+        await call("GET", `/v1/me/favourites?limit=1&cursor=${paged.nextCursor}`, fan.token)
+      ).json();
       expect(rest.items[0].id).toBe(item.id);
 
       await ctx.database.db.update(listings).set({ status: "sold" }).where(eq(listings.id, second.id));
@@ -185,10 +192,15 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
       expect((await call("GET", "/v1/me/saved-searches", stranger.token)).json().items).toHaveLength(0);
 
       expect(
-        (await call("PATCH", `/v1/me/saved-searches/${saved.id}`, stranger.token, { notifyOnNew: false })).statusCode,
+        (await call("PATCH", `/v1/me/saved-searches/${saved.id}`, stranger.token, { notifyOnNew: false }))
+          .statusCode,
       ).toBe(404);
-      expect((await call("DELETE", `/v1/me/saved-searches/${saved.id}`, stranger.token)).statusCode).toBe(404);
-      const patched = await call("PATCH", `/v1/me/saved-searches/${saved.id}`, fan.token, { notifyOnNew: false });
+      expect((await call("DELETE", `/v1/me/saved-searches/${saved.id}`, stranger.token)).statusCode).toBe(
+        404,
+      );
+      const patched = await call("PATCH", `/v1/me/saved-searches/${saved.id}`, fan.token, {
+        notifyOnNew: false,
+      });
       expect(patched.json().notifyOnNew).toBe(false);
       expect((await call("DELETE", `/v1/me/saved-searches/${saved.id}`, fan.token)).statusCode).toBe(204);
       expect((await call("GET", "/v1/me/saved-searches", fan.token)).json().items).toHaveLength(0);
@@ -201,14 +213,20 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
       expect(fromFilters.json().queryText).toBe("coat");
       const empty = await call("POST", "/v1/me/saved-searches", fan2.token, {});
       expect(empty.statusCode).toBe(400);
-      expect((await call("POST", "/v1/me/saved-searches", undefined, { queryText: "x" })).statusCode).toBe(401);
+      expect((await call("POST", "/v1/me/saved-searches", undefined, { queryText: "x" })).statusCode).toBe(
+        401,
+      );
     });
   });
 
   describe("recent searches", () => {
     it("keeps the 10 newest, moves a repeat to the top and clears", async () => {
       const send = (queryText: string, resultCount?: number) =>
-        call("POST", "/v1/me/recent-searches", stranger.token, { queryText, filters: { sort: "relevance" }, resultCount });
+        call("POST", "/v1/me/recent-searches", stranger.token, {
+          queryText,
+          filters: { sort: "relevance" },
+          resultCount,
+        });
       for (let i = 1; i <= 12; i++) expect((await send(`word ${i}`, i)).statusCode).toBe(204);
       let list = (await call("GET", "/v1/me/recent-searches", stranger.token)).json().items;
       expect(list).toHaveLength(10);
@@ -220,13 +238,20 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
       list = (await call("GET", "/v1/me/recent-searches", stranger.token)).json().items;
       expect(list).toHaveLength(10);
       expect(list[0]).toMatchObject({ queryText: "WORD 5", resultCount: 99 });
-      expect(list.filter((r: { queryText: string }) => r.queryText.toLowerCase() === "word 5")).toHaveLength(1);
+      expect(list.filter((r: { queryText: string }) => r.queryText.toLowerCase() === "word 5")).toHaveLength(
+        1,
+      );
 
       expect((await call("DELETE", "/v1/me/recent-searches", stranger.token)).statusCode).toBe(204);
       expect((await call("GET", "/v1/me/recent-searches", stranger.token)).json().items).toEqual([]);
-      const rows = await ctx.database.db.select().from(recentSearches).where(eq(recentSearches.userId, stranger.id));
+      const rows = await ctx.database.db
+        .select()
+        .from(recentSearches)
+        .where(eq(recentSearches.userId, stranger.id));
       expect(rows).toHaveLength(0);
-      expect((await call("POST", "/v1/me/recent-searches", stranger.token, { queryText: "" })).statusCode).toBe(400);
+      expect(
+        (await call("POST", "/v1/me/recent-searches", stranger.token, { queryText: "" })).statusCode,
+      ).toBe(400);
     });
   });
 
@@ -235,23 +260,33 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
       const sizeIds = reference.sizeGroups.flatMap((g) => g.sizes.map((s) => s.id));
       const a = sizeIds[0] as string;
       const b = sizeIds[1] as string;
-      expect((await call("PUT", "/v1/me/personalisation/sizes", stranger.token, { sizeIds: [a, b, a] })).json()).toEqual({
+      expect(
+        (await call("PUT", "/v1/me/personalisation/sizes", stranger.token, { sizeIds: [a, b, a] })).json(),
+      ).toEqual({
         sizeIds: [a, b],
       });
-      expect((await call("PUT", "/v1/me/personalisation/sizes", stranger.token, { sizeIds: [b] })).json()).toEqual({
+      expect(
+        (await call("PUT", "/v1/me/personalisation/sizes", stranger.token, { sizeIds: [b] })).json(),
+      ).toEqual({
         sizeIds: [b],
       });
-      expect((await call("GET", "/v1/me/personalisation/sizes", stranger.token)).json()).toEqual({ sizeIds: [b] });
+      expect((await call("GET", "/v1/me/personalisation/sizes", stranger.token)).json()).toEqual({
+        sizeIds: [b],
+      });
       const bad = await call("PUT", "/v1/me/personalisation/sizes", stranger.token, {
         sizeIds: ["00000000-0000-4000-8000-000000000000"],
       });
       expect(bad.statusCode).toBe(400);
-      expect((await call("PUT", "/v1/me/personalisation/sizes", stranger.token, { sizeIds: [] })).json()).toEqual({
+      expect(
+        (await call("PUT", "/v1/me/personalisation/sizes", stranger.token, { sizeIds: [] })).json(),
+      ).toEqual({
         sizeIds: [],
       });
       const rows = await ctx.database.db.select().from(userSizes).where(eq(userSizes.userId, stranger.id));
       expect(rows).toHaveLength(0);
-      expect((await call("PUT", "/v1/me/personalisation/sizes", undefined, { sizeIds: [] })).statusCode).toBe(401);
+      expect((await call("PUT", "/v1/me/personalisation/sizes", undefined, { sizeIds: [] })).statusCode).toBe(
+        401,
+      );
     });
   });
 
@@ -265,9 +300,13 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
       expect(rows[0]).toMatchObject({ targetType: "listing", reason: "spam", status: "open" });
 
       expect((await call("POST", "/v1/reports", seller.token, body)).statusCode).toBe(400);
-      expect((await call("POST", "/v1/reports", fan.token, { ...body, targetId: draft.id })).statusCode).toBe(404);
+      expect((await call("POST", "/v1/reports", fan.token, { ...body, targetId: draft.id })).statusCode).toBe(
+        404,
+      );
       expect((await call("POST", "/v1/reports", undefined, body)).statusCode).toBe(401);
-      expect((await call("POST", "/v1/reports", fan.token, { ...body, reason: "nope" })).statusCode).toBe(400);
+      expect((await call("POST", "/v1/reports", fan.token, { ...body, reason: "nope" })).statusCode).toBe(
+        400,
+      );
       const user = await call("POST", "/v1/reports", fan.token, {
         targetType: "user",
         targetId: seller.id,
@@ -275,8 +314,13 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
       });
       expect(user.statusCode).toBe(204);
       expect(
-        (await call("POST", "/v1/reports", fan.token, { targetType: "user", targetId: fan.id, reason: "spam" }))
-          .statusCode,
+        (
+          await call("POST", "/v1/reports", fan.token, {
+            targetType: "user",
+            targetId: fan.id,
+            reason: "spam",
+          })
+        ).statusCode,
       ).toBe(400);
     });
 
@@ -285,7 +329,11 @@ describe.skipIf(!databaseUrl)("favourites, saved searches, reports", () => {
       let last = 0;
       for (let i = 0; i < 7; i++) {
         last = (
-          await call("POST", "/v1/reports", fan2.token, { targetType: "user", targetId: seller.id, reason: "spam" })
+          await call("POST", "/v1/reports", fan2.token, {
+            targetType: "user",
+            targetId: seller.id,
+            reason: "spam",
+          })
         ).statusCode;
       }
       expect(last).toBe(429);

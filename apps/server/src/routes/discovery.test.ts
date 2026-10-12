@@ -81,15 +81,18 @@ describe.skipIf(!databaseUrl)("discovery", () => {
     const brandsRes = (await get("/v1/brands?limit=2")).json();
     brandId = brandsRes.items[0].id;
     otherBrandId = brandsRes.items[1].id;
-    [alice, bob, carol, dave, erin] = await Promise.all(
+    [alice, bob, carol, dave, erin] = (await Promise.all(
       ["alice", "bob", "carol", "dave", "erin"].map((n) => signUpTestUser(ctx, n, createdIds)),
-    ) as Person[];
+    )) as Person[];
 
     dress = await publish(alice);
     coat = await publish(alice, { title: `${word} wool coat`, priceMinor: 30000, brandId: otherBrandId });
     draft = await publish(alice, { title: `${word} draft thing` }, false);
     bobItem = await publish(bob, { title: `${word} holiday jacket`, priceMinor: 5000 });
-    await ctx.database.db.update(profiles).set({ holidayModeEnabled: true }).where(eq(profiles.userId, bob.id));
+    await ctx.database.db
+      .update(profiles)
+      .set({ holidayModeEnabled: true })
+      .where(eq(profiles.userId, bob.id));
     await ctx.database.db.insert(blocks).values([
       { blockerId: dave.id, blockedId: alice.id },
       { blockerId: alice.id, blockedId: erin.id },
@@ -222,17 +225,17 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(res.statusCode).toBe(200);
       const { suggestions } = res.json();
       expect(suggestions.length).toBeLessThanOrEqual(10);
-      expect(suggestions.some((s: { kind: string; text: string }) => s.kind === "brand" && s.text === brandName)).toBe(
-        true,
-      );
+      expect(
+        suggestions.some((s: { kind: string; text: string }) => s.kind === "brand" && s.text === brandName),
+      ).toBe(true);
 
       const category = leaves(reference.categories)[0] as CategoryNode;
       const byCategory = (
         await get(`/v1/search/suggestions?q=${encodeURIComponent(category.name.en.slice(0, 4))}`)
       ).json();
-      expect(
-        byCategory.suggestions.some((s: { categoryId?: string }) => s.categoryId === category.id),
-      ).toBe(true);
+      expect(byCategory.suggestions.some((s: { categoryId?: string }) => s.categoryId === category.id)).toBe(
+        true,
+      );
     });
 
     it("needs some text", async () => {
@@ -358,7 +361,9 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(feed.json().items[0].isFavourited).toBeUndefined();
       expect(ids(feed)).not.toContain(bobItem.id);
 
-      const chip = await get(`/v1/feed?categoryId=${categoryTrail(reference.categories, sized.id)[0]?.id}&limit=50`);
+      const chip = await get(
+        `/v1/feed?categoryId=${categoryTrail(reference.categories, sized.id)[0]?.id}&limit=50`,
+      );
       expect(ids(chip)).toContain(fresh.id);
       const trending = await get("/v1/feed?trending=true&limit=5");
       expect(trending.statusCode).toBe(200);
