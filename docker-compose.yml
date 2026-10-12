@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: vintyshminty-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vinty
+      POSTGRES_PASSWORD: vinty
+      POSTGRES_DB: vintyshminty
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vinty -d vintyshminty"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
