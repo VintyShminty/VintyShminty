@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+nativewind-env.d.ts.bak
+/apps/mobile/ios/
+/apps/mobile/android/
+*.tsbuildinfo
+.DS_Store
+npm-debug.*
+.metro-health-check*

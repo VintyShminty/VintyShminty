@@ -1,0 +1,17 @@
+{
+  "name": "vintyshminty",
+  "private": true,
+  "packageManager": "pnpm@11.1.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:mobile": "pnpm --filter @vinty/mobile start",
+    "dev:server": "pnpm --filter @vinty/server dev",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "db:generate": "pnpm --filter @vinty/db generate"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}
