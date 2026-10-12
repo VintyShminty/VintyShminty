@@ -46,7 +46,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow VintyShminty to use Face ID to unlock the app."
+          "faceIDPermission": "Allow Vinty to use Face ID to unlock the app."
         }
       ],
       "expo-font",
