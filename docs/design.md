@@ -31,7 +31,7 @@ Palette: Espresso and cream (D-006). Light mode only for now (D-002). Requiremen
 | Token | Hex | Used for |
 |---|---|---|
 | background | #FFFFFF | Page background |
-| surface | #FBF8F2 | Raised surface: search bar, cards, inactive chips |
+| surface | #FBF8F2 | Raised surface: search bar, banners, pressed rows |
 | pressed | #F1E9DA | Pressed surface, switch track when off |
 | border | #E4DACA | Border default |
 | border-subtle | #F0EADF | Border subtle, dividers, inactive chip outline |
@@ -42,8 +42,8 @@ Palette: Espresso and cream (D-006). Light mode only for now (D-002). Requiremen
 | accent | #4B2E22 | Primary button fill, links, prices, active tab, outline button |
 | on-accent | #FFFFFF | Text and icons on the accent fill |
 | accent-tint | #F7EEDC | Info banners, "New" badge |
-| chip-selected | #EFE0C3 | Selected chip fill |
-| on-chip | #3A2218 | Label on a selected chip |
+| chip-selected | #EFE0C3 | Promo banner fill (no longer the selected chip fill, see D-008) |
+| on-chip | #3A2218 | Label on the promo banner |
 | success | #1B7A43 | Sold ribbon, success text |
 | success-tint | #E6F4EA | Success background |
 | warning | #8A4F00 | Warning text |
@@ -69,7 +69,12 @@ Measured contrast (WCAG formula, from the mockup's computed table):
 | Active tab icon and label | #4B2E22 on #FFFFFF | 12.26:1 | 4.5:1 |
 | Price line on raised surface | #4B2E22 on #FBF8F2 | 11.56:1 | 4.5:1 |
 | Accent on tint (banner, badge) | #4B2E22 on #F7EEDC | 10.63:1 | 4.5:1 |
-| Selected chip label | #3A2218 on #EFE0C3 | 11.34:1 | 4.5:1 |
+| Promo banner label | #3A2218 on #EFE0C3 | 11.34:1 | 4.5:1 |
+| Inactive chip outline (border, 3:1) | #7A6B60 on #FFFFFF | 5.12:1 | 3:1 |
+| Inactive chip label | #241811 on #FFFFFF | 17.30:1 | 4.5:1 |
+| Active chip label | #FFFFFF on #4B2E22 | 12.26:1 | 4.5:1 |
+| Warning badge on white | #8A4F00 on #FFFFFF | 6.56:1 | 4.5:1 |
+| Neutral info badge on white | #54443A on #FFFFFF | 9.27:1 | 4.5:1 |
 | Sold ribbon label | #FFFFFF on #1B7A43 | 5.37:1 | 4.5:1 |
 | Success text on page | #1B7A43 on #FFFFFF | 5.37:1 | 4.5:1 |
 | Success on success tint | #1B7A43 on #E6F4EA | 4.73:1 | 4.5:1 |
@@ -97,10 +102,11 @@ Inherited from Kept. The typeface is Aileron (D-003), self-hosted, same structur
 | Sheet / list heading | 18px | 700 | |
 | Section header | 12px | 600 | Uppercase, muted, tracked |
 | Small label | 10px | 500 | Uppercase, muted, wide tracking (0.12em) |
-| Card title | 13px | 500 | |
-| Card subtitle | 11px | 400 | Uppercase, muted |
+| Card brand | 13.5px | 800 | Brand name on item cards (D-007) |
+| Card description | 12px | 400 | Up to two lines, secondary text |
+| Card meta | 11px | 400 | Size and condition, muted |
 | Filter pill | 13px | 500 | |
-| Badge | 10px | 600-700 | Tracking 0.08em |
+| Badge | 10px | 600 | Uppercase, tracking 0.08em |
 | Body | 14-16px | 400 | Inputs at 16px |
 
 Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), never an image.
@@ -118,14 +124,14 @@ Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), n
 | xl | 24px | Between major sections |
 | 2xl | 40px | Page top padding, large breaks |
 
-- Phone app. Bottom tab bar (Home, Browse, Sell, Inbox, Profile) replaces the desktop top nav. Page side padding 16px.
+- Phone app. The bottom tab bar (Home, Browse, Sell, Inbox, Profile) replaces the desktop top nav and stays the default navigation (D-009). Page side padding 16px.
 - Item grid: 2 columns on phone, 12px gaps. Item cards are portrait 3:4 (`aspectRatio: 3 / 4`), not square (D-005).
 - Larger screens (tablet): 3 columns, same 3:4 cards.
 - Each scroll container owns its own bottom clearance above the tab bar and the home indicator (safe area).
 
 ## Shapes and depth
 
-- Window radius 20px; buttons 12px; pills fully rounded; search/prompt bar 32px.
+- Window radius 20px, buttons 12px, item photos and category tiles 12px, chips and badges fully rounded outline pills, item card badges 2px rectangles, search and prompt bar 32px.
 - Borders are hairlines (0.5-1px, low opacity). A window's top edge is slightly brighter than its sides and bottom.
 - No drop shadows on cards or windows. Depth = border + blur + surface shift.
 - Glass (translucent + blur ~24px) only for floating chrome (search bar, floating buttons), never for reading surfaces.
@@ -142,11 +148,15 @@ Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), n
 | Action ("+ Add") | Ghost with border, 13px, icon + label |
 | List row active | Faintly tinted background, full-width pill |
 
-**Filter pills.** ~32px tall, padding 8px 14px, full radius, 13px medium. Inactive: faint fill, secondary text. Active: inverted (primary text colour as fill). Count after a dot separator ("All · 19").
+**Item card (D-007).** Portrait 3:4 photo with 12px rounded corners and no border. A white circle heart (32px) sits top-right on the photo. A small rectangular badge sits bottom-left (white for Bumped, solid espresso for Price drop, green for Sold only). Below the photo: brand in bold with the favourite count (small heart and number) at the right, a description of up to two lines, size and condition, then the price. Price drop: the sale price in espresso, with a struck-through "Was: €X" line and the percentage off (for example "24% off"). Sold: the photo is washed out with white, the price is muted and struck through, and there is no heart. Under the price, the buyer price with the protection shield ("€20,55 incl."). Sale emphasis is espresso, never red. Green appears only for Sold. Press feedback is a 0.98 scale.
 
-**Badges / status pills.** Small (10px), uppercase, tracked, pill. Status shown with outline vs fill and strength of stroke, plus a label; never colour alone.
+**Chips (D-008).** 32px tall, padding 0 14px, fully rounded, 13px medium, 1px outline in text-4 on a white fill with primary text. Active: filled espresso with white text. Applied filters that can be removed: 1.5px espresso outline with a cross. A count follows a dot separator ("All · 19"). The Filter button is an icon-only 40 by 32 pill with the same outline. Pressed uses the pressed surface and disabled uses 40% opacity.
 
-**Bottom tab bar.** Replaces the desktop top nav and sidebar. Five tabs: Home, Browse, Sell, Inbox, Profile. Solid background (no transparency, prevents bleed-through), hairline top border, sits above the home indicator (safe area). Labels uppercase, tracked, 10px, with an icon above. Active tab: accent icon and label (icon drawn with the text colour, never emoji). Inbox unread count as a small pill on the icon.
+**Badges and status pills (D-008).** 22px tall, 10px uppercase, tracked, semibold, fully rounded, 1px outline in the status colour on a white fill, with a small icon (11px) before the label. Colour by meaning: success for Sold and Completed, warning for Reserved and In progress, error for Cancelled and Removed, espresso for New, Price drop, Bumped and Verified, neutral text-2 for info such as Frequent uploads. Status always has an outline, an icon and a label, never colour alone. The white fill keeps badges readable on photos. Item cards use their own rectangular badges instead (see Item card).
+
+**Bottom tab bar.** The default navigation (D-009). Five tabs: Home, Browse, Sell, Inbox, Profile. Solid background (no transparency, prevents bleed-through), hairline top border, sits above the home indicator (safe area). Labels uppercase, tracked, 10px, with an icon above. Active tab: accent icon and label (icon drawn with the text colour, never emoji). Inbox unread count as a small pill on the icon. It stays visible, with Browse active, while category panels push in.
+
+**Browse and category panels (D-009).** The Browse tab is a 2 column grid of main category tiles under the search bar. Tiles are light tinted (accent-tint), 12px radius, label top-left in bold, and a picture bottom-right (a Lucide line icon for now, illustration style to decide). Tapping a tile opens a full-screen panel that slides in from the trailing edge and pushes the current screen aside (see Motion). The panel has a top bar (back arrow, centred category title, search icon), an "All" row with a grid icon, then rows of icon, label and chevron separated by hairlines. A row with children pushes another panel the same way. A leaf row or "All" opens the item feed for that level. Back reverses the motion.
 
 **Search bar.** Full width minus 16px side padding, 32px radius, hairline border, camera icon on the right for photo search. Focus: border brightens. Busy: input disabled, placeholder "Searching...".
 
@@ -169,14 +179,16 @@ Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), n
 | Card info press | opacity | 150ms | ease |
 | Pill state change | background, colour | 150ms | ease |
 | Tab bar press | background, colour | 200ms | ease |
-| Page to page | none, instant | | Pages run their own small entrance (skeleton → content) |
+| Page to page | none, instant, except the category push below | | Pages run their own small entrance (skeleton → content) |
 | New item appear | opacity 0 → 1 | 300ms | ease |
 | Sheet open and close | slide up, reverse to close | 300ms | ease-out, reverse to close |
+| Category panel push | new panel slides in from the trailing edge, the previous screen shifts left about 30% and dims | 300ms | ease-out, back is the exact reverse |
 
 There is no hover on phones. Every hover rule from Kept becomes press feedback (D-005).
 
 - Frequent one-click transitions stay under ~200ms.
-- Close easing is the reverse of open easing.
+- Close easing is the reverse of open easing. Back from a category panel runs the push in reverse.
+- In right-to-left languages the category push runs mirrored (the panel enters from the left).
 - Loading indicators hold at least one full cycle (700-1200ms).
 
 ## Writing rules
@@ -194,7 +206,7 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - Heavy box shadows on cards or windows
 - Rounded rectangles with thick borders
 - Dense data tables
-- Hamburger menus (navigation is the bottom tab bar)
+- Hamburger menus and side drawers (navigation is the bottom tab bar, D-009)
 - Translucent windows below ~90% opacity for reading surfaces
 - Emoji as icons in themed UI (they ignore the palette)
 - Corporate or sales jargon in the UI
@@ -260,6 +272,36 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - **Rationale:** Thrift-shop warmth that suits second-hand clothes, and it lets listing photos lead. Every text and icon pair passes WCAG AA, with the tightest at 4.83:1 (faint text on the raised surface). Peach (round 1) was rejected earlier.
 - **Implementation:** Define the tokens once in the app's theme (NativeWind), named by role as in the table. Window fill and backdrop are derived values (white at 96%, text-1 at 25%) that were not in the mockup.
 - **References:** `docs/mockups/colour-options-2.html` (option 4), `docs/mockups/component-sheet.html`
+
+### D-007 : ItemCard is Option C, Badge forward
+
+- **Date:** 2026-10-12
+- **Area:** Components, Item card
+- **Status:** Approved
+- **Decision:** The item card follows round 2 Option C. 12px rounded photo, white circle heart top-right, rectangular badges bottom-left, brand in bold with the favourite count, a two line description, size and condition, then the price. A price drop shows the sale price in espresso with a struck-through "Was: €X" line and the percentage off. Sale emphasis is espresso and green is used only for Sold.
+- **Rationale:** Familiar to shoppers, handles every state clearly, and the Was price with a percentage makes a deal obvious. Adapted to our palette, so the sale colour is espresso instead of red.
+- **Implementation:** Item card description under Components. ItemCard, HeartPill (circle variant) and PriceBlock in `docs/components.md`. Live in `docs/mockups/component-sheet.html`.
+- **References:** `docs/mockups/round-2.html` (Option C)
+
+### D-008 : Chips and badges are Option B, Hairline outline
+
+- **Date:** 2026-10-12
+- **Area:** Components, Chips, Badges
+- **Status:** Approved
+- **Decision:** Chips and badges follow round 2 Option B. Chips are fully rounded pills with a thin outline, the active chip is filled espresso, applied filters get a 1.5px espresso outline and a cross, and the Filter button is an icon-only pill. Badges are outlined pills with an icon and a label, coloured by meaning. The chip-selected fill (#EFE0C3) no longer marks a selected chip. It stays as the promo banner fill. Item cards keep their own rectangular badges (D-007).
+- **Rationale:** The lightest look, so photos stay the loudest thing. Outline plus icon plus label means status never rests on colour alone, and the white fill keeps badges readable on any photo. The inactive outline measures 5.12:1 on white.
+- **Implementation:** Chips and Badges paragraphs under Components, with new contrast rows in Colour. Chip, Badge and FilterBar in `docs/components.md`.
+- **References:** `docs/mockups/round-2.html` (Option B)
+
+### D-009 : Navigation is the bottom tab bar, with a Browse grid and pushed panels
+
+- **Date:** 2026-10-12
+- **Area:** Navigation, Motion
+- **Status:** Approved
+- **Decision:** The bottom tab bar (Home, Browse, Sell, Inbox, Profile) stays the default navigation. The side drawer proposed in round 2 is not adopted. The Browse tab shows the search bar and a 2 column grid of main category tiles. Tapping a category opens a full-screen panel that slides in from the trailing edge and pushes the current screen aside, like an iOS push, not an overlay. The panel has a top bar (back arrow, centred title, search icon), an "All" row, then subcategory rows (icon, label, chevron) separated by hairlines. A row with children pushes another panel the same way. A leaf or "All" opens the item feed. The tab bar stays visible with Browse active. Back reverses the motion. The push takes about 300ms.
+- **Rationale:** Tabs keep the five main places one tap away and match what shoppers know. A grid makes the categories easy to scan, and a push keeps a clear sense of depth and a simple way back.
+- **Implementation:** Bottom tab bar, Browse and Motion sections above. CategoryGrid, CategoryPanel and CategoryRow in `docs/components.md`, built with an Expo Router stack push (native slide) inside the Browse tab. Tile illustration style is still to decide, a Lucide line icon is the placeholder.
+- **References:** `docs/mockups/round-2.html` (section 3 for the drawer that was not adopted), `docs/mockups/component-sheet.html` (CategoryGrid story)
 
 <!-- Template for new entries:
 ### D-### : Short decision name

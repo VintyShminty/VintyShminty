@@ -8,7 +8,7 @@ How to read it:
 - **First flows** components are needed for browse feed, item page, sell form and inbox. **Later** ones wait.
 - Every colour, radius and space comes from tokens, never raw values.
 
-Totals: Foundation 7, Core 23, Marketplace patterns 30, 60 components.
+Totals: Foundation 7, Core 23, Marketplace patterns 33, 63 components.
 
 ## Foundation
 
@@ -137,20 +137,20 @@ A sliding on and off toggle for settings.
 
 ### Chip
 
-A small fully rounded pill used to filter and to switch views.
+A small fully rounded outline pill used to filter and to switch views. The active chip fills with espresso (D-008).
 
-- **Variants and states:** Variants: outline (idle), filled (selected), with count, with dropdown arrow, with leading icon (Filter), removable. States: default, pressed, disabled.
+- **Variants and states:** Variants: idle (1px outline), active (filled espresso), with count, active with count, with dropdown arrow, applied and removable (1.5px accent outline and a cross), Filter button (icon only, 40 by 32). States: default, pressed, disabled.
 - **Screens:** Home feed, Search and results, Catalog and filters, My orders, Own profile, Seller profile
 - **Source:** Custom (Composed from Pressable and Text. Single-choice sets can sit on Reusables Toggle Group)
 - **Phase:** First flows
 
 ### Badge
 
-A tiny uppercase label that tells you a status or a quality.
+A tiny uppercase outlined pill with an icon that tells you a status or a quality (D-008).
 
-- **Variants and states:** Variants: new (tint), sold (success), reserved (warning), removed (error), outline, seller badge with icon. Text 10px tracked.
+- **Variants and states:** Outline, icon and label always. Variants by meaning: sold and completed (success), reserved and in progress (warning), removed and cancelled (error), new, price drop, bumped and verified (accent), info such as frequent uploads (neutral). Works on a plain surface and on a photo (white fill). Text 10px tracked. Item cards use their own rectangular badges (see ItemCard).
 - **Screens:** Item page, Seller profile, Own profile, Home feed, My orders
-- **Source:** Reusables: Badge
+- **Source:** Reusables: Badge (restyled to the outline pill)
 - **Phase:** First flows
 
 ### Avatar
@@ -294,18 +294,18 @@ The pieces that make this a second-hand marketplace. Built from Foundation and C
 
 ### ItemCard
 
-The tile for one listing: tall photo, brand, size and condition, and the price the buyer really pays.
+The tile for one listing: tall rounded photo, brand, description, size and condition, and the price the buyer really pays (D-007, Option C, Badge forward).
 
-- **Variants and states:** Variants: browse (default), sold (green band), favourited (filled heart), promoted (Bumped label), own listing (price, views, favourites, Bump), loading (skeleton). States: default, pressed (scale 0.98).
+- **Variants and states:** Variants: browse (default), favourited (filled heart), sold (washed photo, green Sold badge, muted struck price, no heart), bumped (white badge), price drop (espresso badge, sale price in espresso, struck "Was: €X" line with the percentage off), own listing (price, views, favourites, Bump), loading (skeleton). States: default, pressed (scale 0.98). Layout: 12px rounded photo, white circle heart top-right, rectangular badge bottom-left, brand with favourite count, two line description, size and condition, price, buyer price with the shield.
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
-- **Source:** Custom (Composed from Photo, HeartPill, Badge, Text and PriceBlock)
+- **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badges are small rectangles built inside the card, not the Badge component)
 - **Phase:** First flows
 
 ### HeartPill
 
-A small white pill with a heart and the number of people who saved the item.
+A small white pill with a heart and the number of people who saved the item. A circle variant (heart only) sits on item cards.
 
-- **Variants and states:** States: not saved (outline), saved (filled, red), pressed. With or without count. On photo or inline.
+- **Variants and states:** Variants: pill with count (item page, inline), circle 32px (on item cards, the count sits beside the brand). States: not saved (outline), saved (filled, red), pressed. On photo or inline.
 - **Screens:** Home feed, Search and results, Item page, Seller profile, Favourites
 - **Source:** Custom (Composed from Pressable, Icon and Text)
 - **Phase:** First flows
@@ -330,20 +330,47 @@ The big rounded search box at the top of Home and Browse, with a camera for phot
 
 ### FilterBar
 
-The scrolling row of filter chips above search results, with Filter first and a result count underneath.
+The scrolling row of filter chips above search results, with the Filter button first and a result count underneath.
 
-- **Variants and states:** Variants: with Filter button, category chips (Home), status chips. Count row: 500+ results.
+- **Variants and states:** Variants: with Filter button (icon only), category chips (Home), status chips (My orders). Count row: 500+ results.
 - **Screens:** Home feed, Search and results, My orders, Own profile
 - **Source:** Custom (A horizontal row of Chips with the results count)
 - **Phase:** First flows
 
 ### CategoryTile
 
-A picture tile on Browse that opens one category.
+A light tinted tile on the Browse grid: label top-left, picture bottom-right. Opens one main category (D-009).
 
-- **Variants and states:** Variants: icon tile, photo tile. States: default, pressed. 2 or 3 per row.
+- **Variants and states:** Variants: icon tile (a Lucide line icon is a placeholder, illustration style to decide). States: default, pressed (scale 0.98). Long labels wrap. Fill accent-tint, 12px radius.
 - **Screens:** Browse
 - **Source:** Custom (Composed from Pressable, Icon and Text)
+- **Phase:** First flows
+
+### CategoryGrid
+
+The body of the Browse tab: the search bar on top, then the main categories as a 2 column grid of CategoryTiles (Women, Men, Designer, Kids, Home, Electronics, Books and media, Hobbies and collectables, Sports).
+
+- **Variants and states:** 2 columns, 12px gaps, scrolls. States: default, loading (skeleton tiles).
+- **Screens:** Browse
+- **Source:** Custom (Composed from SearchBar and CategoryTile. The root screen of the Browse tab's Expo Router stack)
+- **Phase:** First flows
+
+### CategoryPanel
+
+One full-screen level of the category tree. It slides in from the trailing edge (right in left-to-right languages) and pushes the screen before it aside, like an iOS push. The bottom tab bar stays visible with Browse active.
+
+- **Variants and states:** Levels: main category (Men), sub level (Men, Clothing), deeper levels the same way. Top bar: back arrow, centred category title, search icon. First row is All, then CategoryRows with hairlines between them. A row with children pushes another panel, a leaf or All opens the item feed for that level. Back reverses the motion. About 300ms.
+- **Screens:** Browse
+- **Source:** Custom (Expo Router stack push with the native slide, inside the Browse tab. Not a custom drawer. Composed from TopBar and CategoryRow)
+- **Phase:** First flows
+
+### CategoryRow
+
+One line in a category panel: an icon, a label and a chevron when it has children.
+
+- **Variants and states:** Variants: branch (chevron, opens another panel), leaf (no chevron, opens the feed), All (grid icon, opens the feed for the whole level). States: default, pressed. 56px tall, hairline below.
+- **Screens:** Browse
+- **Source:** Custom (Composed from Pressable, Icon and Text. Looks like ListRow with a leading icon, kept separate so category rows stay uniform)
 - **Phase:** First flows
 
 ### ItemGrid
@@ -357,9 +384,9 @@ The two-column feed of item cards with infinite scroll and a loading spinner at 
 
 ### BottomTabBar
 
-The five tabs at the bottom: Home, Browse, Sell, Inbox, Profile.
+The five tabs at the bottom: Home, Browse, Sell, Inbox, Profile. The default navigation, no side drawer (D-009).
 
-- **Variants and states:** States per tab: idle (outline icon, muted label), active (accent icon and label), pressed. Inbox unread count pill. Hidden on task pages. Sits above the home indicator.
+- **Variants and states:** States per tab: idle (outline icon, muted label), active (accent icon and label), pressed. Inbox unread count pill. Hidden on task pages. Stays visible, with Browse active, while category panels push in. Sits above the home indicator.
 - **Screens:** Home feed, Browse, Search and results, Inbox, Profile menu, Favourites, My orders
 - **Source:** Custom (Built on the Expo Router tab bar)
 - **Phase:** First flows
@@ -510,7 +537,7 @@ A sheet with a flat list of options to pick from, such as size, brand, condition
 
 ### CategoryPicker
 
-A sheet where you drill down through categories until you pick one leaf, with a search shortcut.
+A sheet where you drill down through categories until you pick one leaf, with a search shortcut. For the Sell form and the Filter page. The Browse tab uses CategoryPanel instead.
 
 - **Variants and states:** Levels: top (Women, Men, Kids...), branch (chevron), leaf (radio). Header with back arrow and the current level name. Find a category search.
 - **Screens:** Category picker, Sell form, Catalog and filters
@@ -583,6 +610,7 @@ Things Vinted has that we are deliberately leaving out for now.
 1. **Foundation first.** Tokens (Espresso and cream, D-006), Aileron loading, Text, Icon, Screen, Separator, Pressable, Photo. Install and restyle the Reusables Text, Icon and Separator. Nothing else starts until these read from tokens only.
 2. **Core controls.** Button, IconButton, TextField, Chip, Badge, Avatar, Tabs, ListRow, SectionHeader, TextLink, StarRating, Skeleton, Spinner. Then Checkbox, Radio, Switch, TopBar, ExpandableText, ActionMenu, Dialog. Add Gorhom Bottom Sheet and build BottomSheet.
 3. **Browse feed (Home).** BottomTabBar, SearchBar, FilterBar, HeartPill, PriceBlock, ItemCard, ItemGrid, Banner (notice strip), EmptyState.
+3b. **Browse tab.** CategoryTile, CategoryGrid, CategoryRow, then CategoryPanel (Expo Router stack inside the Browse tab, push transition about 300ms). The panels end in the item feed from step 3, so build them after it.
 4. **Item page.** PhotoCarousel, SellerRow, Banner (safety card), PriceBreakdown, StickyActionBar, OfferSheet.
 5. **Sell form.** PhotoUploader, PickerRow, OptionListSheet, CategoryPicker, then Dialog for save changes.
 6. **Inbox and chat.** ConversationRow, ItemStrip, MessageBubble, MessageComposer, OfferBubble, OrderTimeline.
