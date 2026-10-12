@@ -8,7 +8,12 @@ import {
   photoSchema,
 } from "./common.js";
 import { LISTING_SORTS, LISTING_STATUSES } from "./enums.js";
-import { LISTING_COLOURS_MAX, LISTING_DESCRIPTION_MAX, LISTING_TITLE_MAX, LISTING_TITLE_MIN } from "./listing-rules.js";
+import {
+  LISTING_COLOURS_MAX,
+  LISTING_DESCRIPTION_MAX,
+  LISTING_TITLE_MAX,
+  LISTING_TITLE_MIN,
+} from "./listing-rules.js";
 import { currencyCodeSchema, minorUnitsSchema } from "./money.js";
 import { userSummarySchema } from "./users.js";
 
@@ -188,7 +193,11 @@ export type PricePreview = z.infer<typeof pricePreviewSchema>;
 
 /** POST /v1/brand-requests. A seller asks for a brand that is not on the list. */
 export const brandRequestInputSchema = z.object({
-  name: z.string().trim().min(2, "validation.brandRequest.tooShort").max(60, "validation.brandRequest.tooLong"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "validation.brandRequest.tooShort")
+    .max(60, "validation.brandRequest.tooLong"),
 });
 
 /** Search and feed filters. Also what a saved search stores. */

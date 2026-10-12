@@ -119,7 +119,10 @@ export function attributeMode(category: CategoryNode | null, field: AttributeFie
 }
 
 /** The sizes a category accepts, as ids. */
-export function allowedSizeIds(reference: Pick<ReferenceData, "sizeGroups">, category: CategoryNode): Set<string> {
+export function allowedSizeIds(
+  reference: Pick<ReferenceData, "sizeGroups">,
+  category: CategoryNode,
+): Set<string> {
   const groups = new Set(category.sizeGroupIds);
   const ids = new Set<string>();
   for (const group of reference.sizeGroups) {
@@ -132,10 +135,7 @@ export function allowedSizeIds(reference: Pick<ReferenceData, "sizeGroups">, cat
  * Removes values for rows the category hides, so a leftover brand from an earlier category choice is never saved.
  * Colours are cleared too when the category hides them.
  */
-export function stripHiddenAttributes<T extends ListingValues>(
-  values: T,
-  category: CategoryNode | null,
-): T {
+export function stripHiddenAttributes<T extends ListingValues>(values: T, category: CategoryNode | null): T {
   if (!category) return values;
   const next = { ...values };
   if (attributeMode(category, "brand") === "hidden" && "brandId" in next) next.brandId = null;
@@ -156,7 +156,14 @@ export function validateListing(
   values: ListingValues,
   reference: Pick<
     ReferenceData,
-    "categories" | "sizeGroups" | "conditions" | "colours" | "materials" | "patterns" | "parcelSizes" | "settings"
+    | "categories"
+    | "sizeGroups"
+    | "conditions"
+    | "colours"
+    | "materials"
+    | "patterns"
+    | "parcelSizes"
+    | "settings"
   >,
   { publish }: { publish: boolean },
 ): ListingFieldErrors {
@@ -179,7 +186,7 @@ export function validateListing(
   let category: CategoryNode | null = null;
   if (values.categoryId) {
     category = findCategory(reference.categories, values.categoryId);
-    if (!category || !category.isLeaf) errors.categoryId = "validation.listing.category.invalid";
+    if (!category?.isLeaf) errors.categoryId = "validation.listing.category.invalid";
   } else if (publish) {
     errors.categoryId = "validation.listing.category.required";
   }
@@ -205,18 +212,21 @@ export function validateListing(
   }
 
   if (rules && values.sizeId && attributeMode(rules, "size") !== "hidden") {
-    if (!allowedSizeIds(reference, rules).has(values.sizeId)) errors.sizeId = "validation.listing.size.invalid";
+    if (!allowedSizeIds(reference, rules).has(values.sizeId))
+      errors.sizeId = "validation.listing.size.invalid";
   }
 
   if (values.priceMinor !== null && values.priceMinor !== undefined) {
     if (values.priceMinor > LISTING_PRICE_MAX_MINOR) errors.priceMinor = "validation.listing.price.tooHigh";
-    else if (publish && values.priceMinor < limits.minPriceMinor) errors.priceMinor = "validation.listing.price.tooLow";
+    else if (publish && values.priceMinor < limits.minPriceMinor)
+      errors.priceMinor = "validation.listing.price.tooLow";
   } else if (publish) {
     errors.priceMinor = "validation.listing.price.required";
   }
 
   if (publish) {
-    if (!values.parcelSizeId && !errors.parcelSizeId) errors.parcelSizeId = "validation.listing.parcel.required";
+    if (!values.parcelSizeId && !errors.parcelSizeId)
+      errors.parcelSizeId = "validation.listing.parcel.required";
     // Required rows depend on the category. Without a valid category the category error already says what to do.
     if (rules) {
       const need = (field: AttributeField, has: boolean, key: string, target: ListingField) => {

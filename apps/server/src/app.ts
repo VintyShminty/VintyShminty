@@ -7,9 +7,12 @@ import { createStorage, type Storage } from "./lib/storage.js";
 import authPlugin from "./plugins/auth.js";
 import dbPlugin, { type DatabaseHandle } from "./plugins/db.js";
 import errorsPlugin from "./plugins/errors.js";
+import referencePlugin from "./plugins/reference.js";
 import securityPlugin from "./plugins/security.js";
 import healthRoutes from "./routes/health.js";
+import listingRoutes from "./routes/listings.js";
 import meRoutes from "./routes/me.js";
+import referenceRoutes from "./routes/reference.js";
 import uploadRoutes from "./routes/uploads.js";
 import userRoutes from "./routes/users.js";
 
@@ -43,7 +46,10 @@ export async function buildApp({ env, database, mailer, storage }: BuildAppOptio
       mailer: mailer ?? createMailer(env),
       storage: storage ?? createStorage(env),
     });
+    await app.register(referencePlugin);
     await app.register(meRoutes);
+    await app.register(referenceRoutes);
+    await app.register(listingRoutes);
     await app.register(uploadRoutes);
     await app.register(userRoutes);
   }

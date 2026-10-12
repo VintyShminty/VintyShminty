@@ -48,7 +48,14 @@ const women = node(10, "women", { isLeaf: false, children: [dresses] });
 
 const reference: Pick<
   ReferenceData,
-  "categories" | "sizeGroups" | "conditions" | "colours" | "materials" | "patterns" | "parcelSizes" | "settings"
+  | "categories"
+  | "sizeGroups"
+  | "conditions"
+  | "colours"
+  | "materials"
+  | "patterns"
+  | "parcelSizes"
+  | "settings"
 > = {
   categories: [women, books],
   sizeGroups: [
@@ -113,11 +120,7 @@ describe("listing rules", () => {
   });
 
   it("requires a brand and a size only where the category says so", () => {
-    const dress = validateListing(
-      { ...complete, brandId: null, sizeId: null },
-      reference,
-      { publish: true },
-    );
+    const dress = validateListing({ ...complete, brandId: null, sizeId: null }, reference, { publish: true });
     expect(dress.brandId).toBe("validation.listing.brand.required");
     expect(dress.sizeId).toBe("validation.listing.size.required");
 
@@ -174,10 +177,7 @@ describe("listing rules", () => {
   });
 
   it("drops values for rows the category hides", () => {
-    const cleaned = stripHiddenAttributes(
-      { brandId: id(1), colourIds: [id(701)], sizeId: id(501) },
-      books,
-    );
+    const cleaned = stripHiddenAttributes({ brandId: id(1), colourIds: [id(701)], sizeId: id(501) }, books);
     expect(cleaned).toEqual({ brandId: null, colourIds: [], sizeId: null });
   });
 
@@ -208,7 +208,10 @@ describe("listing input schemas", () => {
   });
 
   it("reads the price preview query from text", () => {
-    expect(pricePreviewQuerySchema.parse({ priceMinor: "4500" })).toEqual({ priceMinor: 4500, currency: "ILS" });
+    expect(pricePreviewQuerySchema.parse({ priceMinor: "4500" })).toEqual({
+      priceMinor: 4500,
+      currency: "ILS",
+    });
     expect(pricePreviewQuerySchema.safeParse({ priceMinor: "-1" }).success).toBe(false);
   });
 });
