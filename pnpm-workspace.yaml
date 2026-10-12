@@ -35,3 +35,11 @@ minimumReleaseAgeExclude:
 allowBuilds:
   esbuild: true
 nodeLinker: hoisted
+# Accepted audit findings. Each entry needs a reason and a recheck date (docs/playbook/security-and-safety.md).
+# GHSA-86w9-cpqp-85rv (node-forge, high) and GHSA-vfj7-8cjw-p6xm (braces, high): only reached through Expo's
+# build tooling on the developer machine (@expo/cli code signing, Metro file map), never shipped in the app.
+# No patched release exists on npm as of 2026-10-12. Recheck weekly and remove once a patched version is out.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-86w9-cpqp-85rv
+    - GHSA-vfj7-8cjw-p6xm

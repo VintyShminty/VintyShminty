@@ -62,7 +62,8 @@ When a bug went unnoticed for days, look for what hid the signal. Usual suspects
 - RULE: GitHub Actions in `.github/workflows` are pinned to a full commit SHA with the version as a trailing comment.
 - RULE: CI installs with `pnpm install --frozen-lockfile`.
 - RULE: install scripts are an allowlist. `allowBuilds` in `pnpm-workspace.yaml` lists only packages that must run one (today only esbuild). Adding an entry needs a reason in the PR.
-- RULE: run `pnpm audit:prod` before every release and read the findings. CI runs it on every pull request. High findings are fixed or written down with a plan before release.
+- RULE: run `pnpm audit:prod` before every release and read the findings. CI runs it on every pull request and blocks on any high or critical finding. High findings are fixed or written down with a plan before release.
+- RULE: a high finding that cannot be fixed yet (no patched release exists) may be accepted only by adding its GHSA id to `auditConfig.ignoreGhsas` in `pnpm-workspace.yaml`, with a comment giving the reason (for example build tooling only, never shipped in the app) and a recheck date. Remove the entry as soon as a patched version is out.
 - Never run a script from a downloaded skill, template or README without reading it. Never run a skill step that sends data to a third party.
 
 ## Production data and risky actions
