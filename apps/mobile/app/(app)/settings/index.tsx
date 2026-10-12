@@ -1,5 +1,16 @@
 import { useRouter } from "expo-router";
-import { Bell, Globe, Lock, LogOut, Mail, ScanFace, ShieldCheck, User, UserCog } from "lucide-react-native";
+import {
+  Bell,
+  Globe,
+  Lock,
+  LogOut,
+  Mail,
+  ScanFace,
+  ShieldCheck,
+  SlidersHorizontal,
+  User,
+  UserCog,
+} from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
@@ -80,10 +91,11 @@ export default function Settings() {
             label={t("settings.security")}
             onPress={() => router.push("/settings/security")}
           />
+          <Row icon={Lock} label={t("settings.privacy")} onPress={() => router.push("/settings/privacy")} />
           <Row
-            icon={Lock}
-            label={t("settings.privacy")}
-            onPress={() => router.push("/settings/privacy")}
+            icon={SlidersHorizontal}
+            label={t("personalisation.title")}
+            onPress={() => router.push("/settings/personalisation")}
             last
           />
         </View>

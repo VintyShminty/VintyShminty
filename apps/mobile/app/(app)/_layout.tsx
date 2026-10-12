@@ -45,6 +45,9 @@ export default function AppLayout() {
       <Stack.Screen name="listing/[id]" />
       <Stack.Screen name="search" />
       <Stack.Screen name="filters" />
+      <Stack.Screen name="user/[id]" />
+      <Stack.Screen name="favourites" />
+      <Stack.Screen name="saved-searches" />
     </Stack>
   );
 }
