@@ -11,6 +11,8 @@ pnpm workspace (pnpm 11, Node 22 via `.nvmrc`), TypeScript 6 everywhere.
 - `packages/db`: Drizzle ORM with postgres-js. Migrations in `packages/db/drizzle`.
 - `packages/shared`: Zod schemas and types shared by app and server.
 
+The data model is designed (Milestone 0, `docs/blueprint/`) and its tables match what Better Auth expects, but Better Auth itself is wired in Milestone 1.
+
 Not added yet (they need decisions or credentials): Better Auth, payments, Socket.IO, Cloudflare R2, push notifications. `expo-secure-store` and `expo-local-authentication` are installed but not wired.
 
 ## Repo map
@@ -25,6 +27,9 @@ apps/mobile/tests/          Vitest, includes the hard-coded colour guard
 apps/server/src/            env.ts, app.ts, plugins/, routes/, lib/
 docs/design.md              Design source of truth and decision log (D-001 onward)
 docs/components.md          Component inventory
+docs/blueprint/data-model.md   Every table, state machine and open decision (Milestone 0 blueprint)
+docs/blueprint/api.md          The API contract by milestone, Socket.IO events, push types
+packages/db/src/schema/     Drizzle schema split by domain. packages/db/src/seed/ has the reference and sample seeds
 docs/playbook/              Design method rules
 ```
 
@@ -37,8 +42,13 @@ pnpm db:up          # Postgres 17 in Docker (needs Docker running)
 pnpm db:migrate     # apply migrations. After a schema change run pnpm db:generate first
 pnpm dev:server     # http://localhost:3000, check /health and /health/db
 pnpm dev:mobile     # Expo dev server. Press i for the iOS Simulator
+pnpm db:seed        # reference data + fake sample data (development only, wipes user data first)
+pnpm db:reset       # drop everything, migrate, seed. Run it twice, you get the same data
+pnpm db:seed:reference  # only the reference data (categories, brands, sizes...). Safe anywhere
 pnpm db:down        # stop Postgres (data stays in the Docker volume)
 ```
+
+`db:seed` and `db:reset` refuse to run unless `NODE_ENV` is `development` (it defaults to that when unset) and the database is on this machine. Sample photos live in `packages/db/seed-assets/` (credits in `CREDITS.md`). Listing photo keys look like `seed/listings/<n>/<file>.jpg`, the file name is the file in `seed-assets`.
 
 Gallery: in a dev build open the Profile tab and tap "Open the design gallery". It shows the colours, type scale (Aileron and Heebo), Button, Badge, Chip and Switch. Use it to check any token or component change.
 
@@ -46,6 +56,8 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 
 ## Rules
 
+- Schema changes (a table, column, index or enum) must update `docs/blueprint/data-model.md` in the same commit. A test fails if a table is missing from it. Enum value lists live in `packages/shared/src/enums.ts` and feed both the database and zod.
+- Money is an integer in minor units plus a currency code. The order and offer state machines are pure functions in `packages/shared/src/state-machines.ts`. Change them there, nowhere else.
 - Follow `docs/design.md`. Record every new design decision there in the same format as D-001 to D-010.
 - Colours, radii, spacing and type come from tokens only. Never write a hex or `rgb()` value in `app/`, `components/`, `lib/` or `i18n/`. `apps/mobile/tests/no-hardcoded-colours.test.ts` fails if you do. When a native prop needs a colour value, import it from `@/theme`.
 - Use logical start and end styles for RTL: `ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`, `text-start`. Never `left`, `right`, `pl-`, `pr-`, `ml-`, `mr-`. Place things with `justify-start` and `justify-end`, not a translate.
