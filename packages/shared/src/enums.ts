@@ -1,0 +1,187 @@
+/**
+ * Single source of truth for every fixed list of values.
+ * The database enums (packages/db) and the zod schemas (this package) are both built from these arrays.
+ */
+
+export const LOCALES = ["en", "he"] as const;
+export type Locale = (typeof LOCALES)[number];
+
+export const USER_ROLES = ["user", "moderator", "admin"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
+export const LISTING_STATUSES = ["draft", "active", "reserved", "sold", "hidden", "removed"] as const;
+export type ListingStatus = (typeof LISTING_STATUSES)[number];
+
+export const ATTRIBUTE_MODES = ["required", "optional", "hidden"] as const;
+export type AttributeMode = (typeof ATTRIBUTE_MODES)[number];
+
+export const SIZE_KINDS = ["letter", "numeric", "shoe", "kids_age", "waist", "one_size"] as const;
+export type SizeKind = (typeof SIZE_KINDS)[number];
+
+export const ORDER_STATUSES = [
+  "pending_payment",
+  "paid",
+  "shipped",
+  "delivered",
+  "completed",
+  "cancelled",
+  "disputed",
+  "refunded",
+] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export const ORDER_EVENTS = [
+  "pay",
+  "ship",
+  "deliver",
+  "confirm_received",
+  "auto_complete",
+  "cancel",
+  "open_dispute",
+  "refund",
+  "release",
+] as const;
+export type OrderEvent = (typeof ORDER_EVENTS)[number];
+
+export const ORDER_CANCEL_REASONS = [
+  "buyer_cancelled",
+  "seller_cancelled",
+  "payment_failed",
+  "payment_expired",
+  "shipping_timeout",
+  "item_unavailable",
+  "other",
+] as const;
+export type OrderCancelReason = (typeof ORDER_CANCEL_REASONS)[number];
+
+export const ACTOR_ROLES = ["buyer", "seller", "system", "admin"] as const;
+export type ActorRole = (typeof ACTOR_ROLES)[number];
+
+export const DELIVERY_METHODS = ["pickup_point", "home"] as const;
+export type DeliveryMethod = (typeof DELIVERY_METHODS)[number];
+
+export const OFFER_STATUSES = [
+  "pending",
+  "accepted",
+  "declined",
+  "countered",
+  "withdrawn",
+  "expired",
+] as const;
+export type OfferStatus = (typeof OFFER_STATUSES)[number];
+
+export const OFFER_EVENTS = ["accept", "decline", "counter", "withdraw", "expire"] as const;
+export type OfferEvent = (typeof OFFER_EVENTS)[number];
+
+export const PAYMENT_STATUSES = ["pending", "succeeded", "failed", "refunded"] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const SHIPMENT_STATUSES = [
+  "pending",
+  "label_created",
+  "in_transit",
+  "delivered",
+  "returned",
+  "cancelled",
+] as const;
+export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
+
+export const MESSAGE_KINDS = ["text", "photo", "offer", "system"] as const;
+export type MessageKind = (typeof MESSAGE_KINDS)[number];
+
+export const SYSTEM_MESSAGE_EVENTS = [
+  "order_paid",
+  "order_shipped",
+  "order_delivered",
+  "order_completed",
+  "order_cancelled",
+  "order_disputed",
+  "order_refunded",
+  "review_auto_left",
+  "offer_accepted",
+  "offer_declined",
+  "offer_countered",
+  "offer_expired",
+  "offer_withdrawn",
+] as const;
+export type SystemMessageEvent = (typeof SYSTEM_MESSAGE_EVENTS)[number];
+
+export const NOTIFICATION_TYPES = [
+  "new_message",
+  "new_offer",
+  "offer_accepted",
+  "offer_declined",
+  "offer_countered",
+  "offer_expired",
+  "listing_favourited",
+  "favourite_sold",
+  "favourite_price_drop",
+  "new_follower",
+  "followed_seller_new_item",
+  "saved_search_match",
+  "order_paid",
+  "order_shipped",
+  "order_delivered",
+  "order_completed",
+  "order_cancelled",
+  "review_received",
+  "review_reminder",
+  "balance_released",
+  "referral_rewarded",
+  "listing_removed",
+  "bump_ended",
+  "platform_message",
+] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+export const NOTIFICATION_CHANNELS = ["push", "email"] as const;
+export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
+
+export const PUSH_PLATFORMS = ["ios", "android"] as const;
+export type PushPlatform = (typeof PUSH_PLATFORMS)[number];
+
+export const REPORT_TARGETS = ["listing", "user", "message", "review"] as const;
+export type ReportTarget = (typeof REPORT_TARGETS)[number];
+
+export const REPORT_REASONS = [
+  "counterfeit",
+  "prohibited_item",
+  "misleading",
+  "inappropriate",
+  "spam",
+  "harassment",
+  "scam_off_platform",
+  "other",
+] as const;
+export type ReportReason = (typeof REPORT_REASONS)[number];
+
+export const REPORT_STATUSES = ["open", "reviewing", "actioned", "dismissed"] as const;
+export type ReportStatus = (typeof REPORT_STATUSES)[number];
+
+export const WALLET_ENTRY_TYPES = [
+  "sale_credit",
+  "withdrawal",
+  "balance_spend",
+  "refund",
+  "referral_bonus",
+  "adjustment",
+] as const;
+export type WalletEntryType = (typeof WALLET_ENTRY_TYPES)[number];
+
+export const WALLET_ENTRY_STATUSES = ["pending", "available", "void"] as const;
+export type WalletEntryStatus = (typeof WALLET_ENTRY_STATUSES)[number];
+
+export const BUNDLE_STATUSES = ["open", "ordered", "abandoned"] as const;
+export type BundleStatus = (typeof BUNDLE_STATUSES)[number];
+
+export const REVIEW_ROLES = ["buyer", "seller"] as const;
+export type ReviewRole = (typeof REVIEW_ROLES)[number];
+
+export const REFERRAL_STATUSES = ["pending", "qualified", "rewarded", "void"] as const;
+export type ReferralStatus = (typeof REFERRAL_STATUSES)[number];
+
+export const VOUCHER_STATUSES = ["active", "used", "expired"] as const;
+export type VoucherStatus = (typeof VOUCHER_STATUSES)[number];
+
+export const LISTING_SORTS = ["relevance", "newest", "price_asc", "price_desc"] as const;
+export type ListingSort = (typeof LISTING_SORTS)[number];
