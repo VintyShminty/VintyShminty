@@ -27,7 +27,13 @@ export function FilterFooter({ scope, closes = 1 }: { scope: Scope; closes?: num
       className="border-t border-border-subtle bg-background px-lg pt-md"
       style={{ paddingBottom: Math.max(insets.bottom, 12) }}
     >
-      <Button size="lg" onPress={() => router.dismiss(closes)} accessibilityLabel={label}>
+      <Button
+        size="lg"
+        onPress={() => {
+          for (let i = 0; i < closes; i++) router.back();
+        }}
+        accessibilityLabel={label}
+      >
         <Text>{label}</Text>
       </Button>
     </View>

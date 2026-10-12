@@ -19,6 +19,7 @@ function FilterBar({ scope }: { scope: Scope }) {
   return (
     <ScrollView
       horizontal
+      className="grow-0"
       showsHorizontalScrollIndicator={false}
       contentContainerClassName="items-center gap-sm px-lg py-sm"
       keyboardShouldPersistTaps="handled"

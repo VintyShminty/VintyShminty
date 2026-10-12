@@ -34,6 +34,7 @@ export default function FilterPanel() {
     <Screen bottomInset={false}>
       <TopBar
         leading="close"
+        wideSides
         title={t("filters.title")}
         trailing={
           count > 0 ? (

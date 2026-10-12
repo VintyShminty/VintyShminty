@@ -253,11 +253,6 @@ export default function SearchScreen() {
               {t("search.saveFailed")}
             </Text>
           ) : null}
-          {saved ? (
-            <Text variant="bodySmall" className="px-lg pt-sm text-text-3" accessibilityLiveRegion="polite">
-              {t("search.savedNote")}
-            </Text>
-          ) : null}
           {tab === "items" ? (
             <SearchResults scope="search" />
           ) : (
