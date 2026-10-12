@@ -217,6 +217,6 @@ Proposals, not rules, until explicitly promoted above.
 
 | ID | Proposal | Decision needed |
 |---|---|---|
-| O-001 | Colour palette (background, surfaces, text ladder, accent, states), light mode only. Being decided from `docs/mockups/colour-options.html` (three white-and-peach directions) | Pick direction from the mockup against real listing photos |
+| O-001 | Colour palette (background, surfaces, text ladder, accent, states), light mode only. Being decided from `docs/mockups/colour-options.html` (three white-and-peach directions, round 1: peach rejected) and `docs/mockups/colour-options-2.html` (six non-peach directions: cobalt, plum, olive, espresso and cream, tomato, navy and butter) | Pick direction from the mockup against real listing photos |
 
 ## Superseded decisions
