@@ -13,3 +13,7 @@ nativewind-env.d.ts.bak
 .DS_Store
 npm-debug.*
 .metro-health-check*
+
+# Local login details for the seeded dev users (pnpm db:dev-users)
+apps/server/.dev-credentials.local
+.dev-credentials.local

@@ -1,0 +1,47 @@
+import nodemailer from "nodemailer";
+import type { Env } from "../env.js";
+
+export type MailMessage = { to: string; subject: string; text: string; html: string };
+
+/**
+ * The only thing the rest of the server knows about email. A real provider (Resend, SES, Postmark)
+ * is plugged in by writing another `Mailer` and choosing it in `createMailer`.
+ */
+export interface Mailer {
+  send(message: MailMessage): Promise<void>;
+  close?(): Promise<void>;
+}
+
+/** Sends over SMTP. In development that is Mailpit, which shows every email at http://localhost:8025. */
+function smtpMailer(env: Env): Mailer {
+  const transport = nodemailer.createTransport({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    auth: env.SMTP_USER ? { user: env.SMTP_USER, pass: env.SMTP_PASSWORD } : undefined,
+  });
+  return {
+    async send(message) {
+      await transport.sendMail({ from: env.MAIL_FROM, ...message });
+    },
+    async close() {
+      transport.close();
+    },
+  };
+}
+
+/** Keeps mail in a list. Tests read the codes from it. */
+export type MemoryMailer = Mailer & { outbox: MailMessage[] };
+export function memoryMailer(): MemoryMailer {
+  const outbox: MailMessage[] = [];
+  return {
+    outbox,
+    async send(message) {
+      outbox.push(message);
+    },
+  };
+}
+
+export function createMailer(env: Env): Mailer {
+  return env.MAIL_TRANSPORT === "memory" ? memoryMailer() : smtpMailer(env);
+}

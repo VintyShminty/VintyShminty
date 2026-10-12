@@ -12,13 +12,15 @@
     "lint": "biome check .",
     "format": "biome check --write .",
     "test": "pnpm -r --parallel --if-present test",
-    "db:up": "docker compose up -d --wait postgres",
+    "db:up": "docker compose up -d --wait postgres mailpit minio",
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @vinty/db generate",
     "db:migrate": "pnpm --filter @vinty/db migrate",
     "db:seed": "pnpm --filter @vinty/db seed",
     "db:seed:reference": "pnpm --filter @vinty/db seed:reference",
-    "db:reset": "pnpm --filter @vinty/db reset"
+    "db:reset": "pnpm --filter @vinty/db reset",
+    "db:dev-users": "pnpm --filter @vinty/server dev-users",
+    "storage:seed": "pnpm --filter @vinty/server storage-seed"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
