@@ -27,6 +27,8 @@ Full reasoning is in `docs/playbook/security-and-safety.md`. This is the quick r
 - **Auth, session, uploads:** token in `expo-secure-store`, signed upload links with size and type limits, nothing sensitive in logs or URLs.
 - **New dependency:** needed, well known, lockfile committed, installed with `npx expo install` if native or Expo. The version must be at least 7 days old (`minimumReleaseAge`). An exclude needs a reason and a removal date comment. No new `allowBuilds` entry without a reason.
 - **Workflow change:** every `uses:` pinned to a full commit SHA with the version as a comment, installs use `--frozen-lockfile`.
+- **Semgrep (runs on every PR):** an ERROR finding blocks. Fix real findings. Suppress only a proven false positive with `nosemgrep: <full rule id>` on the line above plus a reason line. Never a bare `nosemgrep`, never disable a ruleset, never hide a path in `.semgrepignore`.
+- **Dependabot:** check alerts weekly and review security PRs promptly. They need green CI and Eden's merge like any PR. Never merge single bumps of `expo`, `expo-*`, `react-native*` or `react`: use `npx expo install --fix`.
 - **New screen or text:** strings in both `en.json` and `he.json`, tokens only for colours, start and end styles for RTL.
 - **Anything that can fail silently:** no empty `catch`, errors shown to the user and logged.
 

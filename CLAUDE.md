@@ -69,6 +69,7 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 
 ## Rules
 
+- Semgrep runs on every PR and ERROR findings block. Suppress only a proven false positive with `nosemgrep: <full rule id>` plus a reason, never blanket-disable (see `docs/playbook/security-and-safety.md`).
 - Update `docs/roadmap.md` status when a milestone starts or ships.
 - Schema changes (a table, column, index or enum) must update `docs/blueprint/data-model.md` in the same commit. A test fails if a table is missing from it. Enum value lists live in `packages/shared/src/enums.ts` and feed both the database and zod.
 - Money is an integer in minor units plus a currency code. The order and offer state machines are pure functions in `packages/shared/src/state-machines.ts`. Change them there, nowhere else.
