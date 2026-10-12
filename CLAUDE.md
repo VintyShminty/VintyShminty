@@ -1,0 +1,98 @@
+# VintyShminty
+
+Working name. A Vinted-style second-hand marketplace, phone app first. Light mode only (D-002). English and Hebrew (RTL).
+
+## Stack
+
+pnpm workspace (pnpm 11, Node 22 via `.nvmrc`), TypeScript 6 everywhere.
+
+- `apps/mobile`: Expo SDK 57, Expo Router, NativeWind 4 with Tailwind 3.4, React Native Reusables (rn-primitives), Lucide icons, Gorhom Bottom Sheet, TanStack Query, Zustand, React Hook Form with Zod, i18next.
+- `apps/server`: Fastify 5, `fastify-type-provider-zod`, pino logging, env validated with Zod.
+- `packages/db`: Drizzle ORM with postgres-js. Migrations in `packages/db/drizzle`.
+- `packages/shared`: Zod schemas and types shared by app and server.
+
+Not added yet (they need decisions or credentials): Better Auth, payments, Socket.IO, Cloudflare R2, push notifications. `expo-secure-store` and `expo-local-authentication` are installed but not wired.
+
+## Repo map
+
+```
+apps/mobile/app/            Expo Router screens. (dev)/gallery.tsx is the dev-only design gallery
+apps/mobile/components/ui/  Reusables components restyled to our design (Text, Button, Badge, Chip, Switch, Icon)
+apps/mobile/theme/          tokens.js (colours, radii, spacing, type scale), fonts.js. The single source of truth
+apps/mobile/i18n/           i18next setup and locales/en.json, locales/he.json
+apps/mobile/lib/            utils (cn), fonts, query client, app store, rtl
+apps/mobile/tests/          Vitest, includes the hard-coded colour guard
+apps/server/src/            env.ts, app.ts, plugins/, routes/, lib/
+docs/design.md              Design source of truth and decision log (D-001 onward)
+docs/components.md          Component inventory
+docs/playbook/              Design method rules
+```
+
+## Run it
+
+```
+pnpm install
+cp apps/server/.env.example apps/server/.env     # and packages/db/.env.example to packages/db/.env
+pnpm db:up          # Postgres 17 in Docker (needs Docker running)
+pnpm db:migrate     # apply migrations. After a schema change run pnpm db:generate first
+pnpm dev:server     # http://localhost:3000, check /health and /health/db
+pnpm dev:mobile     # Expo dev server. Press i for the iOS Simulator
+pnpm db:down        # stop Postgres (data stays in the Docker volume)
+```
+
+Gallery: in a dev build open the Profile tab and tap "Open the design gallery". It shows the colours, type scale (Aileron and Heebo), Button, Badge, Chip and Switch. Use it to check any token or component change.
+
+Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm format` fixes formatting and import order. CI runs the same three.
+
+## Rules
+
+- Follow `docs/design.md`. Record every new design decision there in the same format as D-001 to D-010.
+- Colours, radii, spacing and type come from tokens only. Never write a hex or `rgb()` value in `app/`, `components/`, `lib/` or `i18n/`. `apps/mobile/tests/no-hardcoded-colours.test.ts` fails if you do. When a native prop needs a colour value, import it from `@/theme`.
+- Use logical start and end styles for RTL: `ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`, `text-start`. Never `left`, `right`, `pl-`, `pr-`, `ml-`, `mr-`. Place things with `justify-start` and `justify-end`, not a translate.
+- No hard-coded user-facing strings. Add a key to both `locales/en.json` and `locales/he.json` and use `t("...")`.
+- Writing rules for anything a user reads: no em dashes or en dashes, no semicolons, no full stop on headings and short labels, proper capitalisation, warm and direct.
+- Install native or Expo packages with `npx expo install` so versions match SDK 57. Plain JavaScript packages use `pnpm add`.
+- Run pnpm commands with output redirected to a file, not piped into `tail` (a background helper process keeps the pipe open and the command appears to hang).
+- Never commit `.env` files or secrets. Only `.env.example` files are committed.
+- Server data goes through TanStack Query and never blanks a screen while reloading (see `lib/query-client.ts`). Zustand is for small app state only.
+
+## Design tokens and the Reusables mapping
+
+Tokens live in `apps/mobile/theme/tokens.js` as hex values. `tailwind.config.js` turns them into CSS variables (HSL triplets, as Reusables expects) and Tailwind classes. Our own names work as classes too: `bg-surface`, `bg-pressed`, `text-text-1` to `text-text-4`, `border-border-subtle`, `bg-accent-tint`, `bg-success-tint`, `text-warning`, `bg-error-tint`, `bg-window`, `bg-backdrop`.
+
+| Reusables name | Our token | Notes |
+|---|---|---|
+| background | background (#FFFFFF) | |
+| foreground | text-1 | |
+| card, popover | background | card-foreground and popover-foreground are text-1 |
+| primary | accent (#4B2E22, espresso) | Our design "accent" is Reusables "primary". primary-foreground is on-accent |
+| secondary | surface | secondary-foreground is text-1 |
+| muted | surface | muted-foreground is text-3 |
+| accent | pressed | Reusables "accent" is a hover and pressed surface, not our accent colour. accent-foreground is text-1. `accent-tint` is our info tint |
+| destructive | destructive (same value as error) | |
+| border | border | Hairline default. Subtle is `border-border-subtle` |
+| input | border | Chip outlines use `border-text-4` (D-008) |
+| ring | accent | |
+
+Radii: `rounded-control` 12 (buttons, photos, tiles), `rounded-window` 20, `rounded-bar` 32, `rounded-full` for chips and badges. Spacing names: `xs` 4, `sm` 8, `md` 12, `lg` 16, `xl` 24, `2xl` 40 (for example `p-lg`, `gap-md`). Type scale classes: `text-display`, `text-title`, `text-item-name`, `text-heading`, `text-body`, `text-body-sm`, `text-subtitle`, `text-card-brand`, `text-card-desc`, `text-card-meta`, `text-pill`, `text-badge`, `text-section-label`, `text-small-label`. Use the `Text` component with a `variant` instead of raw classes, it also picks the weight and typeface.
+
+Dark mode is not built. The theme has no dark variables on purpose.
+
+## Fonts
+
+Aileron for Latin, Heebo for Hebrew (O-003 in the design doc is still open, so this pairing is provisional). Files are in `apps/mobile/assets/fonts` with their licences (Aileron CC0, Heebo OFL). React Native needs one family name per weight, so Tailwind has `font-aileron-<weight>` and `font-heebo-<weight>`. The `Text` component chooses the family from the current language.
+
+- Aileron files: 100, 300, 400, 600, 700, 800. Missing: 200, 500 (and 900). Mapping: 200 uses Light 300, 500 uses SemiBold 600.
+- Heebo files: 300 to 800 (generated as static instances from the Google Fonts variable font). Missing: 100, 200, which use 300.
+- The design doc asks for 200 to 300 on large headings, so the display style uses Light 300.
+
+## Right to left
+
+Layout direction is fixed by the native layer at app start, so switching needs a restart. If the phone is set to Hebrew, the OS starts the app in RTL by itself because `he` is in the `supportedLocales` of the `expo-localization` plugin in `app.json`. For a language picked inside the app, `lib/rtl.ts` calls `I18nManager.allowRTL(true)` and `I18nManager.forceRTL(...)` and then reloads (`DevSettings.reload()` in development). A production build needs `expo-updates` (`Updates.reloadAsync()`), which is not installed yet. Expo Go forgets a forced RTL when reopened, so test real RTL in a development build.
+
+## Where decisions live
+
+- Design decisions: `docs/design.md` (approved D-001 to D-010, open decisions at the bottom).
+- Design method: `docs/playbook/design-philosophy.md`.
+- Components to build: `docs/components.md`.
+- Mockups for reference only: `docs/mockups/`.
