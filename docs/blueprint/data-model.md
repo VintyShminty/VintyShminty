@@ -890,7 +890,7 @@ Used by: Home feed, Search, Catalog, Brand page, Item page, Favourites, Sell for
 | `country_code` | char(2) | no | default 'IL' |
 | `city` | text | yes |  |
 | `view_count` | integer | no | default 0. Incremented by the server, deduplicated per viewer per day |
-| `favourite_count` | integer | no | default 0. Kept in step with the favourites table |
+| `favourite_count` | integer | no | default 0. Updated together with the favourites table |
 | `bumped_at` | timestamptz | no | default now(). Feed order. Equals published_at until the listing is bumped or relisted |
 | `bumped_until` | timestamptz | yes | While in the future the card shows the Bumped badge |
 | `published_at` | timestamptz | yes |  |
@@ -1423,7 +1423,7 @@ My orders status chips map like this: In progress is pending_payment, paid, ship
 
 ### `order_items`
 
-The listings in an order with a snapshot of what they looked like. Kept readable even if the listing is later deleted.
+The listings in an order with a snapshot of what they looked like. Stays readable even if the listing is later deleted.
 
 Used by: Conversation thread (item strip), My orders rows (thumbnail and title).
 

@@ -152,7 +152,7 @@ export const orderItems = pgTable(
     orderId: uuid("order_id")
       .notNull()
       .references(() => orders.id, { onDelete: "cascade" }),
-    /** Kept null if the listing is ever deleted. The snapshot columns keep the history readable. */
+    /** Becomes null if the listing is ever deleted. The snapshot columns keep the history readable. */
     listingId: uuid("listing_id").references(() => listings.id, { onDelete: "set null" }),
     priceMinor: integer("price_minor").notNull(),
     titleSnapshot: text("title_snapshot").notNull(),

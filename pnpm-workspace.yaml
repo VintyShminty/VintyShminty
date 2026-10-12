@@ -1,20 +1,37 @@
 packages:
   - apps/*
   - packages/*
-allowBuilds:
-  esbuild: true
+# New package versions must be at least 7 days old (in minutes). RULE: see docs/playbook/security-and-safety.md
+minimumReleaseAge: 10080
+# Expo SDK 57 patch versions that expo-doctor requires, newer than 7 days.
+# Remove each line once the version is 7 days old: the Oct 12 releases on 2026-10-19, the Oct 6 releases on 2026-10-13.
+# Check with: npm view <package> time --json
 minimumReleaseAgeExclude:
-  - '@expo/cli@57.0.29'
-  - '@expo/fingerprint@0.20.14'
-  - '@expo/inline-modules@0.1.8'
-  - '@expo/local-build-cache-provider@57.0.9'
-  - '@expo/prebuild-config@57.0.18'
-  - babel-preset-expo@57.0.15
+  - '@expo/ui@57.0.23'
+  - expo@57.0.28
+  - expo-router@57.0.26
+  - expo-splash-screen@57.0.10
+  - expo-constants@57.0.21
+  - expo-image-manipulator@57.0.21
+  - expo-linking@57.0.12
   - expo-modules-autolinking@57.0.15
   - expo-modules-core@57.0.22
   - expo-modules-jsi@57.1.2
-  - expo@57.0.28
-  - '@expo/ui@57.0.23'
-  - expo-router@57.0.26
-  - expo-splash-screen@57.0.10
+  - '@expo/cli@57.0.29'
+  - '@expo/config-plugins@57.0.10'
+  - '@expo/config@57.0.10'
+  - '@expo/fingerprint@0.20.14'
+  - '@expo/image-utils@0.11.6'
+  - '@expo/inline-modules@0.1.8'
+  - '@expo/local-build-cache-provider@57.0.9'
+  - '@expo/metro-config@57.0.13'
+  - '@expo/metro-file-map@57.0.4'
+  - '@expo/prebuild-config@57.0.18'
+  - '@expo/require-utils@57.0.6'
+  - '@expo/router-server@57.0.12'
+  - babel-preset-expo@57.0.15
+  - expo-asset@57.0.19
+# Only packages that must run an install script. esbuild downloads its native binary.
+allowBuilds:
+  esbuild: true
 nodeLinker: hoisted

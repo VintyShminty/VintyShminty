@@ -25,13 +25,14 @@ Full reasoning is in `docs/playbook/security-and-safety.md`. This is the quick r
 - **Database change:** migration generated and committed, `docs/blueprint/data-model.md` updated, enums in `packages/shared/src/enums.ts`, Zod schema matches, index exists for new queries.
 - **New route:** Zod validates body, query and params. Session checked. Ownership checked. Test that another user is refused. Money is integer minor units. Server decides prices and states.
 - **Auth, session, uploads:** token in `expo-secure-store`, signed upload links with size and type limits, nothing sensitive in logs or URLs.
-- **New dependency:** needed, well known, lockfile committed, installed with `npx expo install` if native or Expo.
+- **New dependency:** needed, well known, lockfile committed, installed with `npx expo install` if native or Expo. The version must be at least 7 days old (`minimumReleaseAge`). An exclude needs a reason and a removal date comment. No new `allowBuilds` entry without a reason.
+- **Workflow change:** every `uses:` pinned to a full commit SHA with the version as a comment, installs use `--frozen-lockfile`.
 - **New screen or text:** strings in both `en.json` and `he.json`, tokens only for colours, start and end styles for RTL.
 - **Anything that can fail silently:** no empty `catch`, errors shown to the user and logged.
 
 ## Before a pull request or merge
 
-CI is green, branch is up to date, description says what was and was not checked. Agents do not merge.
+CI is green, branch is up to date, description says what was and was not checked. Run `pnpm audit:prod` before a release. Agents do not merge.
 
 ## Stop and ask Eden first
 

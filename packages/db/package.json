@@ -15,7 +15,7 @@
     "reset": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts reset"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.4",
+    "drizzle-orm": "^0.45.3",
     "postgres": "^3.4.9",
     "@vinty/shared": "workspace:*"
   },
