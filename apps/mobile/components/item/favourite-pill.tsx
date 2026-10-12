@@ -33,10 +33,7 @@ function FavouritePill({ listing }: { listing: ListingDetail }) {
           : old,
       );
     apply(next, listing.favouriteCount + (next ? 1 : -1));
-    toggle.mutate(
-      { id: listing.id, favourite: next },
-      { onError: () => apply(on, listing.favouriteCount) },
-    );
+    toggle.mutate({ id: listing.id, favourite: next }, { onError: () => apply(on, listing.favouriteCount) });
   };
 
   return (

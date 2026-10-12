@@ -529,7 +529,8 @@
     "seller": "מוכר",
     "moreLikeThis": "עוד כמו זה",
     "noReviews": "אין עדיין ביקורות",
-    "views": "צפיות"
+    "views": "צפיות",
+    "noSimilar": "אין כרגע משהו דומה"
   },
   "seller": {
     "more": "עוד אפשרויות",

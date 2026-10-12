@@ -523,7 +523,8 @@
     "seller": "Seller",
     "moreLikeThis": "More like this",
     "noReviews": "No reviews yet",
-    "views": "Views"
+    "views": "Views",
+    "noSimilar": "Nothing similar right now"
   },
   "seller": {
     "more": "More options",
