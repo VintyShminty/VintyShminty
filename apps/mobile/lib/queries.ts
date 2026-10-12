@@ -2,6 +2,7 @@ import { infiniteQueryOptions, queryOptions, useMutation, useQueryClient } from 
 import {
   type Brand,
   brandSchema,
+  favouriteResultSchema,
   type ListingCard,
   type ListingDetail,
   type ListingDraftInput,
@@ -269,5 +270,27 @@ export function useDeleteListing() {
 export function useRequestBrand() {
   return useMutation({
     mutationFn: (name: string) => api("/v1/brand-requests", { method: "POST", body: { name } }),
+  });
+}
+
+// ---- Discovery (Milestone 3) ----
+// Query keys: ["feed", ...], ["search", ...], ["listing", id], ["similar", id], ["favourites", q],
+// ["saved-searches"], ["recent-searches"], ["members", q]. Favourite changes refresh all of them.
+
+/** Hearts or un-hearts a listing. The heart itself moves straight away in the component. */
+export function useToggleFavourite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, favourite }: { id: string; favourite: boolean }) =>
+      api(`/v1/listings/${id}/favourite`, {
+        method: favourite ? "PUT" : "DELETE",
+        schema: favouriteResultSchema,
+      }),
+    onSettled: (_data, _err, { id }) => {
+      for (const key of ["feed", "search", "similar", "favourites", "listings"]) {
+        void queryClient.invalidateQueries({ queryKey: [key] });
+      }
+      void queryClient.invalidateQueries({ queryKey: ["listing", id] });
+    },
   });
 }
