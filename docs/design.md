@@ -44,7 +44,7 @@ Palette: Espresso and cream (D-006). Light mode only for now (D-002). Requiremen
 | accent-tint | #F7EEDC | Info banners, "New" badge |
 | chip-selected | #EFE0C3 | Promo banner fill (no longer the selected chip fill, see D-008) |
 | on-chip | #3A2218 | Label on the promo banner |
-| success | #1B7A43 | Sold ribbon, success text |
+| success | #1B7A43 | Sold badge text and outline, success text |
 | success-tint | #E6F4EA | Success background |
 | warning | #8A4F00 | Warning text |
 | warning-tint | #FFEFC2 | Warning background |
@@ -75,7 +75,6 @@ Measured contrast (WCAG formula, from the mockup's computed table):
 | Active chip label | #FFFFFF on #4B2E22 | 12.26:1 | 4.5:1 |
 | Warning badge on white | #8A4F00 on #FFFFFF | 6.56:1 | 4.5:1 |
 | Neutral info badge on white | #54443A on #FFFFFF | 9.27:1 | 4.5:1 |
-| Sold ribbon label | #FFFFFF on #1B7A43 | 5.37:1 | 4.5:1 |
 | Success text on page | #1B7A43 on #FFFFFF | 5.37:1 | 4.5:1 |
 | Success on success tint | #1B7A43 on #E6F4EA | 4.73:1 | 4.5:1 |
 | Warning text on warning tint | #8A4F00 on #FFEFC2 | 5.74:1 | 4.5:1 |
@@ -131,14 +130,14 @@ Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), n
 
 ## Shapes and depth
 
-- Window radius 20px, buttons 12px, item photos and category tiles 12px, chips and badges fully rounded outline pills, item card badges 2px rectangles, search and prompt bar 32px.
+- Window radius 20px, buttons 12px, item photos and category tiles 12px, chips and badges fully rounded outline pills, item card badges the same outline pills (D-008), search and prompt bar 32px.
 - Borders are hairlines (0.5-1px, low opacity). A window's top edge is slightly brighter than its sides and bottom.
 - No drop shadows on cards or windows. Depth = border + blur + surface shift.
 - Glass (translucent + blur ~24px) only for floating chrome (search bar, floating buttons), never for reading surfaces.
 
 ## Components
 
-**Windows (modals and sheets).** Near-opaque fill (~96%), blur 60px, hairline border with brighter top edge, 20px radius, no shadow. Backdrop: light dim (~25%) + 8px blur. On the phone, slide-up sheets (filters, price breakdown, make an offer) use Gorhom Bottom Sheet (D-004) with the same fill, radius (20px on the top corners) and backdrop. Opacity below ~90% is banned (text gets hard to read). Nested windows sit above their parent.
+**Windows (modals and sheets).** Near-opaque fill (~96%), blur 60px, hairline border with brighter top edge, 20px radius, no shadow. Backdrop: light dim (~25%) + 8px blur. On the phone, slide-up sheets (price breakdown, make an offer, option lists) use Gorhom Bottom Sheet (D-004) with the same fill, radius (20px on the top corners) and backdrop. Opacity below ~90% is banned (text gets hard to read). Nested windows sit above their parent.
 
 **Buttons.**
 | Type | Style |
@@ -248,7 +247,7 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - **Date:** 2026-10-12
 - **Area:** Design system, Components
 - **Status:** Approved
-- **Decision:** Build UI on React Native Reusables (the shadcn port for React Native, on NativeWind), restyled to Kept's look (hairline borders, no shadows, 12px buttons, fully rounded pills). Use Gorhom Bottom Sheet for slide-up sheets: filters, price breakdown and make an offer.
+- **Decision:** Build UI on React Native Reusables (the shadcn port for React Native, on NativeWind), restyled to Kept's look (hairline borders, no shadows, 12px buttons, fully rounded pills). Use Gorhom Bottom Sheet for slide-up sheets: price breakdown, make an offer and short option lists. Category selection is not a sheet (D-010).
 - **Rationale:** Ready-made accessible parts that we own and can restyle, matching the NativeWind setup already in the app.
 - **Implementation:** Components live in the mobile app and read colour, radius and spacing from tokens only.
 - **References:** Components section above
@@ -302,6 +301,16 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - **Rationale:** Tabs keep the five main places one tap away and match what shoppers know. A grid makes the categories easy to scan, and a push keeps a clear sense of depth and a simple way back.
 - **Implementation:** Bottom tab bar, Browse and Motion sections above. CategoryGrid, CategoryPanel and CategoryRow in `docs/components.md`, built with an Expo Router stack push (native slide) inside the Browse tab. Tile illustration style is still to decide, a Lucide line icon is the placeholder.
 - **References:** `docs/mockups/round-2.html` (section 3 for the drawer that was not adopted), `docs/mockups/component-sheet.html` (CategoryGrid story)
+
+### D-010 : Category selection is always a full-screen push panel
+
+- **Date:** 2026-10-12
+- **Area:** Navigation, Components
+- **Status:** Approved
+- **Decision:** Category selection everywhere (Browse, Sell form, Filters) uses full-screen panels that slide in from the trailing edge (right in left-to-right languages) and push the current screen aside, like CategoryPanel in D-009. It is not a bottom sheet. CategoryPicker keeps the same TopBar and CategoryRow rows with icons. Its first level shows a close X on the leading side, the title "Category" and a "Find a category" search. Deeper levels show a back arrow, the title and an X. In the Sell form leaf rows have a radio and there is no All row. On the Filter page each level starts with an "All <category>" row. CategoryPicker is removed from the Gorhom Bottom Sheet uses in D-004.
+- **Rationale:** One way to pick a category across the app, so the Browse tab, the Sell form and the Filter page feel the same and the rows cannot drift apart.
+- **Implementation:** CategoryPicker in `docs/components.md`, built with an Expo Router stack in a full-screen modal push. Live in `docs/mockups/component-sheet.html` (CategoryPicker story).
+- **References:** D-009, D-004
 
 <!-- Template for new entries:
 ### D-### : Short decision name

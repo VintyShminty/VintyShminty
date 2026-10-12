@@ -176,7 +176,7 @@ Switches between views on one screen with a line under the active one.
 A full-width tappable line with an icon, a label, an optional value and a chevron.
 
 - **Variants and states:** Variants: navigation (chevron), with value, with leading icon, with switch, destructive. States: default, pressed, disabled. 54 to 62px tall.
-- **Screens:** Settings, Profile menu, Catalog and filters, Balance, Category picker, Search and results
+- **Screens:** Settings, Profile menu, Catalog and filters, Balance, Search and results
 - **Source:** Custom (Composed from Pressable, Icon and Text)
 - **Phase:** First flows
 
@@ -238,8 +238,8 @@ A centred window for a quick yes or no decision.
 
 A window that slides up from the bottom over a dimmed page. The base for filters, pickers, offers and price breakdown.
 
-- **Variants and states:** Heights: content-sized, 88% tall. Header: title, optional back arrow, close. States: closed, open, dragging. 20px top corners, 300ms ease-out.
-- **Screens:** Catalog and filters, Category picker, Item page, Sell form
+- **Variants and states:** Heights: content-sized, 88% tall. Header: the TopBar title style with an optional back arrow and a close. States: closed, open, dragging. 20px top corners, 300ms ease-out.
+- **Screens:** Catalog and filters, Item page, Sell form
 - **Source:** Gorhom Bottom Sheet (Gorhom Bottom Sheet with our header, fill and backdrop)
 - **Phase:** First flows
 
@@ -298,7 +298,7 @@ The tile for one listing: tall rounded photo, brand, description, size and condi
 
 - **Variants and states:** Variants: browse (default), favourited (filled heart), sold (washed photo, green Sold badge, muted struck price, no heart), bumped (Bumped badge), price drop (Price drop badge, sale price in espresso, struck "Was: €X" line with the percentage off), own listing (price, views, favourites, Bump), loading (skeleton). States: default, pressed (scale 0.98). Layout: 12px rounded photo, white circle heart top-right, outline badge (Option B) bottom-left, brand with favourite count, two line description, size and condition, price, buyer price with the shield.
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
-- **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badges are small rectangles built inside the card, not the Badge component)
+- **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badge is the standard Badge component, outline style, D-008)
 - **Phase:** First flows
 
 ### HeartPill
@@ -369,8 +369,8 @@ One full-screen level of the category tree. It slides in from the trailing edge 
 One line in a category panel: an icon, a label and a chevron when it has children.
 
 - **Variants and states:** Variants: branch (chevron, opens another panel), leaf (no chevron, opens the feed), All (grid icon, opens the feed for the whole level). States: default, pressed. 56px tall, hairline below.
-- **Screens:** Browse
-- **Source:** Custom (Composed from Pressable, Icon and Text. Looks like ListRow with a leading icon, kept separate so category rows stay uniform)
+- **Screens:** Browse, Sell form, Catalog and filters
+- **Source:** Custom (Composed from Pressable, Icon and Text. Looks like ListRow with a leading icon, kept separate so category rows stay uniform. Also used by CategoryPicker, where a leaf row swaps the chevron for a radio)
 - **Phase:** First flows
 
 ### ItemGrid
@@ -537,11 +537,11 @@ A sheet with a flat list of options to pick from, such as size, brand, condition
 
 ### CategoryPicker
 
-A sheet where you drill down through categories until you pick one leaf, with a search shortcut. For the Sell form and the Filter page. The Browse tab uses CategoryPanel instead.
+Category selection inside a form (D-010). A full-screen panel that slides in from the trailing edge and pushes the form aside, exactly like CategoryPanel. It is not a bottom sheet. For the Sell form (pick one leaf) and the Filter page (pick any level).
 
-- **Variants and states:** Levels: top (Women, Men, Kids...), branch (chevron), leaf (radio). Header with back arrow and the current level name. Find a category search.
-- **Screens:** Category picker, Sell form, Catalog and filters
-- **Source:** Gorhom Bottom Sheet (Gorhom Bottom Sheet with a drill-down list of ListRows and Radios)
+- **Variants and states:** Levels: top (close X on the leading side, title "Category", a "Find a category" search under the bar), branch (back arrow, centred title, close X, rows with chevrons), leaf (rows with a radio, single choice). Sell form: no All row, because a listing needs one leaf. Filter page: an "All Men" style row (grid icon, radio) at the start of each level, because a filter can stay broad. Rows are the shared CategoryRow with the same icons as Browse. No tab bar, because it is a task page. Back reverses the push, about 300ms.
+- **Screens:** Sell form, Catalog and filters
+- **Source:** Custom (Expo Router stack in a full-screen modal push, the same slide as CategoryPanel. Composed from TopBar, SearchBar, CategoryRow and Radio)
 - **Phase:** First flows
 
 ### PhotoUploader
