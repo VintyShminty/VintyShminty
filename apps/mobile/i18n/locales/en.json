@@ -511,7 +511,6 @@
   "browse": {
     "favourite": "Add to favourites",
     "unfavourite": "Remove from favourites",
-    "title": "Browse",
     "search": "Search",
     "all": "All"
   },

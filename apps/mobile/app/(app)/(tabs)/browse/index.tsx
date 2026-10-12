@@ -27,7 +27,7 @@ export default function Browse() {
         keyboardShouldPersistTaps="handled"
       >
         <Text variant="heading" accessibilityRole="header" className="pb-xs">
-          {t("browse.title")}
+          {t("tabs.browse")}
         </Text>
         <SearchBar />
         {reference.isPending
