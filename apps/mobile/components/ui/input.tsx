@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from "lucide-react-native";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, TextInput, View } from "react-native";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -37,6 +38,8 @@ function Input({
   ref,
   ...props
 }: InputProps & { ref?: React.Ref<TextInput> }) {
+  const { i18n } = useTranslation();
+  const isHe = i18n.language === "he";
   const [focused, setFocused] = React.useState(false);
   const [revealed, setRevealed] = React.useState(false);
   const isSecure = Boolean(secureTextEntry) && !revealed;
@@ -71,11 +74,17 @@ function Input({
             props.onBlur?.(e);
           }}
           className={cn(
-            "flex-1 text-start font-aileron-400 text-body text-text-1 rtl:font-heebo-400",
+            "flex-1 font-aileron-400 text-body text-text-1 rtl:font-heebo-400",
+            isHe ? "text-right" : "text-left",
             multiline && "min-h-[96px] pt-xs",
             className,
           )}
           textAlignVertical={multiline ? "top" : "center"}
+          style={{
+            writingDirection: isHe ? "rtl" : "ltr",
+            textAlign: isHe ? "right" : "left",
+            paddingHorizontal: 0,
+          }}
           {...props}
         />
         {secureToggle ? (

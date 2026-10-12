@@ -86,11 +86,11 @@ function ProfileHeader({
       <View className="flex-row items-center gap-lg px-lg pt-sm">
         <Avatar uri={profile.avatarUrl} name={profile.username ?? profile.name} size={72} />
         <View className="flex-1 gap-xs">
-          <Text variant="heading" numberOfLines={1}>
+          <Text variant="heading" numberOfLines={1} className="self-start">
             {profile.username ?? t("profile.deletedMember")}
           </Text>
           {profile.name && profile.name !== profile.username ? (
-            <Text variant="bodySmall" className="text-text-3" numberOfLines={1}>
+            <Text variant="bodySmall" className="self-start text-text-3" numberOfLines={1}>
               {profile.name}
             </Text>
           ) : null}

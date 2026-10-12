@@ -8,10 +8,11 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { AppState } from "react-native";
+import { AppState, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppLock } from "@/components/app-lock";
+import { isRtlLanguage } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
 import { useBiometricSupport } from "@/lib/biometrics";
 import { useAppFonts } from "@/lib/fonts";
@@ -64,16 +65,19 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <BottomSheetModalProvider>
             <StatusBar style="dark" />
-            <Stack
-              screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
-            >
-              <Stack.Protected guard={!signedIn}>
-                <Stack.Screen name="(auth)" />
-              </Stack.Protected>
-              <Stack.Protected guard={signedIn}>
-                <Stack.Screen name="(app)" />
-              </Stack.Protected>
-            </Stack>
+            {/* Say the direction out loud: on a phone set to Hebrew with the app in English, scroll views would otherwise lay out right to left. */}
+            <View style={{ flex: 1, direction: isRtlLanguage(i18n.language) ? "rtl" : "ltr" }}>
+              <Stack
+                screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
+              >
+                <Stack.Protected guard={!signedIn}>
+                  <Stack.Screen name="(auth)" />
+                </Stack.Protected>
+                <Stack.Protected guard={signedIn}>
+                  <Stack.Screen name="(app)" />
+                </Stack.Protected>
+              </Stack>
+            </View>
             {signedIn && locked ? (
               <AppLock kind={support?.kind ?? "generic"} onUsePassword={usePassword} />
             ) : null}

@@ -6,7 +6,8 @@ import * as SecureStore from "expo-secure-store";
 export function readPref(key: string): string | null {
   try {
     return SecureStore.getItem(key);
-  } catch {
+  } catch (err) {
+    if (__DEV__) console.warn("Could not read a preference:", key, err);
     return null;
   }
 }
@@ -15,7 +16,8 @@ export function writePref(key: string, value: string | null) {
   try {
     if (value === null) SecureStore.deleteItemAsync(key).catch(() => {});
     else SecureStore.setItem(key, value);
-  } catch {
+  } catch (err) {
     // Not saved. The setting simply resets next launch.
+    if (__DEV__) console.warn("Could not save a preference:", key, err);
   }
 }

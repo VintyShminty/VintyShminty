@@ -1,16 +1,14 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { type BiometricKind, promptBiometric, useBiometricSupport } from "@/lib/biometrics";
-import { isFaceIdEnabled, useLockStore } from "@/lib/lock-store";
+import { useFaceIdEnabled, useLockStore } from "@/lib/lock-store";
 
 /** Reading and changing the Face ID switch for one person on this phone. */
 export function useFaceId(userId: string | undefined) {
   const { t } = useTranslation();
   const support = useBiometricSupport();
-  const version = useLockStore((s) => s.version);
   const setFaceIdEnabled = useLockStore((s) => s.setFaceIdEnabled);
-  const enabled = userId ? isFaceIdEnabled(userId) : false;
-  void version;
+  const enabled = useFaceIdEnabled(userId);
 
   /** The name to show: Face ID, Touch ID or "biometrics" on phones with something else. */
   const kind: BiometricKind = support?.kind ?? "generic";

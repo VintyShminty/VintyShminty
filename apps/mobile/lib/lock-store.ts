@@ -13,8 +13,8 @@ export const wasFaceIdOffered = (userId: string) => readPref(offeredKey(userId))
 export const markFaceIdOffered = (userId: string) => writePref(offeredKey(userId), "1");
 
 type LockState = {
-  /** Bumps whenever a setting changes, so screens that read the saved switch redraw. */
-  version: number;
+  /** Switches changed during this run. Reading from here (not only secure storage) makes screens redraw. */
+  changed: Record<string, boolean>;
   /** True once the person has got past Face ID (or just logged in) in this run of the app. */
   unlocked: boolean;
   backgroundedAt: number | null;
@@ -26,12 +26,12 @@ type LockState = {
 };
 
 export const useLockStore = create<LockState>((set, get) => ({
-  version: 0,
+  changed: {},
   unlocked: false,
   backgroundedAt: null,
   setFaceIdEnabled: (userId, enabled) => {
     writePref(enabledKey(userId), enabled ? "1" : "0");
-    set((s) => ({ version: s.version + 1, unlocked: true }));
+    set((s) => ({ changed: { ...s.changed, [userId]: enabled }, unlocked: true }));
   },
   unlock: () => set({ unlocked: true }),
   noteBackground: () => set({ backgroundedAt: Date.now() }),
@@ -49,9 +49,14 @@ export const useLockStore = create<LockState>((set, get) => ({
   },
 }));
 
+/** Is Face ID on for this person? Redraws the screen when it changes. */
+export function useFaceIdEnabled(userId: string | undefined): boolean {
+  return useLockStore((s) => (userId ? (s.changed[userId] ?? isFaceIdEnabled(userId)) : false));
+}
+
 /** Should the lock screen cover the app right now? */
 export function useIsLocked(userId: string | undefined): boolean {
   const unlocked = useLockStore((s) => s.unlocked);
-  useLockStore((s) => s.version);
-  return Boolean(userId) && isFaceIdEnabled(userId as string) && !unlocked;
+  const enabled = useFaceIdEnabled(userId);
+  return Boolean(userId) && enabled && !unlocked;
 }

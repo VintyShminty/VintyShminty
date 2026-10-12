@@ -1,5 +1,6 @@
 import { DevSettings, I18nManager, Platform } from "react-native";
 import { isRtlLanguage } from "@/i18n";
+import { readPref, writePref } from "@/lib/secure-prefs";
 
 /**
  * Right-to-left layout with Expo.
@@ -19,9 +20,14 @@ import { isRtlLanguage } from "@/i18n";
 export function ensureLayoutDirection(language: string) {
   if (Platform.OS === "web") return;
   const wantRtl = isRtlLanguage(language);
-  I18nManager.allowRTL(true);
+  // allowRTL(false) matters for English on a phone set to Hebrew: without it the system keeps the layout right to left.
+  I18nManager.allowRTL(wantRtl);
   if (I18nManager.isRTL !== wantRtl) {
     I18nManager.forceRTL(wantRtl);
+    // Never restart twice in a row for the same direction, so a stubborn setting cannot cause a restart loop.
+    const marker = `${wantRtl}:${Math.floor(Date.now() / 15_000)}`;
+    if (readPref("vinty.rtl.restart") === marker) return;
+    writePref("vinty.rtl.restart", marker);
     if (__DEV__) DevSettings.reload();
   }
 }
