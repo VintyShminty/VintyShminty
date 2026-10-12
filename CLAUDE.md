@@ -147,3 +147,14 @@ React Native Reusables, react-hook-form, Gorhom Bottom Sheet and Socket.IO have 
 - Design method: `docs/playbook/design-philosophy.md`.
 - Components to build: `docs/components.md`.
 - Mockups for reference only: `docs/mockups/`.
+
+## Process
+
+How we work lives in `docs/playbook/`: `how-we-work.md`, `git-and-github.md`, `security-and-safety.md`, `debugging.md`. The knowledge base is `docs/log/` (one diary entry per day) and `docs/knowledge/` (decisions, lessons, gotchas, glossary). Read `docs/knowledge/` before touching an unfamiliar area.
+
+- `daily-log`: at the end of each working session.
+- `compile-memory`: at the end of each milestone, or about weekly.
+- `safety-check`: before committing, opening a PR, adding a dependency, or touching auth, uploads or data.
+- `git-workflow`: starting a branch or worktree, committing, opening a PR.
+
+Never commit straight to `main`. Eden merges.

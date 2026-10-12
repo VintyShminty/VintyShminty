@@ -32,3 +32,7 @@ Vercel skill:
 - expo-upgrade `references/react-navigation-to-expo-router.md` mentions `npx expo-codemod ...` (an official Expo package that would be downloaded and run). Only run it with the founder's approval.
 - Ordinary tooling commands appear (`npx expo install`, `npx expo prebuild`, `npx expo-doctor`). These are normal Expo CLI use and not data-sending.
 - Checked for and found none: curl or wget pipes, telemetry, hidden or zero-width characters, HTML comments, instructions to disable permissions, prompt-injection text.
+
+## Authored in-repo
+
+`daily-log`, `compile-memory`, `safety-check`, `git-workflow`. Written for Vinty on 2026-10-12. The matching docs are in `docs/playbook/`.
