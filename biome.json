@@ -14,6 +14,7 @@
       "!**/dist",
       "!**/assets",
       "!docs/mockups",
+      "!.claude",
       "!pnpm-lock.yaml"
     ]
   },

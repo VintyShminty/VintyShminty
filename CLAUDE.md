@@ -90,6 +90,43 @@ Aileron for Latin, Heebo for Hebrew (O-003 in the design doc is still open, so t
 
 Layout direction is fixed by the native layer at app start, so switching needs a restart. If the phone is set to Hebrew, the OS starts the app in RTL by itself because `he` is in the `supportedLocales` of the `expo-localization` plugin in `app.json`. For a language picked inside the app, `lib/rtl.ts` calls `I18nManager.allowRTL(true)` and `I18nManager.forceRTL(...)` and then reloads (`DevSettings.reload()` in development). A production build needs `expo-updates` (`Updates.reloadAsync()`), which is not installed yet. Expo Go forgets a forced RTL when reopened, so test real RTL in a development build.
 
+## Skills
+
+Project skills live in `.claude/skills/` (sources and every change in `.claude/skills/SOURCES.md`).
+
+- `expo-router`: routes, layouts, stacks, tabs, modals, form sheets, headers, search.
+- `expo-native-ui`: screen structure, safe areas, icons, media, storage, effects.
+- `expo-ui`: the `@expo/ui` native components. Check it before adding a native control, but our stack (Reusables, Gorhom Bottom Sheet) stays the default.
+- `expo-animation`: any motion, gestures, haptics, reduced motion.
+- `expo-data-fetching`: network calls, caching, offline, the four screen states.
+- `expo-project-structure`: only for new folders and files. Never restructure existing code to match it.
+- `expo-upgrade`: Expo SDK upgrades and deprecated packages.
+- `react-native-skills`: Vercel's React Native performance and pattern rules (lists, state, rendering).
+
+Never run Expo's feedback command (submit-expo-feedback) or any skill step that sends data to a third party.
+
+Styling: our design system wins. Use NativeWind classes, the React Native Reusables components and the tokens in docs/design.md. Where a skill recommends native iOS look, system colours or platform controls that conflict, follow docs/design.md.
+
+Better Auth skills (github.com/better-auth/skills) are to be added when auth work starts.
+
+## Docs for agents
+
+Fetch these before guessing at an API:
+
+- Expo: https://docs.expo.dev/llms.txt
+- Drizzle: https://orm.drizzle.team/llms.txt (an index, the full file is very large)
+- Better Auth: https://better-auth.com/docs/llms.txt (for later auth work)
+- Fastify: https://fastify.dev/llms.txt
+- NativeWind: https://www.nativewind.dev/llms.txt
+- Reanimated: https://docs.swmansion.com/react-native-reanimated/llms.txt
+- TanStack: https://tanstack.com/llms.txt
+- Zod: https://zod.dev/llms.txt
+- i18next: https://www.i18next.com/llms.txt
+- Cloudflare R2: https://developers.cloudflare.com/r2/llms.txt (later)
+- Vercel: https://vercel.com/docs/llms.txt
+
+React Native Reusables, react-hook-form, Gorhom Bottom Sheet and Socket.IO have no llms.txt. Use the Context7 or DeepWiki tools for those.
+
 ## Where decisions live
 
 - Design decisions: `docs/design.md` (approved D-001 to D-010, open decisions at the bottom).
