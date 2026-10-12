@@ -507,5 +507,9 @@
       "deniedTitle": "No access to photos",
       "denied": "Allow Vinty to use your photos or camera in the phone's Settings"
     }
+  },
+  "browse": {
+    "favourite": "Add to favourites",
+    "unfavourite": "Remove from favourites"
   }
 }
