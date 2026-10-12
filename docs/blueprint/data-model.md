@@ -172,7 +172,7 @@ Indexes:
 
 ### `verifications`
 
-Short lived tokens for email verification and password reset.
+Short lived tokens for email verification and password reset. In version 1 these hold the hashed 6 digit codes sent by email (identifier like `forget-password-otp-<email>`).
 
 Used by: Sign in, Settings (Account settings).
 
@@ -1741,7 +1741,7 @@ These need an answer from Eden before or during the milestone named. Each has a 
 13. **Free bumps (Milestone 6).** Default: unlimited. Should there be a daily cap per seller while they are free?
 14. **Translate this conversation (Milestone 4).** Needs a translation service. Default: not in version 1.
 15. **Account deletion (Milestone 1).** Default: close the account, clear personal fields, keep orders and reviews with an anonymous name (`profiles.deleted_at`).
-16. **Seeded users have no passwords (Milestone 1).** The sample users exist without sign in methods. Milestone 1 should add a dev only script that gives a few of them a known password.
+16. **Seeded users have no passwords (Milestone 1).** Done: `pnpm db:dev-users` gives three of them a random password and writes it to a git-ignored file.
 17. **Languages beyond Hebrew and English.** Reference tables have two name columns. A third language would mean a translations table, so decide before adding a language.
 18. **Photo moderation and malware scanning.** Not in version 1. Uploads go straight to storage from the app.
 19. **Spec screens not captured.** The spec never captured: the Boost and Bump pages, a tracking page, the seller side of Accept, Decline and Counter, payment after Pay, the Badges page, Promotional tools, empty states. This blueprint models the data for them and the screens still need design.

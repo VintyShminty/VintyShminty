@@ -17,7 +17,7 @@ Version 1 is a working app to inspect, not a throwaway prototype. It includes **
 | # | Milestone | What you can do at the end | Status |
 |---|---|---|---|
 | 0 | Blueprint | Nothing new on the phone. The full data design, the list of app to server requests, all categories and reference data in Hebrew and English, and sample data so every screen has something to show | Done (branch `milestone-0`) |
-| 1 | Accounts | Sign up and log in with email, unlock with Face ID, your profile, settings, switch between Hebrew and English. Google and Apple sign in once those accounts exist | Next |
+| 1 | Accounts | Sign up and log in with email, unlock with Face ID, your profile, settings, switch between Hebrew and English. Google and Apple sign in once those accounts exist | Built on branch `milestone-1`, in review |
 | 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Planned |
 | 3 | Discovery | Home feed, Browse grid with category panels, search, filters and sort, item page, seller profiles, favourites, saved searches | Planned |
 | 4 | Messaging | Live chat, offers (send, accept, decline, counter), notifications, push alerts | Planned |
@@ -40,6 +40,9 @@ Every milestone ends with something you can use on your phone, in both languages
 | Expo | Building the installable app | Now | Done |
 | Apple Developer ($99 a year) | Sign in with Apple, installing on phones through TestFlight | Milestone 1. Start early, approval can take days | Not started |
 | Google Cloud | Google sign in | Milestone 1 | Opened, not configured |
+| Mailpit (Docker, development only) | Catches every email the server sends, inbox at localhost:8025 | Milestone 1 | Running |
+| MinIO (Docker, development only) | Stands in for Cloudflare R2 for photos, console at localhost:9001 | Milestone 1 | Running |
+| Email provider (Resend, Postmark or similar) | Sending real emails online | When the app goes online | Not started |
 | Cloudflare R2 | Photo storage online | When the app goes online | Not started |
 | Vercel | Hosting the server online | When the app goes online | Not started |
 
@@ -52,6 +55,7 @@ Until the app goes online, the server, database and photos run on the developmen
 | `design-foundation` | Design rules, palette, component sheets | Pull request #1 open |
 | `tech-foundation` | App, server and database foundation, skills | Built on design-foundation, no pull request yet |
 | `milestone-0` | Blueprint | Built on tech-foundation, no pull request yet |
+| `milestone-1` | Accounts | Built on milestone-0, no pull request yet |
 
 ## Parked for later
 

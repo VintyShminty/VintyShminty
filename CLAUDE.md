@@ -11,9 +11,9 @@ pnpm workspace (pnpm 11, Node 22 via `.nvmrc`), TypeScript 6 everywhere.
 - `packages/db`: Drizzle ORM with postgres-js. Migrations in `packages/db/drizzle`.
 - `packages/shared`: Zod schemas and types shared by app and server.
 
-The data model is designed (Milestone 0, `docs/blueprint/`) and its tables match what Better Auth expects, but Better Auth itself is wired in Milestone 1.
+The data model is designed (Milestone 0, `docs/blueprint/`). Milestone 1 added Better Auth (email and password, username, 6 digit email codes, sessions), profile, settings, avatar uploads, Face ID unlock and the Hebrew and English switch.
 
-Not added yet (they need decisions or credentials): Better Auth, payments, Socket.IO, Cloudflare R2, push notifications. `expo-secure-store` and `expo-local-authentication` are installed but not wired.
+Not added yet (they need decisions or credentials): payments, Socket.IO, Cloudflare R2 (MinIO stands in for it), a real email provider (Mailpit catches mail in development), push notifications, Google and Apple sign in (prepared, off until credentials exist).
 
 ## Repo map
 
@@ -39,21 +39,33 @@ docs/playbook/              Design method rules
 ```
 pnpm install
 cp apps/server/.env.example apps/server/.env     # and packages/db/.env.example to packages/db/.env
-pnpm db:up          # Postgres 17 in Docker (needs Docker running)
+pnpm db:up          # Postgres 17, Mailpit (email inbox http://localhost:8025) and MinIO (photos, console http://localhost:9001) in Docker
 pnpm db:migrate     # apply migrations. After a schema change run pnpm db:generate first
 pnpm dev:server     # http://localhost:3000, check /health and /health/db
 pnpm dev:mobile     # Expo dev server. Press i for the iOS Simulator
 pnpm db:seed        # reference data + fake sample data (development only, wipes user data first)
 pnpm db:reset       # drop everything, migrate, seed. Run it twice, you get the same data
 pnpm db:seed:reference  # only the reference data (categories, brands, sizes...). Safe anywhere
-pnpm db:down        # stop Postgres (data stays in the Docker volume)
+pnpm db:dev-users   # dev only: gives 3 seeded people (oliver.smith, tamar.avraham, noa_levi) a random password, written to apps/server/.dev-credentials.local (git-ignored) and the console. Run after every db:reset
+pnpm storage:seed   # dev only: uploads the sample photos to the MinIO bucket so sample listings show pictures. Run after every db:reset
+pnpm db:down        # stop the containers (data stays in the Docker volumes)
 ```
 
 `db:seed` and `db:reset` refuse to run unless `NODE_ENV` is `development` (it defaults to that when unset) and the database is on this machine. Sample photos live in `packages/db/seed-assets/` (credits in `CREDITS.md`). Listing photo keys look like `seed/listings/<n>/<file>.jpg`, the file name is the file in `seed-assets`.
 
-Gallery: in a dev build open the Profile tab and tap "Open the design gallery". It shows the colours, type scale (Aileron and Heebo), Button, Badge, Chip and Switch. Use it to check any token or component change.
+Gallery: in a dev build open Profile, Settings and tap "Open the design gallery" at the bottom. It shows the colours, type scale (Aileron and Heebo), Button, Badge, Chip and Switch. Use it to check any token or component change.
 
 Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm format` fixes formatting and import order. CI runs the same three.
+
+## Accounts and services
+
+- Sign in is Better Auth under `/api/auth/*`. Password reset, email confirmation and email change use a 6 digit code by email, not a link. The app sends the session cookie to `/v1` (`apps/mobile/lib/api.ts`).
+- Email goes through the `Mailer` interface in `apps/server/src/lib/mail.ts`. Development sends SMTP to Mailpit. To use a real provider, write another `Mailer` and choose it in `createMailer`.
+- Photos go through `Storage` in `apps/server/src/lib/storage.ts` (S3 protocol, MinIO now, Cloudflare R2 later: set `S3_ENDPOINT`, `S3_REGION=auto`, keys and `S3_PUBLIC_URL`). MinIO no longer publishes Docker images, so compose uses the last Bitnami build.
+- Server env vars are in `apps/server/.env.example`. Google sign in needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, Apple sign in needs `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` and `APPLE_APP_BUNDLE_IDENTIFIER`. Each provider switches on when its values are set. In production `BETTER_AUTH_SECRET` must be a real secret.
+- The app finds the server through `EXPO_PUBLIC_API_URL` (default `http://localhost:3000`, right for the iOS Simulator). On a real phone put your Mac's address in `apps/mobile/.env`.
+- Face ID is a phone setting kept in secure storage (`lib/lock-store.ts`), locking after 5 minutes away (`LOCK_AFTER_MS`). Expo Go on iOS cannot show Face ID (no usage description), so in development inside Expo Go the app asks with a plain Match or Do not match dialog. Real Face ID and real right to left need a development build (`npx expo run:ios`, needs CocoaPods).
+- The shared package imports its own files as `./x.js`. Metro cannot do that, so `apps/mobile/metro.config.js` retries without the extension for files in `packages/`.
 
 ## Rules
 
@@ -62,7 +74,7 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 - Money is an integer in minor units plus a currency code. The order and offer state machines are pure functions in `packages/shared/src/state-machines.ts`. Change them there, nowhere else.
 - Follow `docs/design.md`. Record every new design decision there in the same format as D-001 to D-010.
 - Colours, radii, spacing and type come from tokens only. Never write a hex or `rgb()` value in `app/`, `components/`, `lib/` or `i18n/`. `apps/mobile/tests/no-hardcoded-colours.test.ts` fails if you do. When a native prop needs a colour value, import it from `@/theme`.
-- Use logical start and end styles for RTL: `ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`, `text-start`. Never `left`, `right`, `pl-`, `pr-`, `ml-`, `mr-`. Place things with `justify-start` and `justify-end`, not a translate.
+- Use logical start and end styles for RTL (the `Text` and `Input` components set the text alignment from the app language, because the phone's own language would otherwise decide, which is wrong for an English app on a Hebrew phone): `ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`, `text-start`. Never `left`, `right`, `pl-`, `pr-`, `ml-`, `mr-`. Place things with `justify-start` and `justify-end`, not a translate.
 - No hard-coded user-facing strings. Add a key to both `locales/en.json` and `locales/he.json` and use `t("...")`.
 - Writing rules for anything a user reads: no em dashes or en dashes, no semicolons, no full stop on headings and short labels, proper capitalisation, warm and direct.
 - Install native or Expo packages with `npx expo install` so versions match SDK 57. Plain JavaScript packages use `pnpm add`.
@@ -102,7 +114,7 @@ Aileron for Latin, Heebo for Hebrew (O-003 in the design doc is still open, so t
 
 ## Right to left
 
-Layout direction is fixed by the native layer at app start, so switching needs a restart. If the phone is set to Hebrew, the OS starts the app in RTL by itself because `he` is in the `supportedLocales` of the `expo-localization` plugin in `app.json`. For a language picked inside the app, `lib/rtl.ts` calls `I18nManager.allowRTL(true)` and `I18nManager.forceRTL(...)` and then reloads (`DevSettings.reload()` in development). A production build needs `expo-updates` (`Updates.reloadAsync()`), which is not installed yet. Expo Go forgets a forced RTL when reopened, so test real RTL in a development build.
+Layout direction is fixed by the native layer at app start, so switching needs a restart. If the phone is set to Hebrew, the OS starts the app in RTL by itself because `he` is in the `supportedLocales` of the `expo-localization` plugin in `app.json`. For a language picked inside the app, `lib/rtl.ts` calls `I18nManager.allowRTL(true)` and `I18nManager.forceRTL(...)` and then reloads (`DevSettings.reload()` in development). A production build needs `expo-updates` (`Updates.reloadAsync()`), which is not installed yet. Expo Go cannot do a forced RTL at all (it crashes), so test right to left and Face ID in a development build: `cd apps/mobile && npx expo run:ios` (needs CocoaPods, `LANG=en_US.UTF-8`), then `npx expo start --dev-client`.
 
 ## Skills
 

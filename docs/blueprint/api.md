@@ -70,7 +70,7 @@ Goal: a person can create an account, sign in on the phone, finish their profile
 
 ### Better Auth routes (`/api/auth/*`, handled by the library)
 
-Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateId: "uuid"`, plugins `username`, `bearer`, `admin`, social providers Google and Apple (the app sends the provider's ID token), email and password with email verification, rate limit as above. Face ID unlock is a phone feature that unlocks the stored session token and needs no route.
+Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateId: "uuid"`, plugins `username`, `bearer`, `admin`, `emailOTP` and `expo`, social providers Google and Apple (switched on when their credentials are in the environment, the app sends the provider's ID token), email and password. Password reset, email confirmation and email change use a 6 digit code sent by email (valid 10 minutes, 5 tries, 5 code emails per hour per address) instead of a link, so they work on the phone without deep links. Rate limit as above. The app keeps the session in secure storage and sends it to `/v1` as the session cookie or as `Authorization: Bearer`. Face ID unlock is a phone feature that unlocks the stored session token and needs no route.
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
@@ -79,17 +79,17 @@ Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateI
 | POST | `/api/auth/sign-in/social` | Public | Sign in with Google or Apple using the provider's ID token |
 | POST | `/api/auth/sign-out` | Required | End this session |
 | GET | `/api/auth/get-session` | Optional | Current session and user |
-| POST | `/api/auth/send-verification-email` | Required | Resend the verification email |
-| GET | `/api/auth/verify-email` | Public | Link target from the email |
-| POST | `/api/auth/request-password-reset` | Public | Email a reset link |
-| POST | `/api/auth/reset-password` | Public | Set a new password with the token |
+| POST | `/api/auth/email-otp/send-verification-otp` | Public | Send the email confirmation code (also sent at sign up) |
+| POST | `/api/auth/email-otp/verify-email` | Public | Confirm the email with the code |
+| POST | `/api/auth/email-otp/request-password-reset` | Public | Email a password reset code |
+| POST | `/api/auth/email-otp/reset-password` | Public | Set a new password with email, code and password |
 | POST | `/api/auth/change-password` | Required | Change password, can revoke other sessions |
-| POST | `/api/auth/change-email` | Required | Start an email change |
+| POST | `/api/auth/email-otp/request-email-change` | Required | Send a code to the new address |
+| POST | `/api/auth/email-otp/change-email` | Required | Confirm the new address with the code |
 | GET | `/api/auth/list-sessions` | Required | Devices signed in (Settings, Security) |
 | POST | `/api/auth/revoke-session` | Required | Sign one device out |
 | POST | `/api/auth/revoke-other-sessions` | Required | Sign all other devices out |
 | POST | `/api/auth/link-social` | Required | Add Google or Apple to an existing account |
-| POST | `/api/auth/delete-user` | Required | Close the account (see below) |
 | GET | `/api/auth/is-username-available` | Public | Username plugin. Used live while typing the username |
 
 ### Our routes
@@ -110,7 +110,7 @@ Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateI
 | DELETE | `/v1/me/addresses/:id` | Owner | none | 204 | |
 | POST | `/v1/me/push-tokens` | Required | `pushTokenInputSchema` | 204 | Registers or refreshes the phone. Idempotent on the token |
 | DELETE | `/v1/me/push-tokens/:token` | Required | none | 204 | Called on sign out |
-| POST | `/v1/uploads` | Required | `uploadRequestSchema` | `uploadResponseSchema` | Presigned PUT address. Checks type and size. Purpose `avatar`, `listing_photo` or `message_photo` decides the folder |
+| POST | `/v1/uploads` | Required | `uploadRequestSchema` | `uploadResponseSchema` | Presigned PUT address. Checks type and the declared size. The signature covers the content type only (phones stream the file without a length), so the size is checked again with a HEAD request when the key is saved on the profile. Purpose `avatar`, `listing_photo` or `message_photo` decides the folder |
 | GET | `/v1/users/:id` | Optional | none | `publicProfileSchema` | Seller profile header. `viewer` shows whether the caller follows or blocked them |
 | PUT | `/v1/users/:id/follow` | Required | none | 204 | Idempotent. Cannot follow yourself |
 | DELETE | `/v1/users/:id/follow` | Required | none | 204 | |
@@ -119,7 +119,9 @@ Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateI
 | PUT | `/v1/users/:id/block` | Required | none | 204 | Also removes the follow in both directions |
 | DELETE | `/v1/users/:id/block` | Required | none | 204 | |
 | GET | `/v1/me/blocks` | Required | page query | `followListSchema` | Settings, blocked members |
-| DELETE | `/v1/me` | Required | `{ "password"?: string }` | 204 | Closes the account: sets `profiles.deleted_at`, clears personal fields, hides listings, keeps orders and reviews under an anonymous name. Blocked while an order is open |
+| DELETE | `/v1/me` | Required | `{ "password"?: string }` | 204 | Closes the account (Better Auth's own `delete-user` is not used because it deletes the row): sets `profiles.deleted_at`, clears personal fields, hides listings, keeps orders and reviews under an anonymous name. Blocked while an order is open |
+
+Milestone 1 also ships three read only endpoints that belong to Milestone 3 on paper, because the Profile tab needs them: `GET /v1/users/:id`, `GET /v1/users/:id/listings` and `GET /v1/users/:id/reviews`. Their final shapes are `publicProfileSchema`, a page of `listingCardSchema` and `reviewsPageSchema`.
 
 ## Milestone 2: Selling
 
