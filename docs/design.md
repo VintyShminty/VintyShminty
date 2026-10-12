@@ -2,7 +2,7 @@
 
 Source of truth for the product's look, feel, navigation and approved UX decisions. Method rules live in `docs/playbook/design-philosophy.md`. This file holds the concrete choices. The product is a phone app (React Native), so desktop rules inherited from Kept are adapted below (see D-005).
 
-Starting point (D-001 below): everything here is inherited from Kept's design **except colour**, which is still open (O-001), then adapted for a phone app (D-002 to D-005). Change any value freely; record why in the decision log.
+Starting point (D-001 below): everything here is inherited from Kept's design **except colour**, which was decided fresh (D-006), then adapted for a phone app (D-002 to D-005). Change any value freely; record why in the decision log.
 
 Authority order for design work:
 1. Eden's current direction.
@@ -21,12 +21,64 @@ Authority order for design work:
 
 ## Colour
 
-**Open (see O-001).** Light mode only for now (D-002). Requirements whatever the palette:
+Palette: Espresso and cream (D-006). Light mode only for now (D-002). Requirements whatever the palette:
 - Every colour is a named token; no hard-coded values in components.
 - Tokens for: page background, raised surface, pressed surface, window fill, backdrop, border default, border subtle, text ladder (primary / secondary / muted / faint), accent, on-accent, and state (success, warning, error, destructive).
 - Text is a ladder of steps. When dark mode returns, light-mode values are solved to match dark-mode contrast, not mirrored.
 - Never pure black as a surface; reserve it for shadows/overlays.
 - Listing photos and user content are never tinted.
+
+| Token | Hex | Used for |
+|---|---|---|
+| background | #FFFFFF | Page background |
+| surface | #FBF8F2 | Raised surface: search bar, cards, inactive chips |
+| pressed | #F1E9DA | Pressed surface, switch track when off |
+| border | #E4DACA | Border default |
+| border-subtle | #F0EADF | Border subtle, dividers, inactive chip outline |
+| text-1 | #241811 | Primary text |
+| text-2 | #54443A | Secondary text |
+| text-3 | #695A4F | Muted text |
+| text-4 | #7A6B60 | Faint text |
+| accent | #4B2E22 | Primary button fill, links, prices, active tab, outline button |
+| on-accent | #FFFFFF | Text and icons on the accent fill |
+| accent-tint | #F7EEDC | Info banners, "New" badge |
+| chip-selected | #EFE0C3 | Selected chip fill |
+| on-chip | #3A2218 | Label on a selected chip |
+| success | #1B7A43 | Sold ribbon, success text |
+| success-tint | #E6F4EA | Success background |
+| warning | #8A4F00 | Warning text |
+| warning-tint | #FFEFC2 | Warning background |
+| error | #B3261E | Error text and field outline |
+| error-tint | #FDECEA | Error background |
+| destructive | #B3261E | Destructive actions (same value as error) |
+| window | #FFFFFF at 96% | Window and sheet fill (derived from background, not in the mockup) |
+| backdrop | #241811 at 25% | Dim behind windows and sheets (derived from text-1, not in the mockup) |
+
+Measured contrast (WCAG formula, from the mockup's computed table):
+
+| Pair | Colours | Measured | Needs |
+|---|---|---|---|
+| Primary text on page | #241811 on #FFFFFF | 17.30:1 | 4.5:1 |
+| Secondary text on page | #54443A on #FFFFFF | 9.27:1 | 4.5:1 |
+| Muted text on page | #695A4F on #FFFFFF | 6.61:1 | 4.5:1 |
+| Faint text on page | #7A6B60 on #FFFFFF | 5.12:1 | 4.5:1 |
+| Muted text on raised surface | #695A4F on #FBF8F2 | 6.24:1 | 4.5:1 |
+| Faint text on raised surface | #7A6B60 on #FBF8F2 | 4.83:1 | 4.5:1 |
+| Primary button label | #FFFFFF on #4B2E22 | 12.26:1 | 4.5:1 |
+| Price line, links, outline button | #4B2E22 on #FFFFFF | 12.26:1 | 4.5:1 |
+| Active tab icon and label | #4B2E22 on #FFFFFF | 12.26:1 | 4.5:1 |
+| Price line on raised surface | #4B2E22 on #FBF8F2 | 11.56:1 | 4.5:1 |
+| Accent on tint (banner, badge) | #4B2E22 on #F7EEDC | 10.63:1 | 4.5:1 |
+| Selected chip label | #3A2218 on #EFE0C3 | 11.34:1 | 4.5:1 |
+| Sold ribbon label | #FFFFFF on #1B7A43 | 5.37:1 | 4.5:1 |
+| Success text on page | #1B7A43 on #FFFFFF | 5.37:1 | 4.5:1 |
+| Success on success tint | #1B7A43 on #E6F4EA | 4.73:1 | 4.5:1 |
+| Warning text on warning tint | #8A4F00 on #FFEFC2 | 5.74:1 | 4.5:1 |
+| Error text on page | #B3261E on #FFFFFF | 6.54:1 | 4.5:1 |
+| Error on error tint | #B3261E on #FDECEA | 5.72:1 | 4.5:1 |
+| Switch on and primary fill against page (3:1 for icons) | #4B2E22 on #FFFFFF | 12.26:1 | 3:1 |
+
+All pairs pass. Faint text on the raised surface (4.83:1) is the tightest, so do not go lighter than text-4 for any text.
 
 ## Typography
 
@@ -156,7 +208,7 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - **Status:** Approved
 - **Decision:** Typography, spacing, layout, shapes, window chrome, components, motion and writing rules start from Kept's design. The colour palette is not inherited and is decided fresh.
 - **Rationale:** Kept's quiet, editorial look is proven and liked; a photo-led marketplace needs its own palette.
-- **Implementation:** Values above. Colour pending (O-001).
+- **Implementation:** Values above. Colour decided in D-006.
 - **References:** `docs/playbook/design-philosophy.md`
 
 ### D-002 : Light mode only for now
@@ -199,6 +251,16 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - **Implementation:** Spacing and layout, Typography, Components (bottom tab bar, search bar) and Motion sections above are updated to match.
 - **References:** `docs/playbook/design-philosophy.md`
 
+### D-006 : Colour palette: Espresso and cream
+
+- **Date:** 2026-10-12
+- **Area:** Colour, Design system
+- **Status:** Approved
+- **Decision:** The palette is option 4 from the second colour round: a dark roasted brown accent (#4B2E22) on white, with cream tints (#FBF8F2, #F1E9DA, #F7EEDC, #EFE0C3) and warm brown text steps. State colours: success #1B7A43, warning #8A4F00 on #FFEFC2, error and destructive #B3261E. Closes O-001. The full token table with hex values and the measured contrast pairs is in the Colour section above.
+- **Rationale:** Thrift-shop warmth that suits second-hand clothes, and it lets listing photos lead. Every text and icon pair passes WCAG AA, with the tightest at 4.83:1 (faint text on the raised surface). Peach (round 1) was rejected earlier.
+- **Implementation:** Define the tokens once in the app's theme (NativeWind), named by role as in the table. Window fill and backdrop are derived values (white at 96%, text-1 at 25%) that were not in the mockup.
+- **References:** `docs/mockups/colour-options-2.html` (option 4), `docs/mockups/component-sheet.html`
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 
@@ -215,8 +277,9 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 
 Proposals, not rules, until explicitly promoted above.
 
+None right now.
+
 | ID | Proposal | Decision needed |
 |---|---|---|
-| O-001 | Colour palette (background, surfaces, text ladder, accent, states), light mode only. Being decided from `docs/mockups/colour-options.html` (three white-and-peach directions, round 1: peach rejected) and `docs/mockups/colour-options-2.html` (six non-peach directions: cobalt, plum, olive, espresso and cream, tomato, navy and butter) | Pick direction from the mockup against real listing photos |
 
 ## Superseded decisions
