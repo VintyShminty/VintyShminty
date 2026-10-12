@@ -7,15 +7,23 @@
   "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "generate": "drizzle-kit generate"
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "test": "vitest run",
+    "seed": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts seed",
+    "seed:reference": "tsx --env-file-if-exists=.env src/seed/cli.ts reference",
+    "reset": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts reset"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.4",
-    "postgres": "^3.4.9"
+    "drizzle-orm": "^0.45.3",
+    "postgres": "^3.4.9",
+    "@vinty/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "drizzle-kit": "^0.31.11",
-    "typescript": "~6.0.3"
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3"
   }
 }

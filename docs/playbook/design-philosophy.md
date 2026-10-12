@@ -1,6 +1,6 @@
 # Design Philosophy
 
-What Kept's design language taught us. Product: VintyShminty (working name), a phone app. Decision (Eden, 2026-10-11): **take all of Kept's design as inspiration except the colour palette.** Method rules and Kept's look (type, spacing, shapes, chrome, motion, voice) carry over. Colours are decided fresh for this product. The concrete values live in `docs/design.md`. Rules below were written for desktop web. Phone-app adaptations are noted inline and in D-005.
+Design principles for Vinty. Product: VintyShminty (working name), a phone app. Decision (Eden, 2026-10-11): **use this design language except the colour palette.** Method rules and the Vinty look (type, spacing, shapes, chrome, motion, voice) carry over. Colours are decided fresh for this product. The concrete values live in `docs/design.md`. Rules below were written for desktop web. Phone-app adaptations are noted inline and in D-005.
 
 ## Method rules (carry over)
 
@@ -24,7 +24,7 @@ What Kept's design language taught us. Product: VintyShminty (working name), a p
 These rules are kept for when dark mode returns.
 
 - Design and check every new window in both themes before calling it done.
-- Light mode is not an automatic inversion. Kept's light alphas were solved per rung to match the dark theme's measured contrast (dark-on-light reads weaker than light-on-dark).
+- Light mode is not an automatic inversion. The light alphas were solved per rung to match the dark theme's measured contrast (dark-on-light reads weaker than light-on-dark).
 - Name surfaces that deliberately ignore the theme (text over photos stays white; a photo is neither light nor dark).
 - Inline `style` props are invisible to stylesheet audits. In the native app, keep colour in tokens (NativeWind classes), never hand-typed in style props.
 - Icons that must follow the theme are drawn with `currentColor`. Emoji can never take a palette.
@@ -72,9 +72,9 @@ These rules are kept for when dark mode returns.
 - Record every approved decision in `docs/design.md` (format below). Proposals stay in "Open decisions" until explicitly approved. Superseded decisions are kept with the date and why.
 - If a window fails because of contrast, portal ancestry, z-index or scroll, update `docs/design.md` in the same change that fixes it.
 
-## Kept's look (carry over, except colour)
+## The Vinty look
 
-Adopted from Kept:
+Core traits:
 - Quiet, editorial, restrained. Content leads; chrome stays out of the way.
 - Contrast of weight as the signature: very light display type (200-300, large headings only, never small text) against heavy names and emphasis (700-800); small uppercase section labels with wide tracking.
 - Hairline borders, soft blur on floating chrome, no heavy drop shadows. Depth comes from borders, a slightly brighter top edge and surface shifts, not shadows.
@@ -83,7 +83,7 @@ Adopted from Kept:
 - Instant navigation between pages; small entrance animations inside a page.
 - Banned: heavy card shadows, thick rounded borders, dense data tables, hamburger menus, corporate/sales jargon in the UI.
 
-**Not carried over:** Kept's palette (monochrome white-on-near-black, no accent hue). This product picks its own colours in `docs/design.md`. The colour *method* above still applies: tokens only, contrast measured. Light mode only for now (D-002). Since a second-hand marketplace is photo-led, choose a palette that frames listing photos rather than competing with them.
+**Colour is decided per product (D-006).** This product picks its own colours in `docs/design.md`. The colour *method* above still applies: tokens only, contrast measured. Light mode only for now (D-002). Since a second-hand marketplace is photo-led, choose a palette that frames listing photos rather than competing with them.
 
 ## Decision log format (`docs/design.md`)
 

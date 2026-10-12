@@ -1,0 +1,61 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: vintyshminty-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vinty
+      POSTGRES_PASSWORD: vinty
+      POSTGRES_DB: vintyshminty
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vinty -d vintyshminty"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Development only. Catches every email the server sends. Web inbox at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: vintyshminty-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP, what the server sends to
+      - "8025:8025" # web inbox
+    environment:
+      MP_MAX_MESSAGES: 500
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Development only. S3 compatible storage for photos (Cloudflare R2 takes its place online).
+  # S3 API at http://localhost:9000, web console at http://localhost:9001 (user and password: minioadmin)
+  # MinIO stopped publishing its own images, so this is the last Bitnami build of MinIO. It is fine for
+  # local development. The bucket vinty-dev is created on start and anyone can read it, like a public R2 bucket.
+  minio:
+    image: bitnamilegacy/minio:2025.7.23-debian-12-r3
+    container_name: vintyshminty-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_DEFAULT_BUCKETS: "vinty-dev:download"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9000/minio/health/live || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  pgdata:
+  miniodata:

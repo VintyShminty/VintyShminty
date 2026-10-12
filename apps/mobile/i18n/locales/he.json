@@ -1,0 +1,343 @@
+{
+  "tabs": {
+    "home": "בית",
+    "browse": "גלישה",
+    "sell": "מכירה",
+    "inbox": "הודעות",
+    "profile": "פרופיל"
+  },
+  "common": {
+    "placeholderScreen": "מסך זמני",
+    "language": "שפה",
+    "restartNote": "כיוון המסך משתנה אחרי הפעלה מחדש של האפליקציה",
+    "close": "סגירה",
+    "back": "חזרה",
+    "cancel": "ביטול",
+    "done": "סיום",
+    "save": "שמירה",
+    "tryAgain": "נסו שוב"
+  },
+  "gallery": {
+    "title": "גלריה",
+    "open": "פתיחת גלריית העיצוב",
+    "colours": "צבעים",
+    "typeScale": "סולם טיפוגרפיה",
+    "buttons": "כפתורים",
+    "badges": "תגיות",
+    "chips": "צ'יפים",
+    "switch": "מתג",
+    "sample": "Pre-loved, loved again",
+    "hebrewSample": "בגדים אהובים, חיים שניים",
+    "primary": "ראשי",
+    "outline": "מסגרת",
+    "ghost": "שקוף",
+    "sold": "נמכר",
+    "reserved": "שמור",
+    "cancelled": "בוטל",
+    "priceDrop": "הורדת מחיר",
+    "info": "העלאות תכופות",
+    "all": "הכול",
+    "dresses": "שמלות",
+    "bundleDiscounts": "הנחות על חבילות"
+  },
+  "welcome": {
+    "heroLight": "בגדים אהובים,",
+    "heroBold": "חיים שניים",
+    "subtitle": "קונים ומוכרים אופנה יד שנייה, ישר מהארונות של אנשים אחרים.",
+    "signUp": "הרשמה",
+    "logIn": "התחברות"
+  },
+  "signUp": {
+    "title": "יוצרים חשבון",
+    "subtitle": "זה לוקח דקה. בלי כרטיס אשראי.",
+    "submit": "הרשמה",
+    "haveAccount": "כבר יש לכם חשבון?",
+    "logIn": "התחברות"
+  },
+  "logIn": {
+    "title": "ברוכים השבים",
+    "subtitle": "התחברו וממשיכים מאיפה שעצרתם.",
+    "submit": "התחברות",
+    "forgot": "שכחתם את הסיסמה?",
+    "noAccount": "חדשים ב-Vinty?",
+    "signUp": "הרשמה",
+    "passwordChanged": "הסיסמה שונתה. התחברו עם הסיסמה החדשה."
+  },
+  "forgot": {
+    "title": "שכחתם את הסיסמה?",
+    "subtitle": "הזינו את האימייל ונשלח לכם קוד לבחירת סיסמה חדשה.",
+    "titleCode": "בדקו את האימייל",
+    "subtitleCode": "הזינו את הקוד ובחרו סיסמה חדשה.",
+    "sendCode": "שליחת קוד",
+    "codeSent": "שלחנו קוד בן 6 ספרות אל {{email}}.",
+    "codeResent": "שלחנו קוד חדש אל {{email}}.",
+    "reset": "איפוס סיסמה",
+    "resendIn": "אפשר לשלוח קוד חדש בעוד {{seconds}} שניות",
+    "resend": "שליחת קוד חדש",
+    "differentEmail": "שימוש באימייל אחר"
+  },
+  "fields": {
+    "email": "אימייל",
+    "username": "שם משתמש",
+    "usernameHint": "אותיות באנגלית, מספרים, נקודות וקו תחתון. 3 עד 24 תווים.",
+    "password": "סיסמה",
+    "passwordHint": "לפחות 8 תווים",
+    "showPassword": "הצגת הסיסמה",
+    "hidePassword": "הסתרת הסיסמה",
+    "code": "קוד בן 6 ספרות",
+    "newPassword": "סיסמה חדשה",
+    "currentPassword": "סיסמה נוכחית",
+    "confirmPassword": "הזינו שוב את הסיסמה החדשה",
+    "displayName": "שם",
+    "about": "קצת עליכם",
+    "aboutPlaceholder": "ספרו לנו על עצמכם ועל הסגנון שלכם",
+    "city": "עיר",
+    "newEmail": "אימייל חדש"
+  },
+  "validation": {
+    "email": {
+      "required": "הזינו אימייל",
+      "invalid": "האימייל לא נראה תקין"
+    },
+    "username": {
+      "required": "בחרו שם משתמש",
+      "tooShort": "נדרשים לפחות 3 תווים",
+      "tooLong": "עד 24 תווים",
+      "characters": "אפשר להשתמש רק באותיות באנגלית, מספרים, נקודות וקו תחתון",
+      "taken": "שם המשתמש הזה תפוס"
+    },
+    "password": {
+      "required": "הזינו סיסמה",
+      "tooShort": "נדרשים לפחות 8 תווים",
+      "tooLong": "עד 128 תווים",
+      "mismatch": "הסיסמאות לא זהות",
+      "same": "בחרו סיסמה שלא השתמשתם בה קודם"
+    },
+    "code": {
+      "invalid": "הזינו את הקוד בן 6 הספרות"
+    },
+    "name": {
+      "required": "הזינו שם",
+      "tooLong": "עד 50 תווים"
+    },
+    "bio": {
+      "tooLong": "עד 500 תווים"
+    },
+    "city": {
+      "tooLong": "עד 80 תווים"
+    },
+    "avatar": {
+      "invalid": "אי אפשר להשתמש בתמונה הזו"
+    },
+    "upload": {
+      "tooBig": "התמונה גדולה מדי"
+    }
+  },
+  "errors": {
+    "general": "משהו השתבש. נסו שוב.",
+    "network": "לא הצלחנו להתחבר ל-Vinty. בדקו את החיבור ונסו שוב.",
+    "wrongLogin": "האימייל והסיסמה לא תואמים.",
+    "wrongPassword": "הסיסמה לא נכונה.",
+    "emailTaken": "כבר קיים חשבון עם האימייל הזה",
+    "sameEmail": "זה כבר האימייל שלכם",
+    "wrongCode": "הקוד לא נכון",
+    "codeExpired": "תוקף הקוד פג. בקשו קוד חדש.",
+    "tooManyAttempts": "יותר מדי ניסיונות. בקשו קוד חדש.",
+    "tooManyRequests": "יותר מדי ניסיונות. המתינו דקה ונסו שוב.",
+    "emailNotVerified": "אשרו קודם את האימייל",
+    "banned": "החשבון הזה אינו זמין",
+    "checkFields": "יש פרטים שכדאי לבדוק שוב",
+    "sessionExpired": "התנתקתם מהחשבון. התחברו שוב.",
+    "loadFailed": "לא הצלחנו לטעון. משכו מטה כדי לנסות שוב."
+  },
+  "biometric": {
+    "faceId": "Face ID",
+    "touchId": "Touch ID",
+    "generic": "זיהוי ביומטרי"
+  },
+  "lock": {
+    "title": "Vinty נעולה",
+    "subtitle": "השתמשו ב-{{method}} כדי לפתוח את האפליקציה.",
+    "failed": "{{method}} לא הצליח. נסו שוב או התחברו עם סיסמה.",
+    "unlock": "פתיחה עם {{method}}",
+    "usePassword": "התחברות עם סיסמה",
+    "prompt": "פתיחת Vinty",
+    "confirmEnable": "הפעלת {{method}} עבור Vinty"
+  },
+  "faceId": {
+    "offerTitle": "פותחים את Vinty עם {{method}}",
+    "offerBody": "בלי להקליד סיסמה. Vinty תבקש {{method}} כשתפתחו אותה.",
+    "turnOn": "הפעלת {{method}}",
+    "notNow": "לא עכשיו",
+    "turnOnFailed": "לא הצלחנו להפעיל את {{method}}. אפשר לנסות שוב בהגדרות, אבטחה."
+  },
+  "profile": {
+    "deletedMember": "חבר שנמחק",
+    "reviewCount_one": "ביקורת אחת",
+    "reviewCount_two": "{{count}} ביקורות",
+    "reviewCount_other": "{{count}} ביקורות",
+    "noReviewsYet": "עדיין אין ביקורות",
+    "edit": "עריכת פרופיל",
+    "listings": "פריטים",
+    "followers": "עוקבים",
+    "following": "עוקב אחרי",
+    "tabs": {
+      "listings": "פריטים",
+      "reviews": "ביקורות",
+      "about": "אודות"
+    },
+    "fromMembers": "מחברים",
+    "automatic": "אוטומטיות",
+    "all": "הכול",
+    "active": "פעילים",
+    "sold": "נמכרו",
+    "noListings": "אין פריטים למכירה כרגע",
+    "noSold": "עוד לא נמכר כלום",
+    "noReviews": "עדיין אין ביקורות",
+    "reviewFor": "על {{title}}",
+    "reply": "תגובה",
+    "about": {
+      "bio": "אודות",
+      "noBio": "עוד אין כאן כלום",
+      "details": "פרטים",
+      "lastSeen": "נראה לאחרונה {{when}}",
+      "verified": "מידע מאומת",
+      "email": "אימייל",
+      "notVerified": "עדיין לא אומת דבר"
+    }
+  },
+  "countries": {
+    "IL": "ישראל"
+  },
+  "listing": {
+    "sold": "נמכר",
+    "priceDrop": "הורדת מחיר",
+    "bumped": "מקודם",
+    "was": "היה: {{price}}",
+    "percentOff": "{{percent}}% הנחה",
+    "includesProtection": "{{price}} כולל"
+  },
+  "editProfile": {
+    "title": "פרטי פרופיל",
+    "save": "עדכון פרופיל",
+    "changePhoto": "החלפת תמונה",
+    "removePhoto": "הסרת תמונה",
+    "removePhotoTitle": "להסיר את התמונה?",
+    "uploading": "מעלה...",
+    "photosDenied": "Vinty צריכה גישה לתמונות שלכם. אפשר לאשר בהגדרות הטלפון.",
+    "uploadFailed": "התמונה לא עלתה. נסו שוב."
+  },
+  "settings": {
+    "title": "הגדרות",
+    "promoTitle": "אבטחה חזקה וגישה מהירה",
+    "promoBody": "השתמשו ב-{{method}} כדי לפתוח את Vinty בטלפון הזה.",
+    "promoButton": "הגדרת {{method}}",
+    "profileDetails": "פרטי פרופיל",
+    "account": "הגדרות חשבון",
+    "security": "אבטחה",
+    "privacy": "הגדרות פרטיות",
+    "notifications": "התראות",
+    "push": "התראות פוש",
+    "email": "התראות באימייל",
+    "appLanguage": "שפת האפליקציה",
+    "language": "שפה",
+    "logOut": "התנתקות",
+    "logOutTitle": "להתנתק מ-Vinty?"
+  },
+  "account": {
+    "title": "הגדרות חשבון",
+    "verifyEmail": "אימות האימייל",
+    "notVerified": "לא מאומת",
+    "verified": "מאומת",
+    "emailStatus": "סטטוס האימייל",
+    "changePassword": "שינוי סיסמה",
+    "delete": "מחיקת החשבון שלי",
+    "dangerZone": "סגירת חשבון",
+    "usernameIntro": "שם המשתמש הוא הדרך של אנשים אחרים למצוא אתכם.",
+    "passwordChanged": "הסיסמה שונתה.",
+    "passwordLogsOut": "טלפונים אחרים שמחוברים לחשבון שלכם יתנתקו.",
+    "verifyIntro": "הזינו את הקוד ששלחנו אל {{email}}. צריכים קוד חדש? בקשו למטה.",
+    "verifyButton": "אימות האימייל",
+    "emailVerifiedDone": "האימייל שלכם אומת.",
+    "emailIntro": "האימייל שלכם הוא {{email}}. נשלח קוד לכתובת החדשה כדי לאשר אותה.",
+    "emailChanged": "האימייל שלכם עכשיו {{email}}.",
+    "confirmEmail": "אישור האימייל החדש",
+    "deleteTitle": "לפני שהולכים",
+    "deleteBullet1": "הפרופיל, התמונה והטקסט עליכם יימחקו והפריטים שלכם יורדו מהמכירה.",
+    "deleteBullet2": "הזמנות וביקורות נשארות עבור האנשים שהיו מעורבים, תחת שם אנונימי.",
+    "deleteBullet3": "אי אפשר לבטל את זה. אפשר להירשם שוב מאוחר יותר עם חשבון חדש.",
+    "deletePassword": "הזינו את הסיסמה כדי לאשר",
+    "deleteBlocked": "סיימו את ההזמנות הפתוחות לפני סגירת החשבון.",
+    "deleteConfirmTitle": "למחוק את החשבון?",
+    "deleteConfirmBody": "אי אפשר לבטל את הפעולה.",
+    "deleteConfirm": "מחיקה"
+  },
+  "security": {
+    "title": "אבטחה",
+    "faceId": "פתיחה עם {{method}}",
+    "faceIdHint": "Vinty תבקש {{method}} כשתפתחו אותה או תחזרו אליה אחרי זמן מה.",
+    "sessions": "איפה אתם מחוברים",
+    "unknownDevice": "מכשיר לא מוכר",
+    "activeNow": "פעיל עכשיו",
+    "thisDevice": "המכשיר הזה",
+    "logOutDevice": "התנתקות",
+    "logOutOthers": "התנתקות מהמכשירים האחרים",
+    "logOutOthersTitle": "להתנתק מהמכשירים האחרים?",
+    "logOutOthersBody": "אתם נשארים מחוברים בטלפון הזה.",
+    "onlyThisDevice": "אתם מחוברים רק בטלפון הזה."
+  },
+  "privacy": {
+    "title": "הגדרות פרטיות",
+    "showLastSeen": "להציג מתי הייתי מחובר לאחרונה",
+    "showLastSeenHint": "אנשים אחרים יראו נראה לאחרונה בלשונית אודות."
+  },
+  "languages": {
+    "en": "English",
+    "he": "עברית"
+  },
+  "notifications": {
+    "groups": {
+      "high": "התראות בעדיפות גבוהה",
+      "other": "התראות נוספות"
+    },
+    "types": {
+      "new_message": "הודעות חדשות",
+      "review_received": "משוב חדש",
+      "favourite_price_drop": "פריטים שהוזלו",
+      "listing_favourited": "פריטים שסומנו כמועדפים",
+      "favourite_sold": "פריט מועדף נמכר",
+      "new_follower": "עוקבים חדשים",
+      "followed_seller_new_item": "פריטים חדשים ממי שאתם עוקבים אחריהם"
+    },
+    "dailyLimit": "הגבלה יומית",
+    "noLimit": "ללא הגבלה",
+    "upTo": "עד {{count}} ביום",
+    "dailyLimitHint": "המספר המרבי של התראות פוש ש-Vinty שולחת לכם ביום.",
+    "enablePush": "הפעלת התראות פוש",
+    "enableEmail": "הפעלת התראות באימייל",
+    "notSentYet": "הבחירות שלכם נשמרות. ההתראות האלה יתחילו להגיע כשהתכונות ששולחות אותן ייצאו."
+  },
+  "time": {
+    "justNow": "הרגע",
+    "minutesAgo_one": "לפני דקה",
+    "minutesAgo_two": "לפני {{count}} דקות",
+    "minutesAgo_other": "לפני {{count}} דקות",
+    "hoursAgo_one": "לפני שעה",
+    "hoursAgo_two": "לפני שעתיים",
+    "hoursAgo_other": "לפני {{count}} שעות",
+    "daysAgo_one": "לפני יום",
+    "daysAgo_two": "לפני יומיים",
+    "daysAgo_other": "לפני {{count}} ימים",
+    "monthsAgo_one": "לפני חודש",
+    "monthsAgo_two": "לפני חודשיים",
+    "monthsAgo_other": "לפני {{count}} חודשים",
+    "yearsAgo_one": "לפני שנה",
+    "yearsAgo_two": "לפני שנתיים",
+    "yearsAgo_other": "לפני {{count}} שנים"
+  },
+  "dev": {
+    "fakeBiometricBody": "Expo Go לא יכול להציג את מסך Face ID האמיתי, אז זו הדמיה. ב-development build מופיע המסך האמיתי.",
+    "fakeBiometricFail": "לא תואם",
+    "fakeBiometricPass": "תואם"
+  }
+}

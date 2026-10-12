@@ -1,8 +1,8 @@
 # VintyShminty (working name) Design
 
-Source of truth for the product's look, feel, navigation and approved UX decisions. Method rules live in `docs/playbook/design-philosophy.md`. This file holds the concrete choices. The product is a phone app (React Native), so desktop rules inherited from Kept are adapted below (see D-005).
+Source of truth for the product's look, feel, navigation and approved UX decisions. Method rules live in `docs/playbook/design-philosophy.md`. This file holds the concrete choices. The product is a phone app (React Native), so desktop-era rules are adapted below (see D-005).
 
-Starting point (D-001 below): everything here is inherited from Kept's design **except colour**, which was decided fresh (D-006), then adapted for a phone app (D-002 to D-005). Change any value freely; record why in the decision log.
+Starting point (D-001 below): everything here is the base design language **except colour**, which was decided fresh (D-006), then adapted for a phone app (D-002 to D-005). Change any value freely; record why in the decision log.
 
 Authority order for design work:
 1. Eden's current direction.
@@ -86,7 +86,7 @@ All pairs pass. Faint text on the raised surface (4.83:1) is the tightest, so do
 
 ## Typography
 
-Inherited from Kept. The typeface is Aileron (D-003), self-hosted, same structure as Kept.
+Base design language. The typeface is Aileron (D-003), self-hosted.
 
 - One family for UI, self-hosted, every weight used actually loaded (no browser-faked weights).
 - Signature: light display weight against heavy emphasis. Light weights (200-300) are for large headings only, never small text (D-005).
@@ -142,7 +142,7 @@ Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), n
 **Buttons.**
 | Type | Style |
 |---|---|
-| Primary | Filled accent (Kept used a soft vertical gradient), 12px radius, medium weight |
+| Primary | Filled accent, 12px radius, medium weight |
 | Ghost | Transparent, faint border, secondary text. Pressed: border and text brighten |
 | Action ("+ Add") | Ghost with border, 13px, icon + label |
 | List row active | Faintly tinted background, full-width pill |
@@ -183,7 +183,7 @@ Wordmark on loading screens is typographic (bold, tight tracking, soft pulse), n
 | Sheet open and close | slide up, reverse to close | 300ms | ease-out, reverse to close |
 | Category panel push | new panel slides in from the trailing edge, the previous screen shifts left about 30% and dims | 300ms | ease-out, back is the exact reverse |
 
-There is no hover on phones. Every hover rule from Kept becomes press feedback (D-005).
+There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - Frequent one-click transitions stay under ~200ms.
 - Close easing is the reverse of open easing. Back from a category panel runs the push in reverse.
@@ -212,13 +212,13 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 
 ## Approved decisions
 
-### D-001 : Inherit Kept's design, except colour
+### D-001 : Base design language, except colour
 
 - **Date:** 2026-10-11
 - **Area:** Design system
 - **Status:** Approved
-- **Decision:** Typography, spacing, layout, shapes, window chrome, components, motion and writing rules start from Kept's design. The colour palette is not inherited and is decided fresh.
-- **Rationale:** Kept's quiet, editorial look is proven and liked; a photo-led marketplace needs its own palette.
+- **Decision:** Typography, spacing, layout, shapes, window chrome, components, motion and writing rules start from the base design language. The colour palette is not part of it and is decided fresh.
+- **Rationale:** A quiet, editorial look that lets clothing photos lead. A photo-led marketplace needs its own palette.
 - **Implementation:** Values above. Colour decided in D-006.
 - **References:** `docs/playbook/design-philosophy.md`
 
@@ -237,8 +237,8 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - **Date:** 2026-10-12
 - **Area:** Typography
 - **Status:** Approved
-- **Decision:** Keep Aileron as the one UI family, as in Kept. Closes O-002.
-- **Rationale:** It has the light-to-heavy range the signature look needs, and it keeps the product visually close to Kept.
+- **Decision:** Keep Aileron as the one UI family, Closes O-002.
+- **Rationale:** It has the light-to-heavy range the signature look needs, and it keeps the look consistent.
 - **Implementation:** Self-host Aileron in the app, loading every weight actually used (no faked weights).
 - **References:** Typography table above
 
@@ -247,18 +247,18 @@ There is no hover on phones. Every hover rule from Kept becomes press feedback (
 - **Date:** 2026-10-12
 - **Area:** Design system, Components
 - **Status:** Approved
-- **Decision:** Build UI on React Native Reusables (the shadcn port for React Native, on NativeWind), restyled to Kept's look (hairline borders, no shadows, 12px buttons, fully rounded pills). Use Gorhom Bottom Sheet for slide-up sheets: price breakdown, make an offer and short option lists. Category selection is not a sheet (D-010).
+- **Decision:** Build UI on React Native Reusables (the shadcn port for React Native, on NativeWind), restyled to the Vinty look (hairline borders, no shadows, 12px buttons, fully rounded pills). Use Gorhom Bottom Sheet for slide-up sheets: price breakdown, make an offer and short option lists. Category selection is not a sheet (D-010).
 - **Rationale:** Ready-made accessible parts that we own and can restyle, matching the NativeWind setup already in the app.
 - **Implementation:** Components live in the mobile app and read colour, radius and spacing from tokens only.
 - **References:** Components section above
 
-### D-005 : Phone-app adaptations of Kept's rules
+### D-005 : Phone-app adaptations of the base rules
 
 - **Date:** 2026-10-12
 - **Area:** Layout, Typography, Motion, Navigation
 - **Status:** Approved
 - **Decision:** (1) Item cards are portrait 3:4 instead of square, because clothing is photographed tall and a square crop cuts off shoes and hems. (2) Very light display weights (200-300) are for large headings only, never small text. (3) There is no hover on phones, so hover rules become press feedback. (4) The top nav and desktop sidebar become the bottom tab bar: Home, Browse, Sell, Inbox, Profile. (5) Web-only implementation rules (portal to the page body, CSS grid tricks, scrollbar styling, WebP via build tools, iOS input zoom) get a native equivalent or are marked "n/a in the native app" in the philosophy file.
-- **Rationale:** Kept is a desktop web product. This one is a phone app held in one hand and judged by clothing photos.
+- **Rationale:** This is a phone app held in one hand and judged by clothing photos.
 - **Implementation:** Spacing and layout, Typography, Components (bottom tab bar, search bar) and Motion sections above are updated to match.
 - **References:** `docs/playbook/design-philosophy.md`
 

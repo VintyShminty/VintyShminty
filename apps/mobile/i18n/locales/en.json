@@ -1,0 +1,337 @@
+{
+  "tabs": {
+    "home": "Home",
+    "browse": "Browse",
+    "sell": "Sell",
+    "inbox": "Inbox",
+    "profile": "Profile"
+  },
+  "common": {
+    "placeholderScreen": "Placeholder screen",
+    "language": "Language",
+    "restartNote": "The layout direction changes after the app restarts",
+    "close": "Close",
+    "back": "Back",
+    "cancel": "Cancel",
+    "done": "Done",
+    "save": "Save",
+    "tryAgain": "Try again"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "open": "Open the design gallery",
+    "colours": "Colours",
+    "typeScale": "Type scale",
+    "buttons": "Buttons",
+    "badges": "Badges",
+    "chips": "Chips",
+    "switch": "Switch",
+    "sample": "Pre-loved, loved again",
+    "hebrewSample": "בגדים אהובים, חיים שניים",
+    "primary": "Primary",
+    "outline": "Outline",
+    "ghost": "Ghost",
+    "sold": "Sold",
+    "reserved": "Reserved",
+    "cancelled": "Cancelled",
+    "priceDrop": "Price drop",
+    "info": "Frequent uploads",
+    "all": "All",
+    "dresses": "Dresses",
+    "bundleDiscounts": "Bundle discounts"
+  },
+  "welcome": {
+    "heroLight": "Pre-loved,",
+    "heroBold": "loved again",
+    "subtitle": "Buy and sell second-hand fashion, straight from other people's wardrobes.",
+    "signUp": "Sign up",
+    "logIn": "Log in"
+  },
+  "signUp": {
+    "title": "Create your account",
+    "subtitle": "It takes a minute. No card needed.",
+    "submit": "Sign up",
+    "haveAccount": "Already have an account?",
+    "logIn": "Log in"
+  },
+  "logIn": {
+    "title": "Welcome back",
+    "subtitle": "Log in to pick up where you left off.",
+    "submit": "Log in",
+    "forgot": "Forgot your password?",
+    "noAccount": "New to Vinty?",
+    "signUp": "Sign up",
+    "passwordChanged": "Your password is changed. Log in with the new one."
+  },
+  "forgot": {
+    "title": "Forgot your password?",
+    "subtitle": "Enter your email and we will send you a code to choose a new one.",
+    "titleCode": "Check your email",
+    "subtitleCode": "Enter the code and choose a new password.",
+    "sendCode": "Send code",
+    "codeSent": "We sent a 6 digit code to {{email}}.",
+    "codeResent": "We sent a new code to {{email}}.",
+    "reset": "Reset password",
+    "resendIn": "Send a new code in {{seconds}}s",
+    "resend": "Send a new code",
+    "differentEmail": "Use a different email"
+  },
+  "fields": {
+    "email": "Email",
+    "username": "Username",
+    "usernameHint": "Letters, numbers, dots and underscores. 3 to 24 characters.",
+    "password": "Password",
+    "passwordHint": "At least 8 characters",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "code": "6 digit code",
+    "newPassword": "New password",
+    "currentPassword": "Current password",
+    "confirmPassword": "Repeat the new password",
+    "displayName": "Name",
+    "about": "About you",
+    "aboutPlaceholder": "Tell us about yourself and your style",
+    "city": "City",
+    "newEmail": "New email"
+  },
+  "validation": {
+    "email": {
+      "required": "Enter your email",
+      "invalid": "That email does not look right"
+    },
+    "username": {
+      "required": "Choose a username",
+      "tooShort": "Use at least 3 characters",
+      "tooLong": "Use 24 characters or fewer",
+      "characters": "Use letters, numbers, dots and underscores only",
+      "taken": "That username is taken"
+    },
+    "password": {
+      "required": "Enter your password",
+      "tooShort": "Use at least 8 characters",
+      "tooLong": "Use 128 characters or fewer",
+      "mismatch": "The passwords do not match",
+      "same": "Choose a password you have not used before"
+    },
+    "code": {
+      "invalid": "Enter the 6 digit code"
+    },
+    "name": {
+      "required": "Enter your name",
+      "tooLong": "Use 50 characters or fewer"
+    },
+    "bio": {
+      "tooLong": "Use 500 characters or fewer"
+    },
+    "city": {
+      "tooLong": "Use 80 characters or fewer"
+    },
+    "avatar": {
+      "invalid": "That photo could not be used"
+    },
+    "upload": {
+      "tooBig": "That photo is too big"
+    }
+  },
+  "errors": {
+    "general": "Something went wrong. Please try again.",
+    "network": "Could not reach Vinty. Check your connection and try again.",
+    "wrongLogin": "That email and password do not match.",
+    "wrongPassword": "That password is not right.",
+    "emailTaken": "There is already an account with that email",
+    "sameEmail": "That is already your email",
+    "wrongCode": "That code is not right",
+    "codeExpired": "That code has expired. Ask for a new one.",
+    "tooManyAttempts": "Too many tries. Ask for a new code.",
+    "tooManyRequests": "Too many tries. Wait a minute and try again.",
+    "emailNotVerified": "Confirm your email first",
+    "banned": "This account is not available",
+    "checkFields": "Some details need another look",
+    "sessionExpired": "You were logged out. Please log in again.",
+    "loadFailed": "We could not load this. Pull down to try again."
+  },
+  "biometric": {
+    "faceId": "Face ID",
+    "touchId": "Touch ID",
+    "generic": "biometrics"
+  },
+  "lock": {
+    "title": "Vinty is locked",
+    "subtitle": "Use {{method}} to open the app.",
+    "failed": "{{method}} did not work. Try again or log in with your password.",
+    "unlock": "Unlock with {{method}}",
+    "usePassword": "Log in with password",
+    "prompt": "Unlock Vinty",
+    "confirmEnable": "Turn on {{method}} for Vinty"
+  },
+  "faceId": {
+    "offerTitle": "Use {{method}} to unlock Vinty",
+    "offerBody": "Skip typing your password. Vinty asks for {{method}} when you open it.",
+    "turnOn": "Turn on {{method}}",
+    "notNow": "Not now",
+    "turnOnFailed": "We could not turn on {{method}}. You can try again in Settings, Security."
+  },
+  "profile": {
+    "deletedMember": "Deleted member",
+    "reviewCount_one": "{{count}} review",
+    "reviewCount_other": "{{count}} reviews",
+    "noReviewsYet": "No reviews yet",
+    "edit": "Edit profile",
+    "listings": "Listings",
+    "followers": "Followers",
+    "following": "Following",
+    "tabs": {
+      "listings": "Listings",
+      "reviews": "Reviews",
+      "about": "About"
+    },
+    "fromMembers": "From members",
+    "automatic": "Automatic",
+    "all": "All",
+    "active": "Active",
+    "sold": "Sold",
+    "noListings": "No items for sale right now",
+    "noSold": "Nothing sold yet",
+    "noReviews": "No reviews yet",
+    "reviewFor": "For {{title}}",
+    "reply": "Reply",
+    "about": {
+      "bio": "About",
+      "noBio": "Nothing here yet",
+      "details": "Details",
+      "lastSeen": "Last seen {{when}}",
+      "verified": "Verified info",
+      "email": "Email",
+      "notVerified": "Nothing verified yet"
+    }
+  },
+  "countries": {
+    "IL": "Israel"
+  },
+  "listing": {
+    "sold": "Sold",
+    "priceDrop": "Price drop",
+    "bumped": "Bumped",
+    "was": "Was: {{price}}",
+    "percentOff": "{{percent}}% off",
+    "includesProtection": "{{price}} incl."
+  },
+  "editProfile": {
+    "title": "Profile details",
+    "save": "Update profile",
+    "changePhoto": "Change photo",
+    "removePhoto": "Remove photo",
+    "removePhotoTitle": "Remove your photo?",
+    "uploading": "Uploading...",
+    "photosDenied": "Vinty needs access to your photos. You can allow it in your phone settings.",
+    "uploadFailed": "The photo did not upload. Please try again."
+  },
+  "settings": {
+    "title": "Settings",
+    "promoTitle": "Stronger security and faster access",
+    "promoBody": "Use {{method}} to unlock Vinty on this phone.",
+    "promoButton": "Set up {{method}}",
+    "profileDetails": "Profile details",
+    "account": "Account settings",
+    "security": "Security",
+    "privacy": "Privacy settings",
+    "notifications": "Notifications",
+    "push": "Push notifications",
+    "email": "Email notifications",
+    "appLanguage": "Your app's language",
+    "language": "Language",
+    "logOut": "Log out",
+    "logOutTitle": "Log out of Vinty?"
+  },
+  "account": {
+    "title": "Account settings",
+    "verifyEmail": "Verify your email",
+    "notVerified": "Not verified",
+    "verified": "Verified",
+    "emailStatus": "Email status",
+    "changePassword": "Change password",
+    "delete": "Delete my account",
+    "dangerZone": "Close account",
+    "usernameIntro": "Your username is how other people find you.",
+    "passwordChanged": "Your password is changed.",
+    "passwordLogsOut": "Other phones signed in to your account will be logged out.",
+    "verifyIntro": "Enter the code we sent to {{email}}. Need a new one? Ask below.",
+    "verifyButton": "Verify email",
+    "emailVerifiedDone": "Your email is verified.",
+    "emailIntro": "Your email is {{email}}. We will send a code to the new address to confirm it.",
+    "emailChanged": "Your email is now {{email}}.",
+    "confirmEmail": "Confirm new email",
+    "deleteTitle": "Before you go",
+    "deleteBullet1": "Your profile, photo and about text are removed and your listings come down.",
+    "deleteBullet2": "Orders and reviews stay for the people involved, under an anonymous name.",
+    "deleteBullet3": "You cannot undo this. You can sign up again later with a fresh account.",
+    "deletePassword": "Enter your password to confirm",
+    "deleteBlocked": "Finish your open orders before closing your account.",
+    "deleteConfirmTitle": "Delete your account?",
+    "deleteConfirmBody": "This cannot be undone.",
+    "deleteConfirm": "Delete"
+  },
+  "security": {
+    "title": "Security",
+    "faceId": "Unlock with {{method}}",
+    "faceIdHint": "Vinty asks for {{method}} when you open it or come back after a while.",
+    "sessions": "Where you are logged in",
+    "unknownDevice": "Unknown device",
+    "activeNow": "Active now",
+    "thisDevice": "This device",
+    "logOutDevice": "Log out",
+    "logOutOthers": "Log out of other devices",
+    "logOutOthersTitle": "Log out of other devices?",
+    "logOutOthersBody": "You stay logged in on this phone.",
+    "onlyThisDevice": "You are only logged in on this phone."
+  },
+  "privacy": {
+    "title": "Privacy settings",
+    "showLastSeen": "Show when I was last online",
+    "showLastSeenHint": "Other people see Last seen on your About tab."
+  },
+  "languages": {
+    "en": "English",
+    "he": "עברית"
+  },
+  "notifications": {
+    "groups": {
+      "high": "High-priority notifications",
+      "other": "Other notifications"
+    },
+    "types": {
+      "new_message": "New messages",
+      "review_received": "New feedback",
+      "favourite_price_drop": "Reduced items",
+      "listing_favourited": "Favourited items",
+      "favourite_sold": "A favourite item is sold",
+      "new_follower": "New followers",
+      "followed_seller_new_item": "New items from people you follow"
+    },
+    "dailyLimit": "Set a daily limit",
+    "noLimit": "No limit",
+    "upTo": "Up to {{count}} a day",
+    "dailyLimitHint": "The most push notifications Vinty sends you in one day.",
+    "enablePush": "Enable push notifications",
+    "enableEmail": "Enable email notifications",
+    "notSentYet": "Your choices are saved. These notifications start arriving as the features that send them launch."
+  },
+  "time": {
+    "justNow": "just now",
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "monthsAgo_one": "{{count}} month ago",
+    "monthsAgo_other": "{{count}} months ago",
+    "yearsAgo_one": "{{count}} year ago",
+    "yearsAgo_other": "{{count}} years ago"
+  },
+  "dev": {
+    "fakeBiometricBody": "Expo Go cannot show the real Face ID sheet, so this pretends. A development build shows the real one.",
+    "fakeBiometricFail": "Do not match",
+    "fakeBiometricPass": "Match"
+  }
+}

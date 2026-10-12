@@ -1,27 +1,90 @@
 import "../global.css";
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import type { ColorValue } from "react-native";
+import "@/i18n";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { PortalHost } from "@rn-primitives/portal";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { AppState, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AppLock } from "@/components/app-lock";
+import { isRtlLanguage } from "@/i18n";
+import { authClient } from "@/lib/auth-client";
+import { useBiometricSupport } from "@/lib/biometrics";
+import { useAppFonts } from "@/lib/fonts";
+import { useIsLocked, useLockStore } from "@/lib/lock-store";
+import { queryClient } from "@/lib/query-client";
+import { ensureLayoutDirection } from "@/lib/rtl";
+import { colors } from "@/theme";
 
-type IconName = React.ComponentProps<typeof Ionicons>["name"];
-
-function tab(title: string, icon: IconName) {
-  return {
-    title,
-    tabBarIcon: ({ color, size }: { color: ColorValue; size: number }) => (
-      <Ionicons name={icon} size={size} color={color as string} />
-    ),
-  };
-}
+void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useAppFonts();
+  const { i18n } = useTranslation();
+  const { data: session, isPending } = authClient.useSession();
+  const userId = session?.user.id;
+  const signedIn = Boolean(session);
+  const locked = useIsLocked(userId);
+  const support = useBiometricSupport();
+
+  useEffect(() => {
+    ensureLayoutDirection(i18n.language);
+  }, [i18n.language]);
+
+  // Keep the splash screen up until the fonts are ready and we know whether someone is logged in,
+  // so the first thing on screen is the right screen.
+  const ready = (fontsLoaded || Boolean(fontError)) && !isPending;
+  useEffect(() => {
+    if (ready) void SplashScreen.hideAsync();
+  }, [ready]);
+
+  // Coming back after a while asks for Face ID again.
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "background") useLockStore.getState().noteBackground();
+      else if (state === "active") useLockStore.getState().noteForeground(userId);
+    });
+    return () => sub.remove();
+  }, [userId]);
+
+  if (!ready) return null;
+
+  const usePassword = async () => {
+    await authClient.signOut();
+    queryClient.clear();
+  };
+
   return (
-    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: "#0d9488" }}>
-      <Tabs.Screen name="index" options={tab("Home", "home-outline")} />
-      <Tabs.Screen name="browse" options={tab("Browse", "search-outline")} />
-      <Tabs.Screen name="sell" options={tab("Sell", "add-circle-outline")} />
-      <Tabs.Screen name="inbox" options={tab("Inbox", "chatbubble-outline")} />
-      <Tabs.Screen name="profile" options={tab("Profile", "person-outline")} />
-    </Tabs>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <BottomSheetModalProvider>
+            <StatusBar style="dark" />
+            {/* Say the direction out loud: on a phone set to Hebrew with the app in English, scroll views would otherwise lay out right to left. */}
+            <View style={{ flex: 1, direction: isRtlLanguage(i18n.language) ? "rtl" : "ltr" }}>
+              <Stack
+                screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
+              >
+                <Stack.Protected guard={!signedIn}>
+                  <Stack.Screen name="(auth)" />
+                </Stack.Protected>
+                <Stack.Protected guard={signedIn}>
+                  <Stack.Screen name="(app)" />
+                </Stack.Protected>
+              </Stack>
+            </View>
+            {signedIn && locked ? (
+              <AppLock kind={support?.kind ?? "generic"} onUsePassword={usePassword} />
+            ) : null}
+            <PortalHost />
+          </BottomSheetModalProvider>
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
