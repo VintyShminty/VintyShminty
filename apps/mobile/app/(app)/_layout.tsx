@@ -43,6 +43,8 @@ export default function AppLayout() {
       <Stack.Screen name="face-id-offer" options={{ presentation: "modal" }} />
       <Stack.Screen name="sell-form" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="listing/[id]" />
+      <Stack.Screen name="search" />
+      <Stack.Screen name="filters" />
     </Stack>
   );
 }
