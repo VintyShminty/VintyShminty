@@ -16,9 +16,9 @@ Version 1 is a working app to inspect, not a throwaway prototype. It includes **
 
 | # | Milestone | What you can do at the end | Status |
 |---|---|---|---|
-| 0 | Blueprint | Nothing new on the phone. The full data design, the list of app to server requests, all categories and reference data in Hebrew and English, and sample data so every screen has something to show | Done (branch `milestone-0`) |
-| 1 | Accounts | Sign up and log in with email, unlock with Face ID, your profile, settings, switch between Hebrew and English. Google and Apple sign in once those accounts exist | Built on branch `milestone-1`, in review |
-| 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Planned |
+| 0 | Blueprint | Nothing new on the phone. The full data design, the list of app to server requests, all categories and reference data in Hebrew and English, and sample data so every screen has something to show | Done (merged) |
+| 1 | Accounts | Sign up and log in with email, unlock with Face ID, your profile, settings, switch between Hebrew and English. Google and Apple sign in once those accounts exist | Done (merged, PR #2) |
+| 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Next |
 | 3 | Discovery | Home feed, Browse grid with category panels, search, filters and sort, item page, seller profiles, favourites, saved searches | Planned |
 | 4 | Messaging | Live chat, offers (send, accept, decline, counter), notifications, push alerts | Planned |
 | 5 | Orders | Simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Planned |
@@ -50,12 +50,12 @@ Until the app goes online, the server, database and photos run on the developmen
 
 ## Branches and reviews
 
-| Branch | Contains | Status |
+`main` is the only long-lived branch. Each piece of work gets its own branch and a pull request that Eden merges.
+
+| Pull request | Contained | Status |
 |---|---|---|
-| `design-foundation` | Design rules, palette, component sheets | Pull request #1 open |
-| `tech-foundation` | App, server and database foundation, skills | Built on design-foundation, no pull request yet |
-| `milestone-0` | Blueprint | Built on tech-foundation, no pull request yet |
-| `milestone-1` | Accounts | Built on milestone-0, no pull request yet |
+| #1 | Design rules, palette, component sheets | Merged |
+| #2 | Tech foundation, blueprint, Milestone 1 Accounts, playbook and skills, supply chain rules | Merged |
 
 ## Parked for later
 
