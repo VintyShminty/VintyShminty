@@ -358,6 +358,16 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** FilterPanel in `docs/components.md`, Filter panel paragraph above, Expo Router stack in a full-screen modal push. Live in both component sheets (FilterPanel story).
 - **References:** D-004, D-009, D-010, `docs/mockups/component-sheet.html`
 
+### D-015 : Sell form layout and pickers
+
+- **Date:** 2026-10-12
+- **Area:** Sell form, Components
+- **Status:** Approved (Eden, 2026-10-12). Designer is browse only: it never appears in the Sell category picker, and designer items are found by browsing (Eden, 2026-10-12). Brand stays optional for every category (Eden, 2026-10-12).
+- **Decision:** (1) The Sell tab opens the sell form as a full-screen task page with a close cross and no tab bar (spec). (2) Brand, Size, Condition, Colours, Material and Pattern open as option sheets (D-004 short lists, OptionListSheet), single choice applies on tap, Colours (up to 2) has Done in the sheet header. Brand has a search, the popular brands when empty, and Request a brand when nothing matches. Category stays the full-screen push (D-010) and hides Designer at the top level, as the spec's Sell picker shows eight rows. (3) Price is an inline field with the ₪ sign and a live "Buyer pays ₪X incl. Buyer Protection" line from the server. Parcel size is inline radio cards with the recommended size tagged and Small chosen for a new listing. (4) Photos: an empty dashed box, then square tiles with a remove cross and a Main tag on the cover. Tapping a photo offers Make it the cover, Move earlier and Move later instead of drag and drop. (5) Save draft and Upload sit side by side in a bar at the bottom. Closing with changes asks "Save changes before closing?" with Save and Discard (native dialog).
+- **Rationale:** The spec never captured the pickers inside the app form, so they follow our components (OptionListSheet, PickerRow) and the desktop spec's radio cards for parcel size. Tap to move is reachable with one hand and with VoiceOver, and needs no new library. Both buttons at the bottom make drafts easy to find.
+- **Implementation:** `apps/mobile/app/(app)/sell-form/`, `components/sell/`, `components/ui/sheet.tsx`, `picker-row.tsx`, `radio.tsx`, `checkbox.tsx`.
+- **References:** D-004, D-010, spec Sell form and Category picker, `docs/mockups/component-sheet.html` (PhotoUploader, PickerRow, OptionListSheet)
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 

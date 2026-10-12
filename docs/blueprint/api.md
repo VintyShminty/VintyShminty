@@ -125,20 +125,30 @@ Milestone 1 also ships three read only endpoints that belong to Milestone 3 on p
 
 ## Milestone 2: Selling
 
-Goal: a seller can photograph, describe, price and publish an item, and manage their listings.
+Goal: a seller can photograph, describe, price and publish an item, and manage their listings. Built in Milestone 2 (`apps/server/src/routes/listings.ts` and `reference.ts`, tests in `listings.test.ts`).
+
+The selling rules live once in `packages/shared/src/listing-rules.ts` (`validateListing`) and run on both sides: the app shows inline errors with them, the server enforces them. A category's rules (brand, size, condition, colour, material, pattern: required, optional or hidden) come from the reference data. Values for rows the category hides are dropped on save. Every rule message is a translation key under `validation.listing`, returned in `error.fields` keyed by the request field (`title`, `photos`, `categoryId`, `brandId`, `sizeId`, `conditionId`, `colourIds`, `materialId`, `patternId`, `priceMinor`, `parcelSizeId`).
+
+Rules: title 3 to 80 characters (a draft may be empty), description up to 2,000, 1 to `listing_max_photos` (20) photos, a leaf category, a size from the category's size groups, up to 2 colours, a price from `listing_min_price_minor` (₪1) to ₪50,000 in agorot, a parcel size. Photos must be files the seller uploaded (key under `listings/<their id>/`, present in storage, at most 15 MB) or already on that listing.
 
 | Method | Path | Auth | Request | Response | Notes |
 |---|---|---|---|---|---|
-| POST | `/v1/listings` | Required | `createListingInputSchema` | `listingDetailSchema` | With `publish: false` saves a draft (the Save in the "Save changes before closing?" dialog). With `publish: true` the server also checks `publishableListingSchema` and the category rules (a required Brand or Size must be present) and sets status `active` |
-| GET | `/v1/me/listings` | Required | `myListingsQuerySchema` (`status`, cursor, limit) | `myListingsPageSchema` | Own page: Active and Sold chips, price, views and favourites. Drafts included |
-| GET | `/v1/me/listings/:id` | Owner | none | `listingDetailSchema` | Own view of any status, used by the edit screen |
-| PATCH | `/v1/listings/:id` | Owner | `listingDraftInputSchema` | `listingDetailSchema` | Edits any field. Lowering the price sets `previousPriceMinor`, writes `listing_price_history` and later notifies people who favourited it. Sold and removed listings cannot be edited |
-| PUT | `/v1/listings/:id/photos` | Owner | `{ photos: listingPhotoInput[] }` in display order | `listingDetailSchema` | Replaces the photo list. Position 0 is the cover. Removed keys are deleted from storage by a background job |
-| POST | `/v1/listings/:id/publish` | Owner | none | `listingDetailSchema` | Publishes a draft |
-| PATCH | `/v1/listings/:id/status` | Owner | `updateListingStatusInputSchema` | `listingDetailSchema` | `hidden` pauses, `active` shows again. Not allowed while reserved or sold |
-| DELETE | `/v1/listings/:id` | Owner | none | 204 | Drafts are deleted for real. A listing that was ever active is only allowed to be deleted if it has no orders, otherwise it must be hidden |
-| PUT | `/v1/me/holiday-mode` | Required | `{ enabled: boolean, endsAt?: datetime }` | `{ enabled, startedAt, endsAt }` | While on, listings are left out of feed and search. Turns itself off at `endsAt` |
-| GET | `/v1/me/listing-defaults` | Required | none | `{ addressId, parcelSizeId? , shipFromHome, shipFromDropoff }` | Pre-fills the sell form |
+| GET | `/v1/reference` | Public | none | `referenceDataSchema` | Built in Milestone 2 (listed under Milestone 1 above). `version` is a fingerprint of the content and doubles as the `ETag`. `If-None-Match` with the same value answers 304. `Cache-Control: public, max-age=3600`. Settings exposed: `default_currency`, `listing_max_photos`, `listing_min_price_minor`, `single_market` |
+| GET | `/v1/brands` | Public | `?q&cursor&limit` | page of `brandSchema` | Built in Milestone 2. Empty `q` lists the most popular. Otherwise names that start with `q` first, then names with a word that starts with it. 120 a minute |
+| POST | `/v1/brand-requests` | Required | `brandRequestInputSchema` (`{ name }`) | 204 | Request a brand that is not on the list. Stored in `brand_requests`, once per person and name. 10 an hour |
+| GET | `/v1/pricing/preview` | Public | `pricePreviewQuerySchema` (`?priceMinor&currency=ILS`) | `pricePreviewSchema` | What the buyer pays for an item price under the active fee rule (5 percent): `{ priceMinor, currency, buyerProtectionFeeMinor, buyerPriceMinor }`. The sell form's live "Buyer pays" line. 120 a minute |
+| POST | `/v1/listings` | Required | `createListingInputSchema` | 201 `listingDetailSchema` | `publish: false` saves a draft (the Save draft button and the Save in "Save changes before closing?"). `publish: true` runs the full rules and sets status `active` |
+| GET | `/v1/me/listings` | Required | `myListingsQuerySchema` (`status`: draft, active, reserved, sold or hidden, cursor, limit) | `myListingsPageSchema` | Own page, newest change first. No `status` means everything except removed. `counts` gives the number in each state for the chips |
+| GET | `/v1/me/listings/:id` | Owner | none | `listingDetailSchema` | Own view of any state. Feeds the own item page and the edit form |
+| PATCH | `/v1/listings/:id` | Owner | `listingDraftInputSchema` | `listingDetailSchema` | Edits any field, `photos` replaces the photo list. A draft may stay unfinished, a live listing must stay complete. Changing the price of a live listing writes `listing_price_history`. Lowering it sets `previousPriceMinor` (the Price drop badge), raising it clears it. Sold listings cannot be edited (409) |
+| PUT | `/v1/listings/:id/photos` | Owner | `{ photos: listingPhotoInput[] }` in display order | `listingDetailSchema` | Replaces the photo list. Position 0 is the cover. Files the seller uploaded and no longer uses are deleted from storage right after (best effort) |
+| POST | `/v1/listings/:id/publish` | Owner | none | `listingDetailSchema` | Publishes a draft after the full rules. Anything but a draft answers 409 `invalid_transition` |
+| PATCH | `/v1/listings/:id/status` | Owner | `updateListingStatusInputSchema` (`active`, `hidden`, `reserved`, `sold`) | `listingDetailSchema` | By hand: active to hidden, reserved or sold. Hidden to active. Reserved to active or sold. Anything else is 409 `invalid_transition`. A hand reservation holds the item for nobody in particular |
+| DELETE | `/v1/listings/:id` | Owner | none | 204 | Deletes the listing, its photos and its storage files. A listing that is part of an order cannot be deleted (409), hide it instead |
+
+Owner routes answer 404 for someone else's listing, so they cannot tell it exists. Writes are limited to 60 a minute.
+
+Moved out of Milestone 2: `PUT /v1/me/holiday-mode` goes to Milestone 6 (holiday mode is in Settings, not the sell flow). `GET /v1/me/listing-defaults` waits for shipping addresses (Milestone 5), until then the form starts with the Small parcel and the category's recommended size.
 
 ## Milestone 3: Discovery
 

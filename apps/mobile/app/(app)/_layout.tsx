@@ -41,6 +41,8 @@ export default function AppLayout() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="face-id-offer" options={{ presentation: "modal" }} />
+      <Stack.Screen name="sell-form" options={{ presentation: "fullScreenModal" }} />
+      <Stack.Screen name="listing/[id]" />
     </Stack>
   );
 }

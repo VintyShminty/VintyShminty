@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LISTING_VALIDATION_MESSAGES } from "./listing-rules.js";
 
 /**
  * Validation for sign up, log in and password screens. Shared by the app (react-hook-form) and the server.
@@ -24,6 +25,10 @@ export const VALIDATION_MESSAGES = [
   "validation.name.tooLong",
   "validation.bio.tooLong",
   "validation.city.tooLong",
+  "validation.upload.tooBig",
+  "validation.brandRequest.tooShort",
+  "validation.brandRequest.tooLong",
+  ...LISTING_VALIDATION_MESSAGES,
 ] as const;
 export type ValidationMessage = (typeof VALIDATION_MESSAGES)[number];
 

@@ -1,25 +1,49 @@
 import { z } from "zod";
-import { idSchema, isoDateTimeSchema, pageSchema, paginationQuerySchema, photoSchema } from "./common.js";
+import {
+  idSchema,
+  isoDateTimeSchema,
+  localisedNameSchema,
+  pageSchema,
+  paginationQuerySchema,
+  photoSchema,
+} from "./common.js";
 import { LISTING_SORTS, LISTING_STATUSES } from "./enums.js";
-import { minorUnitsSchema } from "./money.js";
+import {
+  LISTING_COLOURS_MAX,
+  LISTING_DESCRIPTION_MAX,
+  LISTING_TITLE_MAX,
+  LISTING_TITLE_MIN,
+} from "./listing-rules.js";
+import { currencyCodeSchema, minorUnitsSchema } from "./money.js";
 import { userSummarySchema } from "./users.js";
 
-export const listingTitleSchema = z.string().trim().min(3).max(80);
-export const listingDescriptionSchema = z.string().trim().max(2000);
+export const listingTitleSchema = z
+  .string()
+  .trim()
+  .min(LISTING_TITLE_MIN, "validation.listing.title.tooShort")
+  .max(LISTING_TITLE_MAX, "validation.listing.title.tooLong");
+export const listingDescriptionSchema = z
+  .string()
+  .trim()
+  .max(LISTING_DESCRIPTION_MAX, "validation.listing.description.tooLong");
 
 /** A photo the app already uploaded to storage. Position 0 is the cover. */
 export const listingPhotoInputSchema = z.object({
-  key: z.string().min(1),
+  key: z.string().min(1).max(300),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
-  contentType: z.string().default("image/jpeg"),
+  contentType: z.enum(["image/jpeg", "image/png", "image/webp", "image/heic"]).default("image/jpeg"),
   byteSize: z.number().int().positive().optional(),
   placeholder: z.string().max(200).optional(),
 });
+export type ListingPhotoInput = z.infer<typeof listingPhotoInputSchema>;
 
-/** Fields shared by drafts and published listings. A draft may be incomplete. */
+/**
+ * Fields shared by drafts and published listings. A draft may be incomplete, so the title only has a ceiling here.
+ * What is required to go live depends on the category and is checked by `validateListing` (listing-rules.ts).
+ */
 export const listingDraftInputSchema = z.object({
-  title: listingTitleSchema.optional(),
+  title: z.string().trim().max(LISTING_TITLE_MAX, "validation.listing.title.tooLong").optional(),
   description: listingDescriptionSchema.optional(),
   categoryId: idSchema.nullable().optional(),
   brandId: idSchema.nullable().optional(),
@@ -27,12 +51,12 @@ export const listingDraftInputSchema = z.object({
   conditionId: idSchema.nullable().optional(),
   materialId: idSchema.nullable().optional(),
   patternId: idSchema.nullable().optional(),
-  colourIds: z.array(idSchema).max(2).optional(),
+  colourIds: z.array(idSchema).max(LISTING_COLOURS_MAX, "validation.listing.colour.tooMany").optional(),
   parcelSizeId: idSchema.nullable().optional(),
   priceMinor: minorUnitsSchema.nullable().optional(),
-  currency: z.string().length(3).optional(),
+  currency: currencyCodeSchema.optional(),
   usedAiPhotos: z.boolean().optional(),
-  photos: z.array(listingPhotoInputSchema).max(20).optional(),
+  photos: z.array(listingPhotoInputSchema).max(50).optional(),
 });
 export type ListingDraftInput = z.infer<typeof listingDraftInputSchema>;
 
@@ -42,14 +66,13 @@ export const createListingInputSchema = listingDraftInputSchema.extend({
 });
 export type CreateListingInput = z.infer<typeof createListingInputSchema>;
 
-/** What must be present to publish. The server also checks the category rules. */
+/** What must be present to publish, whatever the category. The category rules add to this on the server. */
 export const publishableListingSchema = z.object({
   title: listingTitleSchema,
   categoryId: idSchema,
-  conditionId: idSchema,
   priceMinor: minorUnitsSchema.min(1),
   parcelSizeId: idSchema,
-  photos: z.array(listingPhotoInputSchema).min(1).max(20),
+  photos: z.array(listingPhotoInputSchema).min(1),
 });
 
 export const listingCardSchema = z.object({
@@ -73,25 +96,34 @@ export const listingCardSchema = z.object({
 });
 export type ListingCard = z.infer<typeof listingCardSchema>;
 
+const namedRefSchema = z.object({ id: idSchema, slug: z.string(), name: localisedNameSchema });
+
+/** One listing in full. On the owner's own view a draft may still lack a price, a category and photos. */
 export const listingDetailSchema = listingCardSchema.extend({
+  priceMinor: z.number().int().nullable(),
+  buyerPriceMinor: z.number().int().nullable(),
   description: z.string(),
-  category: z.object({
-    id: idSchema,
-    path: z.string(),
-    breadcrumb: z.array(z.object({ id: idSchema, slug: z.string() })),
-  }),
-  condition: z.object({ id: idSchema, slug: z.string() }).nullable(),
+  category: z
+    .object({
+      id: idSchema,
+      path: z.string(),
+      name: localisedNameSchema,
+      breadcrumb: z.array(z.object({ id: idSchema, slug: z.string(), name: localisedNameSchema })),
+    })
+    .nullable(),
+  condition: namedRefSchema.nullable(),
   size: z.object({ id: idSchema, label: z.string() }).nullable(),
   brand: z.object({ id: idSchema, name: z.string() }).nullable(),
-  material: z.object({ id: idSchema, slug: z.string() }).nullable(),
-  pattern: z.object({ id: idSchema, slug: z.string() }).nullable(),
-  colours: z.array(z.object({ id: idSchema, slug: z.string() })),
+  material: namedRefSchema.nullable(),
+  pattern: namedRefSchema.nullable(),
+  colours: z.array(namedRefSchema.extend({ swatchHex: z.string() })),
   photos: z.array(photoSchema),
   parcelSizeId: idSchema.nullable(),
   postageFromMinor: z.number().int().nullable(),
   usedAiPhotos: z.boolean(),
   viewCount: z.number().int(),
   publishedAt: isoDateTimeSchema.nullable(),
+  updatedAt: isoDateTimeSchema,
   seller: userSummarySchema,
   /** What the viewer can do with it. Lets the app show or hide the sticky bar buttons. */
   viewer: z.object({
@@ -104,18 +136,68 @@ export const listingDetailSchema = listingCardSchema.extend({
 });
 export type ListingDetail = z.infer<typeof listingDetailSchema>;
 
+export const MY_LISTING_STATUSES = ["draft", "active", "reserved", "sold", "hidden"] as const;
+export type MyListingStatus = (typeof MY_LISTING_STATUSES)[number];
+
 export const myListingsQuerySchema = paginationQuerySchema.extend({
-  status: z.enum(["draft", "active", "reserved", "sold", "hidden"]).optional(),
+  status: z.enum(MY_LISTING_STATUSES).optional(),
 });
 
+/** A card on the owner's own page. Drafts may have no price yet and no title. */
 export const myListingCardSchema = listingCardSchema.extend({
+  priceMinor: z.number().int().nullable(),
+  buyerPriceMinor: z.number().int().nullable(),
   viewCount: z.number().int(),
   publishedAt: isoDateTimeSchema.nullable(),
+  updatedAt: isoDateTimeSchema,
 });
-export const myListingsPageSchema = pageSchema(myListingCardSchema);
+export type MyListingCard = z.infer<typeof myListingCardSchema>;
 
+export const myListingsPageSchema = pageSchema(myListingCardSchema).extend({
+  /** How many listings the person has in each state, for the numbers on the chips. */
+  counts: z.object({
+    draft: z.number().int(),
+    active: z.number().int(),
+    reserved: z.number().int(),
+    sold: z.number().int(),
+    hidden: z.number().int(),
+  }),
+});
+export type MyListingsPage = z.infer<typeof myListingsPageSchema>;
+
+/**
+ * PATCH /v1/listings/:id/status. The seller pauses (hidden) and shows again (active), holds it for someone
+ * (reserved) and marks it sold by hand. Selling through an order arrives with Milestone 5.
+ */
 export const updateListingStatusInputSchema = z.object({
-  status: z.enum(["active", "hidden"]),
+  status: z.enum(["active", "hidden", "reserved", "sold"]),
+});
+export type UpdateListingStatusInput = z.infer<typeof updateListingStatusInputSchema>;
+
+export const replaceListingPhotosInputSchema = z.object({
+  photos: z.array(listingPhotoInputSchema).max(50),
+});
+
+/** GET /v1/pricing/preview. What a buyer would pay for an item price, from the active fee rule. */
+export const pricePreviewQuerySchema = z.object({
+  priceMinor: z.coerce.number().int().min(0).max(2_000_000_000),
+  currency: currencyCodeSchema.default("ILS"),
+});
+export const pricePreviewSchema = z.object({
+  priceMinor: z.number().int(),
+  currency: z.string().length(3),
+  buyerProtectionFeeMinor: z.number().int(),
+  buyerPriceMinor: z.number().int(),
+});
+export type PricePreview = z.infer<typeof pricePreviewSchema>;
+
+/** POST /v1/brand-requests. A seller asks for a brand that is not on the list. */
+export const brandRequestInputSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "validation.brandRequest.tooShort")
+    .max(60, "validation.brandRequest.tooLong"),
 });
 
 /** Search and feed filters. Also what a saved search stores. */

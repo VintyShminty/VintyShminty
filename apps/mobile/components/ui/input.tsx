@@ -15,6 +15,8 @@ type InputProps = Omit<React.ComponentProps<typeof TextInput>, "placeholderTextC
   hint?: string;
   /** Something small at the trailing end of the field, for example a count. */
   footerEnd?: string;
+  /** Fixed text before the value, for example the currency sign. */
+  prefix?: string;
   /** Adds a show/hide button. */
   secureToggle?: { show: string; hide: string };
   containerClassName?: string;
@@ -29,6 +31,7 @@ function Input({
   error,
   hint,
   footerEnd,
+  prefix,
   secureToggle,
   containerClassName,
   className,
@@ -57,6 +60,11 @@ function Input({
           !editable && "bg-surface opacity-60",
         )}
       >
+        {prefix ? (
+          <Text className="me-xs text-text-2" weight={600}>
+            {prefix}
+          </Text>
+        ) : null}
         <TextInput
           ref={ref}
           editable={editable}

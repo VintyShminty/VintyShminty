@@ -131,6 +131,67 @@
     },
     "upload": {
       "tooBig": "That photo is too big"
+    },
+    "brandRequest": {
+      "tooShort": "Use at least 2 characters",
+      "tooLong": "Use at most 60 characters"
+    },
+    "listing": {
+      "title": {
+        "required": "Add a title",
+        "tooShort": "Use at least 3 characters",
+        "tooLong": "Use at most 80 characters"
+      },
+      "description": {
+        "tooLong": "Use at most 2,000 characters"
+      },
+      "photos": {
+        "required": "Add at least one photo",
+        "tooMany": "You can add up to {{max}} photos",
+        "invalid": "One of the photos did not upload. Remove it and try again"
+      },
+      "category": {
+        "required": "Choose a category",
+        "invalid": "Choose a category from the list"
+      },
+      "brand": {
+        "required": "Choose a brand",
+        "invalid": "Choose a brand from the list"
+      },
+      "size": {
+        "required": "Choose a size",
+        "invalid": "That size does not fit this category"
+      },
+      "condition": {
+        "required": "Choose the condition",
+        "invalid": "Choose a condition from the list"
+      },
+      "colour": {
+        "required": "Choose a colour",
+        "tooMany": "Choose up to 2 colours",
+        "invalid": "Choose colours from the list"
+      },
+      "material": {
+        "required": "Choose a material",
+        "invalid": "Choose a material from the list"
+      },
+      "pattern": {
+        "required": "Choose a pattern",
+        "invalid": "Choose a pattern from the list"
+      },
+      "price": {
+        "required": "Add a price",
+        "tooLow": "The lowest price is {{min}}",
+        "tooHigh": "That price is too high"
+      },
+      "parcel": {
+        "required": "Choose a parcel size",
+        "invalid": "Choose a parcel size from the list"
+      },
+      "currency": {
+        "invalid": "Prices are in shekels"
+      },
+      "notEditable": "This listing can no longer be changed"
     }
   },
   "errors": {
@@ -203,6 +264,20 @@
       "verified": "Verified info",
       "email": "Email",
       "notVerified": "Nothing verified yet"
+    },
+    "ownStatus": {
+      "active": "Active",
+      "draft": "Drafts",
+      "reserved": "Reserved",
+      "sold": "Sold",
+      "hidden": "Hidden"
+    },
+    "ownEmpty": {
+      "active": "Nothing for sale yet. Tap Sell to list your first item",
+      "draft": "No drafts. Unfinished listings you save show up here",
+      "reserved": "Nothing reserved",
+      "sold": "Nothing sold yet",
+      "hidden": "Nothing hidden"
     }
   },
   "countries": {
@@ -214,7 +289,41 @@
     "bumped": "Bumped",
     "was": "Was: {{price}}",
     "percentOff": "{{percent}}% off",
-    "includesProtection": "{{price}} incl."
+    "includesProtection": "{{price}} incl.",
+    "reserved": "Reserved",
+    "hidden": "Hidden",
+    "draft": "Draft",
+    "buyerPays": "Buyer pays {{price}} incl. Buyer Protection",
+    "continueEditing": "Continue editing",
+    "edit": "Edit listing",
+    "delete": "Delete listing",
+    "deleteConfirmTitle": "Delete this listing?",
+    "deleteConfirm": "It disappears for good, with its photos. This cannot be undone.",
+    "description": "Description",
+    "details": "Details",
+    "draftNote": "Only you can see this draft. Finish it to put it up for sale.",
+    "reservedNote": "Buyers see it as reserved and cannot buy it.",
+    "hiddenNote": "Hidden from buyers until you show it again.",
+    "soldNote": "Marked as sold. It no longer shows up for buyers.",
+    "favourites_one": "{{count}} favourite",
+    "favourites_other": "{{count}} favourites",
+    "views_one": "{{count}} view",
+    "views_other": "{{count}} views",
+    "hide": "Hide",
+    "unhide": "Show again",
+    "markReserved": "Mark as reserved",
+    "unreserve": "Unreserve",
+    "markSold": "Mark as sold",
+    "soldConfirmTitle": "Mark as sold?",
+    "soldConfirm": "Buyers will no longer be able to buy it. Do this when it sold somewhere else.",
+    "noPhotos": "No photos yet",
+    "noPrice": "No price yet",
+    "parcel": "Parcel size",
+    "photoCount": "{{n}} / {{total}}",
+    "photoLabel": "Photo {{n}} of {{total}}",
+    "untitled": "Untitled draft",
+    "uploaded": "Uploaded",
+    "yourListing": "Your listing"
   },
   "editProfile": {
     "title": "Profile details",
@@ -333,5 +442,70 @@
     "fakeBiometricBody": "Expo Go cannot show the real Face ID sheet, so this pretends. A development build shows the real one.",
     "fakeBiometricFail": "Do not match",
     "fakeBiometricPass": "Match"
+  },
+  "sell": {
+    "title": "Sell an item",
+    "editTitle": "Edit listing",
+    "about": "About your item",
+    "details": "Item details",
+    "pricing": "Pricing",
+    "shipping": "Shipping",
+    "aiPhotos": "I used AI to create or edit photos",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Tell buyers what you're selling",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Tell buyers more about it: size, fit, any flaws",
+    "category": "Category",
+    "brand": "Brand",
+    "size": "Size",
+    "condition": "Condition",
+    "colours": "Colours",
+    "material": "Material",
+    "materialRecommended": "Material (recommended)",
+    "pattern": "Pattern",
+    "price": "Price",
+    "clear": "Clear",
+    "buyerPays": "Buyer pays {{price}} incl. Buyer Protection",
+    "buyerPaysPostage": "The buyer always pays for postage",
+    "recommended": "Recommended",
+    "postageFrom": "Postage from {{price}}",
+    "findCategory": "Find a category",
+    "noCategories": "No category matches that",
+    "searchBrands": "Search for brands",
+    "popularBrands": "Popular brands",
+    "noBrands": "No brand matches that",
+    "requestBrand": "Can't find it? Request \"{{name}}\"",
+    "brandRequested": "Thanks. We will look at adding \"{{name}}\"",
+    "sizeHint": "Pick the size printed on the label",
+    "coloursHint": "Pick up to {{max}} colours",
+    "saveDraft": "Save draft",
+    "upload": "Upload",
+    "saveChanges": "Save changes",
+    "checkFields": "A few details are missing. Check the fields marked in red",
+    "waitForPhotos": "Your photos are still uploading. Give it a moment",
+    "closeTitle": "Save changes before closing?",
+    "closeSave": "Save",
+    "closeDiscard": "Discard",
+    "photos": {
+      "title": "Photos",
+      "upload": "Upload photos",
+      "add": "Add photos",
+      "addTitle": "Add photos",
+      "library": "Choose from library",
+      "camera": "Take a photo",
+      "hint": "Add up to {{max}} photos. The first one is the cover",
+      "count": "{{count}} of {{max}} photos. The first photo is the cover. Tap a photo to move it",
+      "failed": "A photo did not upload. Tap it to try again",
+      "retry": "Upload failed, tap to try again",
+      "tileLabel": "Photo {{n}} of {{total}}",
+      "main": "Main",
+      "optionsTitle": "Photo",
+      "makeCover": "Make it the cover",
+      "moveEarlier": "Move earlier",
+      "moveLater": "Move later",
+      "remove": "Remove photo",
+      "deniedTitle": "No access to photos",
+      "denied": "Allow Vinty to use your photos or camera in the phone's Settings"
+    }
   }
 }

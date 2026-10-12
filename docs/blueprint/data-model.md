@@ -16,13 +16,13 @@ Version 1 covers everything in the Vinted app spec except real payments and real
 
 ## Entity list
 
-54 tables in 9 groups.
+55 tables in 9 groups.
 
 | Group | Tables |
 |---|---|
 | Accounts (Better Auth) | `users`, `sessions`, `accounts`, `verifications` |
 | People | `profiles`, `user_settings`, `notification_preferences`, `addresses`, `follows`, `blocks`, `user_sizes`, `user_brands`, `push_tokens`, `badge_definitions`, `user_badges`, `referrals`, `vouchers` |
-| Reference data | `currencies`, `categories`, `category_size_groups`, `size_groups`, `sizes`, `conditions`, `colours`, `materials`, `patterns`, `brands`, `parcel_sizes`, `fee_rules`, `bump_plans`, `platform_settings` |
+| Reference data | `currencies`, `categories`, `category_size_groups`, `size_groups`, `sizes`, `conditions`, `colours`, `materials`, `patterns`, `brands`, `brand_requests`, `parcel_sizes`, `fee_rules`, `bump_plans`, `platform_settings` |
 | Listings | `listings`, `listing_photos`, `listing_colours`, `listing_price_history`, `favourites`, `saved_searches`, `recent_searches`, `bundle_discount_tiers`, `bundles`, `bundle_items`, `bumps` |
 | Messaging | `conversations`, `messages`, `offers` |
 | Orders | `orders`, `order_items`, `order_events`, `payments`, `shipments` |
@@ -739,7 +739,24 @@ Indexes:
 - `brands_name_prefix_idx`: btree on (lower(name) text_pattern_ops)
 - `brands_popularity_idx`: btree on (popularity DESC NULLS LAST, name)
 
-A listing also copies the brand name into `listings.brand_name`, so cards and search never need a join. Whether members can add brands that are not in the list is an open decision.
+A listing also copies the brand name into `listings.brand_name`, so cards and search never need a join. Members cannot add brands themselves. They send a request (`brand_requests`) and Eden extends the list (decided for Milestone 2, open decision 7).
+
+### `brand_requests`
+
+A seller asking for a brand that is not on the list. Written by the Request a brand link in the brand picker, read by Eden, who adds the brand to `brands` by hand.
+
+Used by: Sell form (Brand picker, Request a brand).
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | uuid | no | primary key. default gen_random_uuid() |
+| `user_id` | uuid | no | refers to users.id, on delete cascade. Who asked |
+| `name` | text | no | The brand as the seller typed it |
+| `created_at` | timestamptz | no | default now() |
+
+Indexes:
+
+- `brand_requests_created_idx`: btree on (created_at DESC NULLS LAST)
 
 ### `parcel_sizes`
 

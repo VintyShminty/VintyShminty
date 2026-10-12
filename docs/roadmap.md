@@ -18,7 +18,7 @@ Version 1 is a working app to inspect, not a throwaway prototype. It includes **
 |---|---|---|---|
 | 0 | Blueprint | Nothing new on the phone. The full data design, the list of app to server requests, all categories and reference data in Hebrew and English, and sample data so every screen has something to show | Done (merged) |
 | 1 | Accounts | Sign up and log in with email, unlock with Face ID, your profile, settings, switch between Hebrew and English. Google and Apple sign in once those accounts exist | Done (merged, PR #2) |
-| 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Next |
+| 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Built on branch `milestone-2`, in review (pull request "Milestone 2: Selling") |
 | 3 | Discovery | Home feed, Browse grid with category panels, search, filters and sort, item page, seller profiles, favourites, saved searches | Planned |
 | 4 | Messaging | Live chat, offers (send, accept, decline, counter), notifications, push alerts | Planned |
 | 5 | Orders | Simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Planned |
@@ -56,6 +56,7 @@ Until the app goes online, the server, database and photos run on the developmen
 |---|---|---|
 | #1 | Design rules, palette, component sheets | Merged |
 | #2 | Tech foundation, blueprint, Milestone 1 Accounts, playbook and skills, supply chain rules | Merged |
+| (open) | Milestone 2 Selling: sell form, category panels, pickers, photos, drafts, own listings, selling API | In review |
 
 ## Parked for later
 

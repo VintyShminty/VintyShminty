@@ -17,6 +17,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { createdAt, pk, ts, updatedAt } from "./_helpers.js";
+import { users } from "./auth.js";
 
 export const attributeModeEnum = pgEnum("attribute_mode", ATTRIBUTE_MODES);
 export const sizeKindEnum = pgEnum("size_kind", SIZE_KINDS);
@@ -194,6 +195,20 @@ export const brands = pgTable(
     // Brand picker search ("Search for brands").
     index("brands_name_prefix_idx").on(sql`lower(${t.name}) text_pattern_ops`),
   ],
+);
+
+/** A seller asking for a brand that is not on the list ("Request a brand" in the brand picker). Eden adds the brand by hand. */
+export const brandRequests = pgTable(
+  "brand_requests",
+  {
+    id: pk(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("brand_requests_created_idx").on(t.createdAt.desc())],
 );
 
 /**

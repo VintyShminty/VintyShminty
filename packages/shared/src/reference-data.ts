@@ -103,3 +103,6 @@ export const referenceDataSchema = z.object({
   settings: z.record(z.string(), z.unknown()),
 });
 export type ReferenceData = z.infer<typeof referenceDataSchema>;
+export type Brand = z.infer<typeof brandSchema>;
+export type Condition = z.infer<typeof conditionSchema>;
+export type ParcelSize = z.infer<typeof parcelSizeSchema>;

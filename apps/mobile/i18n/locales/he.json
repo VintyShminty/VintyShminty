@@ -131,6 +131,67 @@
     },
     "upload": {
       "tooBig": "התמונה גדולה מדי"
+    },
+    "brandRequest": {
+      "tooShort": "לפחות 2 תווים",
+      "tooLong": "עד 60 תווים"
+    },
+    "listing": {
+      "title": {
+        "required": "הוסיפו כותרת",
+        "tooShort": "לפחות 3 תווים",
+        "tooLong": "עד 80 תווים"
+      },
+      "description": {
+        "tooLong": "עד 2,000 תווים"
+      },
+      "photos": {
+        "required": "הוסיפו לפחות תמונה אחת",
+        "tooMany": "אפשר להוסיף עד {{max}} תמונות",
+        "invalid": "אחת התמונות לא עלתה. הסירו אותה ונסו שוב"
+      },
+      "category": {
+        "required": "בחרו קטגוריה",
+        "invalid": "בחרו קטגוריה מהרשימה"
+      },
+      "brand": {
+        "required": "בחרו מותג",
+        "invalid": "בחרו מותג מהרשימה"
+      },
+      "size": {
+        "required": "בחרו מידה",
+        "invalid": "המידה לא מתאימה לקטגוריה הזו"
+      },
+      "condition": {
+        "required": "בחרו את מצב הפריט",
+        "invalid": "בחרו מצב מהרשימה"
+      },
+      "colour": {
+        "required": "בחרו צבע",
+        "tooMany": "אפשר לבחור עד 2 צבעים",
+        "invalid": "בחרו צבעים מהרשימה"
+      },
+      "material": {
+        "required": "בחרו חומר",
+        "invalid": "בחרו חומר מהרשימה"
+      },
+      "pattern": {
+        "required": "בחרו הדפס",
+        "invalid": "בחרו הדפס מהרשימה"
+      },
+      "price": {
+        "required": "הוסיפו מחיר",
+        "tooLow": "המחיר הנמוך ביותר הוא {{min}}",
+        "tooHigh": "המחיר גבוה מדי"
+      },
+      "parcel": {
+        "required": "בחרו גודל חבילה",
+        "invalid": "בחרו גודל חבילה מהרשימה"
+      },
+      "currency": {
+        "invalid": "המחירים בשקלים"
+      },
+      "notEditable": "אי אפשר לשנות את המודעה הזו יותר"
     }
   },
   "errors": {
@@ -204,6 +265,20 @@
       "verified": "מידע מאומת",
       "email": "אימייל",
       "notVerified": "עדיין לא אומת דבר"
+    },
+    "ownStatus": {
+      "active": "פעילים",
+      "draft": "טיוטות",
+      "reserved": "שמורים",
+      "sold": "נמכרו",
+      "hidden": "מוסתרים"
+    },
+    "ownEmpty": {
+      "active": "עוד אין פריטים למכירה. הקישו על מכירה כדי להעלות את הראשון",
+      "draft": "אין טיוטות. מודעות שלא סיימתם ושמרתם יופיעו כאן",
+      "reserved": "אין פריטים שמורים",
+      "sold": "עוד לא נמכר כלום",
+      "hidden": "אין פריטים מוסתרים"
     }
   },
   "countries": {
@@ -215,7 +290,41 @@
     "bumped": "מקודם",
     "was": "היה: {{price}}",
     "percentOff": "{{percent}}% הנחה",
-    "includesProtection": "{{price}} כולל"
+    "includesProtection": "{{price}} כולל",
+    "reserved": "שמור",
+    "hidden": "מוסתר",
+    "draft": "טיוטה",
+    "buyerPays": "הקונה משלם {{price}} כולל הגנת קונה",
+    "continueEditing": "להמשיך לערוך",
+    "edit": "עריכת המודעה",
+    "delete": "מחיקת המודעה",
+    "deleteConfirmTitle": "למחוק את המודעה?",
+    "deleteConfirm": "היא תיעלם לגמרי, יחד עם התמונות. אי אפשר לבטל את זה.",
+    "description": "תיאור",
+    "details": "פרטים",
+    "draftNote": "רק את/ה רואים את הטיוטה. סיימו אותה כדי להעלות למכירה.",
+    "reservedNote": "קונים רואים שהפריט שמור ולא יכולים לקנות אותו.",
+    "hiddenNote": "מוסתר מקונים עד שתציגו אותו שוב.",
+    "soldNote": "סומן כנמכר. הוא כבר לא מופיע לקונים.",
+    "favourites_one": "מועדף אחד",
+    "favourites_other": "{{count}} מועדפים",
+    "views_one": "צפייה אחת",
+    "views_other": "{{count}} צפיות",
+    "hide": "הסתרה",
+    "unhide": "להציג שוב",
+    "markReserved": "לסמן כשמור",
+    "unreserve": "לבטל שמירה",
+    "markSold": "לסמן כנמכר",
+    "soldConfirmTitle": "לסמן כנמכר?",
+    "soldConfirm": "קונים לא יוכלו לקנות אותו יותר. מתאים כשהפריט נמכר במקום אחר.",
+    "noPhotos": "אין תמונות עדיין",
+    "noPrice": "אין מחיר עדיין",
+    "parcel": "גודל חבילה",
+    "photoCount": "{{n}} / {{total}}",
+    "photoLabel": "תמונה {{n}} מתוך {{total}}",
+    "untitled": "טיוטה בלי כותרת",
+    "uploaded": "הועלה",
+    "yourListing": "המודעה שלך"
   },
   "editProfile": {
     "title": "פרטי פרופיל",
@@ -339,5 +448,70 @@
     "fakeBiometricBody": "Expo Go לא יכול להציג את מסך Face ID האמיתי, אז זו הדמיה. ב-development build מופיע המסך האמיתי.",
     "fakeBiometricFail": "לא תואם",
     "fakeBiometricPass": "תואם"
+  },
+  "sell": {
+    "title": "מכירת פריט",
+    "editTitle": "עריכת המודעה",
+    "about": "על הפריט",
+    "details": "פרטי הפריט",
+    "pricing": "תמחור",
+    "shipping": "משלוח",
+    "aiPhotos": "השתמשתי בבינה מלאכותית ליצירה או עריכה של התמונות",
+    "titleLabel": "כותרת",
+    "titlePlaceholder": "ספרו לקונים מה אתם מוכרים",
+    "descriptionLabel": "תיאור",
+    "descriptionPlaceholder": "ספרו עוד: מידה, גזרה, פגמים אם יש",
+    "category": "קטגוריה",
+    "brand": "מותג",
+    "size": "מידה",
+    "condition": "מצב",
+    "colours": "צבעים",
+    "material": "חומר",
+    "materialRecommended": "חומר (מומלץ)",
+    "pattern": "הדפס",
+    "price": "מחיר",
+    "clear": "ניקוי",
+    "buyerPays": "הקונה משלם {{price}} כולל הגנת קונה",
+    "buyerPaysPostage": "הקונה תמיד משלם על המשלוח",
+    "recommended": "מומלץ",
+    "postageFrom": "משלוח החל מ־{{price}}",
+    "findCategory": "חיפוש קטגוריה",
+    "noCategories": "אין קטגוריה שמתאימה",
+    "searchBrands": "חיפוש מותגים",
+    "popularBrands": "מותגים פופולריים",
+    "noBrands": "אין מותג שמתאים",
+    "requestBrand": "לא מצאתם? בקשו להוסיף את \"{{name}}\"",
+    "brandRequested": "תודה. נבדוק את הוספת \"{{name}}\"",
+    "sizeHint": "בחרו את המידה שכתובה על התווית",
+    "coloursHint": "אפשר לבחור עד {{max}} צבעים",
+    "saveDraft": "שמירת טיוטה",
+    "upload": "העלאה",
+    "saveChanges": "שמירת השינויים",
+    "checkFields": "חסרים כמה פרטים. בדקו את השדות שמסומנים באדום",
+    "waitForPhotos": "התמונות עדיין עולות. עוד רגע",
+    "closeTitle": "לשמור את השינויים לפני הסגירה?",
+    "closeSave": "שמירה",
+    "closeDiscard": "ביטול השינויים",
+    "photos": {
+      "title": "תמונות",
+      "upload": "העלאת תמונות",
+      "add": "הוספת תמונות",
+      "addTitle": "הוספת תמונות",
+      "library": "בחירה מהגלריה",
+      "camera": "צילום תמונה",
+      "hint": "אפשר להוסיף עד {{max}} תמונות. הראשונה היא תמונת השער",
+      "count": "{{count}} מתוך {{max}} תמונות. הראשונה היא תמונת השער. הקישו על תמונה כדי להזיז אותה",
+      "failed": "תמונה אחת לא עלתה. הקישו עליה כדי לנסות שוב",
+      "retry": "ההעלאה נכשלה, הקישו כדי לנסות שוב",
+      "tileLabel": "תמונה {{n}} מתוך {{total}}",
+      "main": "ראשית",
+      "optionsTitle": "תמונה",
+      "makeCover": "להפוך לתמונת השער",
+      "moveEarlier": "להזיז קדימה",
+      "moveLater": "להזיז אחורה",
+      "remove": "הסרת התמונה",
+      "deniedTitle": "אין גישה לתמונות",
+      "denied": "אפשרו ל־Vinty להשתמש בתמונות או במצלמה בהגדרות הטלפון"
+    }
   }
 }
