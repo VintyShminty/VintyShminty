@@ -56,7 +56,7 @@ pnpm db:down        # stop the containers (data stays in the Docker volumes)
 
 `db:seed` and `db:reset` refuse to run unless `NODE_ENV` is `development` (it defaults to that when unset) and the database is on this machine. Sample photos live in `packages/db/seed-assets/` (credits in `CREDITS.md`). Listing photo keys look like `seed/listings/<n>/<file>.jpg`, the file name is the file in `seed-assets`.
 
-Gallery: in a dev build open Profile, Settings and tap "Open the design gallery" at the bottom. It shows the colours, type scale (Aileron and Heebo), Button, Badge, Chip and Switch. Use it to check any token or component change.
+Gallery: in a dev build open `vinty://gallery` (for example `xcrun simctl openurl booted vinty://gallery`). Eden removed the Settings button on 2026-10-13. It shows the colours, type scale (Aileron and Heebo), Button, Badge, Chip and Switch. Use it to check any token or component change.
 
 Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm format` fixes formatting and import order. CI runs the same three.
 

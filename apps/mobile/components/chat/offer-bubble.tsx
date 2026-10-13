@@ -107,6 +107,7 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
         ) : null}
       </View>
       <Badge
+        className="self-start"
         variant={STATUS_VARIANT[status]}
         icon={STATUS_ICON[status]}
         label={

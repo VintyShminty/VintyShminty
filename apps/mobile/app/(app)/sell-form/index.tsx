@@ -70,7 +70,11 @@ function BuyerPricePreview({ priceMinor }: { priceMinor: number | null }) {
   if (priceMinor === null || priceMinor <= 0 || !preview.data) return null;
   return (
     <View className="gap-xs">
-      <PricePill amountMinor={preview.data.buyerPriceMinor} currency={preview.data.currency} />
+      <PricePill
+        className="self-start"
+        amountMinor={preview.data.buyerPriceMinor}
+        currency={preview.data.currency}
+      />
       <Text variant="cardDesc">{t("sell.buyerPays")}</Text>
     </View>
   );

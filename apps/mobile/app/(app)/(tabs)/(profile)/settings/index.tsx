@@ -127,13 +127,6 @@ export default function Settings() {
         <View className="mt-xl">
           <Row icon={LogOut} label={t("settings.logOut")} destructive onPress={logOut} chevron={false} last />
         </View>
-        {__DEV__ ? (
-          <View className="mt-xl px-lg">
-            <Button variant="ghost" size="sm" onPress={() => router.push("/gallery")}>
-              <Text>{t("gallery.open")}</Text>
-            </Button>
-          </View>
-        ) : null}
       </ScrollView>
     </Screen>
   );

@@ -154,7 +154,11 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
               </Text>
             ) : null}
             {listing.buyerPriceMinor !== null ? (
-              <PricePill amountMinor={listing.buyerPriceMinor} currency={listing.currency} />
+              <PricePill
+                className="self-start"
+                amountMinor={listing.buyerPriceMinor}
+                currency={listing.currency}
+              />
             ) : null}
           </View>
 

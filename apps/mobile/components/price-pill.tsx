@@ -27,7 +27,7 @@ function PricePill({
   return (
     <View
       className={cn(
-        "flex-row items-center gap-xs self-start rounded-full px-sm py-[3px]",
+        "flex-row items-center gap-xs rounded-full px-sm py-[3px]",
         muted ? "bg-surface" : "bg-accent-tint",
         className,
       )}

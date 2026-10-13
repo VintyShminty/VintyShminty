@@ -147,7 +147,7 @@ function ListingCard({
           </Text>
         ) : null}
         <PricePill
-          className="mt-xs"
+          className="mt-xs self-start"
           amountMinor={listing.buyerPriceMinor}
           currency={listing.currency}
           muted={sold}

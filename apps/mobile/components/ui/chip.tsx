@@ -22,7 +22,7 @@ function Chip({ label, count, selected = false, className, disabled, ...props }:
         accessibilityState={{ selected, disabled: !!disabled }}
         disabled={disabled}
         className={cn(
-          "h-8 shrink-0 items-center justify-center self-start rounded-full border px-[14px]",
+          "h-8 shrink-0 items-center justify-center rounded-full border px-[14px]",
           selected ? "border-primary bg-primary" : "border-text-4 bg-background active:bg-pressed",
           disabled && "opacity-40",
           className,
