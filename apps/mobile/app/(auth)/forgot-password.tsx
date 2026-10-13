@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AuthPhotoBand } from "@/components/auth-photo";
+import { AuthSheet } from "@/components/auth-motion";
 import { RequestCodeForm, ResetPasswordForm } from "@/components/code-reset-form";
-import { Screen, ScreenScroll } from "@/components/ui/screen";
+import { ScreenScroll } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 
 export default function ForgotPassword() {
@@ -12,8 +12,7 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState<string | null>(null);
 
   return (
-    <Screen topInset={false}>
-      <AuthPhotoBand />
+    <AuthSheet back>
       <ScreenScroll>
         <Text variant="title" className="mt-lg">
           {email ? t("forgot.titleCode") : t("forgot.title")}
@@ -31,6 +30,6 @@ export default function ForgotPassword() {
           <RequestCodeForm onSent={setEmail} />
         )}
       </ScreenScroll>
-    </Screen>
+    </AuthSheet>
   );
 }
