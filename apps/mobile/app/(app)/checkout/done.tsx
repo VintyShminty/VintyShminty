@@ -12,11 +12,12 @@ import { Screen } from "@/components/ui/screen";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { api } from "@/lib/api";
+import { isolate } from "@/lib/bidi";
 import { formatMoney } from "@/lib/money";
 
 /** The thank you after a successful (pretend) payment. Says what happens next and opens the order. */
 export default function CheckoutDone() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
@@ -53,7 +54,10 @@ export default function CheckoutDone() {
             <View className="flex-1 gap-px">
               <Text weight={600} numberOfLines={1}>
                 {o.itemCount > 1
-                  ? t("checkout.done.many", { title: o.title, count: o.itemCount - 1 })
+                  ? t("checkout.done.many", {
+                      title: isolate(o.title, i18n.language === "he"),
+                      count: o.itemCount - 1,
+                    })
                   : o.title}
               </Text>
               <Text variant="cardMeta">{t("chat.order.number", { number: o.orderNumber })}</Text>

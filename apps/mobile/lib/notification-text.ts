@@ -1,21 +1,10 @@
 import type { AppNotification } from "@vinty/shared";
 import type { TFunction } from "i18next";
+import { hasHebrew, isolate } from "./bidi";
 import { formatMoney } from "./money";
 
 const str = (v: unknown): string | null => (typeof v === "string" && v.trim() !== "" ? v.trim() : null);
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
-
-const HEBREW = /[\u0590-\u05FF]/;
-const LATIN = /[A-Za-z]/;
-
-/**
- * Keeps a name or item title of the other script from scrambling the sentence around it: an English sentence with a
- * Hebrew title (or the other way round) puts the title in an isolated run, so the words stay in reading order.
- */
-function isolate(value: string, sentenceIsHebrew: boolean): string {
-  const clash = sentenceIsHebrew ? LATIN.test(value) && !HEBREW.test(value) : HEBREW.test(value);
-  return clash ? `\u2068${value}\u2069` : value;
-}
 
 /**
  * The sentence for a row in the Notifications tab. The server sends only a type and some values, the app writes the
@@ -24,7 +13,7 @@ function isolate(value: string, sentenceIsHebrew: boolean): string {
  */
 export function notificationText(n: AppNotification, t: TFunction): string {
   const data = n.data;
-  const hebrew = HEBREW.test(t("inbox.notif.someone"));
+  const hebrew = hasHebrew(t("inbox.notif.someone"));
   const itemCount = num(data.itemCount) ?? 1;
   const rawTitle = str(data.title);
   // "Blue coat and 2 more" when an order holds several items (a bundle).

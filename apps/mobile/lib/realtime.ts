@@ -175,7 +175,8 @@ function connect(userId: string) {
     upsertNotification(queryClient, notification);
     void queryClient.invalidateQueries({ queryKey: ["unread"] });
     // News about an order (a review came in, money was released...) changes what its page shows.
-    if (notification.orderId) void queryClient.invalidateQueries({ queryKey: ["order", notification.orderId] });
+    if (notification.orderId)
+      void queryClient.invalidateQueries({ queryKey: ["order", notification.orderId] });
   });
   s.on("unread:count", (counts) => setUnread(queryClient, counts));
   // An order moved (paid, shipped, delivered...): My orders, the open order page and the balance read it again.

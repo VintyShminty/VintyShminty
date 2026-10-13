@@ -56,13 +56,16 @@ function OrderDivider({
   orderId: string | null;
   payload: unknown;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const style = STYLES[event] ?? { icon: Package, tone: "text-primary" };
   const data = (payload ?? {}) as Payload;
   const what =
     data.title && (data.itemCount ?? 1) > 1
-      ? t("chat.order.moreItems", { title: data.title, count: (data.itemCount ?? 1) - 1 })
+      ? t("chat.order.moreItems", {
+          title: isolate(data.title, i18n.language === "he"),
+          count: (data.itemCount ?? 1) - 1,
+        })
       : data.title;
   const detail =
     event === "order_shipped" && data.trackingCode

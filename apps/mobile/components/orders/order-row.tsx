@@ -8,6 +8,7 @@ import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { ForwardIcon } from "@/components/ui/top-bar";
+import { isolate } from "@/lib/bidi";
 import { formatMoney } from "@/lib/money";
 import { formatDate } from "@/lib/time";
 
@@ -23,7 +24,10 @@ export function OrderRow({ order }: { order: OrderRowData }) {
     isSeller && order.sellerEarningsMinor !== null ? order.sellerEarningsMinor : order.totalMinor;
   const title =
     order.itemCount > 1
-      ? t("orders.moreItems", { title: order.title, count: order.itemCount - 1 })
+      ? t("orders.moreItems", {
+          title: isolate(order.title, i18n.language === "he"),
+          count: order.itemCount - 1,
+        })
       : order.title;
   const who = order.otherUser.username ?? t("profile.deletedMember");
 
