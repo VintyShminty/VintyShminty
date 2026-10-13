@@ -45,7 +45,7 @@ Every milestone ends with something you can use on your phone, in both languages
 | MinIO (Docker, development only) | Stands in for Cloudflare R2 for photos, console at localhost:9001 | Milestone 1 | Running |
 | Email provider (Resend, Postmark or similar) | Sending real emails online | When the app goes online | Not started |
 | Cloudflare R2 | Photo storage online | When the app goes online | Not started |
-| Vercel | Hosting the server online | When the app goes online | Not started |
+| Server host (open: Vercel or Railway, Render, Fly.io) | Hosting the server online. Vercel supports Socket.IO since June 2026 (beta), but connections close every 5 to 30 minutes and it needs a Redis hub between instances and scheduled jobs for the timers. An always-on host needs no change. Decide when going online | When the app goes online | Not started |
 
 Until the app goes online, the server, database and photos run on the development Mac.
 

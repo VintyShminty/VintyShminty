@@ -104,8 +104,6 @@ Tick an item when it is changed in both English and Hebrew.
 ### Should change (the combination)
 
 - [x] **Item card.** Change at least two details: the order of brand, description and price, where the heart count sits, or the badge look
-- [ ] **Home screen top.** Make the search bar and category chips feel like ours (a greeting, a different chip style or order)
-- [ ] **Item card.** Change at least two details: the order of brand, description and price, where the heart count sits, or the badge look
 - [x] **Home screen top.** Make the search bar and category chips feel like ours (a greeting, a different chip style or order). Greeting, round search button and mood chips built, Home no longer has category chips
 - [x] **Condition names.** Replace "Satisfactory" at least, reword the rest in our voice
 - [x] **"Bundle discounts".** Rename
