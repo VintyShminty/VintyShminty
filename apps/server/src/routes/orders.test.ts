@@ -520,6 +520,31 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
     });
   });
 
+  describe("push", () => {
+    it("pushes order and offer news in the person's language and opens the right screen", async () => {
+      const phone = `ExponentPushToken[orders-${stamp}]`;
+      await call("POST", "/v1/me/push-tokens", seller.token, { token: phone, platform: "ios" });
+      await call("PATCH", "/v1/me/settings", seller.token, { language: "he" });
+      const mine = () => ctx.pusher.sent.filter((m) => m.to === phone);
+      const before = mine().length;
+      const listingId = await newListing("push");
+      const chat = (await call("POST", "/v1/conversations", buyer.token, { listingId })).json();
+      await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 });
+      const offerPush = mine().at(-1);
+      expect(mine().length).toBe(before + 1);
+      expect(offerPush?.data).toMatchObject({ type: "new_offer", conversationId: chat.id, listingId });
+      expect(offerPush?.body).toContain("הציע");
+      expect(offerPush?.priority).toBe("high");
+
+      await call("PATCH", "/v1/me/settings", seller.token, { language: "en" });
+      const order = (await call("POST", "/v1/orders", buyer.token, { listingId: await newListing("push 2"), deliveryMethod: "pickup_point" })).json();
+      await call("POST", `/v1/orders/${order.id}/pay`, buyer.token);
+      const paidPush = mine().at(-1);
+      expect(paidPush?.data).toMatchObject({ type: "order_paid", orderId: order.id });
+      expect(paidPush?.body).toContain("waiting to be shipped");
+    });
+  });
+
   describe("lists", () => {
     it("filters bought and sold orders by status chip and pages through them", async () => {
       const lister = await signUpTestUser(ctx, "slist", createdIds);
