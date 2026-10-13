@@ -29,6 +29,7 @@ import notificationRoutes from "./routes/notifications.js";
 import offerRoutes from "./routes/offers.js";
 import orderRoutes from "./routes/orders.js";
 import referenceRoutes from "./routes/reference.js";
+import referralRoutes from "./routes/referrals.js";
 import reviewRoutes from "./routes/reviews.js";
 import uploadRoutes from "./routes/uploads.js";
 import userRoutes from "./routes/users.js";
@@ -85,6 +86,7 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
     await app.register(bumpRoutes);
     await app.register(orderRoutes);
     await app.register(reviewRoutes);
+    await app.register(referralRoutes, { env });
     await app.register(jobsPlugin);
     await app.register(jobRoutes);
   }

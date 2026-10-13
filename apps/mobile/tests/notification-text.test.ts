@@ -79,6 +79,12 @@ describe("notification sentences", () => {
     expect(
       notificationText(row("balance_released", { ...data, amountMinor: 4500, currency: "ILS" }), t),
     ).toBe("₪45 is now available in your balance");
+    expect(notificationText(row("referral_rewarded", { role: "inviter" }), t)).toBe(
+      "Your friend's first order is done. You earned a reward",
+    );
+    expect(notificationText(row("referral_rewarded", { role: "invitee" }), t)).toBe(
+      "Your first order is done. You earned a voucher",
+    );
   });
 
   it("tells why an order was cancelled", async () => {
@@ -127,6 +133,7 @@ describe("where a notification leads", () => {
       pathname: "/(app)/(tabs)/(inbox)/order/[id]",
       params: { id: "o1" },
     });
+    expect(routeForNotification({ type: "referral_rewarded" })).toBe("/(app)/(tabs)/(inbox)/invite");
     expect(routeForNotification({ type: "new_offer", conversationId: "c1", listingId: "l1" })).toEqual({
       pathname: "/conversation/[id]",
       params: { id: "c1" },

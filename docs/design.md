@@ -453,6 +453,15 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/mobile/components/feed-reason-sheet.tsx`, `apps/mobile/app/(app)/onboarding.tsx`, `apps/mobile/lib/onboarding.ts`, `lib/feed-queries.ts`, `settings/personalisation.tsx`, `settings/privacy.tsx`. The onboarding uses a plain white screen with the step count and Skip at the top, big option rows and one primary button (the welcome photo is not reused, the questions need room).
 - **References:** `docs/plans/home-feed.md`
 
+### D-024 : Invite friends lives in the profile tab and a friend's code is typed there
+
+- **Date:** 2026-10-13
+- **Area:** Extras, profile
+- **Status:** Implemented
+- **Decision:** "Invite friends" is a row under Balance on your own profile. The screen shows your code with a Share button, three short steps, who joined and your vouchers. A friend's code is entered in a "Have a friend's code?" section on the same screen, only for accounts up to 7 days old. Vouchers are shown but not used at checkout yet.
+- **Rationale:** Sign up asks only for email and password (D-020) and Apple and Google sign in skip that screen, so one place for the code works for every way of joining.
+- **Implementation:** `app/(app)/(tabs)/(home,browse,inbox,profile)/invite.tsx`, `apps/server/src/lib/referrals.ts`.
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 

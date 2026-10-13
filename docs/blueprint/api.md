@@ -349,15 +349,21 @@ A dispute has no notification type of its own, the other person sees the `order_
 | GET | `/v1/me/bumps` | Required | page query | page of bumps with the listing and plan (`isActive`), newest first | Promotional tools. Built, shown as "Your buzzes" on the own profile |
 | GET | `/v1/me/badges` | Required | none | `{ earned, total, items }` | The Badges you earned card |
 | PUT | `/v1/me/personalisation/brands` | Required | `{ brandIds }` | `{ brandIds }` | Follow brands |
-| GET | `/v1/me/referral` | Required | none | `{ inviteCode, link, referrals, vouchers }` | Invite friends |
-| POST | `/v1/referrals/redeem` | Required | `{ code }` | 204 | At sign up or first launch. Rejects your own code |
-| GET | `/v1/me/vouchers` | Required | none | list | Applied at checkout in version 2 |
+| GET | `/v1/me/referral` | Required | none | `referralSummarySchema`: `{ inviteCode, link, rewardMinor, minOrderMinor, currency, invitedBy, canRedeem, referrals, vouchers }` | Invite friends. Built in Milestone 9. Makes the person's code the first time (also for accounts older than the feature) |
+| POST | `/v1/referrals/redeem` | Required | `{ code }` | 204 | Built in Milestone 9. Entered on the Invite friends screen (not at sign up, so Apple and Google sign in work the same). 404 unknown code, 400 `own_code`, 409 already invited, 403 account older than 7 days or with a completed purchase. 10 a minute |
+| GET | `/v1/me/vouchers` | Required | none | list of `voucherSchema` | Built in Milestone 9. Shown, not applied at checkout (version 2). An active voucher past its date is shown as `expired` |
 | GET | `/v1/me/bundle-discounts` | Required | none | list of tiers | Profile tab, Bundle discounts |
 | PUT | `/v1/me/bundle-discounts` | Required | `{ tiers: [{ minItems, percentOff }] }` | list of tiers | |
 | GET | `/v1/help/topics` | Public | none | static topics | Help Centre content can start as a bundled screen |
 | GET | `/v1/listings/search-by-photo` | Required | multipart image | page of `listingCardSchema` | Deferred (open decision). Not in version 1 |
 
 **Buzz (built, Milestone 9).** `POST /v1/listings/:id/bump` locks the item row, so two taps make one buzz, and writes a `bumps` row (`payment_provider` free, price 0). An item counts as buzzing only while `bumped_until` is in the future (the cards, discovery and the feed all compare it with the clock, so nothing waits for a job). The own card and the own item view also carry `bumpedUntil` for "Ends ...". The end step (`endFinishedBuzzes` in `lib/bumps.ts`) runs hourly in the in-process timers, in `/v1/jobs/all` and alone at `/v1/jobs/buzz-end`: it clears `bumped_until` and sends `bump_ended` once to the seller if the item is still for sale (clearing and reading is one statement, so running twice never tells twice). `bumped_at` keeps its value, so the item does not drop back down the feed. There is no daily cap while buzz is free (open decision 13 in `data-model.md`).
+
+### Invite friends notes (as built, Milestone 9)
+
+- **Codes.** 8 letters and digits without look-alikes (no 0, O, 1, I, L), unique in `profiles.invite_code`. Typed in any case, with spaces or dashes. The link is `BETTER_AUTH_URL/invite/<code>`, a public page in English and Hebrew with the code and a button back to the app (`lib/invite-page.ts`, same look and policy as `/v1/auth/error`). The real domain comes later.
+- **Who can enter a code.** The account must be at most 7 days old and have no completed purchase, must not already be invited, and the code cannot be their own.
+- **Reward.** When an order completes (`transitionOrder`, events `confirm_received`, `auto_complete`, `release`), if the buyer has a `pending` referral and the order's items total (after the closet deal) reaches `referral_min_order_minor`, the referral becomes `rewarded` and both people get a voucher of `referral_reward_minor` (50 shekels), valid 90 days, in the same transaction. An earlier order under the minimum does not use up the invite. Both get a `referral_rewarded` notification (`data.role` is `inviter` or `invitee`) and a push. No wallet entry is written, vouchers are not money.
 
 ## Milestone 7: A home feed that learns
 
