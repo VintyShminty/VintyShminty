@@ -494,3 +494,12 @@ Proposals, not rules, until explicitly promoted above.
 | O-003 | Closed on 2026-10-12. Hebrew font is Heebo paired with Aileron (D-011). Currency is ILS (₪), shown as ₪45 in whole shekels with a comma for thousands and a dot for decimals. | None |
 
 ## Superseded decisions
+
+### D-026 : Log in and sign up slide up from the bottom
+
+- **Date:** 2026-10-13
+- **Area:** Welcome, log in, sign up
+- **Status:** Built on branch auth-slide-up, waiting for Eden's review
+- **Decision:** Tapping Log in or Sign up on the welcome screen slides the full screen up from the bottom over the welcome photo, and closing slides it back down (swipe down works too). The button over the photo band is a close X on these two screens. Forgot password still pushes in sideways from Log in and keeps its back arrow. The two links between Log in and Sign up swap the screen in place.
+- **Rationale:** The welcome photo is the front door and these two screens are forms opened from it, so they rise up like a drawer instead of pushing a new page.
+- **Implementation:** `apps/mobile/app/(auth)/_layout.tsx`, `components/auth-photo.tsx` (`close` option).

@@ -41,7 +41,7 @@ export default function LogIn() {
 
   return (
     <Screen topInset={false}>
-      <AuthPhotoBand />
+      <AuthPhotoBand close />
       <ScreenScroll>
         <Text variant="title" className="mt-lg">
           {t("logIn.title")}

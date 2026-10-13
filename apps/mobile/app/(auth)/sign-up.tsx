@@ -54,7 +54,7 @@ export default function SignUp() {
 
   return (
     <Screen topInset={false}>
-      <AuthPhotoBand />
+      <AuthPhotoBand close />
       <ScreenScroll>
         <Text variant="title" className="mt-lg">
           {t("signUp.title")}
