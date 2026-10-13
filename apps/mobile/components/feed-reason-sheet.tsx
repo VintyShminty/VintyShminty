@@ -8,16 +8,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Row, SectionHeader } from "@/components/ui/row";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
+import { isolate } from "@/lib/bidi";
 import { useHideFromFeed } from "@/lib/feed-queries";
 import { useLocalName, useReference } from "@/lib/reference";
 
 /** The sentence for a reason: its kind plus the name where there is one ("You like Zara"). */
 function useReasonText() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const localName = useLocalName();
   return (reason: FeedCard["reason"]): string => {
     if (!reason) return t("feedWhy.reasons.none");
-    const name = reason.name ? localName(reason.name) : "";
+    const name = reason.name ? isolate(localName(reason.name), i18n.language === "he") : "";
     return name
       ? t(`feedWhy.reasons.${reason.kind}`, { name })
       : t(`feedWhy.reasons.${reason.kind}NoName`, { defaultValue: t(`feedWhy.reasons.${reason.kind}`) });
@@ -30,7 +31,8 @@ function useReasonText() {
  * (only the ones that apply). The card leaves the list at once.
  */
 function FeedReasonSheet({ ref, card }: { ref: Ref<BottomSheetModal>; card: FeedCard | null }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const hebrew = i18n.language === "he";
   const insets = useSafeAreaInsets();
   const localName = useLocalName();
   const reasonText = useReasonText();
@@ -87,7 +89,11 @@ function FeedReasonSheet({ ref, card }: { ref: Ref<BottomSheetModal>; card: Feed
             {seller ? (
               <Row
                 icon={UserX}
-                label={t("feedWhy.hideSeller", { name: seller.username ?? t("feedWhy.thisSeller") })}
+                label={
+                  seller.username
+                    ? t("feedWhy.hideSeller", { name: isolate(seller.username, hebrew) })
+                    : t("feedWhy.hideSellerNoName")
+                }
                 onPress={() => notInterested("seller")}
                 chevron={false}
                 last={!brand && !category}
@@ -96,7 +102,7 @@ function FeedReasonSheet({ ref, card }: { ref: Ref<BottomSheetModal>; card: Feed
             {brand ? (
               <Row
                 icon={Tag}
-                label={t("feedWhy.hideBrand", { name: brand.name })}
+                label={t("feedWhy.hideBrand", { name: isolate(brand.name, hebrew) })}
                 onPress={() => notInterested("brand")}
                 chevron={false}
                 last={!category}
@@ -105,7 +111,7 @@ function FeedReasonSheet({ ref, card }: { ref: Ref<BottomSheetModal>; card: Feed
             {category ? (
               <Row
                 icon={Layers}
-                label={t("feedWhy.hideCategory", { name: localName(category.name) })}
+                label={t("feedWhy.hideCategory", { name: isolate(localName(category.name), hebrew) })}
                 onPress={() => notInterested("category")}
                 chevron={false}
                 last

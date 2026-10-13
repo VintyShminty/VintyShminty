@@ -1359,7 +1359,7 @@
     "notInterested": "Not interested",
     "hideItem": "Hide this item",
     "hideSeller": "Hide everything from {{name}}",
-    "thisSeller": "this seller",
+    "hideSellerNoName": "Hide everything from this seller",
     "hideBrand": "Show less of {{name}}",
     "hideCategory": "Show less of {{name}}",
     "note": "Hidden things stay off Home. You can bring them back in Settings, under Shopping preferences",

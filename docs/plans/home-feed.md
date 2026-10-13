@@ -1,6 +1,6 @@
 # Plan: a home feed that learns
 
-Status: decided (Eden, 2026-10-13), being built as Milestone 7 in `docs/roadmap.md`.
+Status: built (server and app, Milestone 7, branch `milestone-7`). Decided by Eden on 2026-10-13. App decisions are in D-022 of `docs/design.md`.
 
 ## Why
 

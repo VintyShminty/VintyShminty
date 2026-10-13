@@ -122,6 +122,7 @@ export default function Personalisation() {
             label={t("shopping.resetTitle")}
             onPress={confirmReset}
             disabled={reset.isPending}
+            destructive
             chevron={false}
             last
           />
