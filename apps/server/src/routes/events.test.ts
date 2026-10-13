@@ -109,9 +109,10 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
   beforeAll(async () => {
     ctx = await buildTestApp({ CRON_SECRET: "test-cron-secret-0123456789" });
     reference = (await call("GET", "/v1/reference")).json();
-    sized = leaves(reference.categories).findLast(
-      (c) => c.rules.size === "required" && c.rules.brand !== "hidden" && c.sizeGroupIds.length > 0,
-    ) as CategoryNode;
+    // The last fitting category, so these listings stay out of the way of the other test files.
+    sized = leaves(reference.categories)
+      .filter((c) => c.rules.size === "required" && c.rules.brand !== "hidden" && c.sizeGroupIds.length > 0)
+      .at(-1) as CategoryNode;
     const brandsRes = (await call("GET", "/v1/brands?limit=2")).json();
     brandA = brandsRes.items[0].id;
     brandB = brandsRes.items[1].id;
