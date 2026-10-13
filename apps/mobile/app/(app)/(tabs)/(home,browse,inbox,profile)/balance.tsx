@@ -70,9 +70,9 @@ function EntryRow({ entry }: { entry: BalanceEntry }) {
             .join(" · ")}
         </Text>
         {entry.status === "pending" ? (
-          <Badge variant="warning" icon={Clock} label={t("balance.pending")} />
+          <Badge variant="warning" icon={Clock} label={t("balance.pending")} className="self-start" />
         ) : entry.status === "void" ? (
-          <Badge variant="error" icon={XCircle} label={t("balance.void")} />
+          <Badge variant="error" icon={XCircle} label={t("balance.void")} className="self-start" />
         ) : null}
       </View>
       <Text

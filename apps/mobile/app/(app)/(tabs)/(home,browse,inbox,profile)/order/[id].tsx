@@ -190,7 +190,9 @@ export default function OrderScreen() {
         ) : null}
 
         <View className="gap-sm px-lg pt-sm">
-          <OrderStatusBadge status={order.status} role={order.role} />
+          <View className="flex-row">
+            <OrderStatusBadge status={order.status} role={order.role} />
+          </View>
           <Text variant="heading">{t(`orders.next.${order.status}.${order.role}`)}</Text>
           <Text variant="subtitle">
             {t(`orders.nextNote.${order.status}.${order.role}`, { name: otherName })}

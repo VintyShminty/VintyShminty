@@ -12,7 +12,7 @@ function SellerStamp({ icon, label }: { icon: LucideIcon; label: string }) {
     <View
       accessible
       accessibilityLabel={label}
-      className="h-8 flex-row items-center gap-xs self-start rounded-full border border-primary bg-background px-[12px]"
+      className="h-8 flex-row items-center gap-xs rounded-full border border-primary bg-background px-[12px]"
     >
       <Icon as={icon} size={14} className="text-primary" />
       <Text variant="pill" weight={600} className="text-primary">

@@ -5,9 +5,10 @@ import { Icon } from "@/components/ui/icon";
 import { Text, TextStyleContext } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 
+// No self-alignment here on purpose: in a row the parent centres it, in a column the caller adds self-start.
 // D-008: 22px tall outline pill on a white fill, 1px outline in the status colour, icon plus label.
 const badgeVariants = cva(
-  "h-[22px] shrink-0 flex-row items-center justify-center gap-xs self-start rounded-full border bg-background px-sm",
+  "h-[22px] shrink-0 flex-row items-center justify-center gap-xs rounded-full border bg-background px-sm",
   {
     variants: {
       variant: {

@@ -185,7 +185,11 @@ function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota 
                 {fieldError}
               </Text>
             ) : preview.data && valid ? (
-              <PricePill amountMinor={preview.data.buyerPriceMinor} currency={preview.data.currency} />
+              <PricePill
+                className="self-start"
+                amountMinor={preview.data.buyerPriceMinor}
+                currency={preview.data.currency}
+              />
             ) : null}
           </View>
 
