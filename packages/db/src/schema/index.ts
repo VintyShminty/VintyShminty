@@ -5,4 +5,5 @@ export * from "./listings.js";
 export * from "./messages.js";
 export * from "./orders.js";
 export * from "./people.js";
+export * from "./recommendations.js";
 export * from "./reference.js";

@@ -186,3 +186,43 @@ export type VoucherStatus = (typeof VOUCHER_STATUSES)[number];
 
 export const LISTING_SORTS = ["relevance", "newest", "price_asc", "price_desc"] as const;
 export type ListingSort = (typeof LISTING_SORTS)[number];
+
+/** Things the feed learns from (Milestone 7). The weights live in `recommendations.ts`. */
+export const USER_EVENT_TYPES = [
+  "purchase",
+  "offer",
+  "message_seller",
+  "favourite",
+  "unfavourite",
+  "save_search",
+  "onboarding_pick",
+  "listing_open_repeat",
+  "listing_open",
+  "listing_dwell",
+  "search",
+  "category_visit",
+  "not_interested",
+  "impression",
+] as const;
+export type UserEventType = (typeof USER_EVENT_TYPES)[number];
+
+/** Where a card was shown. */
+export const FEED_SURFACES = ["home", "search", "browse"] as const;
+export type FeedSurface = (typeof FEED_SURFACES)[number];
+
+/** What a taste score is about. */
+export const AFFINITY_FEATURES = [
+  "category",
+  "parent_category",
+  "brand",
+  "seller",
+  "size",
+  "price_band",
+  "colour",
+  "condition",
+] as const;
+export type AffinityFeature = (typeof AFFINITY_FEATURES)[number];
+
+/** What "Not interested" hides. */
+export const FEED_HIDE_SCOPES = ["item", "seller", "brand", "category"] as const;
+export type FeedHideScope = (typeof FEED_HIDE_SCOPES)[number];
