@@ -39,7 +39,7 @@ Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `doc
 
 ## Guidelines for our work
 
-These apply to every screen, string and asset from now on, for people and agents alike.
+These apply to every screen, string and asset from now on, for people and agents alike. They are numbered G1 to G12 (G9 to G12 come from Apple's rules below).
 
 1. **Structure yes, surface no.** The Vinted spec may decide what a screen does and the order of steps. It never decides a name, a sentence, an icon, a colour, a layout detail or an illustration.
 2. **Write every sentence fresh.** Never paste or lightly reword text from the spec or from Vinted's app. Write it in our voice (Friends' closets, D-019), then check it against the spec's wording. If it is the same or nearly the same, rewrite it.
@@ -50,17 +50,40 @@ These apply to every screen, string and asset from now on, for people and agents
 7. **Never touch their data.** No scraping, importing or copying of Vinted listings, photos, users or reviews.
 8. **When unsure, ask Eden** and note the question in this file.
 
-### What Apple's rules say
+### Apple's rules, one by one
 
-From the App Store Review Guidelines (read on 2026-10-13, they change over time, so read the live page again before submitting):
+From the App Store Review Guidelines, read on 2026-10-13. They change over time, so read the live page again before every submission: https://developer.apple.com/app-store/review/guidelines/
 
-- **4.1 Copycats.** Do not copy a popular app or make "minor changes to another app's name or UI" and pass it off as your own. Impersonating another app or service can get the developer account removed. Never use another developer's icon, brand or product name in your icon or name.
-- **5.2.1 Intellectual property.** Only use content you made or have a licence for. No trademarks or copyrighted work without permission, and no copycat names or metadata.
-- **2.3.7 Metadata.** A unique app name (30 characters at most). Keywords and subtitle must not be packed with trademarks or other apps' names, and the subtitle must not reference other apps.
-- **2.3.8 Metadata.** The app name and all its icons must match each other, to avoid confusion.
-- **4.2 Minimum functionality.** The app must feel like a real app, not a repackaged website. We are fine here.
+Apple's reviewers look at the store listing first (name, icon, subtitle, screenshots), then open the app. A copycat problem is usually spotted in the first minute.
 
-What it means for us: Apple checks the name, icon and listing first, and the look of the app second. Our rename work covers 4.1 and 5.2.1. Rule 6 above covers 2.3.7 and 2.3.8.
+| Rule | What Apple says, in plain words | What it means for us | Our guideline |
+|---|---|---|---|
+| **4.1(a) Copycats** | Do not copy a popular app, or take another app and change its name or screens a little and call it yours | The whole originality pass (D-019). Small tweaks are exactly what this rule names, so the changes must be real, not cosmetic | G1, G2, G3, G5 |
+| **4.1(b) Impersonation** | Pretending to be another app or service breaks Apple's developer code of conduct and can get the developer account removed | Never suggest we are Vinted, part of Vinted or connected to it. That covers the app, emails, support replies and social posts | G9 |
+| **4.1(c) Their brand in our name or icon** | You cannot put another developer's icon, brand or product name in your app's name or icon without their permission | "Vinty" sounds like Vinted and must go. The new icon must not look like Vinted's (no teal, no similar letter mark) | G10 |
+| **5.2.1 Intellectual property** | Use only content you made or have a licence for. No trademarks, copyrighted work or patented ideas without permission. No copycat names in the app bundle or the developer name | Assets need a licence on file. The hidden app ID (`com.anonymous.vinty`) and the developer name also count, not just what users see | G4, G11 |
+| **5.2.2 Other services** | If the app uses or shows content from another service, its terms must allow it | No importing, scraping or showing Vinted listings, photos or reviews, even with a "bring your listings over" button | G7 |
+| **2.3.7 Name and keywords** | A unique name of 30 characters at most. Do not stuff keywords with trademarks or other apps' names. The subtitle must not mention other apps | No "Vinted" in keywords, subtitle or description. No "like Vinted" or "Vinted alternative" | G6 |
+| **2.3.8 Name and icons match** | The app name and every icon must look like the same product | One name and one icon style across the app, the store and any alternate icons | G10 |
+| **4.2 Minimum functionality** | The app must be useful and feel like a real app, not a website in a wrapper | We pass. Nothing to do | None |
+
+### More guidelines from Apple's rules
+
+9. **Never claim a link to Vinted.** No "from the makers of", "as seen on", "move from Vinted" or comparisons with Vinted, in the app, emails, support or marketing.
+10. **Name and icon are ours from end to end.** The new app name does not sound like, rhyme with or shorten Vinted. The icon uses our espresso and cream, not a teal and not a letter mark like theirs. The name under the icon, the store name and the icon all match.
+11. **Hidden names count too.** When the app is renamed, also change the app ID (`com.anonymous.vinty`), the link name (`vinty`), the developer name and the support email.
+12. **Clean store screenshots.** Make them from our own photos or photos we have a licence to use in advertising, not the development sample photos. Avoid big, readable brand logos (Nike, Zara and so on) in screenshots and ads. People can still list branded items inside the app.
+
+### Before every App Store submission
+
+- [ ] Read the live rules again (4.1, 5.2, 2.3)
+- [ ] Name: unique, 30 characters at most, trademark search done
+- [ ] Icon, name and store name match. Nothing teal, nothing like Vinted's mark
+- [ ] Subtitle, keywords and description: no Vinted or other app names
+- [ ] Screenshots: our own or licensed photos, no big brand logos
+- [ ] App ID, link name, developer name and support email renamed
+- [ ] Search the app's English and Hebrew text for the banned words (G3)
+- [ ] Cover-the-logo test on the main screens (G5)
 
 ## Checklist
 

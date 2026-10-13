@@ -88,8 +88,9 @@ export default function ChangePassword() {
                 secureTextEntry
                 secureToggle={secure}
                 autoCapitalize="none"
-                autoComplete="new-password"
-                textContentType="newPassword"
+                autoComplete="password"
+                // Not "newPassword": iOS then offers a Strong Password, which jams without an associated domain (none yet).
+                textContentType="password"
                 returnKeyType="next"
                 onSubmitEditing={() => confirmRef.current?.focus()}
                 submitBehavior="submit"
@@ -102,8 +103,9 @@ export default function ChangePassword() {
                 secureTextEntry
                 secureToggle={secure}
                 autoCapitalize="none"
-                autoComplete="new-password"
-                textContentType="newPassword"
+                autoComplete="password"
+                // Not "newPassword": iOS then offers a Strong Password, which jams without an associated domain (none yet).
+                textContentType="password"
                 returnKeyType="go"
                 onSubmitEditing={onSubmit}
               />

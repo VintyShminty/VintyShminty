@@ -1,4 +1,5 @@
 import { profiles, sessions, userSettings, users } from "@vinty/db";
+import { USERNAME_MAX, usernameSchema } from "@vinty/shared";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
@@ -69,6 +70,62 @@ describe.skipIf(!databaseUrl)("accounts", () => {
         username: person.username,
         needsOnboarding: false,
       });
+    });
+
+    async function signUpEmailOnly(email: string) {
+      const res = await ctx.app.inject({
+        method: "POST",
+        url: "/api/auth/sign-up/email",
+        payload: { email, password: "correct-horse-battery", name: "" },
+      });
+      const body = res.json();
+      if (body?.user?.id) createdIds.push(body.user.id);
+      return { res, body, token: res.headers["set-auth-token"] as string | undefined };
+    }
+
+    it("signs up with only email and password and gets a valid, unique username", async () => {
+      const stamp = Date.now().toString(36);
+      const local = `Vt-Only.${stamp}`;
+      const first = await signUpEmailOnly(`${local}@test.invalid`);
+      expect(first.res.statusCode).toBe(200);
+      const second = await signUpEmailOnly(`${local}@other.test.invalid`);
+      expect(second.res.statusCode).toBe(200);
+
+      const a = first.body.user;
+      const b = second.body.user;
+      expect(a.username).toBe(`vt-only.${stamp}`.replace("-", ""));
+      expect(a.displayUsername).toBe(a.username);
+      expect(a.name).toBe(a.username);
+      expect(b.username).not.toBe(a.username);
+      expect(b.username.startsWith(a.username.slice(0, 10))).toBe(true);
+      expect(usernameSchema.safeParse(b.username).success).toBe(true);
+      expect(b.username.length).toBeLessThanOrEqual(USERNAME_MAX);
+
+      const me = await ctx.app.inject({ method: "GET", url: "/v1/me", headers: bearer(first.token) });
+      expect(me.json()).toMatchObject({ username: a.username, needsOnboarding: false });
+    });
+
+    it("signs up without a name field at all", async () => {
+      const email = `vt-noname-${Date.now().toString(36)}@test.invalid`;
+      const res = await ctx.app.inject({
+        method: "POST",
+        url: "/api/auth/sign-up/email",
+        payload: { email, password: "correct-horse-battery" },
+      });
+      if (res.json()?.user?.id) createdIds.push(res.json().user.id);
+      expect(res.statusCode).toBe(200);
+      expect(res.json().user.username).toBeTruthy();
+    });
+
+    it("still refuses a username that is taken when one is sent", async () => {
+      const taken = await signUp(newPerson("taken"));
+      const other = newPerson("taken2");
+      const res = await ctx.app.inject({
+        method: "POST",
+        url: "/api/auth/sign-up/email",
+        payload: { email: other.email, password: other.password, name: "x", username: taken.person.username },
+      });
+      expect(res.statusCode).toBe(400);
     });
 
     it("confirms the email with the code", async () => {

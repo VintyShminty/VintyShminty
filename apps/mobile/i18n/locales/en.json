@@ -373,7 +373,7 @@
     "changePassword": "Change password",
     "delete": "Delete my account",
     "dangerZone": "Close account",
-    "usernameIntro": "Your username is how other people find you.",
+    "usernameIntro": "Your username is your public name. People see it on your profile and in chats, and use it to find you. We chose one from your email, change it any time.",
     "passwordChanged": "Your password is changed.",
     "passwordLogsOut": "Other phones signed in to your account will be logged out.",
     "verifyIntro": "Enter the code we sent to {{email}}. Need a new one? Ask below.",

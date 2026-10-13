@@ -74,7 +74,7 @@ Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateI
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| POST | `/api/auth/sign-up/email` | Public | Create an account with email, password and name |
+| POST | `/api/auth/sign-up/email` | Public | Create an account with email and password. No username is needed: the server makes one from the email (D-020, lowercase local part, digits added if taken). A `username` in the body is still accepted and checked. `name` is optional and starts as the username |
 | POST | `/api/auth/sign-in/email` | Public | Sign in with email and password. Returns the session token |
 | POST | `/api/auth/sign-in/social` | Public | Sign in with Google or Apple using the provider's ID token |
 | POST | `/api/auth/sign-out` | Required | End this session |
