@@ -372,6 +372,19 @@ Plan: `docs/plans/home-feed.md` (Eden's decisions are in its section 9). Schema:
 | GET, POST | `/v1/jobs/feed-popularity` | Secret | none | `{ ok }` | Re-counts "popular this week". For a scheduler |
 | GET, POST | `/v1/jobs/feed-cleanup` | Secret | none | `{ ok, events, impressions, snapshots, fadedAffinities, extraAffinities }` | The nightly cleanup. For a scheduler |
 
+### Scheduler endpoints (Milestone 8)
+
+Vercel does not keep a server running, so the timers in `plugins/jobs.ts` are off there and Vercel Cron calls these instead (`apps/server/vercel.json`). All of them are `GET` or `POST`, need `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends exactly that when the project has a `CRON_SECRET` variable), answer 404 when `CRON_SECRET` is not set and 401 for a wrong or missing secret, and are safe to run twice (every step locks its row). Rate limit 30 a minute (10 for `all`).
+
+| Method | Path | Does | Answer | Cron schedule (UTC) |
+|---|---|---|---|---|
+| GET, POST | `/v1/jobs/orders` | `runOrderJobs`: expire pending and accepted offers, cancel unpaid checkouts, release held items, cancel unshipped orders, pretend delivery (only when `SIMULATED_DELIVERY_SECONDS` is set), auto complete delivered orders, review reminders | `{ ok, offersExpired, acceptedOffersExpired, unpaidCancelled, reservationsReleased, unshippedCancelled, pretendDelivered, autoCompleted, reviewReminders }` | every minute |
+| GET, POST | `/v1/jobs/feed-popularity` | Re-count "popular this week" | `{ ok }` | every 15 minutes |
+| GET, POST | `/v1/jobs/feed-cleanup` | The nightly cleanup | `{ ok, ...counts }` | 03:00 every day |
+| GET, POST | `/v1/jobs/all` | All three in one call, for a plan that only allows one cron run a day (Vercel Hobby) | `{ ok, orders, cleanup }` | not scheduled by default |
+
+Per minute and per 15 minute crons need Vercel Pro (Hobby allows one run a day and a deploy with a faster cron fails). On Hobby replace the three crons with one `{ "path": "/v1/jobs/all", "schedule": "0 3 * * *" }`: offers and holds then expire up to a day late. Cron delivery is best effort, so a missed minute is simply caught by the next run.
+
 ### Milestone 7 notes (as built)
 
 - **What the server records itself** (the app sends nothing for these), each with one `recordEvents()` call in the handler that already sees it: open an item (`GET /v1/listings/:id`, weight 1, or 2 as `listing_open_repeat` when the same person opened it on an earlier day), heart (+4) and remove heart (-4) in `engagement.ts`, save a search (3) and a submitted search (`POST /v1/me/recent-searches`, 1), the buyer's first message in a chat (5, `lib/messaging.ts`, so the socket counts too), make an offer (6, `lib/offers.ts`), buy (8, when the order is paid, `routes/orders.ts`). The server copies the item's features into the event, so the app cannot fake them. Nothing is recorded for your own listing, for a visitor, or when Settings, Privacy, personalised feed is off.
@@ -382,7 +395,7 @@ Plan: `docs/plans/home-feed.md` (Eden's decisions are in its section 9). Schema:
 - **Card `reason`.** `kind` is one of `follows_seller`, `like_seller`, `like_brand`, `like_category`, `matches_size`, `new_in_category`, `new`, `popular`, `price_drop`, `explore`. `name` is `{ en, he }` for a seller (username), brand or category, else null. Null when no single reason was big enough. The app turns these into a sentence ("You like Zara", "New in Dresses", "Popular this week", "Something new for you") in the person's language.
 - **Not interested** hides on the home feed only (search and profiles are unchanged). A hidden category hides its whole subtree. The hide survives Reset. Closing an account deletes all of this, hides included.
 - **Differences from the plan.** What the person chose on purpose (a followed seller, a picked brand, a chosen size) counts in full from the first day, as the old feed did. Only the learned part of the score is multiplied by the confidence (30 points of recent activity). Chosen sizes only push matches up (decision 3), nothing is filtered. Onboarding picks write a `parent_category` line on the top level category (they give a small start, about 0.1 confidence for one pick). Buy is recorded when the order is paid, not at checkout. "Message a seller" is the buyer's first text or photo in a chat.
-- **Scheduler.** `plugins/jobs.ts` runs the re-count every 15 minutes and the cleanup at 03:00 UTC on its own timers (off when `JOBS_INTERVAL_SECONDS=0`). For a host without a long running server (Vercel), set `CRON_SECRET` (16 characters or more) and let the scheduler call `GET /v1/jobs/feed-popularity` every 15 minutes and `GET /v1/jobs/feed-cleanup` once a night with `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends exactly that). Without `CRON_SECRET` the endpoints answer 404. The scheduler setup itself is a separate task.
+- **Scheduler.** `plugins/jobs.ts` runs the re-count every 15 minutes and the cleanup at 03:00 UTC on its own timers (off when `JOBS_INTERVAL_SECONDS=0`, or when `IN_PROCESS_JOBS` is false, which is the default on Vercel). The same work is reachable through `/v1/jobs/...`, see "Scheduler endpoints (Milestone 8)" below.
 - **Sample data.** `pnpm db:reset` makes nine live dresses Zara and gives `noa_levi` clear taste: she hearted six Zara dresses, opened and came back to more, and searched Zara. Her home feed leans to Zara dresses. Everyone else starts with no taste.
 
 ## Socket.IO
