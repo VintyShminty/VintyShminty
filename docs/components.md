@@ -487,7 +487,7 @@ The top of a member's profile with identity, trust details and the follow button
 
 ### ReviewSummary
 
-The big average score with stars and a count, and a split of reviews by source.
+The big average score with stars and the count of written reviews, plus one success-tint line for automatic reviews ("36 smooth sales, no problems", hidden at zero). Built in D-019 (m6-reviews), the source chips and the member and automatic split are gone.
 
 - **Variants and states:** Variants: with member and automatic split, member only. Empty (no reviews yet).
 - **Screens:** Seller profile, Own profile
@@ -538,6 +538,15 @@ A chat bubble that shows an offer: the new price, the old price struck through, 
 - **Screens:** Conversation thread
 - **Source:** Custom (Composed from MessageBubble, PriceBlock and Badge)
 - **Phase:** First flows
+
+### OrderTracker
+
+The card pinned at the top of a chat that has an order (D-019). Four step icons Paid, Sent, Arrived, Done with dates, the status on the top line, and the buttons the order allows: Pay now, Mark as shipped, Track parcel, I got it. Tap the card to open the order. Live through `order:updated`. Cancelled and refunded show the state instead of the steps.
+
+- **Variants and states:** Per order status: waiting for payment, paid, shipped, arrived, complete, cancelled, refunded, disputed. Buttons depend on the role and `actions`.
+- **Screens:** Conversation thread
+- **Source:** Custom (`components/chat/order-tracker.tsx`)
+- **Phase:** Milestone 6
 
 ### OrderTimeline
 

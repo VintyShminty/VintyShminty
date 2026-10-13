@@ -255,14 +255,15 @@
       "reviews": "ביקורות",
       "about": "אודות"
     },
-    "fromMembers": "ביקורות כתובות",
     "automatic": "אוטומטיות",
-    "all": "הכול",
+    "smoothSales_one": "מכירה חלקה אחת, בלי בעיות",
+    "smoothSales_two": "שתי מכירות חלקות, בלי בעיות",
+    "smoothSales_other": "{{count}} מכירות חלקות, בלי בעיות",
     "active": "פעילים",
     "sold": "נמכרו",
     "noListings": "אין פריטים למכירה כרגע",
     "noSold": "עוד לא נמכר כלום",
-    "noReviews": "עדיין אין ביקורות",
+    "noReviews": "עדיין אין ביקורות כתובות",
     "reviewFor": "על {{title}}",
     "reply": "תגובה",
     "about": {
@@ -830,6 +831,14 @@
     }
   },
   "chat": {
+    "tracker": {
+      "paid": "שולם",
+      "sent": "נשלח",
+      "arrived": "הגיע",
+      "done": "סגור",
+      "track": "מעקב אחר החבילה",
+      "gotIt": "קיבלתי"
+    },
     "composerPlaceholder": "כתבו הודעה",
     "send": "שליחה",
     "addPhoto": "הוספת תמונה",
