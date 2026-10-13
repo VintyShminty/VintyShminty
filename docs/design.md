@@ -408,6 +408,16 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** Not started. Choices, open questions and the checklist in `docs/originality.md`, options in `docs/mockups/originality-choices.html` and `originality-round-2.html`. Changes parts of D-007 (item card), D-008 (Bumped badge) and D-009 (tab labels, Browse grid). The paid boost is "Buzz" for now (button "Give it buzz", badge "Buzzing"). Still open: the protection name (wait for the app name), the voice guide.
 - **References:** `docs/originality.md`, `docs/mockups/originality-choices.html`
 
+### D-020 : Sign up asks only for email and password
+
+- **Date:** 2026-10-13
+- **Area:** Sign up, Accounts
+- **Status:** Approved (Eden, 2026-10-13)
+- **Decision:** The sign up screen has two fields, Email then Password. There is no username field. The server makes the public username from the email: the part before the @, lowercase, only letters, numbers, dots and underscores, no dots or underscores at the ends, at most 24 characters, padded with digits up to 3 if short (or `user` plus digits if nothing is left). If it is taken (compared without caring about capitals) it adds random digits (2, then 4, then 6) until it is free. The display name starts as the username. The person can change both later: Profile details shows a Username row that opens the change screen, which says the username is their public name.
+- **Rationale:** Fewer fields means fewer people give up at sign up, and the live "taken" check made the form feel like an exam. Everyone still needs a public name for profiles, chats and member search. The email is never shown publicly, so the username starts as a harmless guess, not as a promise. The sign up route still accepts a username, so older callers keep working.
+- **Implementation:** `apps/server/src/lib/username.ts` (generator), `apps/server/src/lib/auth.ts` (user create hook, runs for every way of making an account), `packages/shared/src/auth.ts` (`signUpInputSchema` username optional), `apps/mobile/app/(auth)/sign-up.tsx`, `apps/mobile/app/(app)/(tabs)/(profile)/edit-profile.tsx`.
+- **References:** None
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 
