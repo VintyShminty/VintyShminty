@@ -40,6 +40,8 @@ type AuthMotion = {
   close: () => void;
   /** True from the moment close starts. The form keeps its layout still while the motion plays. */
   closing: { current: boolean };
+  /** 1 while closing plays. The form and its X fade out early so nothing of the form crosses the welcome screen. */
+  leaving: SharedValue<number>;
 };
 
 const AuthMotionContext = createContext<AuthMotion | null>(null);
@@ -67,6 +69,7 @@ function AuthMotionProvider({ children }: { children: ReactNode }) {
   const target = leaf === "log-in" || leaf === "sign-up" || leaf === "forgot-password" ? 1 : 0;
   const progress = useSharedValue(target);
   const closing = useRef(false);
+  const leaving = useSharedValue(0);
 
   useEffect(() => {
     if (closing.current) return;
@@ -79,11 +82,13 @@ function AuthMotionProvider({ children }: { children: ReactNode }) {
     else router.replace("/");
     // The motion is already at 0 here, so the welcome screen underneath is final and nothing plays again.
     closing.current = false;
-  }, [router]);
+    leaving.value = 0;
+  }, [router, leaving]);
 
   const close = useCallback(() => {
     if (closing.current) return;
     closing.current = true;
+    leaving.value = 1;
     Keyboard.dismiss();
     // The route changes the moment the motion ends, on its own signal, so the sheet is on screen all the way down.
     progress.value = withSpring(0, spring, (finished) => {
@@ -92,9 +97,9 @@ function AuthMotionProvider({ children }: { children: ReactNode }) {
     });
     // Safety net if the end signal never arrives. leave does nothing the second time.
     setTimeout(leave, spring.duration + 400);
-  }, [progress, leave]);
+  }, [progress, leave, leaving]);
 
-  const value = useMemo(() => ({ progress, close, closing }), [progress, close]);
+  const value = useMemo(() => ({ progress, close, closing, leaving }), [progress, close, leaving]);
   return (
     <AuthMotionContext.Provider value={value}>
       <View className="flex-1 bg-pressed">
@@ -195,7 +200,7 @@ function WelcomeContent({ children }: { children: ReactNode }) {
  * the photo. Arriving from the other form (the link at the bottom) it is already up, so it just fades in place.
  */
 function AuthSheet({ children, back = false }: { children: ReactNode; back?: boolean }) {
-  const { progress, close, closing } = useAuthMotion();
+  const { progress, close, closing, leaving } = useAuthMotion();
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -223,15 +228,23 @@ function AuthSheet({ children, back = false }: { children: ReactNode; back?: boo
   );
 
   const style = useAnimatedStyle(() => ({
-    opacity: fade.value * shown.value,
+    // Closing: the form is gone by the time the sheet is halfway down, before the welcome text comes back.
+    opacity:
+      fade.value *
+      shown.value *
+      (leaving.value ? interpolate(progress.value, [0.5, 0.9], [0, 1], Extrapolation.CLAMP) : 1),
     transform: [{ translateY: (1 - progress.value) * height }],
+  }));
+  // The X goes first, so it never travels down over the photo.
+  const closeButtonStyle = useAnimatedStyle(() => ({
+    opacity: leaving.value ? interpolate(progress.value, [0.85, 1], [0, 1], Extrapolation.CLAMP) : 1,
   }));
 
   return (
     <Animated.View style={[{ flex: 1 }, style]}>
       <View style={{ height: insets.top + (keyboardOpen ? BAND_WITH_KEYBOARD : BAND) }}>
         <View style={{ paddingTop: insets.top }} className="h-full px-md">
-          <View className="h-12 items-start justify-center">
+          <Animated.View className="h-12 items-start justify-center" style={closeButtonStyle}>
             <Pressable
               onPress={back ? () => router.back() : close}
               hitSlop={8}
@@ -241,7 +254,7 @@ function AuthSheet({ children, back = false }: { children: ReactNode; back?: boo
             >
               {back ? <BackIcon /> : <Icon as={X} size={24} />}
             </Pressable>
-          </View>
+          </Animated.View>
         </View>
       </View>
       <View
