@@ -558,15 +558,16 @@ type ListRow = {
   cursorTs: string;
 };
 
+// The subselects name the orders table in full: a select from one table leaves column names unqualified.
 export const orderRowFields = {
   o: orders,
   firstTitle: sql<
     string | null
-  >`(select oi.title_snapshot from order_items oi where oi.order_id = ${orders.id} order by oi.created_at, oi.id limit 1)`,
+  >`(select oi.title_snapshot from order_items oi where oi.order_id = "orders"."id" order by oi.created_at, oi.id limit 1)`,
   firstKey: sql<
     string | null
-  >`(select oi.photo_key_snapshot from order_items oi where oi.order_id = ${orders.id} order by oi.created_at, oi.id limit 1)`,
-  itemCount: sql<number>`(select count(*)::int from order_items oi where oi.order_id = ${orders.id})`,
+  >`(select oi.photo_key_snapshot from order_items oi where oi.order_id = "orders"."id" order by oi.created_at, oi.id limit 1)`,
+  itemCount: sql<number>`(select count(*)::int from order_items oi where oi.order_id = "orders"."id")`,
 };
 
 export async function presentOrderRows(app: App, userId: string, rows: ListRow[]): Promise<OrderRow[]> {

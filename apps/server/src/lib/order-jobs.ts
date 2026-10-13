@@ -159,7 +159,7 @@ export async function runOrderJobs(app: App, now = new Date()): Promise<JobResul
   const recent = await db
     .select({
       o: orders,
-      title: sql<string>`(select oi.title_snapshot from order_items oi where oi.order_id = ${orders.id} order by oi.created_at, oi.id limit 1)`,
+      title: sql<string>`(select oi.title_snapshot from order_items oi where oi.order_id = "orders"."id" order by oi.created_at, oi.id limit 1)`,
     })
     .from(orders)
     .where(

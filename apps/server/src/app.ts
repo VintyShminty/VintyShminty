@@ -12,6 +12,7 @@ import jobsPlugin from "./plugins/jobs.js";
 import messagingPlugin from "./plugins/messaging.js";
 import referencePlugin from "./plugins/reference.js";
 import securityPlugin from "./plugins/security.js";
+import addressRoutes from "./routes/addresses.js";
 import bundleRoutes from "./routes/bundles.js";
 import discoveryRoutes from "./routes/discovery.js";
 import engagementRoutes from "./routes/engagement.js";
@@ -70,6 +71,7 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
     await app.register(engagementRoutes);
     await app.register(messageRoutes);
     await app.register(notificationRoutes);
+    await app.register(addressRoutes);
     await app.register(offerRoutes);
     await app.register(bundleRoutes);
     await app.register(orderRoutes);
