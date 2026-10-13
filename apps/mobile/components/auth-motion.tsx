@@ -23,6 +23,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { scheduleOnRN } from "react-native-worklets";
 import { PhotoFade, useKeyboardOpen, welcomePhoto } from "@/components/auth-photo";
 import { Icon } from "@/components/ui/icon";
 import { BackIcon } from "@/components/ui/top-bar";
@@ -37,6 +38,8 @@ type AuthMotion = {
   progress: SharedValue<number>;
   /** Plays the motion backwards, then leaves the form screen. */
   close: () => void;
+  /** True from the moment close starts. The form keeps its layout still while the motion plays. */
+  closing: { current: boolean };
 };
 
 const AuthMotionContext = createContext<AuthMotion | null>(null);
@@ -70,20 +73,28 @@ function AuthMotionProvider({ children }: { children: ReactNode }) {
     progress.value = withSpring(target, spring);
   }, [target, progress]);
 
+  const leave = useCallback(() => {
+    if (!closing.current) return;
+    if (router.canGoBack()) router.dismissAll();
+    else router.replace("/");
+    // The motion is already at 0 here, so the welcome screen underneath is final and nothing plays again.
+    closing.current = false;
+  }, [router]);
+
   const close = useCallback(() => {
     if (closing.current) return;
     closing.current = true;
     Keyboard.dismiss();
-    // The motion takes 520 ms. Leaving the route a moment after it ends keeps the sheet on screen all the way down.
-    progress.value = withSpring(0, spring);
-    setTimeout(() => {
-      if (router.canGoBack()) router.dismissAll();
-      else router.replace("/");
-      closing.current = false;
-    }, spring.duration + 40);
-  }, [progress, router]);
+    // The route changes the moment the motion ends, on its own signal, so the sheet is on screen all the way down.
+    progress.value = withSpring(0, spring, (finished) => {
+      "worklet";
+      if (finished) scheduleOnRN(leave);
+    });
+    // Safety net if the end signal never arrives. leave does nothing the second time.
+    setTimeout(leave, spring.duration + 400);
+  }, [progress, leave]);
 
-  const value = useMemo(() => ({ progress, close }), [progress, close]);
+  const value = useMemo(() => ({ progress, close, closing }), [progress, close]);
   return (
     <AuthMotionContext.Provider value={value}>
       <View className="flex-1 bg-pressed">
@@ -184,12 +195,16 @@ function WelcomeContent({ children }: { children: ReactNode }) {
  * the photo. Arriving from the other form (the link at the bottom) it is already up, so it just fades in place.
  */
 function AuthSheet({ children, back = false }: { children: ReactNode; back?: boolean }) {
-  const { progress, close } = useAuthMotion();
+  const { progress, close, closing } = useAuthMotion();
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const keyboardOpen = useKeyboardOpen();
+  const keyboardNow = useKeyboardOpen();
+  // Closing hides the keyboard. The photo band must not grow while the sheet slides down, so it keeps its size.
+  const keyboardOpenRef = useRef(keyboardNow);
+  if (!closing.current) keyboardOpenRef.current = keyboardNow;
+  const keyboardOpen = keyboardOpenRef.current;
   const fade = useSharedValue(progress.value > 0.99 ? 0 : 1);
 
   useEffect(() => {
