@@ -21,7 +21,7 @@ export default function TabsLayout() {
       screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.background } }}
     >
       <Tabs.Screen name="(home)" options={{ title: t("tabs.home") }} />
-      <Tabs.Screen name="(browse)" options={{ title: t("tabs.browse") }} />
+      <Tabs.Screen name="(shop)" options={{ title: t("tabs.browse") }} />
       {/* Sell is a launcher: it opens the full-screen sell form over the tabs (spec, Sell form). */}
       <Tabs.Screen
         name="sell"
