@@ -40,9 +40,9 @@
     "bundleDiscounts": "Closet deals"
   },
   "welcome": {
-    "heroLight": "Pre-loved,",
-    "heroBold": "loved again",
-    "subtitle": "Second-hand fashion from people near you. Find a piece you love, or give yours a new home.",
+    "title": "Good taste,\npassed on",
+    "subtitle": "Find a piece you love from someone nearby,\nor post yours in a minute.",
+    "photoChip": "Noa’s coat · \u2066₪140\u2069",
     "signUp": "Sign up",
     "logIn": "Log in"
   },

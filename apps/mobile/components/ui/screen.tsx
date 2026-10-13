@@ -8,15 +8,17 @@ type ScreenProps = {
   className?: string;
   /** Leave off for screens inside the tab bar, which already clears the home indicator. */
   bottomInset?: boolean;
+  /** Turn off when the screen draws under the status bar itself (the auth photo band). */
+  topInset?: boolean;
 };
 
 /** Page container: safe area on top, white background. One scroll owner per screen (docs/components.md, Screen). */
-function Screen({ children, className, bottomInset = true }: ScreenProps) {
+function Screen({ children, className, bottomInset = true, topInset = true }: ScreenProps) {
   const insets = useSafeAreaInsets();
   return (
     <View
       className={cn("flex-1 bg-background", className)}
-      style={{ paddingTop: insets.top, paddingBottom: bottomInset ? insets.bottom : 0 }}
+      style={{ paddingTop: topInset ? insets.top : 0, paddingBottom: bottomInset ? insets.bottom : 0 }}
     >
       {children}
     </View>

@@ -420,6 +420,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/server/src/lib/username.ts` (generator), `apps/server/src/lib/auth.ts` (user create hook, runs for every way of making an account), `packages/shared/src/auth.ts` (`signUpInputSchema` username optional), `apps/mobile/app/(auth)/sign-up.tsx`, `apps/mobile/app/(app)/(tabs)/(profile)/edit-profile.tsx`.
 - **References:** None
 
+### D-021 : The welcome, log in and sign up screens use one strong photo
+
+- **Date:** 2026-10-13
+- **Area:** Welcome, Log in, Sign up, Forgot password
+- **Status:** Approved (Eden, 2026-10-13), Implemented on branch m6-welcome
+- **Decision:** Eden picked direction 2, "One strong photo", of `docs/mockups/welcome-options.html`. The welcome screen is a full-screen photo with a dark fade toward the bottom, the Vinty wordmark at the top start, a small white chip on the photo ("Noa's coat, ₪140"), the headline "Good taste, passed on" (one weight, two lines), one short line under it with a set line break so no word is left alone, a white Sign up button and an outlined Log in button on the photo. Log in, Sign up and Forgot password start with a rounded photo band (the same photo) with the back button in a white circle over it, then the existing forms (D-020 unchanged). The band shrinks to the back button while the keyboard is open, so the field and the button stay visible. The status bar is light over the photo and dark on all other screens.
+- **Rationale:** Calm, confident and ours. It shows people and clothes from the first second and drops the thin plus heavy headline mix that broke in Hebrew.
+- **Trade-off:** One photo carries the whole brand, so a great real photo is needed before launch. The bundled one is a licensed sample (Unsplash, 600 px wide) and looks soft on a big screen.
+- **Implementation:** `apps/mobile/app/(auth)/welcome.tsx`, `log-in.tsx`, `sign-up.tsx`, `forgot-password.tsx`, `apps/mobile/components/auth-photo.tsx` (photo, token-coloured fade, band), `apps/mobile/assets/images/welcome-photo.jpg` (credit in `assets/images/CREDITS.md`), strings under `welcome` in both locale files.
+- **References:** `docs/mockups/welcome-options.html`
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 
