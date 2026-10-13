@@ -29,6 +29,7 @@ apps/mobile/tests/          Vitest, includes the hard-coded colour guard
 apps/server/src/            env.ts, app.ts, plugins/, routes/, lib/
 docs/design.md              Design source of truth and decision log (D-001 onward)
 docs/components.md          Component inventory
+docs/originality.md         What must differ from Vinted before launch (checklist)
 docs/roadmap.md                Milestones, scope and status (source of truth, update when a milestone starts or ships)
 docs/blueprint/data-model.md   Every table, state machine and open decision (Milestone 0 blueprint)
 docs/blueprint/api.md          The API contract by milestone, Socket.IO events, push types
@@ -165,6 +166,7 @@ React Native Reusables, react-hook-form, Gorhom Bottom Sheet and Socket.IO have 
 - Design decisions: `docs/design.md` (approved D-001 to D-016, open decisions at the bottom).
 - Design method: `docs/playbook/design-philosophy.md`.
 - Components to build: `docs/components.md`.
+- What must differ from Vinted (names, wording, look): `docs/originality.md`.
 - Mockups for reference only: `docs/mockups/`.
 
 ## Process
