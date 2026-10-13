@@ -11,7 +11,6 @@ import { Text } from "@/components/ui/text";
 import { ForwardIcon } from "@/components/ui/top-bar";
 import { ORDER_STATUS_LOOK, orderStatusKey } from "@/lib/order-status";
 import { orderQuery, useOrderStep } from "@/lib/orders-queries";
-import { formatDate } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 type StepKey = "paid" | "sent" | "arrived" | "done";
@@ -123,7 +122,9 @@ function OrderTracker({ orderId }: { orderId: string }) {
                     {t(`chat.tracker.${s.key}`)}
                   </Text>
                   <Text variant="cardMeta" className="text-text-3 min-h-4">
-                    {date ? formatDate(date, i18n.language) : ""}
+                    {date
+                      ? new Date(date).toLocaleDateString(i18n.language, { day: "numeric", month: "short" })
+                      : ""}
                   </Text>
                 </View>
               );

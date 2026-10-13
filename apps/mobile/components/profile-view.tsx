@@ -212,16 +212,18 @@ function ProfileHeader({
 function ReviewSummary({ summary }: { summary: ReviewsPage["summary"] | null }) {
   const { t } = useTranslation();
   if (!summary) return null;
-  const { automatic, overall, total } = summary;
+  const { automatic, member } = summary;
   return (
     <View className="gap-md px-lg py-lg">
-      <View className="flex-row items-center gap-md">
-        <Text variant="title">{overall === null ? "-" : overall.toFixed(1)}</Text>
-        <View className="gap-xs">
-          <StarRating rating={overall} size={18} />
-          <Text variant="cardMeta">{t("profile.reviewCount", { count: total })}</Text>
+      {member.count > 0 ? (
+        <View className="flex-row items-center gap-md">
+          <Text variant="title">{member.average === null ? "-" : member.average.toFixed(1)}</Text>
+          <View className="gap-xs">
+            <StarRating rating={member.average} size={18} />
+            <Text variant="cardMeta">{t("profile.reviewCount", { count: member.count })}</Text>
+          </View>
         </View>
-      </View>
+      ) : null}
       {automatic.count > 0 ? (
         <View className="flex-row items-center gap-sm self-start rounded-control bg-success-tint px-md py-sm">
           <Icon as={Check} size={16} className="text-success" />

@@ -163,7 +163,7 @@ Goal: find things. Feed, search, categories, the item page, people, brands and f
 | GET | `/v1/listings/:id` | Optional | none | `listingDetailSchema` | Item page. `viewer` tells the app which buttons to show. Counts a view (deduplicated per viewer per day). Sold and reserved listings still open |
 | GET | `/v1/listings/:id/similar` | Optional | page query | page of `listingCardSchema` | More like this |
 | GET | `/v1/users/:id/listings` | Public | `?status=active\|sold` plus page query and filters | page of `listingCardSchema` | Profile, Listings tab (the Filter link uses `searchFiltersSchema`) |
-| GET | `/v1/users/:id/reviews` | Public | `?source=all\|member\|automatic` plus page query | `{ summary, items }` | Reviews tab with the member and automatic scores. Item schema in M5 |
+| GET | `/v1/users/:id/reviews` | Public | `?source=all\|member\|automatic` plus page query | `{ summary, items }` | Reviews tab with the member and automatic scores. The app asks for `source=member` and reads `summary.automatic.count` for the "smooth sales" line (Milestone 6). Item schema in M5 |
 | GET | `/v1/users` | Public | `?q=<text>` plus page query | page of `userSummarySchema` | Members search tab. Prefix match on username |
 | PUT | `/v1/listings/:id/favourite` | Required | none | `{ favouriteCount }` | Idempotent. Notifies the seller (grouped) |
 | DELETE | `/v1/listings/:id/favourite` | Required | none | `{ favouriteCount }` | |

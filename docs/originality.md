@@ -16,7 +16,7 @@ The Vinted UX breakdown that `docs/design.md` refers to guides how things work. 
 
 ## Chosen directions
 
-Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `docs/mockups/originality-round-2.html` (open them to see each option). Recorded as D-019 in `docs/design.md`. Phase A (wording) is built, see the checklist. Built since: the tab bar (row 14), the Home top (row 4) and Browse tiles (row 5). The other visual parts are not built yet.
+Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `docs/mockups/originality-round-2.html` (open them to see each option). Recorded as D-019 in `docs/design.md`. Phase A (wording) is built, see the checklist. Built since: the tab bar (row 14), the Home top (row 4) Browse tiles (row 5), reviews (row 11) and the chat order card (row 16). The other visual parts are not built yet.
 
 | # | Area | Choice | Still open |
 |---|---|---|---|
@@ -30,12 +30,12 @@ Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `doc
 | 8 | Item page actions | One Buy button, "Or make your price" as a link, "Message" on the seller row. The protection stays as a concept in the same places, with a new name and new text, and reminds the buyer how they are covered and what they pay for | Write the protection copy (depends on 2) |
 | 9 | Sell form | Same long form, every heading, hint and button rewritten in our words | Write the copy in the new voice |
 | 10 | Condition | A slider with five stops (Eden): Unworn with tags, Unworn, Like new, Worn, Well loved. Tags become the first stop, so no separate switch. Five levels match today's data, so only the names change | Eden to confirm the five names |
-| 11 | Reviews | One list of written reviews plus a single line for automatic ones ("36 smooth sales") | None |
+| 11 | Reviews (built) | One list of written reviews plus a single line for automatic ones ("36 smooth sales") | None |
 | 12 | Settings and notifications | Same list in the same order, renamed as in the mockup: Your profile, Shopping preferences, Sign in and safety, Your privacy, Alerts, Language | The rows inside Alerts (today "Push notifications", "High-priority notifications") were not in the mockup. "My sizes" (row 15) sits inside Shopping preferences |
 | 13 | Seller badges | Our own outline stamps, no progress rings | Final badge names |
 | 14 | Tab bar | A floating rounded bar (32 point shape) above the content, icons only, the active tab on a soft tint, and a raised round espresso Sell button with a price tag in the middle (a camera at first, changed by Eden 2026-10-13). Each tab keeps a hidden name that screen readers read aloud (round 2) | None |
 | 15 | Holiday mode and sizes | "Away mode" with a moon and a return date, and "My sizes" | None |
-| 16 | Order updates in chat | Tracker card pinned at the top of the chat, mixing both round 2 options: the line of step icons (Paid, Sent, Arrived, Done) with send and arrival dates, plus the "Track parcel" and "I got it" buttons | Mock it once Milestone 5 starts |
+| 16 | Order updates in chat (built) | Tracker card pinned at the top of the chat, mixing both round 2 options: the line of step icons (Paid, Sent, Arrived, Done) with send and arrival dates, plus the "Track parcel" and "I got it" buttons | None |
 
 ## Guidelines for our work
 
@@ -113,7 +113,7 @@ Tick an item when it is changed in both English and Hebrew.
 - [x] **Design guide rule.** Change "follow the Vinted UX deconstruction" in `docs/design.md` so it covers how things work only, never names, wording or visual details
 - [ ] **Product voice.** Decide it (`docs/design.md` still says "to decide"). Every rename above depends on it
 - [x] **Wording pass.** Read every user-facing sentence in English and Hebrew and rewrite anything that sounds like Vinted (phase A, banned words guarded by a test. A second read-through for tone is still worth doing once the screens change)
-- [ ] **Screens not yet checked.** Item page, sell form, profile, inbox, filters
+- [ ] **Screens not yet checked.** Item page, sell form, filters (profile Reviews tab and the chat order card were checked in m6-reviews)
 - [ ] **IP lawyer.** One hour with an Israeli lawyer for brands, designs and copyright, with the new name and screenshots next to Vinted's
 - [x] **Apple copycat rule.** Read it before the App Store submission
 
