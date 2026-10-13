@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome screen options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:Aileron;font-weight:300;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-300-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:600;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-600-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-700-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:800;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-800-normal.woff2) format("woff2");font-display:swap}
+:root{
+--font:Aileron,Heebo,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+--background:#FFFFFF;--surface:#FBF8F2;--pressed:#F1E9DA;--border:#E4DACA;--border-subtle:#F0EADF;
+--text-1:#241811;--text-2:#54443A;--text-3:#695A4F;--text-4:#7A6B60;
+--accent:#4B2E22;--on-accent:#FFFFFF;--accent-tint:#F7EEDC;--chip-selected:#EFE0C3;
+--error:#B3261E;--error-tint:#FDECEA;--backdrop:#241811;
+--page:#EDE6DA;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text-1);font-family:var(--font);font-size:15px;line-height:1.45}
+svg.i{flex:none;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.intro{max-width:1120px;margin:32px auto 8px;padding:0 24px}
+.intro h1{font-size:32px;font-weight:300;letter-spacing:-.035em;line-height:1.05;margin:0 0 12px}
+.intro h1 b{font-weight:800}
+.intro p{color:var(--text-2);margin:0 0 8px;max-width:760px}
+.sec{max-width:1120px;margin:28px auto;padding:24px;background:var(--background);border-radius:20px;border:1px solid var(--border)}
+.sh{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.num{width:36px;height:36px;border-radius:99px;background:var(--accent);color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;flex:none}
+.sh h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.015em}
+.cap{color:var(--text-2);font-size:14px;margin:4px 0 20px;max-width:820px}
+.cap b{color:var(--text-1)}
+.lang{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin:6px 0 10px}
+.row3{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.fr{display:flex;flex-direction:column;gap:8px;align-items:center}
+.fl{font-size:12px;color:var(--text-3);font-weight:600}
+.copy{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+@media (max-width:900px){.copy{grid-template-columns:1fr}}
+.cc{background:var(--surface);border:1px solid var(--border-subtle);border-radius:16px;padding:14px 16px}
+.cc .k{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.cc .en{font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin:6px 0}
+.cc .he{font-size:20px;font-weight:700;line-height:1.2;direction:rtl;text-align:right}
+.cc small{display:block;color:var(--text-3);font-size:12px;margin-top:6px}
+.today-note{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px}
+
+/* phone */
+.ph{width:264px;height:540px;border-radius:36px;background:#fff;border:8px solid #1d1714;overflow:hidden;position:relative;font-size:12px;line-height:1.35;color:var(--text-1);flex:none}
+.ph.dark{border-color:#1d1714}
+.sb{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:10px;font-weight:700;position:relative;z-index:5;direction:ltr}
+.sb::after{content:"";width:22px;height:9px;border-radius:3px;border:1.5px solid currentColor}
+.scr{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;overflow:hidden}
+.ph[dir=rtl]{letter-spacing:0}
+.ph[dir=rtl] *{letter-spacing:0 !important}
+.pad{padding-inline:18px}
+.mark{font-weight:800;font-size:20px;letter-spacing:-.04em;color:var(--accent)}
+.hd{font-weight:700;letter-spacing:-.03em;line-height:1.08;text-wrap:balance;margin:0}
+.sub{color:var(--text-2);font-size:12.5px;line-height:1.45;text-wrap:balance;margin:8px 0 0;max-width:230px}
+.btns{display:flex;flex-direction:column;gap:9px}
+.b{height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;border:1px solid var(--accent);background:var(--accent);color:#fff}
+.b.o{background:transparent;color:var(--accent);border-color:var(--border)}
+.b.inv{background:#fff;color:var(--accent);border-color:#fff}
+.b.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.6)}
+.img{background:var(--pressed) center/cover no-repeat;border-radius:12px;position:relative}
+.sel{white-space:nowrap;position:absolute;inset-inline-start:6px;bottom:6px;height:20px;border-radius:99px;background:rgba(255,255,255,.96);color:var(--text-1);font-size:9px;font-weight:700;display:inline-flex;align-items:center;gap:3px;padding:0 8px}
+/* forms */
+.top{height:40px;display:flex;align-items:center;padding-inline:14px}
+.back{width:32px;height:32px;border-radius:99px;display:flex;align-items:center;justify-content:center;color:var(--text-1)}
+.ph[dir=rtl] .back svg{transform:scaleX(-1)}
+.ttl{font-size:23px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin:0}
+.fld{margin-top:14px}
+.fld label{display:block;font-size:11.5px;font-weight:600;color:var(--text-2);margin-bottom:5px}
+.inp{height:44px;border:1px solid var(--border);border-radius:12px;background:#fff;display:flex;align-items:center;padding-inline:12px;color:var(--text-4);font-size:13px;justify-content:space-between}
+.link{font-size:12px;font-weight:600;color:var(--accent);margin-top:10px}
+.foot{text-align:center;font-size:12px;color:var(--text-2);margin-top:12px}
+.foot b{color:var(--accent);font-weight:700}
+.pick{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--text-3)}
+.reco{display:inline-block;margin-inline-start:10px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);border-radius:99px;padding:2px 9px;vertical-align:middle}
+.flag{outline:2px dashed var(--error);outline-offset:2px;border-radius:4px}
+</style></head><body>
+<div class="intro">
+<h1>The welcome screen, <b>three directions</b></h1>
+<p>Each direction shows the welcome screen, then Log in and Sign up in the same style, in English and in Hebrew (right to left). Tell me the number you like: 1, 2 or 3. Any headline from the strip below can go with any direction, so you pick the look and the words separately.</p>
+<p>All three fix what was wrong: no stranded logo and empty gap, one weight in the headline (the thin plus heavy mix breaks in Hebrew), short lines set to wrap evenly so no word is left alone, and the app shows what it is (people and clothes) from the first second. Photos here are the licensed sample photos, only for the mockup.</p>
+<div class="lang">Headline options (the voice is Friends' closets)</div>
+<div class="copy">
+<div class="cc"><div class="k">Words A</div><div class="en">Peek into someone's closet</div><div class="he">מציצים בארון של מישהי</div><small>Curious and a little playful. Puts a person in the first line.</small></div>
+<div class="cc"><div class="k">Words B</div><div class="en">Good taste, passed on</div><div class="he">טעם טוב עובר הלאה</div><small>Short and confident. Says second-hand without saying it.</small></div>
+<div class="cc"><div class="k">Words C</div><div class="en">Pieces with a past, from people nearby</div><div class="he">בגדים עם עבר, מאנשים קרובים</div><small>Warmest and most local. Longest, so it needs the typographic layout.</small></div>
+</div>
+<div class="lang" style="margin-top:22px">Today, for comparison</div>
+<div class="today-note" id="today"></div>
+</div>
+<div id="root"></div>
+<script>
+const IMG=n=>`../../packages/db/seed-assets/${n}.jpg`;
+const icon={
+ back:'<path d="M19 12H5M12 19l-7-7 7-7"/>',
+ eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ pin:'<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/>',
+ eyeoff:'<path d="M9.9 4.2A10 10 0 0112 4c6.5 0 10 8 10 8a17 17 0 01-3 4M6.6 6.6A17 17 0 002 12s3.5 8 10 8a10 10 0 005.4-1.6M2 2l20 20"/>'
+};
+const i=(n,s=14)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24">${icon[n]}</svg>`;
+const L=t=>`<bdi dir="ltr" style="unicode-bidi:isolate">${t}</bdi>`;
+
+/* all words, both languages */
+const T={
+ en:{dir:'ltr',
+  A:['Peek into someone’s closet','Find a piece you love from someone nearby, or post yours in a minute.'],
+  B:['Good taste, passed on','Find a piece you love from someone nearby, or post yours in a minute.'],
+  C:['Pieces with a past, from people nearby','Find something you love, or give your own a new home.'],
+  signUp:'Sign up',logIn:'Log in',
+  liT:'Welcome back',liS:'Log in to pick up where you left off.',
+  suT:'Create your account',suS:'It takes a minute. No card needed.',
+  email:'Email',pass:'Password',forgot:'Forgot your password?',
+  noAcc:'New to Vinty?',have:'Already have an account?',
+  s1:'Noa · Tel Aviv',s2:'Tamar · Haifa',s3:'Dana · Jerusalem',s4:'Oliver · Tel Aviv',
+  coat:'Noa’s coat',coatP:'Tel Aviv',
+  t1:['Denim jacket',L('₪90')+' · Noa, Tel Aviv'],t2:['Red dress',L('₪120')+' · Tamar, Haifa'],t3:['Leather boots',L('₪150')+' · Dana, Jerusalem']},
+ he:{dir:'rtl',
+  A:['מציצים בארון של מישהי','מוצאים פריט אהוב מאנשים בסביבה, או מעלים משלכם תוך דקה.'],
+  B:['טעם טוב עובר הלאה','מוצאים פריט אהוב מאנשים בסביבה, או מעלים משלכם תוך דקה.'],
+  C:['בגדים עם עבר, מאנשים קרובים','מוצאים משהו שאוהבים, או נותנים לשלכם בית חדש.'],
+  signUp:'הרשמה',logIn:'התחברות',
+  liT:'ברוכים השבים',liS:'התחברו וממשיכים מאיפה שעצרתם.',
+  suT:'יוצרים חשבון',suS:'זה לוקח דקה. בלי כרטיס אשראי.',
+  email:'אימייל',pass:'סיסמה',forgot:'שכחתם את הסיסמה?',
+  noAcc:'חדשים ב-Vinty?',have:'כבר יש לכם חשבון?',
+  s1:'נועה · תל אביב',s2:'תמר · חיפה',s3:'דנה · ירושלים',s4:'אוליבר · תל אביב',
+  coat:'המעיל של נועה',coatP:'תל אביב',
+  t1:['ג׳קט ג׳ינס',L('₪90')+' · נועה, תל אביב'],t2:['שמלה אדומה',L('₪120')+' · תמר, חיפה'],t3:['מגפי עור',L('₪150')+' · דנה, ירושלים']}
+};
+
+const phone=(lang,inner,cls='')=>`<div class="ph ${cls}" dir="${T[lang].dir}" lang="${lang}"><div class="scr">${inner}</div></div>`;
+const sb=(c='var(--text-1)')=>`<div class="sb" style="color:${c}"><span>9:41</span></div>`;
+const frame=(label,html)=>`<div class="fr">${html}<div class="fl">${label}</div></div>`;
+
+/* shared form pieces */
+const fields=(t,kind)=>`
+ <div class="fld"><label>${t.email}</label><div class="inp">name@example.com</div></div>
+ <div class="fld"><label>${t.pass}</label><div class="inp"><span>••••••••</span>${i('eye',15)}</div></div>
+ ${kind==='li'?`<div class="link">${t.forgot}</div>`:''}`;
+const formBottom=(t,kind)=>`<div class="b" style="margin-top:18px">${kind==='li'?t.logIn:t.signUp}</div>
+ <div class="foot" style="margin-top:auto;padding-bottom:20px">${kind==='li'?t.noAcc:t.have} <b>${kind==='li'?t.signUp:t.logIn}</b></div>`;
+
+/* ---------- Direction 1: the closet collage ---------- */
+function d1(lang,words){
+ const t=T[lang],[h,s]=t[words];
+ const tile=(n,h,who)=>`<div class="img" style="height:${h}px;background-image:url(${IMG(n)})"><span class="sel">${i('pin',9)}${who}</span></div>`;
+ const welcome=phone(lang,`${sb()}<div class="pad" style="padding-top:2px;padding-bottom:8px"><div class="mark" style="font-size:18px">Vinty</div></div>
+  <div style="position:relative;height:216px;overflow:hidden;padding:4px 14px 0;display:flex;gap:8px">
+   <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-top:0">${tile('01-dress',116,t.s1)}${tile('11-jacket',96,t.s2)}${tile('13-handbag',80,t.s3)}</div>
+   <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-top:26px">${tile('22-coat',92,t.s4)}${tile('16-sweater',112,t.s1)}${tile('08-sneakers',80,t.s2)}</div>
+   <div style="position:absolute;inset-inline:0;bottom:0;height:60px;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff)"></div>
+   <div class="mark" style="position:absolute;top:10px;inset-inline-start:0;inset-inline-end:0;display:none">Vinty</div>
+  </div>
+  <div class="pad" style="margin-top:-6px;flex:1;display:flex;flex-direction:column">
+   <h3 class="hd" style="font-size:26px">${h}</h3>
+   <p class="sub">${s}</p>
+   <div class="btns" style="margin-top:auto;padding-bottom:20px"><div class="b">${t.signUp}</div><div class="b o">${t.logIn}</div></div>
+  </div>`);
+ const strip=`<div style="display:flex;gap:6px;padding:2px 14px 0;height:92px">${['01-dress','11-jacket','22-coat','13-handbag'].map(n=>`<div class="img" style="flex:1;background-image:url(${IMG(n)});border-radius:10px"></div>`).join('')}</div>`;
+ const form=k=>phone(lang,`${sb()}<div class="top"><div class="back">${i('back',18)}</div></div>${strip}
+  <div class="pad" style="margin-top:14px;flex:1;display:flex;flex-direction:column"><h3 class="ttl">${k==='li'?t.liT:t.suT}</h3>
+  <p class="sub" style="margin-top:6px">${k==='li'?t.liS:t.suS}</p>${fields(t,k)}${formBottom(t,k)}</div>`);
+ return [welcome,form('li'),form('su')];
+}
+
+/* ---------- Direction 2: one strong photo ---------- */
+function d2(lang,words){
+ const t=T[lang],[h,s]=t[words];
+ const welcome=phone(lang,`<div style="position:absolute;inset:0;background:var(--pressed) url(${IMG('23-coat')}) center 12%/cover"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(36,24,17,.45) 0%,rgba(36,24,17,0) 22%,rgba(36,24,17,0) 38%,rgba(36,24,17,.88) 78%)"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;height:100%">${sb('#fff')}
+   <div class="pad" style="padding-top:6px;display:flex;align-items:center;justify-content:space-between"><div class="mark" style="color:#fff;font-size:20px">Vinty</div></div>
+   <div class="pad" style="margin-top:14px"><span style="display:inline-flex;align-items:center;gap:5px;height:24px;border-radius:99px;background:rgba(255,255,255,.96);padding:0 10px;font-size:10.5px;font-weight:700;color:var(--text-1)">${t.coat} · ${L('₪140')}</span></div>
+   <div class="pad" style="margin-top:auto;padding-bottom:20px;color:#fff">
+    <h3 class="hd" style="font-size:30px">${h}</h3>
+    <p class="sub" style="color:rgba(255,255,255,.88)">${s}</p>
+    <div class="btns" style="margin-top:18px"><div class="b inv">${t.signUp}</div><div class="b ghost">${t.logIn}</div></div>
+   </div></div>`,'dark');
+ const form=k=>phone(lang,`<div style="position:relative;height:150px;flex:none;border-radius:0 0 22px 22px;overflow:hidden;background:var(--pressed) url(${IMG('23-coat')}) center 18%/cover">
+   <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(36,24,17,.5),rgba(36,24,17,.05))"></div>
+   <div style="position:relative">${sb('#fff')}<div class="top" style="height:36px"><div class="back" style="background:rgba(255,255,255,.95)">${i('back',18)}</div></div></div></div>
+  <div class="pad" style="margin-top:16px;flex:1;display:flex;flex-direction:column"><h3 class="ttl">${k==='li'?t.liT:t.suT}</h3>
+  <p class="sub" style="margin-top:6px">${k==='li'?t.liS:t.suS}</p>${fields(t,k)}${formBottom(t,k)}</div>`);
+ return [welcome,form('li'),form('su')];
+}
+
+/* ---------- Direction 3: price tags, type only ---------- */
+function d3(lang,words){
+ const t=T[lang],[h,s]=t[words];
+ const tag=(x,rot,dx)=>`<div style="position:relative;background:#fff;border:1px solid var(--border);border-radius:12px;padding:7px 12px;transform:rotate(${rot}deg) translateX(${dx}px);box-shadow:0 1px 0 var(--border-subtle)">
+   <span style="position:absolute;inset-inline-end:10px;top:50%;margin-top:-4px;width:8px;height:8px;border-radius:99px;background:var(--surface);border:1px solid var(--border)"></span>
+   <div style="font-weight:700;font-size:13px">${x[0]}</div><div style="font-size:10.5px;color:var(--text-3);margin-top:1px">${x[1]}</div></div>`;
+ /* highlight is only a soft marker behind the whole last phrase, same weight as the rest */
+ const welcome=phone(lang,`<div style="position:absolute;inset:0;background:var(--surface)"></div>
+  <div style="position:relative;display:flex;flex-direction:column;height:100%">${sb()}
+   <div class="pad" style="padding-top:8px"><div class="mark" style="font-size:20px">Vinty</div></div>
+   <div class="pad" style="margin-top:16px;display:flex;flex-direction:column;gap:6px;padding-inline-end:28px">${tag(t.t1,-3,0)}${tag(t.t2,2,8)}${tag(t.t3,-2,3)}</div>
+   <div class="pad" style="margin-top:auto;padding-bottom:20px">
+    <h3 class="hd" style="font-size:${words==='C'?25:30}px;font-weight:600">${h}</h3>
+    <p class="sub">${s}</p>
+    <div class="btns" style="margin-top:16px"><div class="b">${t.signUp}</div><div class="b o" style="background:#fff">${t.logIn}</div></div>
+   </div></div>`);
+ const form=k=>phone(lang,`<div style="position:absolute;inset:0;background:var(--surface)"></div>
+  <div style="position:relative;display:flex;flex-direction:column;height:100%">${sb()}<div class="top"><div class="back">${i('back',18)}</div></div>
+  <div class="pad" style="margin-top:4px;flex:1;display:flex;flex-direction:column">
+   <div style="display:inline-flex;align-self:flex-start;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:5px 11px;transform:rotate(-3deg);margin-bottom:12px"><span style="width:7px;height:7px;border-radius:99px;background:var(--surface);border:1px solid var(--border)"></span><span class="mark" style="font-size:14px">Vinty</span></div>
+   <h3 class="ttl" style="font-weight:600">${k==='li'?t.liT:t.suT}</h3>
+   <p class="sub" style="margin-top:6px">${k==='li'?t.liS:t.suS}</p>${fields(t,k)}${formBottom(t,k)}</div></div>`);
+ return [welcome,form('li'),form('su')];
+}
+
+const D=[
+ {n:1,name:'The closet collage',fn:d1,words:'A',
+  cap:'<b>What it feels like:</b> a window into real closets. Photos of real pieces, each tagged with a person and a city, fading into the headline, so you know what this is before you read a word. <b>Trade-off:</b> busiest of the three, and it depends on good photos. Real seller photos before launch would make it sing, rough ones would hurt it.',
+  reco:true},
+ {n:2,name:'One strong photo',fn:d2,words:'B',
+  cap:'<b>What it feels like:</b> a fashion magazine opening. One person, one coat, a small price tag chip, big white words at the bottom. Calm, confident, the most grown up. <b>Trade-off:</b> one photo has to carry the whole brand, so it must be a great one (ours is a stand-in), and it can feel less "everyday marketplace".'},
+ {n:3,name:'Price tags, words only',fn:d3,words:'C',
+  cap:'<b>What it feels like:</b> a warm paper note. Cream background, three little tilted price tags with a piece, a price and a person. No photos at all, so it looks great from day one and never goes stale. <b>Trade-off:</b> shows less of the clothes, so it is the least "wow" and leans on the headline.'}
+];
+
+let out='';
+for(const d of D){
+ const en=d.fn('en',d.words),he=d.fn('he',d.words);
+ const lab=['Welcome','Log in','Sign up'];
+ out+=`<div class="sec"><div class="sh"><div class="num">${d.n}</div><h2>${d.name}${d.reco?'<span class="reco">My pick</span>':''}</h2></div>
+ <p class="cap">${d.cap}</p>
+ <div class="lang">English</div><div class="row3">${en.map((p,k)=>frame(lab[k],p)).join('')}</div>
+ <div class="lang">Hebrew, right to left</div><div class="row3">${he.map((p,k)=>frame(['מסך פתיחה','התחברות','הרשמה'][k],p)).join('')}</div>
+ <div class="pick">Pick this one: reply with <b>${d.n}</b></div></div>`;
+}
+document.getElementById('root').innerHTML=out;
+
+/* today's screen, for comparison */
+const today=lang=>{
+ const h=lang==='en'?['Pre-loved,','loved again','Second-hand fashion from people near you. Find a piece you love, or give yours a new home.']:['בגדים אהובים,','חיים שניים','אופנה יד שנייה מאנשים קרובים אליכם. מוצאים פריט שאוהבים, או נותנים לשלכם בית חדש.'];
+ const t=T[lang];
+ return frame(lang==='en'?'Today, English':'Today, Hebrew',phone(lang,`${sb()}<div class="pad" style="padding-top:12px"><div class="mark" style="font-size:20px">Vinty</div></div>
+  <div class="pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:30px"><div style="font-size:34px;line-height:1;font-weight:300;letter-spacing:-.04em">${h[0]}</div><div style="font-size:34px;line-height:1;font-weight:800;letter-spacing:-.04em">${h[1]}</div><p class="sub" style="max-width:230px;font-size:12px;text-wrap:wrap">${h[2]}</p></div>
+  <div class="pad btns" style="padding-bottom:20px"><div class="b">${t.signUp}</div><div class="b o">${t.logIn}</div></div>`));
+};
+document.getElementById('today').innerHTML=today('en')+today('he');
+</script>
+</body></html>
