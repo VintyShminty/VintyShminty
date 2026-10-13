@@ -19,7 +19,11 @@ describe("photo helper schemas", () => {
     expect(suggestRequestSchema.safeParse({ photoKeys: ["a"], language: "fr" }).success).toBe(false);
   });
 
-  it("accepts the empty suggestion and nothing with more than 2 colours", () => {
+  it("accepts the empty suggestion, at most 3 categories and at most 2 colours", () => {
+    const four = Array.from({ length: 4 }, () => ({ id, confidence: 0.5 }));
+    expect(photoSuggestionSchema.safeParse({ ...EMPTY_PHOTO_SUGGESTION, categories: four }).success).toBe(
+      false,
+    );
     expect(photoSuggestionSchema.safeParse(EMPTY_PHOTO_SUGGESTION).success).toBe(true);
     expect(
       photoSuggestionSchema.safeParse({ ...EMPTY_PHOTO_SUGGESTION, colourIds: [id, id, id] }).success,
@@ -29,10 +33,12 @@ describe("photo helper schemas", () => {
   it("knows when a suggestion has something to show", () => {
     expect(photoSuggestionHasContent(EMPTY_PHOTO_SUGGESTION)).toBe(false);
     expect(photoSuggestionHasContent({ ...EMPTY_PHOTO_SUGGESTION, title: "Blue dress" })).toBe(true);
-    // A brand we could not match is only text, the form cannot use it.
     expect(photoSuggestionHasContent({ ...EMPTY_PHOTO_SUGGESTION, brand: { id: null, name: "Zara" } })).toBe(
-      false,
+      true,
     );
+    expect(
+      photoSuggestionHasContent({ ...EMPTY_PHOTO_SUGGESTION, categories: [{ id, confidence: 0.5 }] }),
+    ).toBe(true);
   });
 
   it("reads the status flag", () => {

@@ -24,7 +24,8 @@ const SETTLE_MS = 700;
 
 /**
  * Reads the seller's photos once per new listing, in the background, as soon as the photos are uploaded. Whatever comes
- * back is filled into empty fields only (sell-store applyPhotoSuggestion). A failure or an empty answer changes nothing.
+ * back is only stored (sell-store receiveSuggestion), never filled in. The pickers show it first. A failure or an empty
+ * answer changes nothing.
  */
 export function usePhotoAssist(opts: {
   /** False when editing a saved listing. */
@@ -46,7 +47,6 @@ export function usePhotoAssist(opts: {
     const timer = setTimeout(() => {
       const store = useSellStore.getState();
       if (store.assist !== "idle" || !opts.reference) return;
-      const reference = opts.reference;
       const session = store.session;
       store.setAssist("reading");
       api<PhotoSuggestion>("/v1/listings/suggest", {
@@ -54,7 +54,7 @@ export function usePhotoAssist(opts: {
         body: { photoKeys: keys.slice(0, PHOTO_ASSIST_MAX_PHOTOS), language: opts.language },
         schema: photoSuggestionSchema,
       })
-        .then((suggestion) => useSellStore.getState().applyPhotoSuggestion(session, suggestion, reference))
+        .then((suggestion) => useSellStore.getState().receiveSuggestion(session, suggestion))
         .catch((error) => {
           if (__DEV__) console.warn("Photo helper failed:", error);
           useSellStore.getState().finishAssist(session);

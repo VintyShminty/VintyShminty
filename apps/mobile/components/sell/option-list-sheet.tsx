@@ -1,5 +1,5 @@
 import { BottomSheetFlatList, type BottomSheetModal } from "@gorhom/bottom-sheet";
-import { type ReactNode, type Ref, useEffect, useState } from "react";
+import { type ReactNode, type Ref, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,6 +32,8 @@ type OptionListSheetProps = {
   clearable?: boolean;
   /** Content above the list, such as a hint. */
   header?: ReactNode;
+  /** The photo helper's guesses (ids from `options`). Listed first under "Looks like", never ticked for the seller. */
+  suggestedIds?: string[];
 };
 
 /** A sheet with a flat list of options (docs/components.md, OptionListSheet). */
@@ -45,11 +47,31 @@ function OptionListSheet({
   onChange,
   clearable,
   header,
+  suggestedIds,
 }: OptionListSheetProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [draft, setDraft] = useState<string[]>(selected);
   useEffect(() => setDraft(selected), [selected]);
+
+  const rows = useMemo(() => {
+    const guesses = (suggestedIds ?? [])
+      .map((id) => options.find((o) => o.id === id))
+      .filter((o): o is Option => Boolean(o));
+    if (guesses.length === 0) return options.map((o) => ({ ...o, rowKey: o.id }));
+    return [
+      ...guesses.map((o, i) => ({
+        ...o,
+        section: i === 0 ? t("sell.assist.looksLike") : undefined,
+        rowKey: `guess-${o.id}`,
+      })),
+      ...options.map((o, i) => ({
+        ...o,
+        section: i === 0 ? (o.section ?? t("sell.assist.allOptions")) : o.section,
+        rowKey: o.id,
+      })),
+    ];
+  }, [options, suggestedIds, t]);
 
   const close = () => (typeof ref === "object" && ref ? ref.current?.dismiss() : undefined);
   const full = max !== undefined && draft.length >= max;
@@ -92,11 +114,11 @@ function OptionListSheet({
       }
     >
       <BottomSheetFlatList
-        data={options}
-        keyExtractor={(o: Option) => o.id}
+        data={rows}
+        keyExtractor={(o: Option & { rowKey: string }) => o.rowKey}
         ListHeaderComponent={header ? <View className="px-lg pb-sm">{header}</View> : null}
         contentContainerStyle={{ paddingBottom: insets.bottom + 48 }}
-        renderItem={({ item }: { item: Option }) => {
+        renderItem={({ item }: { item: Option & { rowKey: string } }) => {
           const on = draft.includes(item.id);
           const disabled = mode === "multi" && full && !on;
           return (

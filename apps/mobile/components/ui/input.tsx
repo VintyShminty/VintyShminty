@@ -20,7 +20,7 @@ type InputProps = Omit<React.ComponentProps<typeof TextInput>, "placeholderTextC
   /** Adds a show/hide button. */
   secureToggle?: { show: string; hide: string };
   containerClassName?: string;
-  /** Something small at the end of the label line, for example the "Suggested" mark. */
+  /** Something small at the end of the label line, for example the "Use it" chip. */
   labelEnd?: React.ReactNode;
 };
 
