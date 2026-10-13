@@ -506,14 +506,14 @@ Proposals, not rules, until explicitly promoted above.
 
 ## Superseded decisions
 
-### D-026 : Log in and sign up slide up from the bottom
+### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
-- **Area:** Welcome, log in, sign up
+- **Area:** Welcome, log in, sign up, forgot password
 - **Status:** Built on branch auth-slide-up, waiting for Eden's review
-- **Decision:** Tapping Log in or Sign up on the welcome screen slides the full screen up from the bottom over the welcome photo, and closing slides it back down (swipe down works too). The button over the photo band is a close X on these two screens. Forgot password still pushes in sideways from Log in and keeps its back arrow. The two links between Log in and Sign up swap the screen in place.
-- **Rationale:** The welcome photo is the front door and these two screens are forms opened from it, so they rise up like a drawer instead of pushing a new page.
-- **Implementation:** `apps/mobile/app/(auth)/_layout.tsx`, `components/auth-photo.tsx` (`close` option).
+- **Decision:** Welcome, Log in and Sign up are one surface. Tapping Log in or Sign up on the welcome screen moves the welcome photo up and shrinks it into the photo band at the top while the white form sheet rises from the bottom, as one smooth motion of about half a second with no bounce. The welcome headline and buttons fade out as it happens. The close X over the band plays it backwards and returns to welcome. The links between Log in and Sign up, and Forgot password with its back arrow, swap the sheet in place with a quick fade, the photo stays put. With reduced motion on, everything jumps with no movement.
+- **Rationale:** The first version slid the whole form screen up over the photo, which felt like two separate pages and was not smooth. One photo that travels with the form feels like the welcome screen turning into the form.
+- **Implementation:** `apps/mobile/components/auth-motion.tsx` (one motion value, photo scaled and shifted with transforms, sheet moved with a transform, all on the UI thread), `app/(auth)/_layout.tsx` (the three screens are see-through so the photo behind shows through). The routes stay `/log-in`, `/sign-up` and `/forgot-password`.
 
 ### D-028 : The photo helper shows its best guesses first and never fills anything
 

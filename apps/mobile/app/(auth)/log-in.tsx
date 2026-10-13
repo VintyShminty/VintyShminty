@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { TextInput } from "react-native";
 import { View } from "react-native";
-import { AuthPhotoBand } from "@/components/auth-photo";
+import { AuthSheet } from "@/components/auth-motion";
 import { FormInput } from "@/components/form-input";
 import { SocialButtons } from "@/components/social-buttons";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import { Screen, ScreenScroll } from "@/components/ui/screen";
+import { ScreenScroll } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 import { describeAuthError } from "@/lib/auth-errors";
@@ -40,8 +40,7 @@ export default function LogIn() {
   });
 
   return (
-    <Screen topInset={false}>
-      <AuthPhotoBand close />
+    <AuthSheet>
       <ScreenScroll>
         <Text variant="title" className="mt-lg">
           {t("logIn.title")}
@@ -115,6 +114,6 @@ export default function LogIn() {
           </Text>
         </View>
       </ScreenScroll>
-    </Screen>
+    </AuthSheet>
   );
 }
