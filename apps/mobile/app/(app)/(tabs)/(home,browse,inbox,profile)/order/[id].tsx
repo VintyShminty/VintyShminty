@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { OrderDetail, ReviewItem } from "@vinty/shared";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { MessageCircle, ShieldCheck, Star } from "lucide-react-native";
+import { MessageCircle, Star } from "lucide-react-native";
 import { type ReactNode, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, RefreshControl, ScrollView, View } from "react-native";
@@ -333,12 +333,7 @@ export default function OrderScreen() {
               )}
             </View>
           </View>
-          {!isSeller ? (
-            <View className="flex-row items-center gap-xs">
-              <Icon as={ShieldCheck} size={14} className="text-text-3" />
-              <Text variant="cardMeta">{t("orders.protectionNote")}</Text>
-            </View>
-          ) : null}
+          {!isSeller ? <Text variant="cardMeta">{t("orders.protectionNote")}</Text> : null}
         </Section>
 
         <Section title={t("orders.delivery")}>

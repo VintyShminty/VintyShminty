@@ -22,7 +22,7 @@ Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `doc
 |---|---|---|---|
 | 1 | Product voice | Friends' closets: people first, warm and local | Write the voice guide (tone, sample words) |
 | 2 | Price and protection | Two prices, our own way: seller price, then a soft pill with the buyer price, and a breakdown (item, protection, you pay) on the item page | The name for the protection. "Covered" is a placeholder Eden is not sure about |
-| 3 | Item card | Price tag card: big price first, then brand, size and condition in small capitals ("MANGO · S · LIKE NEW"), then the buyer price pill from row 2 (round 2) | None |
+| 3 | Item card (built) | Price tag card: big price first, then brand, size and condition in small capitals ("MANGO · S · LIKE NEW"), then the buyer price pill from row 2 (round 2) | None |
 | 4 | Home screen top | Large greeting ("Good morning, Noa") with a small round search button beside it, then the mood chips (For you, New today, Under ₪50, Your sizes, Near you) and the grid (round 2) | None |
 | 5 | Browse | Photo tiles grouped by item type (Dresses, Jeans, Sneakers, Bags...) | Final list and order of tiles |
 | 6 | Search and "members" | "Sellers": "Search clothes, brands or sellers", tabs Items and Sellers | None |
@@ -95,7 +95,7 @@ Tick an item when it is changed in both English and Hebrew.
 - [ ] **Trademark search** on the new name, in Israel and the EU
 - [ ] **App icon and splash screen.** Our own design, not the Expo placeholder
 - [x] **"Buyer Protection".** A new name for the fee and the promise behind it (temporary: "Covered", one key `protectionName`, Eden still to choose)
-- [x] **The shield and "incl." line** under every price. The "incl." text is gone from cards and the chat strip (wording done). The new price pill is still to build
+- [x] **The shield and "incl." line** under every price. The "incl." text is gone from cards and the chat strip (wording done). The price pill is built (`components/price-pill.tsx`)
 - [x] **"Buyer pays ₪X incl. Buyer Protection"** on the sell form and item page. Rewrite with the new name
 - [x] **"Bumped" badge** and the boost feature. A new word for both ("Buzz", placeholder, trademark check pending)
 - [x] **Search bar text** "Search for items or members". Rewrite
@@ -103,7 +103,7 @@ Tick an item when it is changed in both English and Hebrew.
 
 ### Should change (the combination)
 
-- [ ] **Item card.** Change at least two details: the order of brand, description and price, where the heart count sits, or the badge look
+- [x] **Item card.** Change at least two details: the order of brand, description and price, where the heart count sits, or the badge look
 - [ ] **Home screen top.** Make the search bar and category chips feel like ours (a greeting, a different chip style or order)
 - [x] **Condition names.** Replace "Satisfactory" at least, reword the rest in our voice
 - [x] **"Bundle discounts".** Rename

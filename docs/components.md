@@ -303,7 +303,7 @@ The tile for one listing: tall rounded photo, brand, description, size and condi
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
 - **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badge is the standard Badge component, outline style, D-008)
 - **Phase:** First flows
-- **Status:** Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
+- **Status (D-019, supersedes D-007 in part):** The browse card is now the price tag card: seller price big with the heart at the end of that row, brand, size and condition in small capitals, the buyer price pill (`components/price-pill.tsx`), badges on the photo (Buzzing with a zap). Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
 
 ### HeartPill
 
@@ -313,6 +313,31 @@ A small white pill with a heart and the number of people who saved the item. A c
 - **Screens:** Home feed, Search and results, Item page, Seller profile, Favourites
 - **Source:** Custom (Composed from Pressable, Icon and Text)
 - **Phase:** First flows
+
+### PricePill (D-019)
+
+A soft accent-tint pill with a check icon and "{price} with {protectionName}", the buyer price. Replaces the shield and the "incl." line. `PriceBreakdownCard` (same file) is the item page breakdown: Item, protection, You pay and how the buyer is covered.
+
+- **Variants and states:** Variants: normal, muted (sold). 
+- **Screens:** Item card, own listing, sell form price preview, offer sheet, item page (breakdown)
+- **Source:** Custom, `components/price-pill.tsx`
+- **Status:** Built in Milestone 6
+
+### ConditionSlider (D-019)
+
+A five stop slider for the sell form condition (names and hints from reference data), with the chosen level's hint below. Drag, tap, or VoiceOver adjustable (swipe up or down). The first stop is at the start side, so it runs right to left in Hebrew. Replaces the condition option sheet.
+
+- **Screens:** Sell form
+- **Source:** Custom, `components/sell/condition-slider.tsx` (Gesture Handler and Reanimated)
+- **Status:** Built in Milestone 6
+
+### SellerStamp (D-019)
+
+A seller badge as an outline stamp in the accent colour with an icon and the name, no progress ring.
+
+- **Screens:** Seller profile
+- **Source:** Custom, `components/seller-stamp.tsx`
+- **Status:** Built in Milestone 6
 
 ### PriceBlock
 

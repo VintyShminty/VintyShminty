@@ -477,7 +477,7 @@
     "pattern": "Pattern",
     "price": "Price",
     "clear": "Clear",
-    "buyerPays": "Buyers pay {{price}} with $t(protectionName)",
+    "buyerPays": "This is what buyers pay",
     "buyerPaysPostage": "Postage is on the buyer",
     "recommended": "Helpful",
     "postageFrom": "Postage starts at {{price}}",
@@ -518,7 +518,10 @@
       "remove": "Remove photo",
       "deniedTitle": "No access to photos",
       "denied": "Allow Vinty to use your photos or camera in the phone's Settings"
-    }
+    },
+    "conditionStop": "{{name}}, {{n}} of {{total}}",
+    "conditionAdjustHint": "Swipe up or down to change the condition",
+    "conditionPick": "Slide to choose"
   },
   "item": {
     "more": "More options",
@@ -538,10 +541,17 @@
     "noSimilar": "Nothing similar right now",
     "messageSeller": "Message seller",
     "chatFailed": "You cannot start a chat about this item",
-    "buyNow": "Buy now",
-    "makeOffer": "Make an offer",
     "away": "{{name}} is away until {{date}}. You can still save it.",
-    "awayNoDate": "{{name}} is away for now. You can still save it."
+    "awayNoDate": "{{name}} is away for now. You can still save it.",
+    "buyFor": "Buy for {{amount}}",
+    "orMakeYourPrice": "Or make your price",
+    "message": "Message",
+    "breakdown": {
+      "item": "Item",
+      "total": "You pay",
+      "note": "Your money is held until the item reaches you. If it is not as described, it goes back to you."
+    },
+    "buyNow": "Buy now"
   },
   "seller": {
     "more": "More options",
@@ -1151,7 +1161,6 @@
     "percentOff": "{{percent}}% off",
     "yourPrice": "Your price",
     "placeholder": "0",
-    "buyerPays": "You pay {{price}} with $t(protectionName)",
     "send": "Send offer",
     "sendAmount": "Offer {{amount}}",
     "left_one": "{{count}} offer left for today",
