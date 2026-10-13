@@ -101,8 +101,9 @@ export function FloatingTabBar({ state, navigation, descriptors }: BottomTabBarP
               >
                 <Icon as={tab.icon} size={22} className={focused ? "text-primary" : "text-text-3"} />
                 {badge !== undefined && badge !== null && badge !== "" ? (
-                  <View className="absolute -top-1 end-0 min-w-[18px] items-center rounded-full bg-primary px-[5px]">
-                    <Text variant="badge" className="text-primary-foreground">
+                  // Tucked onto the icon's top corner. The white ring cuts it out of the icon so the two read as one shape.
+                  <View className="absolute end-0.5 top-0 h-[22px] min-w-[22px] items-center justify-center rounded-full border-2 border-background bg-primary px-[5px]">
+                    <Text variant="cardDesc" weight={700} className="text-primary-foreground">
                       {String(badge)}
                     </Text>
                   </View>
