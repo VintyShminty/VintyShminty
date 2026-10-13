@@ -70,7 +70,7 @@ Photo uploads go straight from the phone to the bucket with a one time link made
 | `RESEND_API_KEY` | From step 13 |
 | `S3_ENDPOINT` | `https://<Account ID>.r2.cloudflarestorage.com` |
 | `S3_REGION` | The word `auto` |
-| `S3_BUCKET` | `vinty` |
+| `S3_BUCKET` | `vinty-photos` |
 | `S3_ACCESS_KEY_ID` | From step 12 |
 | `S3_SECRET_ACCESS_KEY` | From step 12 |
 | `S3_FORCE_PATH_STYLE` | The word `true` |
