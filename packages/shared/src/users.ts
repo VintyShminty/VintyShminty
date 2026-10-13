@@ -90,6 +90,23 @@ export const userSettingsSchema = z.object({
 export type UserSettings = z.infer<typeof userSettingsSchema>;
 export const updateUserSettingsInputSchema = userSettingsSchema.partial();
 
+/** Away mode lasts at most this many days from the day it is switched on. */
+export const AWAY_MAX_DAYS = 90;
+
+/** PUT /v1/me/away-mode. Without `endsAt` the seller is away until they switch it off. */
+export const awayModeInputSchema = z.object({
+  enabled: z.boolean(),
+  /** The day the seller is back. Must be in the future and within AWAY_MAX_DAYS. Ignored when `enabled` is false. */
+  endsAt: isoDateTimeSchema.nullable().optional(),
+});
+export type AwayModeInput = z.infer<typeof awayModeInputSchema>;
+export const awayModeSchema = z.object({
+  enabled: z.boolean(),
+  startedAt: isoDateTimeSchema.nullable(),
+  endsAt: isoDateTimeSchema.nullable(),
+});
+export type AwayMode = z.infer<typeof awayModeSchema>;
+
 export const notificationPreferenceSchema = z.object({
   type: z.enum(NOTIFICATION_TYPES),
   channel: z.enum(NOTIFICATION_CHANNELS),

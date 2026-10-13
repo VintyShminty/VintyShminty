@@ -56,6 +56,7 @@ describe.skipIf(!databaseUrl)("scheduler endpoints", () => {
         "pretendDelivered",
         "autoCompleted",
         "reviewReminders",
+        "awayEnded",
       ]),
     );
   });

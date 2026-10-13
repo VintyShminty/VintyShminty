@@ -11,6 +11,7 @@ import {
 import type { Locale, Me, PublicProfile, UserSummary } from "@vinty/shared";
 import { and, eq, isNotNull } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { isAway } from "./away.js";
 
 const average = (sum: number, count: number) => (count > 0 ? Math.round((sum / count) * 100) / 100 : null);
 
@@ -100,7 +101,7 @@ export async function loadPublicProfile(
     emailVerified: user.emailVerified,
     googleVerified: googleRows.length > 0,
     badges: badgeRows.map((b) => ({ slug: b.slug, icon: b.icon, name: { en: b.nameEn, he: b.nameHe } })),
-    holidayMode: profile.holidayModeEnabled,
+    holidayMode: isAway(profile.holidayModeEnabled, profile.holidayEndsAt),
     holidayEndsAt: profile.holidayEndsAt?.toISOString() ?? null,
     ...(viewerRows
       ? { viewer: { isFollowing: viewerRows[0].length > 0, isBlocked: viewerRows[1].length > 0 } }

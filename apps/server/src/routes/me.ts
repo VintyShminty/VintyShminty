@@ -20,6 +20,9 @@ import {
   verifications,
 } from "@vinty/db";
 import {
+  AWAY_MAX_DAYS,
+  awayModeInputSchema,
+  awayModeSchema,
   deleteAccountInputSchema,
   errorResponseSchema,
   isFinalOrderStatus,
@@ -38,6 +41,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import { and, eq, inArray, ne, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { isAway } from "../lib/away.js";
 import { ApiError } from "../lib/errors.js";
 import { deleteAllFeedData, resetLearnedTaste } from "../lib/events.js";
 import { loadMe } from "../lib/profiles.js";
@@ -173,6 +177,68 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
       // Turning the personalised feed off also forgets what it learned.
       if (request.body.personaliseFeed === false) await resetLearnedTaste(db, userId);
       return loadSettings(userId);
+    },
+  );
+
+  const loadAway = async (userId: string) => {
+    const [row] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
+    if (!row) throw ApiError.notFound();
+    const on = isAway(row.holidayModeEnabled, row.holidayEndsAt);
+    return {
+      enabled: on,
+      startedAt: on ? (row.holidayStartedAt?.toISOString() ?? null) : null,
+      endsAt: on ? (row.holidayEndsAt?.toISOString() ?? null) : null,
+    };
+  };
+
+  app.get(
+    "/v1/me/away-mode",
+    { preHandler, schema: { response: { 200: awayModeSchema, 401: errorResponseSchema } } },
+    async (request) => loadAway(currentUserId(request)),
+  );
+
+  /**
+   * Away mode on or off. The return date is optional (no date: away until switched off), must be in the future and
+   * at most AWAY_MAX_DAYS from now. The daily job and the readers treat a past date as back.
+   */
+  app.put(
+    "/v1/me/away-mode",
+    {
+      preHandler,
+      schema: {
+        body: awayModeInputSchema,
+        response: { 200: awayModeSchema, 400: errorResponseSchema, 401: errorResponseSchema },
+      },
+    },
+    async (request) => {
+      const userId = currentUserId(request);
+      const { enabled, endsAt } = request.body;
+      const now = new Date();
+      if (!enabled) {
+        await db
+          .update(profiles)
+          .set({ holidayModeEnabled: false, holidayStartedAt: null, holidayEndsAt: null })
+          .where(eq(profiles.userId, userId));
+        return loadAway(userId);
+      }
+      const ends = endsAt ? new Date(endsAt) : null;
+      if (ends && ends.getTime() <= now.getTime()) {
+        throw ApiError.invalid("Pick a day in the future", { endsAt: "validation.away.past" });
+      }
+      if (ends && ends.getTime() > now.getTime() + AWAY_MAX_DAYS * 86_400_000) {
+        throw ApiError.invalid("Away mode can last up to 90 days", { endsAt: "validation.away.tooFar" });
+      }
+      const [current] = await db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1);
+      if (!current) throw ApiError.notFound();
+      // Keep the first start when only the date changes.
+      const started = isAway(current.holidayModeEnabled, current.holidayEndsAt, now)
+        ? (current.holidayStartedAt ?? now)
+        : now;
+      await db
+        .update(profiles)
+        .set({ holidayModeEnabled: true, holidayStartedAt: started, holidayEndsAt: ends })
+        .where(eq(profiles.userId, userId));
+      return loadAway(userId);
     },
   );
 
