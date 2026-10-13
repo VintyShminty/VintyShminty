@@ -1,10 +1,10 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { AuthPhotoBand } from "@/components/auth-photo";
 import { RequestCodeForm, ResetPasswordForm } from "@/components/code-reset-form";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
-import { TopBar } from "@/components/ui/top-bar";
 
 export default function ForgotPassword() {
   const { t } = useTranslation();
@@ -12,10 +12,12 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState<string | null>(null);
 
   return (
-    <Screen>
-      <TopBar onBack={() => router.back()} />
+    <Screen topInset={false}>
+      <AuthPhotoBand />
       <ScreenScroll>
-        <Text variant="title">{email ? t("forgot.titleCode") : t("forgot.title")}</Text>
+        <Text variant="title" className="mt-lg">
+          {email ? t("forgot.titleCode") : t("forgot.title")}
+        </Text>
         <Text variant="subtitle" className="mb-xl mt-sm">
           {email ? t("forgot.subtitleCode") : t("forgot.subtitle")}
         </Text>

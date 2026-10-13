@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { TextInput } from "react-native";
 import { View } from "react-native";
+import { AuthPhotoBand } from "@/components/auth-photo";
 import { FormInput } from "@/components/form-input";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
-import { TopBar } from "@/components/ui/top-bar";
 import { authClient } from "@/lib/auth-client";
 import { describeAuthError } from "@/lib/auth-errors";
 import { useLockStore } from "@/lib/lock-store";
@@ -49,10 +49,12 @@ export default function SignUp() {
   });
 
   return (
-    <Screen>
-      <TopBar onBack={() => router.back()} />
+    <Screen topInset={false}>
+      <AuthPhotoBand />
       <ScreenScroll>
-        <Text variant="title">{t("signUp.title")}</Text>
+        <Text variant="title" className="mt-lg">
+          {t("signUp.title")}
+        </Text>
         <Text variant="subtitle" className="mb-xl mt-sm">
           {t("signUp.subtitle")}
         </Text>
