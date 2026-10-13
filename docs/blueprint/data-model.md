@@ -1434,7 +1434,9 @@ Used by: My orders (Sold and Bought tabs, status chips), Checkout, Conversation 
 | `delivered_at` | timestamptz | yes |  |
 | `completed_at` | timestamptz | yes |  |
 | `cancelled_at` | timestamptz | yes |  |
+| `pay_by_at` | timestamptz | yes | While the order waits for payment the item is held for the buyer until this time (30 minutes), then the order cancels itself |
 | `ship_by_at` | timestamptz | yes | The seller must ship before this or the order cancels itself |
+| `idempotency_key` | text | yes | The app's Idempotency-Key from creating the order. A repeat with the same key returns this order |
 | `auto_complete_at` | timestamptz | yes | If the buyer does nothing the order completes itself at this time |
 | `created_at` | timestamptz | no | default now() |
 | `updated_at` | timestamptz | no | default now() |
@@ -1451,6 +1453,8 @@ Indexes:
 - `orders_auto_complete_idx`: btree on (auto_complete_at), only where status = ANY ARRAY['shipped', 'delivered']
 - `orders_buyer_idx`: btree on (buyer_id, status, created_at DESC NULLS LAST)
 - `orders_conversation_idx`: btree on (conversation_id)
+- `orders_idempotency_unique` (unique): btree on (buyer_id, idempotency_key), only where idempotency_key IS NOT NULL
+- `orders_pay_by_idx`: btree on (pay_by_at), only where status = 'pending_payment'
 - `orders_seller_idx`: btree on (seller_id, status, created_at DESC NULLS LAST)
 - `orders_ship_by_idx`: btree on (ship_by_at), only where status = 'paid'
 
@@ -1626,6 +1630,7 @@ Used by: Balance (Pending balance, Available balance, the month grouped list), P
 | `order_id` | uuid | yes | refers to orders.id, on delete set null. The order that caused it |
 | `description` | text | yes |  |
 | `available_at` | timestamptz | yes | When the credit became available |
+| `idempotency_key` | text | yes | The app's Idempotency-Key from a withdrawal. A repeat with the same key returns this row |
 | `created_at` | timestamptz | no | default now() |
 
 Constraints:
@@ -1634,6 +1639,7 @@ Constraints:
 
 Indexes:
 
+- `wallet_entries_idempotency_unique` (unique): btree on (user_id, idempotency_key), only where idempotency_key IS NOT NULL
 - `wallet_entries_order_type_unique` (unique): btree on (user_id, order_id, type), only where order_id IS NOT NULL
 - `wallet_entries_user_idx`: btree on (user_id, created_at DESC NULLS LAST)
 - `wallet_entries_user_status_idx`: btree on (user_id, status)
