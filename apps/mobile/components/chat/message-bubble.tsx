@@ -1,8 +1,10 @@
-import type { Message } from "@vinty/shared";
+import type { Message, MessageOffer } from "@vinty/shared";
 import { Image } from "expo-image";
 import { AlertCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, useWindowDimensions, View } from "react-native";
+import { OfferBubble } from "@/components/chat/offer-bubble";
+import { isOrderDivider, OrderDivider } from "@/components/chat/order-divider";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import type { PendingMessage } from "@/lib/chat-send";
@@ -94,28 +96,6 @@ function PhotoBubble({
   );
 }
 
-function OfferBubble({ message, mine }: { message: Message; mine: boolean }) {
-  const { t } = useTranslation();
-  const offer = message.offer;
-  if (!offer) return null;
-  return (
-    <View
-      className={cn(
-        "max-w-[80%] gap-xs rounded-window border border-border bg-surface px-md py-md",
-        mine ? "self-end" : "self-start",
-      )}
-    >
-      <Text weight={700}>{t("chat.offer", { amount: formatMoney(offer.amountMinor, offer.currency) })}</Text>
-      <Text variant="cardDesc" className="text-text-3 line-through">
-        {t("chat.offerListed", { price: formatMoney(offer.listingPriceMinor, offer.currency) })}
-      </Text>
-      <Text variant="bodySmall" weight={600} className="text-primary">
-        {t(`chat.offerStatus.${offer.status}`)}
-      </Text>
-    </View>
-  );
-}
-
 /** The sentence of a system divider ("Order shipped"). */
 function systemText(message: Message, t: (key: string, options?: Record<string, unknown>) => string): string {
   const event = message.systemEvent;
@@ -134,6 +114,10 @@ function MessageBubble({
   tight,
   statusLine,
   onOpenPhoto,
+  role,
+  offersClosed,
+  onCounter,
+  onBuy,
 }: {
   message: Message;
   mine: boolean;
@@ -141,11 +125,26 @@ function MessageBubble({
   /** Small line under the bubble: the time, and Sent or Seen on your newest. */
   statusLine?: string;
   onOpenPhoto: (uri: string) => void;
+  /** Which side of the chat I am on, for the offer buttons. */
+  role: "buyer" | "seller";
+  /** The item is sold: offers can no longer be answered or bought. */
+  offersClosed: boolean;
+  onCounter: (offer: MessageOffer) => void;
+  onBuy: (offer: MessageOffer) => void;
 }) {
   const { t } = useTranslation();
   const side: Side = mine ? "mine" : "theirs";
 
   if (message.kind === "system") {
+    if (isOrderDivider(message.systemEvent)) {
+      return (
+        <OrderDivider
+          event={message.systemEvent as string}
+          orderId={message.orderId}
+          payload={message.payload}
+        />
+      );
+    }
     return (
       <View className="items-center px-xl py-sm">
         <View className="rounded-full bg-surface px-md py-xs">
@@ -171,7 +170,17 @@ function MessageBubble({
       />
     );
   } else if (message.kind === "offer") {
-    body = <OfferBubble message={message} mine={mine} />;
+    body = message.offer ? (
+      <OfferBubble
+        offer={message.offer}
+        conversationId={message.conversationId}
+        mine={mine}
+        role={role}
+        closed={offersClosed}
+        onCounter={onCounter}
+        onBuy={onBuy}
+      />
+    ) : null;
   } else if (message.body) {
     body = <TextBubble body={message.body} side={side} />;
   }

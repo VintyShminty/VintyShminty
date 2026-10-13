@@ -11,7 +11,7 @@ Authority order for design work:
 4. Design handoffs and mockups (references, not rules).
 5. Current implementation details.
 
-Where nothing here is decided, follow the product spec (the Vinted UX deconstruction, which `docs/components.md` maps to our components).
+Where nothing here is decided, follow the product spec (the Vinted UX deconstruction, which `docs/components.md` maps to our components) for how things work only: features, flows and the order of steps. Never take names, wording, icons or visual details from it. Those follow this file and `docs/originality.md` (D-019).
 
 ## Principles
 
@@ -398,7 +398,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/mobile/app/_layout.tsx` (root `direction` style and expo-router `LocaleProvider`), `apps/mobile/lib/rtl.ts` (`useIsRtl`, `ensureNativeLtr`), `Text` and `Input` align by app language, back and forward arrows use `useIsRtl`. `app.json` no longer lists Hebrew as a supported locale, so iOS never starts the app in right to left by itself (system dialogs on a Hebrew phone stay in English). NativeWind's `rtl:` variant no longer fires (it reads the phone), so pick styles from the language instead.
 - **References:** D-011, D-016, CLAUDE.md Right to left
 
-### D-019 : Sign up asks only for email and password
+### D-019 : Originality pass, our own look and voice instead of Vinted's
+
+- **Date:** 2026-10-13
+- **Area:** Voice, Components, Navigation
+- **Status:** Approved (Eden, 2026-10-13), not built
+- **Decision:** Keep Vinted's structure and flows, change what reads as Vinted. The voice is "Friends' closets" (people first, warm and local). The item card becomes a price tag card (price first, then brand, size and condition in small capitals, then the buyer price pill). Buyers see the seller price plus a soft pill with the buyer price, never the shield and "incl." line, and the protection gets its own name. Home opens with a large greeting and a small round search button beside it, then mood chips (For you, New today, Under ₪50, Your sizes, Near you) and the grid. Browse uses photo tiles by item type. Users are "sellers" in search. The item page has one Buy button, "make your price" as a link and Message on the seller row. Condition is a slider with five stops: Unworn with tags, Unworn, Like new, Worn, Well loved. Reviews are one list plus a line for automatic ones. Seller badges are our own outline stamps. The tab bar is a floating rounded bar, icons only (each tab keeps a hidden name for screen readers), with a raised round Sell button with a camera. Holiday mode is "Away mode", Personalisation is "My sizes". Order progress is a tracker card at the top of the chat: a line of step icons with dates, plus Track parcel and I got it buttons. Every user-facing sentence copied from Vinted is rewritten.
+- **Rationale:** Legal and App Store risk. Nobody owns how an app works, but the look, names and wording must be ours. Research and the rule are in `docs/originality.md`.
+- **Implementation:** Not started. Choices, open questions and the checklist in `docs/originality.md`, options in `docs/mockups/originality-choices.html` and `originality-round-2.html`. Changes parts of D-007 (item card), D-008 (Bumped badge) and D-009 (tab labels, Browse grid). The paid boost is "Buzz" for now (button "Give it buzz", badge "Buzzing"). Still open: the protection name (wait for the app name), the voice guide.
+- **References:** `docs/originality.md`, `docs/mockups/originality-choices.html`
+
+### D-020 : Sign up asks only for email and password
 
 - **Date:** 2026-10-13
 - **Area:** Sign up, Accounts

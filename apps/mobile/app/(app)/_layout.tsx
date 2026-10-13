@@ -46,6 +46,10 @@ export default function AppLayout() {
       <Stack.Screen name="sell-form" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="filters" />
       <Stack.Screen name="conversation/[id]" />
+      <Stack.Screen name="checkout/index" />
+      <Stack.Screen name="checkout/address" />
+      <Stack.Screen name="checkout/done" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="bundle/[sellerId]" />
     </Stack>
   );
 }

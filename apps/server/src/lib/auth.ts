@@ -122,7 +122,7 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
     databaseHooks: {
       user: {
         create: {
-          // Sign up asks only for email and password (D-019). Everyone still needs a public username, so one is
+          // Sign up asks only for email and password (D-020). Everyone still needs a public username, so one is
           // made from the email and the person can change it in Edit profile. This runs for every way of
           // creating an account. The username plugin's own hook then normalises it and fills displayUsername.
           before: async (user) => {

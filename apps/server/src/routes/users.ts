@@ -139,6 +139,8 @@ const userRoutes: FastifyPluginAsyncZod = async (app) => {
           reviewCount: r.reviewerCount,
         },
         itemTitle: r.itemTitle,
+        orderId: r.review.orderId,
+        reviewerRole: r.review.reviewerRole,
         replyBody: r.review.replyBody,
         repliedAt: r.review.repliedAt?.toISOString() ?? null,
       }));

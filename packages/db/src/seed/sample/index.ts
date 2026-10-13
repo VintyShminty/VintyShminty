@@ -551,6 +551,8 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
       conversationId: conv.id,
       offerId,
       status: spec.status,
+      // A checkout that waits for payment holds the item for 12 hours in the sample data, so it can be tested by hand.
+      payByAt: spec.status === "pending_payment" ? new Date(now.getTime() + 12 * HOUR) : null,
       cancelReason: spec.status === "cancelled" ? (spec.cancelReason ?? "other") : null,
       cancelledById:
         spec.status === "cancelled"
@@ -583,8 +585,9 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
         : null,
       completedAt: spec.status === "completed" ? completedAt : null,
       cancelledAt: spec.status === "cancelled" ? finalAt : null,
-      shipByAt: spec.status === "paid" ? plus(paidAt, 5 * 24 * 60) : null,
-      autoCompleteAt: spec.status === "delivered" ? plus(deliveredAt, 48 * 60) : null,
+      // Sample orders still waiting keep their deadlines in the future, so the background jobs leave them alone for a while.
+      shipByAt: spec.status === "paid" ? new Date(paidAt.getTime() + 5 * DAY) : null,
+      autoCompleteAt: spec.status === "delivered" ? new Date(now.getTime() + 3 * DAY) : null,
       createdAt: t0,
       updatedAt: finalAt,
     });
@@ -798,7 +801,7 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
       } else if (spec.status === "pending_payment") {
         item.row.status = "reserved";
         item.row.reservedForUserId = buyer.id;
-        item.row.reservedUntil = new Date(now.getTime() + 20 * 60_000);
+        item.row.reservedUntil = new Date(now.getTime() + 12 * HOUR);
       }
       // cancelled and refunded orders leave the listing active
     }
@@ -884,17 +887,81 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
   single("disputed", 11);
   single("refunded", 26);
 
+  // The three people the dev accounts sign in as get orders in every state, on both sides, so each screen has
+  // something to show: they buy and they sell, with reviews, a balance and a few pretend withdrawals.
+  {
+    const oliver = person("oliver.smith");
+    const tamar = person("tamar.avraham");
+    const noa = person("noa_levi");
+    const buying = (
+      buyer: Person,
+      status: OrderStatus,
+      startDaysAgo: number,
+      extra: Partial<OrderSpec> = {},
+    ) => {
+      const item = takeFor(buyer.id);
+      placeOrder({ status, items: [item], buyer, startDaysAgo, ...extra });
+    };
+    const selling = (
+      seller: Person,
+      status: OrderStatus,
+      startDaysAgo: number,
+      extra: Partial<OrderSpec> = {},
+    ) => {
+      const item = freeItems().find((i) => i.row.sellerId === seller.id);
+      if (!item) return;
+      placeOrder({ status, items: [item], buyer: buyerFor(seller.id), startDaysAgo, ...extra });
+    };
+    buying(oliver, "pending_payment", 0.02, { via: "offer" });
+    buying(oliver, "paid", 0.7);
+    buying(oliver, "shipped", 3);
+    buying(oliver, "delivered", 8);
+    buying(oliver, "completed", 15, { review: "member" });
+    buying(oliver, "cancelled", 7, { cancelReason: "buyer_cancelled" });
+    buying(tamar, "paid", 1.1);
+    buying(tamar, "shipped", 2.5, { via: "offer" });
+    buying(tamar, "delivered", 6);
+    buying(tamar, "completed", 20, { review: "member" });
+    buying(tamar, "completed", 30, { review: "automatic" });
+    buying(tamar, "cancelled", 10, { cancelReason: "seller_cancelled" });
+    buying(noa, "shipped", 4);
+    buying(noa, "delivered", 9);
+    buying(noa, "completed", 13, { review: "member" });
+    buying(noa, "completed", 40, { review: "none" });
+    buying(noa, "cancelled", 18, { cancelReason: "payment_failed" });
+    selling(oliver, "paid", 0.8);
+    selling(oliver, "delivered", 5);
+    selling(oliver, "completed", 17, { review: "member" });
+    selling(tamar, "shipped", 3.5);
+    selling(tamar, "completed", 22, { review: "member" });
+    selling(tamar, "cancelled", 14, { cancelReason: "seller_cancelled" });
+    selling(noa, "paid", 0.4);
+    selling(noa, "shipped", 2);
+    selling(noa, "completed", 11, { review: "member" });
+    selling(noa, "completed", 35, { review: "automatic" });
+  }
+
   // ---- conversations that never reached an order
   const openItems = freeItems();
   let cursor = 0;
   const nextOpen = () => openItems[cursor++] as Item;
   const lowOffer = (item: Item, pct: number) =>
     roundTo(((item.row.priceMinor as number) * pct) / 100 / 100, 5) * 100;
-  const startConv = (item: Item, turns: number, startedHoursAgo: number) => {
-    const buyer = buyerFor(item.row.sellerId);
+  const startConv = (item: Item, turns: number, startedHoursAgo: number, chosenBuyer?: Person) => {
+    const buyer = chosenBuyer ?? buyerFor(item.row.sellerId);
     const conv = getConversation(item, buyer, ago(0, startedHoursAgo));
     chat(conv, item.lang, ago(0, startedHoursAgo), turns);
     return { conv, buyer };
+  };
+  /** The next free item, or the next free item that fits (for example one that a dev user sells). */
+  const pickOpen = (fits?: (item: Item) => boolean) => {
+    const at = fits ? openItems.findIndex((it, i) => i >= cursor && fits(it)) : -1;
+    if (at >= 0) {
+      const found = openItems[at] as Item;
+      openItems[at] = openItems[cursor] as Item;
+      openItems[cursor] = found;
+    }
+    return nextOpen();
   };
   for (let i = 0; i < 8; i++) startConv(nextOpen(), rng.int(1, 4), rng.int(2, 24 * 12));
   for (let i = 0; i < 2; i++) {
@@ -911,7 +978,8 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
       createdAt: ago(0, rng.int(1, 4)),
     });
   }
-  const openOffers: [Insert<typeof offers>["status"], number][] = [
+  type OpenOfferStatus = Insert<typeof offers>["status"];
+  const openOffers: [OpenOfferStatus, number][] = [
     ["pending", 85],
     ["pending", 80],
     ["pending", 90],
@@ -925,10 +993,9 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
     ["expired", 80],
     ["withdrawn", 90],
   ];
-  for (const [status, pct] of openOffers) {
-    const item = nextOpen();
+  const addOpenOffer = (status: OpenOfferStatus, pct: number, item: Item, chosenBuyer?: Person) => {
     const hoursAgo = status === "expired" ? 24 * 6 : status === "pending" ? rng.int(1, 30) : rng.int(10, 100);
-    const { conv, buyer } = startConv(item, 1, hoursAgo + 2);
+    const { conv, buyer } = startConv(item, 1, hoursAgo + 2, chosenBuyer);
     const at = ago(0, hoursAgo);
     makeOffer(conv, item, lowOffer(item, pct), buyer.id, status, at);
     if (status === "pending")
@@ -951,11 +1018,11 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
     }
     if (status === "expired") system(conv.id, "offer_expired", plus(at, 48 * 60));
     if (status === "withdrawn") system(conv.id, "offer_withdrawn", plus(at, 30));
-  }
+  };
+  for (const [status, pct] of openOffers) addOpenOffer(status, pct, nextOpen());
   // countered: the buyer's offer was countered and the seller's counter waits for the buyer
-  for (let i = 0; i < 2; i++) {
-    const item = nextOpen();
-    const { conv, buyer } = startConv(item, 1, 60);
+  const addCounter = (item: Item, chosenBuyer?: Person) => {
+    const { conv, buyer } = startConv(item, 1, 60, chosenBuyer);
     const first = makeOffer(conv, item, lowOffer(item, 70), buyer.id, "countered", ago(0, 50));
     system(conv.id, "offer_countered", ago(0, 48));
     makeOffer(conv, item, lowOffer(item, 90), item.row.sellerId, "pending", ago(0, 47), first);
@@ -966,11 +1033,11 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
       { listingId: item.row.id, conversationId: conv.id },
       { amountMinor: lowOffer(item, 90), title: item.row.title },
     );
-  }
+  };
+  for (let i = 0; i < 2; i++) addCounter(nextOpen());
   // accepted but not paid yet: the listing is reserved for the buyer
-  for (let i = 0; i < 2; i++) {
-    const item = nextOpen();
-    const { conv, buyer } = startConv(item, 1, 8);
+  const addAccepted = (item: Item, chosenBuyer?: Person) => {
+    const { conv, buyer } = startConv(item, 1, 8, chosenBuyer);
     makeOffer(conv, item, lowOffer(item, 88), buyer.id, "accepted", ago(0, 6));
     system(conv.id, "offer_accepted", ago(0, 5));
     item.row.status = "reserved";
@@ -983,6 +1050,32 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
       { listingId: item.row.id, conversationId: conv.id },
       { title: item.row.title },
     );
+  };
+  for (let i = 0; i < 2; i++) addAccepted(nextOpen());
+
+  // Offers for the dev accounts, in several states and on both sides.
+  {
+    const oliver = person("oliver.smith");
+    const tamar = person("tamar.avraham");
+    const noa = person("noa_levi");
+    const notMine = (who: Person) => (it: Item) => it.row.sellerId !== who.id;
+    const sells = (who: Person) => (it: Item) => it.row.sellerId === who.id;
+    // They make offers
+    addOpenOffer("pending", 80, pickOpen(notMine(oliver)), oliver);
+    addOpenOffer("declined", 65, pickOpen(notMine(oliver)), oliver);
+    addAccepted(pickOpen(notMine(oliver)), oliver);
+    addCounter(pickOpen(notMine(tamar)), tamar);
+    addOpenOffer("pending", 85, pickOpen(notMine(tamar)), tamar);
+    addOpenOffer("expired", 80, pickOpen(notMine(tamar)), tamar);
+    addOpenOffer("pending", 78, pickOpen(notMine(noa)), noa);
+    addOpenOffer("withdrawn", 90, pickOpen(notMine(noa)), noa);
+    addAccepted(pickOpen(notMine(noa)), noa);
+    // They receive offers
+    for (const who of [oliver, tamar, noa]) {
+      addOpenOffer("pending", 82, pickOpen(sells(who)));
+      addOpenOffer("pending", 70, pickOpen(sells(who)));
+      addOpenOffer("declined", 60, pickOpen(sells(who)));
+    }
   }
   // A few open bundles in progress
   for (let i = 0; i < 2; i++) {

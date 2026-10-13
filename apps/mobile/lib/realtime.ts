@@ -20,6 +20,8 @@ import {
   upsertMessage,
   upsertNotification,
 } from "@/lib/messaging-queries";
+import { applyListingUpdate, patchMessageOffer } from "@/lib/order-flow-queries";
+import { refreshAfterOrderChange } from "@/lib/orders-queries";
 import { queryClient } from "@/lib/query-client";
 
 // One live connection for the signed in person (docs/blueprint/api.md, Socket.IO). Events write into the same
@@ -79,6 +81,12 @@ function refetchAfterReconnect() {
   void queryClient.invalidateQueries({ queryKey: ["conversations"] });
   void queryClient.invalidateQueries({ queryKey: ["unread"] });
   void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+  void queryClient.invalidateQueries({ queryKey: ["orders"] });
+  void queryClient.invalidateQueries({ queryKey: ["order"] });
+  void queryClient.invalidateQueries({ queryKey: ["balance"] });
+  // Offers (the bubbles are inside the messages) and items (reserved, sold, repriced) may have moved too.
+  void queryClient.invalidateQueries({ queryKey: ["offer-quota"] });
+  void queryClient.invalidateQueries({ queryKey: ["listing"] });
   for (const id of openThreads) {
     void queryClient.invalidateQueries({ queryKey: ["messages", id] });
     void queryClient.invalidateQueries({ queryKey: ["conversation", id] });
@@ -122,6 +130,17 @@ function connect(userId: string) {
     }
   });
 
+  // An offer bubble changed state (accepted, declined, countered...). The chat header may change too: accepting an
+  // offer reserves the item.
+  s.on("message:updated", ({ conversationId, offer }) => {
+    if (offer) patchMessageOffer(queryClient, conversationId, offer.id, offer);
+    void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
+    void queryClient.invalidateQueries({ queryKey: ["offer-quota"] });
+  });
+
+  // An item was reserved, sold, released or repriced: every list that shows it follows.
+  s.on("listing:updated", (update) => applyListingUpdate(queryClient, update));
+
   s.on("conversation:updated", (p) => {
     // Reading a chat sends this event without a kind: keep the preview we already have.
     const patch = {
@@ -155,8 +174,17 @@ function connect(userId: string) {
   s.on("notification:new", ({ notification }) => {
     upsertNotification(queryClient, notification);
     void queryClient.invalidateQueries({ queryKey: ["unread"] });
+    // News about an order (a review came in, money was released...) changes what its page shows.
+    if (notification.orderId)
+      void queryClient.invalidateQueries({ queryKey: ["order", notification.orderId] });
   });
   s.on("unread:count", (counts) => setUnread(queryClient, counts));
+  // An order moved (paid, shipped, delivered...): My orders, the open order page and the balance read it again.
+  s.on("order:updated", ({ orderId, conversationId }) => {
+    void queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+    refreshAfterOrderChange(queryClient);
+    if (conversationId) void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
+  });
   s.on("typing", ({ conversationId, userId: who, isTyping }) => {
     if (who !== me) setTyping(conversationId, isTyping);
   });

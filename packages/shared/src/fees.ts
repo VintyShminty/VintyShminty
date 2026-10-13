@@ -80,3 +80,26 @@ export function buyerPriceMinor(
 ): number {
   return itemPriceMinor + calculateBuyerProtectionFee(itemPriceMinor, rule);
 }
+
+export interface BundleTier {
+  minItems: number;
+  percentOff: number;
+}
+
+/** The discount percent for a bundle of this size: the best step of the seller's ladder that the item count reaches. */
+export function bundleDiscountPercentFor(tiers: readonly BundleTier[], itemCount: number): number {
+  let percent = 0;
+  for (const tier of tiers) {
+    if (itemCount >= tier.minItems && tier.percentOff > percent) percent = tier.percentOff;
+  }
+  return percent;
+}
+
+/** The next step up, for "Add 2 items to get 5% off". Null when the ladder has no step above the item count. */
+export function nextBundleTier(
+  tiers: readonly BundleTier[],
+  itemCount: number,
+): { addItems: number; percentOff: number } | null {
+  const above = tiers.filter((t) => t.minItems > itemCount).sort((a, b) => a.minItems - b.minItems)[0];
+  return above ? { addItems: above.minItems - itemCount, percentOff: above.percentOff } : null;
+}

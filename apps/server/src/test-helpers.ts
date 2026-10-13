@@ -1,4 +1,4 @@
-import { createDb, type Database, users } from "@vinty/db";
+import { createDb, type Database, orders, users, walletEntries } from "@vinty/db";
 import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
@@ -15,6 +15,8 @@ export function testEnv(overrides: Record<string, string> = {}): Env {
     DATABASE_URL: databaseUrl ?? "postgres://test:test@localhost:5432/test",
     MAIL_TRANSPORT: "memory",
     AUTH_RATE_LIMIT_MAX: "1000",
+    JOBS_INTERVAL_SECONDS: "0",
+    SIMULATED_DELIVERY_SECONDS: "0",
     ...overrides,
   });
 }
@@ -79,6 +81,17 @@ export async function cleanupTestUsers(database: Database, ids: string[], { only
   const conditions = onlyIds ? [] : [like(users.email, "vt-%@test.invalid")];
   if (ids.length > 0) conditions.push(inArray(users.id, ids));
   if (conditions.length === 0) return;
+  // Orders and money rows keep their people (on delete restrict), so they go first.
+  const doomed = (
+    await db
+      .select({ id: users.id })
+      .from(users)
+      .where(or(...conditions))
+  ).map((u) => u.id);
+  if (doomed.length > 0) {
+    await db.delete(orders).where(or(inArray(orders.buyerId, doomed), inArray(orders.sellerId, doomed)));
+    await db.delete(walletEntries).where(inArray(walletEntries.userId, doomed));
+  }
   await db.delete(users).where(or(...conditions));
 }
 
@@ -133,13 +146,16 @@ export async function publishTestListing(
   ctx: TestContext,
   owner: { token: string; id: string },
   title: string,
+  /** `last` takes a category from the far end of the tree, so these listings do not crowd the ones other tests look for. */
+  where: "first" | "last" = "first",
 ) {
   const reference = (await ctx.app.inject({ method: "GET", url: "/v1/reference" })).json() as ReferenceData;
   const leaves = (nodes: CategoryNode[]): CategoryNode[] =>
     nodes.flatMap((n) => (n.isLeaf ? [n] : leaves(n.children)));
-  const category = leaves(reference.categories).find(
+  const fits = leaves(reference.categories).filter(
     (c) => c.rules.size === "required" && c.rules.brand !== "hidden" && c.sizeGroupIds.length > 0,
-  ) as CategoryNode;
+  );
+  const category = (where === "last" ? fits.at(-1) : fits[0]) as CategoryNode;
   const brandId = (await ctx.app.inject({ method: "GET", url: "/v1/brands?limit=1" })).json().items[0].id;
   const group = reference.sizeGroups.find((g) => category.sizeGroupIds.includes(g.id));
   photoCounter += 1;
@@ -169,3 +185,26 @@ export async function publishTestListing(
   if (res.statusCode !== 201) throw new Error(`Could not publish a test listing: ${res.body}`);
   return (res.json() as { id: string }).id;
 }
+
+export type TestPerson = { token: string; id: string; username: string };
+
+/** A short helper for calling the API as a person (or as nobody when `token` is left out). */
+export function apiCaller(ctx: TestContext) {
+  return (
+    method: "GET" | "PUT" | "POST" | "PATCH" | "DELETE",
+    url: string,
+    token?: string,
+    payload?: object,
+    headers: Record<string, string> = {},
+  ) =>
+    ctx.app.inject({
+      method,
+      url,
+      headers: { ...(token ? bearer(token) : {}), ...headers },
+      ...(payload ? { payload } : {}),
+    });
+}
+
+/** A listing in a quiet corner of the category tree. Use it in tests that publish many listings. */
+export const publishQuietListing = (ctx: TestContext, owner: { token: string; id: string }, title: string) =>
+  publishTestListing(ctx, owner, title, "last");

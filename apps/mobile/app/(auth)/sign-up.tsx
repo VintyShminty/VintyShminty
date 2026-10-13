@@ -32,7 +32,7 @@ export default function SignUp() {
     const { error } = await authClient.signUp.email({
       email: values.email,
       password: values.password,
-      // No name or username here (D-019). The server makes the username from the email, and the name starts as it.
+      // No name or username here (D-020). The server makes the username from the email, and the name starts as it.
       name: "",
     });
     if (error) {

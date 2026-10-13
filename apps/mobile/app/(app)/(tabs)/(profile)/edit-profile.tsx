@@ -21,7 +21,7 @@ import { describeApiError } from "@/lib/auth-errors";
 import { meQuery, useUpdateProfile } from "@/lib/queries";
 import { pickAvatar, uploadAvatar } from "@/lib/upload";
 
-/** Settings, Profile details: photo, display name, about you, city, username (D-019), language. */
+/** Settings, Profile details: photo, display name, about you, city, username (D-020), language. */
 export default function EditProfile() {
   const { t, i18n } = useTranslation();
   const router = useRouter();

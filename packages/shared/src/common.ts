@@ -40,6 +40,8 @@ export const errorResponseSchema = z.object({
     message: z.string(),
     /** Field level problems for validation_failed. */
     fields: z.record(z.string(), z.string()).optional(),
+    /** For `offer_limit_reached`: when the next offer slot frees up. */
+    resetsAt: isoDateTimeSchema.optional(),
   }),
 });
 export type ErrorResponse = z.infer<typeof errorResponseSchema>;

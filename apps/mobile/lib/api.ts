@@ -18,16 +18,23 @@ export class ApiClientError extends Error {
   }
 }
 
-type Options<T> = { method?: string; body?: unknown; schema?: z.ZodType<T> };
+type Options<T> = {
+  method?: string;
+  body?: unknown;
+  schema?: z.ZodType<T>;
+  /** Extra headers, for example `Idempotency-Key`. */
+  headers?: Record<string, string>;
+};
 
 /** Calls /v1 on the server with the saved session. Throws ApiClientError. */
 export async function api<T = void>(
   path: string,
-  { method = "GET", body, schema }: Options<T> = {},
+  { method = "GET", body, schema, headers: extra }: Options<T> = {},
 ): Promise<T> {
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Accept-Language": i18n.language,
+    ...extra,
   };
   const cookie = await authClient.getCookie();
   if (cookie) headers.Cookie = cookie;

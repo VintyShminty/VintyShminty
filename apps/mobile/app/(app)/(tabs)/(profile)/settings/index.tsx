@@ -5,6 +5,7 @@ import {
   Lock,
   LogOut,
   Mail,
+  MapPin,
   ScanFace,
   ShieldCheck,
   SlidersHorizontal,
@@ -86,6 +87,7 @@ export default function Settings() {
             label={t("settings.account")}
             onPress={() => router.push("/settings/account")}
           />
+          <Row icon={MapPin} label={t("address.title")} onPress={() => router.push("/settings/addresses")} />
           <Row
             icon={ShieldCheck}
             label={t("settings.security")}

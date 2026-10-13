@@ -110,3 +110,55 @@ export function canOfferActorTransition(
 ): boolean {
   return canOfferTransition(status, event) && OFFER_EVENT_ACTORS[event].includes(actor);
 }
+
+/** The buyer can report a problem for this long after delivery. */
+export const DISPUTE_WINDOW_HOURS = 48;
+
+/** True while a delivered order can still be disputed. An order that has no delivery time yet is always inside it. */
+export function isWithinDisputeWindow(deliveredAt: Date | null, now: Date): boolean {
+  if (!deliveredAt) return true;
+  return now.getTime() - deliveredAt.getTime() <= DISPUTE_WINDOW_HOURS * 3_600_000;
+}
+
+/**
+ * Who may cancel at which step, on top of the transition table. A seller has nothing to cancel while the buyer is
+ * still paying, so only the buyer (or the system, when the hold runs out) can end an unpaid order. After payment
+ * both people can cancel until the parcel is shipped.
+ */
+export function canActorCancel(status: OrderStatus, actor: ActorRole): boolean {
+  if (!canActorTransition(status, "cancel", actor)) return false;
+  if (status === "pending_payment") return actor !== "seller";
+  return true;
+}
+
+/** The cancel reason an actor leaves behind. The system picks its own reason (hold expired, no shipment). */
+export function cancelReasonFor(actor: ActorRole): "buyer_cancelled" | "seller_cancelled" | "other" {
+  return actor === "buyer" ? "buyer_cancelled" : actor === "seller" ? "seller_cancelled" : "other";
+}
+
+/**
+ * The buttons a person can use on an order right now, for the app to show or hide. `review` and the rest of the
+ * list are decided by the server from the same rules.
+ */
+export type OrderAction = "pay" | "cancel" | "ship" | "confirm_received" | "open_dispute";
+
+export function orderActionsFor(
+  status: OrderStatus,
+  role: "buyer" | "seller",
+  deliveredAt: Date | null,
+  now: Date,
+): OrderAction[] {
+  const actions: OrderAction[] = [];
+  if (role === "buyer") {
+    if (canActorTransition(status, "pay", "buyer")) actions.push("pay");
+    if (canActorCancel(status, "buyer")) actions.push("cancel");
+    if (canActorTransition(status, "confirm_received", "buyer")) actions.push("confirm_received");
+    if (canActorTransition(status, "open_dispute", "buyer") && isWithinDisputeWindow(deliveredAt, now)) {
+      actions.push("open_dispute");
+    }
+  } else {
+    if (canActorTransition(status, "ship", "seller")) actions.push("ship");
+    if (canActorCancel(status, "seller")) actions.push("cancel");
+  }
+  return actions;
+}

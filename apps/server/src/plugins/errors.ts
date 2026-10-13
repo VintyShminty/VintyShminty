@@ -3,7 +3,9 @@ import fp from "fastify-plugin";
 import { hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { ApiError } from "../lib/errors.js";
 
-type ErrorBody = { error: { code: ErrorCode; message: string; fields?: Record<string, string> } };
+type ErrorBody = {
+  error: { code: ErrorCode; message: string; fields?: Record<string, string>; resetsAt?: string };
+};
 
 /** One error shape for every failure (docs/blueprint/api.md, Errors). */
 export default fp(
@@ -14,7 +16,12 @@ export default fp(
       if (err instanceof ApiError) {
         if (err.retryAfterSeconds !== undefined) reply.header("Retry-After", String(err.retryAfterSeconds));
         return send(err.statusCode, {
-          error: { code: err.code, message: err.message, ...(err.fields ? { fields: err.fields } : {}) },
+          error: {
+            code: err.code,
+            message: err.message,
+            ...(err.fields ? { fields: err.fields } : {}),
+            ...(err.extra ?? {}),
+          },
         });
       }
       if (hasZodFastifySchemaValidationErrors(err)) {
