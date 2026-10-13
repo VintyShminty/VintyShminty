@@ -733,7 +733,7 @@
       "new_follower": "‏{{name}} התחיל/ה לעקוב אחריכם",
       "followed_seller_new_item": "‏{{name}} העלה/תה את {{title}}",
       "saved_search_match": "פריט חדש בחיפוש השמור שלכם: {{title}}",
-      "order_paid": "מכרתם את {{title}} ל-{{name}}",
+      "order_paid": "מכרתם את {{title}} לקונה {{name}}",
       "order_shipped": "ההזמנה של {{title}} בדרך אליכם",
       "order_delivered": "{{title}} נמסר. הקישו כדי לאשר שקיבלתם",
       "order_completed": "ההזמנה של {{title}} הושלמה",
@@ -904,8 +904,8 @@
     "moreItems_one": "{{title}} ועוד פריט אחד",
     "moreItems_two": "{{title}} ועוד שני פריטים",
     "moreItems_other": "{{title}} ועוד {{count}} פריטים",
-    "soldTo": "נמכר ל-{{name}}",
-    "boughtFrom": "נקנה מ-{{name}}",
+    "soldTo": "הקונה: {{name}}",
+    "boughtFrom": "המוכר: {{name}}",
     "youEarn": "תרוויחו",
     "status": {
       "pending_payment": {
@@ -990,11 +990,11 @@
       },
       "shipped": {
         "buyer": "לחצו על קיבלתי כשזה יגיע. אם זה לא מה שציפיתם, אפשר לפתוח מחלוקת",
-        "seller": "{{name}} יאשר/תאשר כשזה יגיע ואז תקבלו תשלום"
+        "seller": "הקונה יאשר כשזה יגיע ואז תקבלו תשלום"
       },
       "delivered": {
         "buyer": "לחצו על קיבלתי כדי לסיים את ההזמנה. אם משהו לא בסדר, פתחו מחלוקת תוך יומיים",
-        "seller": "הכסף עובר ליתרה שלכם כש-{{name}} יאשר/תאשר, או מעצמו אחרי יומיים"
+        "seller": "הכסף עובר ליתרה שלכם כשהקונה מאשר, או מעצמו אחרי יומיים"
       },
       "completed": {
         "buyer": "תודה שקניתם יד שנייה",
@@ -1049,7 +1049,7 @@
     "buyer": "קונה",
     "seller": "מוכר",
     "openProfile": "פתיחת הפרופיל של {{name}}",
-    "message": "הודעה ל-{{name}}",
+    "message": "הודעה אל {{name}}",
     "price": "מחיר",
     "itemsSubtotal": "פריטים",
     "bundleDiscount": "הנחת חבילה",
@@ -1116,7 +1116,7 @@
     "reply": "תגובה",
     "editReply": "עריכת תגובה",
     "replyTitle": "תגובה לביקורת",
-    "replyIntro": "התשובה שלכם ל-{{name}} פומבית",
+    "replyIntro": "התשובה שלכם פומבית וכולם יכולים לראות אותה",
     "replyLabel": "התגובה שלכם",
     "replyHint": "אפשר להגיד תודה או להבהיר דברים",
     "replySend": "שליחת תגובה",

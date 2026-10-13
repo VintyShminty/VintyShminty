@@ -165,7 +165,7 @@ export default function OrderScreen() {
     // The checkout flow lives in app/(app)/checkout (another branch). It takes the waiting order's id.
     router.push({ pathname: "/checkout", params: { orderId: order.id } } as unknown as Href);
   const primary = has("pay") || has("ship") || has("confirm_received");
-  const hasFooter = primary || has("cancel") || has("open_dispute") || order.canReview;
+  const hasFooter = primary || has("cancel") || has("open_dispute");
 
   return (
     <Screen bottomInset={false}>

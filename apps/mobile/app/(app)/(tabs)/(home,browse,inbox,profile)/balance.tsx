@@ -84,8 +84,8 @@ function EntryRow({ entry }: { entry: BalanceEntry }) {
               : "text-success",
         )}
       >
-        {entry.amountMinor > 0 ? "+" : ""}
-        {formatMoney(entry.amountMinor, entry.currency)}
+        {entry.amountMinor > 0 ? "+" : entry.amountMinor < 0 ? "-" : ""}
+        {formatMoney(Math.abs(entry.amountMinor), entry.currency)}
       </Text>
       {entry.orderId ? <ForwardIcon /> : null}
     </View>

@@ -188,7 +188,7 @@ export function AddressForm({
         onSubmitEditing={onSubmit}
         maxLength={40}
       />
-      <Row label={t("countries.IL")} value={t("address.country")} chevron={false} last />
+      <Row label={t("address.country")} value={t("countries.IL")} chevron={false} last />
       {showDefault ? (
         <View className="flex-row items-center justify-between gap-md">
           <Text weight={500} className="flex-1">

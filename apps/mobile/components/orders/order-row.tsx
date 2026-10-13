@@ -57,7 +57,8 @@ export function OrderRow({ order }: { order: OrderRowData }) {
         </Text>
         <Text variant="cardMeta" numberOfLines={1}>
           {t(isSeller ? "orders.soldTo" : "orders.boughtFrom", { name: who })}
-          {" · "}
+        </Text>
+        <Text variant="cardMeta" numberOfLines={1}>
           {formatDate(order.createdAt, i18n.language)}
         </Text>
         <View className="flex-row items-center gap-sm">

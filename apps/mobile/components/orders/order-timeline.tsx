@@ -42,7 +42,11 @@ export function OrderTimeline({ order }: { order: OrderDetail }) {
     return {
       key: e.id,
       label: t(`orders.event.${e.event}`),
-      note: [reason, e.note].filter(Boolean).join(". ") || undefined,
+      // Notes written by the system ("Simulated payment") repeat the step name, so only people's words show.
+      note:
+        [reason, e.event === "cancel" || e.event === "open_dispute" ? e.note : null]
+          .filter(Boolean)
+          .join(". ") || undefined,
       at: e.createdAt,
       state: "done" as const,
     };

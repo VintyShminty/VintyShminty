@@ -53,10 +53,16 @@ export default function Addresses() {
                   </Text>
                   {a.isDefault ? <Badge variant="neutral" icon={Check} label={t("address.default")} /> : null}
                 </View>
-                <Text variant="bodySmall" className="text-text-3" numberOfLines={2}>
-                  {[a.label ? a.fullName : null, a.line1, a.line2, `${a.city} ${a.postcode}`]
-                    .filter(Boolean)
-                    .join(", ")}
+                {a.label ? (
+                  <Text variant="bodySmall" className="text-text-3" numberOfLines={1}>
+                    {a.fullName}
+                  </Text>
+                ) : null}
+                <Text variant="bodySmall" className="text-text-3" numberOfLines={1}>
+                  {[a.line1, a.line2].filter(Boolean).join(" ")}
+                </Text>
+                <Text variant="bodySmall" className="text-text-3" numberOfLines={1}>
+                  {a.postcode} {a.city}
                 </Text>
               </View>
               <Pressable
