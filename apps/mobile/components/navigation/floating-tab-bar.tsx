@@ -1,6 +1,6 @@
 import type { Tabs } from "expo-router";
 import type { LucideIcon } from "lucide-react-native";
-import { Camera, House, LayoutGrid, MessageCircle, User } from "lucide-react-native";
+import { House, LayoutGrid, MessageCircle, Tag, User } from "lucide-react-native";
 import type { ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
@@ -16,7 +16,7 @@ type BottomTabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>["tab
 const TABS: { route: string; icon: LucideIcon; label: string; sell?: boolean }[] = [
   { route: "(home)", icon: House, label: "tabs.home" },
   { route: "(browse)", icon: LayoutGrid, label: "tabs.browse" },
-  { route: "sell", icon: Camera, label: "tabs.sell", sell: true },
+  { route: "sell", icon: Tag, label: "tabs.sell", sell: true },
   { route: "(inbox)", icon: MessageCircle, label: "tabs.inbox" },
   { route: "(profile)", icon: User, label: "tabs.profile" },
 ];
