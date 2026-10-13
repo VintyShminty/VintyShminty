@@ -11,11 +11,13 @@ import {
   USERNAME_MIN,
 } from "@vinty/shared";
 import { betterAuth } from "better-auth";
+import { createAuthMiddleware } from "better-auth/api";
 import { admin, bearer, emailOTP, username } from "better-auth/plugins";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { Env } from "../env.js";
 import { type CodeEmailKind, codeEmail } from "./emails.js";
 import type { Mailer } from "./mail.js";
+import { generateUsername } from "./username.js";
 
 type Db = NonNullable<Database["db"]>;
 
@@ -108,9 +110,38 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
     session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
     // Better Auth's own limiter (per IP and path). The stricter per route limits sit in plugins/auth.ts.
     rateLimit: { enabled: env.NODE_ENV !== "test", window: 60, max: 100 },
+    hooks: {
+      // The app sends no name at sign up. The sign up route insists on one, so give it an empty one and let
+      // the user hook above fill it with the username.
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path === "/sign-up/email" && ctx.body && typeof ctx.body.name !== "string") {
+          ctx.body.name = "";
+        }
+      }),
+    },
     databaseHooks: {
       user: {
         create: {
+          // Sign up asks only for email and password (D-019). Everyone still needs a public username, so one is
+          // made from the email and the person can change it in Edit profile. This runs for every way of
+          // creating an account. The username plugin's own hook then normalises it and fills displayUsername.
+          before: async (user) => {
+            const hasUsername = typeof user.username === "string" && user.username.length > 0;
+            const username = hasUsername
+              ? (user.username as string)
+              : await generateUsername(user.email, async (candidate) => {
+                  const [row] = await db
+                    .select({ id: users.id })
+                    .from(users)
+                    .where(sql`lower(${users.username}) = ${candidate.toLowerCase()}`)
+                    .limit(1);
+                  return Boolean(row);
+                });
+            const name = typeof user.name === "string" && user.name.trim() ? user.name : username;
+            return {
+              data: { ...user, name, ...(hasUsername ? {} : { username, displayUsername: username }) },
+            };
+          },
           // Every user gets a profile and a settings row, in the language the app was using.
           after: async (user, ctx) => {
             const headers = ctx?.request?.headers ?? ctx?.headers;

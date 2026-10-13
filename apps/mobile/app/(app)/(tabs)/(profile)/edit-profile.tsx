@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { BIO_MAX, type EditProfileForm, editProfileFormSchema } from "@vinty/shared";
 import { useRouter } from "expo-router";
-import { Camera, Globe } from "lucide-react-native";
+import { AtSign, Camera, Globe } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -21,7 +21,7 @@ import { describeApiError } from "@/lib/auth-errors";
 import { meQuery, useUpdateProfile } from "@/lib/queries";
 import { pickAvatar, uploadAvatar } from "@/lib/upload";
 
-/** Settings, Profile details: photo, display name, about you, city, language. */
+/** Settings, Profile details: photo, display name, about you, city, username (D-019), language. */
 export default function EditProfile() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -163,6 +163,12 @@ export default function EditProfile() {
         </View>
 
         <View className="-mx-lg mt-lg">
+          <Row
+            icon={AtSign}
+            label={t("fields.username")}
+            value={me.username ?? undefined}
+            onPress={() => router.push("/settings/change-username")}
+          />
           <Row
             icon={Globe}
             label={t("settings.language")}

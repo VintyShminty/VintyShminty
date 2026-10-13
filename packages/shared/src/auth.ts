@@ -67,10 +67,13 @@ export const otpSchema = z
   .trim()
   .regex(new RegExp(`^\\d{${OTP_LENGTH}}$`), "validation.code.invalid");
 
-/** Sign up with email, username and password. */
+/**
+ * Sign up with email and password. The server makes the username from the email (D-019), so the field is optional
+ * and only kept so older callers that send one keep working.
+ */
 export const signUpInputSchema = z.object({
   email: emailSchema,
-  username: usernameSchema,
+  username: usernameSchema.optional(),
   password: passwordSchema,
 });
 export type SignUpInput = z.infer<typeof signUpInputSchema>;

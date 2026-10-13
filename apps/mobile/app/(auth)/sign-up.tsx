@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type SignUpInput, signUpInputSchema, usernameSchema } from "@vinty/shared";
+import { type SignUpInput, signUpInputSchema } from "@vinty/shared";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -20,33 +20,24 @@ export default function SignUp() {
   const { t } = useTranslation();
   const router = useRouter();
   const [banner, setBanner] = useState<string | null>(null);
-  const usernameRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
-  const { control, handleSubmit, setError, getValues, formState } = useForm<SignUpInput>({
+  const { control, handleSubmit, setError, formState } = useForm<SignUpInput>({
     resolver: zodResolver(signUpInputSchema),
     mode: "onTouched",
-    defaultValues: { email: "", username: "", password: "" },
+    defaultValues: { email: "", password: "" },
   });
-
-  // Tell them right away if the username is taken, not after they have chosen a password too.
-  const checkUsername = async () => {
-    const username = getValues("username");
-    if (!usernameSchema.safeParse(username).success) return;
-    const { data } = await authClient.isUsernameAvailable({ username });
-    if (data && !data.available) setError("username", { message: "validation.username.taken" });
-  };
 
   const onSubmit = handleSubmit(async (values) => {
     setBanner(null);
     const { error } = await authClient.signUp.email({
       email: values.email,
       password: values.password,
-      name: values.username,
-      username: values.username,
+      // No name or username here (D-019). The server makes the username from the email, and the name starts as it.
+      name: "",
     });
     if (error) {
       const problem = describeAuthError(error);
-      if (problem.field === "email" || problem.field === "username" || problem.field === "password") {
+      if (problem.field === "email" || problem.field === "password") {
         setError(problem.field, { message: problem.key });
       } else {
         setBanner(t(problem.key));
@@ -81,21 +72,6 @@ export default function SignUp() {
             autoComplete="email"
             textContentType="emailAddress"
             returnKeyType="next"
-            onSubmitEditing={() => usernameRef.current?.focus()}
-            submitBehavior="submit"
-          />
-          <FormInput
-            control={control}
-            name="username"
-            inputRef={usernameRef}
-            label={t("fields.username")}
-            hint={t("fields.usernameHint")}
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete="username-new"
-            textContentType="username"
-            returnKeyType="next"
-            onBlur={checkUsername}
             onSubmitEditing={() => passwordRef.current?.focus()}
             submitBehavior="submit"
           />
