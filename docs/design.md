@@ -378,6 +378,26 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `direction: "ltr"` on the tab bar style in `apps/mobile/app/(app)/(tabs)/_layout.tsx`.
 - **References:** D-011, CLAUDE.md Right to left
 
+### D-017 : The tab bar stays on every page opened from a tab
+
+- **Date:** 2026-10-13
+- **Area:** Navigation
+- **Status:** Approved (Eden, 2026-10-13)
+- **Decision:** The bottom tab bar stays visible on the item page, a member's profile, Search, Favourites, Saved searches, Settings and Edit profile. Each tab (Home, Browse, Inbox, Profile) has its own stack, so a page opened from a tab pushes inside that tab and the tab keeps its own history. Tapping the active tab again goes back to its first screen. The pages with no tab bar are the task pages: the sell form (D-015), the Filter panel and its sub-pages (D-014), the conversation screen, and the Face ID offer.
+- **Rationale:** Opening an item from Browse and finding yourself in no tab at all felt lost. With a stack per tab you always know where you are, and Back returns to the same scroll position in the same tab.
+- **Implementation:** `apps/mobile/app/(app)/(tabs)/` holds one group per tab (`(home)`, `(browse)`, `(inbox)`, `(profile)`), each with a stack layout (`components/navigation/tab-stack.tsx`). Pages shared by every tab live once in `(home,browse,inbox,profile)/` (listing, user, search, favourites, saved-searches). Settings and Edit profile live in `(profile)/`. To link to an item or a person from any screen use `router.push({ pathname: "/listing/[id]", params: { id } })` and `{ pathname: "/user/[id]", params: { id } }`. The current tab is kept. To open one in a specific tab use the group in the path, for example `/(profile)/listing/123`. A cold link (notification tap, deep link) has no current tab and opens in the first group alphabetically (Browse). Inside the tab stacks the bottom safe area is zero because the tab bar already clears the home indicator.
+- **References:** D-009, D-014, D-015, D-016
+
+### D-018 : The app sets the layout direction, so the language switches instantly
+
+- **Date:** 2026-10-13
+- **Area:** Right to left, Navigation
+- **Status:** Approved (Eden, 2026-10-13)
+- **Decision:** Switching between English and Hebrew in Settings changes the language and mirrors the whole layout at once, with no restart. The phone's own layout direction stays left to right always. The app puts `direction: rtl` or `ltr` on its root view from the app language and tells the navigation the same, so pages push in from the right and swipe back from the left edge in Hebrew. A Hebrew phone with the app in English, and an English phone with the app in Hebrew, both look right because the phone's language no longer decides anything about layout.
+- **Rationale:** The old way (`I18nManager.forceRTL`) only applied at app start, so every switch needed a restart. People who switch languages should see the change immediately.
+- **Implementation:** `apps/mobile/app/_layout.tsx` (root `direction` style and expo-router `LocaleProvider`), `apps/mobile/lib/rtl.ts` (`useIsRtl`, `ensureNativeLtr`), `Text` and `Input` align by app language, back and forward arrows use `useIsRtl`. `app.json` no longer lists Hebrew as a supported locale, so iOS never starts the app in right to left by itself (system dialogs on a Hebrew phone stay in English). NativeWind's `rtl:` variant no longer fires (it reads the phone), so pick styles from the language instead.
+- **References:** D-011, D-016, CLAUDE.md Right to left
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 

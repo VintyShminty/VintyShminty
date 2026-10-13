@@ -9,7 +9,6 @@
   "common": {
     "placeholderScreen": "Placeholder screen",
     "language": "Language",
-    "restartNote": "The layout direction changes after the app restarts",
     "close": "Close",
     "back": "Back",
     "cancel": "Cancel",

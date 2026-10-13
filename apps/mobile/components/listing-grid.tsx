@@ -21,6 +21,8 @@ type ListingGridProps = {
   emptyMessage?: string;
   /** Hides the heart on every card (a list known to be the viewer's own items). */
   hideHearts?: boolean;
+  /** Favourites: sold items keep their heart so they can be removed. */
+  heartOnSold?: boolean;
   /** Extra space under the last row. The tab bar is handled by the screen, so this defaults to the safe area. */
   bottomPadding?: number;
   onScrollBeginDrag?: () => void;
@@ -53,6 +55,7 @@ function ListingGrid({
   emptyTitle,
   emptyMessage,
   hideHearts,
+  heartOnSold,
   bottomPadding,
   onScrollBeginDrag,
 }: ListingGridProps) {
@@ -128,9 +131,9 @@ function ListingGrid({
       ListEmptyComponent={body}
       renderItem={({ item }) => (
         <View className="flex-row gap-md px-lg pb-lg">
-          <ListingCard listing={item.left} hideHeart={hideHearts} />
+          <ListingCard listing={item.left} hideHeart={hideHearts} heartOnSold={heartOnSold} />
           {item.right ? (
-            <ListingCard listing={item.right} hideHeart={hideHearts} />
+            <ListingCard listing={item.right} hideHeart={hideHearts} heartOnSold={heartOnSold} />
           ) : (
             <View className="flex-1" />
           )}

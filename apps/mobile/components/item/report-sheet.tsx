@@ -129,7 +129,7 @@ function ReportSheet({ ref, targetType, targetId }: ReportSheetProps) {
                 multiline
                 maxLength={2000}
                 accessibilityLabel={t("report.details")}
-                className="min-h-[80px] font-aileron-400 text-body text-text-1 rtl:font-heebo-400"
+                className={`min-h-[80px] text-body text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
                 textAlignVertical="top"
                 style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
               />

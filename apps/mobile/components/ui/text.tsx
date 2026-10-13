@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Text as RNText } from "react-native";
+import { isRtlLanguage } from "@/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -100,10 +101,10 @@ function Text({ className, variant, weight, font, asChild = false, ...props }: T
     <Component
       className={cn(
         textVariants({ variant: resolvedVariant }),
-        // Start edge of the layout. React Native swaps "left" and "right" when the layout is right to left,
-        // so "text-left" means the start edge in both languages (right in Hebrew, left in English). The old
-        // "text-right for Hebrew" got swapped back to the left. className can still override (text-center).
-        "text-left",
+        // Start edge of the layout. The app sets the layout direction itself and the phone stays left to right
+        // (D-018), so left and right are the real sides here: right for Hebrew, left for English.
+        // className can still override (text-center).
+        isRtlLanguage(i18n.language) ? "text-right" : "text-left",
         family === "heebo" ? HEEBO[resolvedWeight] : AILERON[resolvedWeight],
         ctx.className,
         className,

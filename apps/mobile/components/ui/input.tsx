@@ -82,7 +82,8 @@ function Input({
             props.onBlur?.(e);
           }}
           className={cn(
-            "flex-1 font-aileron-400 text-body text-text-1 rtl:font-heebo-400",
+            "flex-1 text-body text-text-1",
+            isHe ? "font-heebo-400" : "font-aileron-400",
             isHe ? "text-right" : "text-left",
             multiline && "min-h-[96px] pt-xs",
             className,

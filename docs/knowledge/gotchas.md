@@ -16,11 +16,11 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 
 ## App
 
-- **Right to left changes only after a restart.** Layout direction is fixed at app start. Test real RTL in a development build, Expo Go forgets a forced RTL. Source: `CLAUDE.md`.
+- **Right to left follows the app language, not the phone (D-018).** The native side is always left to right and the app sets `direction` on its root view, so the language switch needs no restart. Never read `I18nManager.isRTL` (always false), use `useIsRtl()`. NativeWind `rtl:` classes never fire, pick the style from the language. Test in a development build. Source: `CLAUDE.md`, `lib/rtl.ts`.
+- **A page opened from a tab must live inside that tab (D-017).** Put shared pages in `app/(app)/(tabs)/(home,browse,inbox,profile)/`, not on the root stack, or the tab bar disappears. Source: `docs/design.md` D-017.
 - **A hard-coded colour fails a test.** Use tokens from `@/theme`. Source: `apps/mobile/tests/no-hardcoded-colours.test.ts`.
-- **Left and right styles break Hebrew.** Use start and end (`ps-`, `me-`, `text-start`). Real case: Hebrew text hugged the left edge because the phone swaps left and right in right to left mode, which flipped a "align right for Hebrew" rule back to the left. Fix: always align to the start edge. Source: `CLAUDE.md`, log 2026-10-12 evening, commit `4abebb7`.
+- **Left and right styles break Hebrew.** Use start and end (`ps-`, `me-`, `text-start`). Real case (before D-018): Hebrew text hugged the left edge because the phone swapped left and right in its own right to left mode. Since D-018 left and right are physical, and `Text` and `Input` pick the side from the app language. Source: `CLAUDE.md`, log 2026-10-12 evening, commit `4abebb7`.
 - **Face ID and forced right to left do nothing or crash in Expo Go** (the quick preview app). Use a development build: `npx expo run:ios`, which needs CocoaPods. Source: `CLAUDE.md`, log 2026-10-12 evening.
-- **Known issue:** with the phone in Hebrew and the app in English, one line text boxes get extra space on the left. Not fixed yet. Source: log 2026-10-12 evening.
 - **Missing font weights.** Aileron has no 200 or 500, Heebo no 100 or 200. They map to the nearest file. Source: `CLAUDE.md`.
 
 ## Libraries and CI
