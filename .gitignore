@@ -17,3 +17,6 @@ npm-debug.*
 # Local login details for the seeded dev users (pnpm db:dev-users)
 apps/server/.dev-credentials.local
 .dev-credentials.local
+
+# The product spec is an outside reference with another company's material. Never commit it.
+docs/vinted-ux-spec.html
