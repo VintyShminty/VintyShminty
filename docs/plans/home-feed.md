@@ -1,6 +1,6 @@
 # Plan: a home feed that learns
 
-Status: draft, waiting for Eden's decisions (section 9). Nothing is built yet. Scheduled as Milestone 7 in `docs/roadmap.md`.
+Status: decided (Eden, 2026-10-13), being built as Milestone 7 in `docs/roadmap.md`.
 
 ## Why
 
@@ -125,7 +125,7 @@ on conflict (user_id, feature, feature_key) do update set
 Nothing runs at night to fade scores. The math happens when a score is read or updated:
 
 ```ts
-export const HALF_LIFE_DAYS = 14;
+export const HALF_LIFE_DAYS = 7; // Eden chose 7 (section 9)
 export const effectiveScore = (score: number, scoredAt: Date, now = new Date()) =>
   score * 0.5 ** ((now.getTime() - scoredAt.getTime()) / (HALF_LIFE_DAYS * 86_400_000));
 ```
@@ -373,24 +373,24 @@ group by listing_id;
 
 ## 9. Decisions for Eden
 
-The first option in each is the recommendation. Eden left these open on 2026-10-13: decide them at the start of Milestone 7.
+Decided by Eden on 2026-10-13 (the chosen option is marked **Chosen**). These override any default written elsewhere in this plan.
 
 1. **How fast does old taste fade?**
-   - **Half in 14 days** (taste of the last 2 to 4 weeks)
-   - Half in 7 days (follows a new style within a week)
+   - Half in 14 days (taste of the last 2 to 4 weeks)
+   - **Chosen: half in 7 days** (follows a new style within a week)
    - Half in 30 days (steady, slow to change)
 2. **How much surprise on each page?**
-   - **3 cards in 20** (about 15 percent)
+   - **Chosen: 3 cards in 20** (about 15 percent)
    - 1 in 20 (more of the same)
    - 5 in 20 (more discovery, less precise)
 3. **Do chosen sizes hide other sizes?**
-   - **Yes, only in that size group**
-   - No, they only push matches up (as today)
+   - Yes, only in that size group
+   - **Chosen: no, they only push matches up (as today).** Section 3.4 does not apply
 4. **Two short questions after sign up?**
-   - **Yes, with a Skip button**
+   - **Chosen: yes, with a Skip button**
    - No, show new and popular items until the person acts
 5. **How long do we keep raw actions?**
-   - **180 days** ("card seen" rows 30 days)
+   - **Chosen: 180 days** ("card seen" rows 30 days)
    - 90 days (less data, weaker later stages)
    - 1 year
 
