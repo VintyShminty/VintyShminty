@@ -86,6 +86,8 @@ export function notificationText(n: AppNotification, t: TFunction): string {
         ? t(key("review_receivedRating"), { count: Math.round(rating), name })
         : t(key("review_received"));
     }
+    case "referral_rewarded":
+      return t(key(str(data.role) === "invitee" ? "referral_rewarded_invitee" : "referral_rewarded"));
     case "balance_released":
       return t(key("balance_released"), { amount: money(amount ?? 0) });
     case "platform_message": {
@@ -103,7 +105,6 @@ export function notificationText(n: AppNotification, t: TFunction): string {
     case "followed_seller_new_item":
     case "saved_search_match":
     case "order_delivered":
-    case "referral_rewarded":
     case "listing_removed":
     case "bump_ended":
       return t(key(n.type), { name, title });

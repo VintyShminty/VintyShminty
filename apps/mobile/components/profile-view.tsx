@@ -14,6 +14,7 @@ import {
   BadgeCheck,
   Bookmark,
   Check,
+  Gift,
   Heart,
   Layers,
   Leaf,
@@ -170,12 +171,8 @@ function ProfileHeader({
             onPress={() => router.push("/saved-searches")}
           />
           <SettingsRow icon={Receipt} label={t("orders.title")} onPress={() => router.push("/orders")} />
-          <SettingsRow
-            icon={Wallet}
-            label={t("balance.title")}
-            onPress={() => router.push("/balance")}
-            last
-          />
+          <SettingsRow icon={Wallet} label={t("balance.title")} onPress={() => router.push("/balance")} />
+          <SettingsRow icon={Gift} label={t("invite.title")} onPress={() => router.push("/invite")} last />
         </View>
       ) : null}
 
