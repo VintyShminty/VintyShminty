@@ -46,6 +46,12 @@
     "signUp": "הרשמה",
     "logIn": "התחברות"
   },
+  "social": {
+    "or": "או",
+    "google": "המשך עם Google",
+    "googleName": "Google",
+    "appleName": "Apple"
+  },
   "signUp": {
     "title": "יוצרים חשבון",
     "subtitle": "זה לוקח דקה. בלי כרטיס אשראי.",
@@ -204,6 +210,10 @@
     }
   },
   "errors": {
+    "socialFailed": "לא הצלחנו לחבר אתכם דרך {{provider}}. נסו שוב.",
+    "socialNoEmail": "{{provider}} לא שיתף את האימייל שלכם, ולכן לא יכולנו ליצור חשבון. אשרו ל-Vinty לראות את האימייל ונסו שוב.",
+    "socialBlocked": "כבר יש חשבון עם האימייל הזה. היכנסו עם הסיסמה.",
+    "socialUnavailable": "ההתחברות דרך {{provider}} לא זמינה כרגע.",
     "general": "משהו השתבש. נסו שוב.",
     "network": "לא הצלחנו להתחבר ל-Vinty. בדקו את החיבור ונסו שוב.",
     "wrongLogin": "האימייל והסיסמה לא תואמים.",

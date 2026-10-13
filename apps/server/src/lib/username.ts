@@ -44,3 +44,13 @@ export async function generateUsername(
   }
   throw new Error("Could not find a free username");
 }
+
+/** Apple's "hide my email" gives a random address. A name made of it would be gibberish, so use the person's name. */
+const RELAY_DOMAIN = "@privaterelay.appleid.com";
+
+/** What to make the username from: the email, or the name when the email is an Apple relay address. */
+export function usernameSource(email: string, name?: unknown): string {
+  if (!email.toLowerCase().endsWith(RELAY_DOMAIN)) return email;
+  const first = typeof name === "string" ? name.trim().split(/\s+/)[0] : "";
+  return `${first ?? ""}@relay`;
+}

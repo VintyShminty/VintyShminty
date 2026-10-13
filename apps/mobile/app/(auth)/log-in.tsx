@@ -8,6 +8,7 @@ import type { TextInput } from "react-native";
 import { View } from "react-native";
 import { AuthPhotoBand } from "@/components/auth-photo";
 import { FormInput } from "@/components/form-input";
+import { SocialButtons } from "@/components/social-buttons";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
@@ -98,6 +99,7 @@ export default function LogIn() {
         <Button size="lg" className="mt-xl" loading={formState.isSubmitting} onPress={onSubmit}>
           <Text>{t("logIn.submit")}</Text>
         </Button>
+        <SocialButtons className="mt-xl" />
         <View className="mt-xl flex-row items-center justify-center gap-xs">
           <Text variant="bodySmall" className="text-text-3">
             {t("logIn.noAccount")}

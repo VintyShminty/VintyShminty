@@ -43,6 +43,10 @@ const envSchema = z
     APPLE_CLIENT_ID: optionalText,
     APPLE_CLIENT_SECRET: optionalText,
     APPLE_APP_BUNDLE_IDENTIFIER: optionalText,
+    // Apple's key (.p8) values. With all three the server makes Apple's secret itself, so nothing expires by hand.
+    APPLE_TEAM_ID: optionalText,
+    APPLE_KEY_ID: optionalText,
+    APPLE_PRIVATE_KEY: optionalText,
 
     // Email. "smtp" sends to SMTP_HOST (Mailpit in development). "memory" keeps mail in a list (tests).
     // "resend" sends through Resend's web API (needs RESEND_API_KEY), used online. "log" writes each email to the
@@ -112,9 +116,28 @@ const envSchema = z
     S3_PUBLIC_URL: z.string().url().default("http://localhost:9000/vinty-dev"),
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV !== "production") return;
     const problem = (path: string, message: string) =>
       ctx.addIssue({ code: "custom", path: [path], message });
+
+    // A half filled Apple or Google setup would fail at the first tap, so say so at startup.
+    const apple = [env.APPLE_TEAM_ID, env.APPLE_KEY_ID, env.APPLE_PRIVATE_KEY];
+    if (apple.some(Boolean) && !apple.every(Boolean)) {
+      problem(
+        "APPLE_TEAM_ID",
+        "APPLE_TEAM_ID, APPLE_KEY_ID and APPLE_PRIVATE_KEY go together, fill in all three",
+      );
+    }
+    if (
+      (env.APPLE_CLIENT_ID || env.APPLE_CLIENT_SECRET || apple.some(Boolean)) &&
+      !env.APPLE_APP_BUNDLE_IDENTIFIER
+    ) {
+      problem("APPLE_APP_BUNDLE_IDENTIFIER", "Apple sign in needs APPLE_APP_BUNDLE_IDENTIFIER (the app ID)");
+    }
+    if (Boolean(env.GOOGLE_CLIENT_ID) !== Boolean(env.GOOGLE_CLIENT_SECRET)) {
+      problem("GOOGLE_CLIENT_ID", "Google sign in needs both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET");
+    }
+
+    if (env.NODE_ENV !== "production") return;
 
     if (env.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {
       problem("BETTER_AUTH_SECRET", "Set a real BETTER_AUTH_SECRET in production (openssl rand -base64 32)");

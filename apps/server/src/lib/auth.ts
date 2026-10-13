@@ -18,7 +18,8 @@ import { eq, sql } from "drizzle-orm";
 import type { Env } from "../env.js";
 import { type CodeEmailKind, codeEmail } from "./emails.js";
 import type { Mailer } from "./mail.js";
-import { generateUsername } from "./username.js";
+import { buildSocialProviders, socialProvidersOn } from "./social.js";
+import { generateUsername, usernameSource } from "./username.js";
 
 type Db = NonNullable<Database["db"]>;
 
@@ -39,11 +40,12 @@ export type AuthDeps = { env: Env; db: Db; mailer: Mailer };
  * - Tables are plural (users, sessions...) and ids are database UUIDs (see docs/blueprint/data-model.md).
  * - Email and password, plus a username. Codes (6 digits) by email do password reset, email confirmation and
  *   email change, because a code can be typed on the phone without a deep link round trip.
- * - Google and Apple are prepared and switch on when their credentials are in the environment.
+ * - Google and Apple switch on when their settings are in the environment (lib/social.ts). Apple signs in on the
+ *   phone with an ID token whose audience is the app's bundle id. Google opens the browser (redirect flow) with the
+ *   web client. Both give a verified email, so no confirmation code is asked.
  */
 export function createAuth({ env, db, mailer }: AuthDeps) {
-  const googleOn = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
-  const appleOn = Boolean(env.APPLE_CLIENT_ID && env.APPLE_CLIENT_SECRET);
+  const { apple: appleOn } = socialProvidersOn(env);
   const dev = env.NODE_ENV !== "production";
 
   const sendCode = async (
@@ -88,25 +90,7 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
       autoSignIn: true,
       revokeSessionsOnPasswordReset: true,
     },
-    socialProviders: {
-      ...(googleOn
-        ? {
-            google: {
-              clientId: env.GOOGLE_CLIENT_ID as string,
-              clientSecret: env.GOOGLE_CLIENT_SECRET as string,
-            },
-          }
-        : {}),
-      ...(appleOn
-        ? {
-            apple: {
-              clientId: env.APPLE_CLIENT_ID as string,
-              clientSecret: env.APPLE_CLIENT_SECRET as string,
-              appBundleIdentifier: env.APPLE_APP_BUNDLE_IDENTIFIER,
-            },
-          }
-        : {}),
-    },
+    socialProviders: buildSocialProviders(env),
     account: { accountLinking: { enabled: true, trustedProviders: ["google", "apple"] } },
     session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
     // Better Auth's own limiter (per IP and path). The stricter per route limits sit in plugins/auth.ts.
@@ -131,7 +115,7 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
             const hasUsername = typeof user.username === "string" && user.username.length > 0;
             const username = hasUsername
               ? (user.username as string)
-              : await generateUsername(user.email, async (candidate) => {
+              : await generateUsername(usernameSource(user.email, user.name), async (candidate) => {
                   const [row] = await db
                     .select({ id: users.id })
                     .from(users)

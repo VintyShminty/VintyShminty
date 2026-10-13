@@ -46,6 +46,12 @@
     "signUp": "Sign up",
     "logIn": "Log in"
   },
+  "social": {
+    "or": "or",
+    "google": "Continue with Google",
+    "googleName": "Google",
+    "appleName": "Apple"
+  },
   "signUp": {
     "title": "Create your account",
     "subtitle": "It takes a minute. No card needed.",
@@ -204,6 +210,10 @@
     }
   },
   "errors": {
+    "socialFailed": "We could not sign you in with {{provider}}. Please try again.",
+    "socialNoEmail": "{{provider}} did not share your email, so we could not make your account. Allow Vinty to see your email and try again.",
+    "socialBlocked": "There is already an account with that email. Log in with your password.",
+    "socialUnavailable": "{{provider}} sign in is not available right now.",
     "general": "Something went wrong. Please try again.",
     "network": "Could not reach Vinty. Check your connection and try again.",
     "wrongLogin": "That email and password do not match.",
