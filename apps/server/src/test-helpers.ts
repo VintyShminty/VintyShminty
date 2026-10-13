@@ -171,3 +171,22 @@ export async function publishTestListing(
   if (res.statusCode !== 201) throw new Error(`Could not publish a test listing: ${res.body}`);
   return (res.json() as { id: string }).id;
 }
+
+export type TestPerson = { token: string; id: string; username: string };
+
+/** A short helper for calling the API as a person (or as nobody when `token` is left out). */
+export function apiCaller(ctx: TestContext) {
+  return (
+    method: "GET" | "PUT" | "POST" | "PATCH" | "DELETE",
+    url: string,
+    token?: string,
+    payload?: object,
+    headers: Record<string, string> = {},
+  ) =>
+    ctx.app.inject({
+      method,
+      url,
+      headers: { ...(token ? bearer(token) : {}), ...headers },
+      ...(payload ? { payload } : {}),
+    });
+}
