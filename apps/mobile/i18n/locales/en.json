@@ -100,6 +100,10 @@
     "newEmail": "New email"
   },
   "validation": {
+    "away": {
+      "past": "Pick a day in the future",
+      "tooFar": "Away mode can last up to 90 days"
+    },
     "email": {
       "required": "Enter your email",
       "invalid": "That email does not look right"
@@ -1407,6 +1411,125 @@
     "sizes": {
       "title": "What are your sizes?",
       "subtitle": "Pieces in your sizes show up first on Home. You can change this any time in Settings"
+    }
+  },
+  "away": {
+    "on": "On",
+    "title": "Away mode",
+    "switchHint": "Your items are left out of Home and search, and nobody can buy them. People can still save them and message you",
+    "statusUntil": "Away until {{date}}",
+    "statusOpen": "Away until you switch it off",
+    "backOn": "Back on",
+    "backOnHint": "Away mode switches itself off on this day. It can last up to 90 days",
+    "preset": {
+      "week1": "In 1 week",
+      "week2": "In 2 weeks",
+      "month1": "In 1 month",
+      "month2": "In 2 months",
+      "none": "No date"
+    },
+    "failed": "We could not save that. Try again",
+    "bannerUntil": "You are away until {{date}}. Your items are hidden from buyers",
+    "bannerOpen": "You are away. Your items are hidden from buyers until you come back",
+    "bannerButton": "I'm back"
+  },
+  "help": {
+    "title": "Help",
+    "intro": "Quick answers about how Vinty works",
+    "groups": {
+      "buying": "Buying",
+      "selling": "Selling",
+      "orders": "Shipping and orders",
+      "account": "Your account",
+      "safety": "Safety"
+    },
+    "stillStuck": {
+      "title": "Still stuck?",
+      "button": "Write to us",
+      "subject": "Help with Vinty",
+      "note": "Tell us what happened and we will get back to you"
+    },
+    "articles": {
+      "buyAnItem": {
+        "title": "How buying works",
+        "body": "Open an item and tap Buy. Check the price breakdown, pick where it should go and pay. The item is held for you for 30 minutes while you finish.\n\nRight now checkout is a practice run. No card is asked for and no money moves. Everything around it works the way it will for real.\n\nAfter you pay, follow your order under My orders or in the chat with the seller."
+      },
+      "makeAnOffer": {
+        "title": "Making an offer",
+        "body": "Not sure about the price? Tap Or make your price on the item and send an offer lower than the listed price. You can send up to 15 offers a day, and one at a time in each chat.\n\nThe seller can accept, decline or answer with a new price. If nobody answers, the offer closes after 48 hours.\n\nWhen an offer is accepted the item is held for you for 24 hours, so you can check out at the agreed price."
+      },
+      "covered": {
+        "title": "What Covered is",
+        "body": "Covered is a small fee added at checkout. You see it on its own line in the price breakdown, next to the item price and postage.\n\nIt goes towards keeping buying safe, including our team looking into a problem with an order. The name is a working name and may change."
+      },
+      "closetDeal": {
+        "title": "Closet deals",
+        "body": "Some sellers give a discount when you take several of their items. When a seller has one, the item page tells you how many more items to add to get a percentage off.\n\nPick your items, continue to checkout and pay for them together in one order."
+      },
+      "saveItems": {
+        "title": "Saving items and searches",
+        "body": "Tap the heart on an item to save it. Saved items wait for you in Favourites, and you hear about it if the price drops or the item sells.\n\nAn item from a seller who is away can still be saved. You can also save a search, and we tell you when something new matches."
+      },
+      "listAnItem": {
+        "title": "Listing an item",
+        "body": "Tap Sell, add your photos (the first one is the cover) and fill in the name, category, size, condition and price. Tap Post it to put the item on sale, or Keep as draft to finish later.\n\nEverything you list, including drafts, reserved, sold and hidden items, lives on your Profile."
+      },
+      "setYourPrice": {
+        "title": "Choosing your price",
+        "body": "You choose the price. Selling is free, so when an item sells you earn the full item price, after any discount you gave.\n\nBuyers pay a little on top for Covered and postage. You can see what they will pay while you set the price.\n\nWhen someone sends an offer you can accept it, decline it or answer with a new price."
+      },
+      "buzz": {
+        "title": "Giving an item buzz",
+        "body": "Buzz gives one of your items a boost, so more people see it for a while. Tap Give it buzz on an active item. While it lasts the item shows a Buzzing badge.\n\nBuzz is free for now."
+      },
+      "getPaid": {
+        "title": "Getting paid",
+        "body": "When the buyer confirms the item arrived, or 48 hours after it arrives, the money moves from pending to available in your Balance.\n\nYour balance and withdrawals are pretend for now. No real money moves and nothing is sent to a bank."
+      },
+      "awayMode": {
+        "title": "Away mode",
+        "body": "Going away for a while? Open Settings, then Away mode, and switch it on. You can pick the day you are back, or leave it open and switch it off yourself.\n\nWhile you are away your items are left out of Home and search, and nobody can buy them. People can still open an item, save it and message you.\n\nAway mode ends by itself on your return date. You can also end it from the banner on your profile."
+      },
+      "orderSteps": {
+        "title": "Following an order",
+        "body": "An order goes from Paid to On its way, then Arrived and Complete. Both of you see the same steps on the tracker card at the top of the chat.\n\nCheckout is a practice run for now, so shipping and arrival are pretend too. Nothing real travels yet."
+      },
+      "shipAnOrder": {
+        "title": "Shipping an order",
+        "body": "When someone buys your item, pack it and tap Mark as shipped. You have 5 days. If it is not shipped by then, the order is cancelled and the item goes back on sale.\n\nYou are paid once the buyer confirms the item, so keep the chat open in case they have a question."
+      },
+      "receivedOrProblem": {
+        "title": "When your order arrives",
+        "body": "Tap I received it when everything is right. If you do nothing, the order completes by itself 48 hours after it arrives.\n\nIf something is wrong, tap Open a dispute within 2 days of the parcel arriving and tell us what happened. Our team looks into it and writes back.\n\nWhen the order is complete you can both leave a review."
+      },
+      "cancelAnOrder": {
+        "title": "Cancelling an order",
+        "body": "Until the parcel is shipped, the buyer or the seller can tap Cancel order on the order page and give a reason. The item goes back on sale.\n\nA checkout that is not paid within 30 minutes cancels by itself. Once an order is shipped it cannot be cancelled, but you can still open a dispute."
+      },
+      "profileAndSizes": {
+        "title": "Your profile, sizes and language",
+        "body": "Settings, Your profile is where you change your photo, name, bio and city.\n\nUnder Shopping preferences you can add your sizes and brands, so Home shows you more of what fits.\n\nThe Language row in Settings switches the whole app between English and Hebrew straight away."
+      },
+      "signInAndFaceId": {
+        "title": "Signing in and Face ID",
+        "body": "Settings, Sign in and safety lets you unlock the app with Face ID if your phone supports it, and shows where you are logged in. You can log out of other phones from there.\n\nForgot your password? On the log in screen ask for a reset. We email a 6 digit code, never a link.\n\nWe will never ask you for your password or a code in a chat."
+      },
+      "inviteFriends": {
+        "title": "Inviting a friend",
+        "body": "Everyone has their own invite code and link. Share yours, and when a friend joins with it you get a thank-you reward.\n\nYour own code does not work on your own account."
+      },
+      "closeAccount": {
+        "title": "Closing your account",
+        "body": "You can close your account under Settings, Your account, Close account. Your personal details are cleared and nobody can log in to it again.\n\nPast orders and messages stay for the people on the other side. Finish any open orders first."
+      },
+      "stayInside": {
+        "title": "Staying safe",
+        "body": "Keep chatting and paying inside Vinty. We can only look into orders made in the app, so if someone asks you to pay or talk somewhere else, say no and report them.\n\nNever share your password or a 6 digit code with anyone, including people who say they work for us.\n\nIf an offer looks too good to be true, it usually is. Check the photos and the seller's reviews first."
+      },
+      "reportAndBlock": {
+        "title": "Reporting and blocking",
+        "body": "See something wrong on an item or a profile? Open the more menu and choose Report, then pick a reason. Our team takes a look, and the person is not told it was you.\n\nTo stop talking to someone, block them from their profile. You will not see each other's items and cannot message each other."
+      }
     }
   }
 }

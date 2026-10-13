@@ -19,6 +19,7 @@ import {
   Leaf,
   type LucideIcon,
   MapPin,
+  Moon,
   Receipt,
   Settings as SettingsIcon,
   Sparkles,
@@ -47,7 +48,13 @@ import { StarRating } from "@/components/ui/star-rating";
 import { Tabs } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
-import { myListingsQuery, profileQuery, userListingsQuery, userReviewsQuery } from "@/lib/queries";
+import {
+  myListingsQuery,
+  profileQuery,
+  userListingsQuery,
+  userReviewsQuery,
+  useSetAwayMode,
+} from "@/lib/queries";
 import { formatDate, timeAgo } from "@/lib/time";
 
 // Lucide icon for each badge icon name in the database. Unknown names fall back to a medal.
@@ -78,6 +85,25 @@ function Stat({ value, label }: { value: number; label: string }) {
       <Text variant="cardMeta" className="mt-px">
         {label}
       </Text>
+    </View>
+  );
+}
+
+/** Shown on your own page while Away mode is on, with the way back. */
+function AwayBanner({ profile }: { profile: PublicProfile }) {
+  const { t, i18n } = useTranslation();
+  const setAway = useSetAwayMode(profile.id);
+  return (
+    <View className="mx-lg mb-md mt-sm flex-row items-center gap-md rounded-control bg-accent-tint p-md">
+      <Icon as={Moon} size={20} className="text-primary" />
+      <Text variant="bodySmall" className="flex-1 text-text-1">
+        {profile.holidayEndsAt
+          ? t("away.bannerUntil", { date: formatDate(profile.holidayEndsAt, i18n.language) })
+          : t("away.bannerOpen")}
+      </Text>
+      <Button size="sm" loading={setAway.isPending} onPress={() => setAway.mutate({ enabled: false })}>
+        <Text>{t("away.bannerButton")}</Text>
+      </Button>
     </View>
   );
 }
@@ -479,6 +505,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
         contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
         ListHeaderComponent={
           <View>
+            {isSelf && profile.holidayMode ? <AwayBanner profile={profile} /> : null}
             <ProfileHeader profile={profile} isSelf={isSelf} tab={tab} onTab={setTab} />
             {tab === "listings" && isSelf ? (
               <ScrollView
