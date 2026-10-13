@@ -367,8 +367,10 @@ describe.skipIf(!databaseUrl)("discovery", () => {
 
   describe("feed", () => {
     it("puts new arrivals near the top for visitors and carries the chips", async () => {
-      const fresh = await publish(alice, { title: `${word} fresh arrival` });
-      // Not strictly newest first any more: a page holds at most 2 items of one seller and the order has a small shuffle.
+      // A seller with nothing else listed: a page holds at most 2 items of one seller, and alice already has two,
+      // so her third item could move to the next page. The order is not strictly newest first any more either.
+      const newcomer = await signUpTestUser(ctx, "frank", createdIds);
+      const fresh = await publish(newcomer, { title: `${word} fresh arrival` });
       const feed = await get("/v1/feed?limit=50");
       expect(feed.statusCode).toBe(200);
       expect(ids(feed)).toContain(fresh.id);
