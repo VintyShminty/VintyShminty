@@ -44,7 +44,7 @@ export default function Favourites() {
             autoCapitalize="none"
             returnKeyType="search"
             accessibilityLabel={t("favourites.search")}
-            className="flex-1 font-aileron-400 text-body text-text-1 rtl:font-heebo-400"
+            className={`flex-1 text-body text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
             style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
           />
           {text ? (
@@ -61,6 +61,7 @@ export default function Favourites() {
       </View>
       <ListingGrid
         query={query}
+        heartOnSold
         emptyTitle={q ? t("favourites.noMatches") : t("favourites.empty")}
         emptyMessage={q ? undefined : t("favourites.emptyNote")}
       />

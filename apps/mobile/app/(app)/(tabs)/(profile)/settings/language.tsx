@@ -11,8 +11,8 @@ import { useAppStore } from "@/lib/app-store";
 import { useUpdateSettings } from "@/lib/queries";
 
 /**
- * Settings, Language. Picking Hebrew or English switches the app, saves it on your account and flips the
- * layout direction, which needs the app to restart itself (lib/rtl.ts).
+ * Settings, Language. Picking Hebrew or English switches the app at once, saves it on your account and flips
+ * the layout direction with it, no restart (lib/rtl.ts, D-018).
  */
 export default function Language() {
   const { t, i18n } = useTranslation();
@@ -22,7 +22,7 @@ export default function Language() {
 
   const choose = (language: (typeof SUPPORTED_LANGUAGES)[number]) => {
     if (language === i18n.language) return;
-    // Save on the account first (not awaited: the app may restart right away), then switch.
+    // Save on the account (not awaited), then switch. Everything on screen changes language and direction at once.
     update.mutate({ language });
     setLanguage(language);
   };
@@ -51,9 +51,6 @@ export default function Language() {
           </Pressable>
         );
       })}
-      <Text variant="cardDesc" className="px-lg pt-md text-text-3">
-        {t("common.restartNote")}
-      </Text>
     </Screen>
   );
 }

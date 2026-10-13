@@ -7,6 +7,7 @@ import { useBiometricSupport } from "@/lib/biometrics";
 import { isFaceIdEnabled, wasFaceIdOffered } from "@/lib/lock-store";
 import { meQuery } from "@/lib/queries";
 import { readPref, writePref } from "@/lib/secure-prefs";
+import { useMessagingSession } from "@/lib/use-messaging-session";
 import { colors } from "@/theme";
 
 /** Everything you see once you are logged in. */
@@ -18,6 +19,7 @@ export default function AppLayout() {
   const { data: me } = useQuery({ ...meQuery(), enabled: Boolean(userId) });
   const support = useBiometricSupport();
   const offered = useRef(false);
+  useMessagingSession();
 
   // Your language on the server wins right after you log in, so Hebrew stays Hebrew on a new phone.
   useEffect(() => {
@@ -42,12 +44,8 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="face-id-offer" options={{ presentation: "modal" }} />
       <Stack.Screen name="sell-form" options={{ presentation: "fullScreenModal" }} />
-      <Stack.Screen name="listing/[id]" />
-      <Stack.Screen name="search" />
       <Stack.Screen name="filters" />
-      <Stack.Screen name="user/[id]" />
-      <Stack.Screen name="favourites" />
-      <Stack.Screen name="saved-searches" />
+      <Stack.Screen name="conversation/[id]" />
     </Stack>
   );
 }

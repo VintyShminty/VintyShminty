@@ -13,7 +13,9 @@ pnpm workspace (pnpm 11, Node 22 via `.nvmrc`), TypeScript 6 everywhere.
 
 The data model is designed (Milestone 0, `docs/blueprint/`). Milestone 1 added Better Auth (email and password, username, 6 digit email codes, sessions), profile, settings, avatar uploads, Face ID unlock and the Hebrew and English switch. Milestone 2 added selling: the sell form with category panels and pickers, photo uploads, drafts, own listings and the selling API.
 
-Not added yet (they need decisions or credentials): payments, Socket.IO, Cloudflare R2 (MinIO stands in for it), a real email provider (Mailpit catches mail in development), push notifications, Google and Apple sign in (prepared, off until credentials exist).
+Milestone 4 (in progress) added messaging on the server: conversations, messages, notifications, Socket.IO and a push pipeline (log only until Apple credentials exist).
+
+Not added yet (they need decisions or credentials): payments, Cloudflare R2 (MinIO stands in for it), a real email provider (Mailpit catches mail in development), push notifications, Google and Apple sign in (prepared, off until credentials exist).
 
 ## Repo map
 
@@ -119,7 +121,7 @@ Aileron for Latin, Heebo for Hebrew (D-011). Files are in `apps/mobile/assets/fo
 
 ## Right to left
 
-Layout direction is fixed by the native layer at app start, so switching needs a restart. If the phone is set to Hebrew, the OS starts the app in RTL by itself because `he` is in the `supportedLocales` of the `expo-localization` plugin in `app.json`. For a language picked inside the app, `lib/rtl.ts` calls `I18nManager.allowRTL(true)` and `I18nManager.forceRTL(...)` and then reloads (`DevSettings.reload()` in development). A production build needs `expo-updates` (`Updates.reloadAsync()`), which is not installed yet. Expo Go cannot do a forced RTL at all (it crashes), so test right to left and Face ID in a development build: `cd apps/mobile && npx expo run:ios` (needs CocoaPods, `LANG=en_US.UTF-8`), then `npx expo start --dev-client`.
+The app controls the layout direction, not the phone (D-018), so switching English and Hebrew mirrors everything at once with no restart. The native side stays left to right always: `lib/rtl.ts` turns native RTL off (`allowRTL(false)`, `forceRTL(false)`), and `app/_layout.tsx` puts `direction: "rtl" | "ltr"` on the root view from the app language and wraps the navigation in expo-router's `LocaleProvider` (this is what makes pages push in and swipe back from the right side in Hebrew). `app.json` lists only `en` in `supportedLocales` (and `CFBundleLocalizations`) so iOS never flips the app by itself on a Hebrew phone. Rules that follow: never read `I18nManager.isRTL` (always false), use `useIsRtl()` from `lib/rtl.ts`; NativeWind's `rtl:` variant never fires, pick the style from the language; write logical styles only. In `Text`, `text-left` means the start edge (React Native swaps it in a right to left layout), while `TextInput` does not swap, so `Input` sets right or left from the language. Real right to left, Face ID and the push direction need a development build (Expo Go crashes on forced RTL): `cd apps/mobile && npx expo run:ios` (needs CocoaPods, `LANG=en_US.UTF-8`), then `npx expo start --dev-client`.
 
 ## Skills
 

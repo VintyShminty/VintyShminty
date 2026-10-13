@@ -23,3 +23,22 @@ export const NOTIFICATION_DEFAULT_ENABLED = true;
 export const PUSH_DAILY_LIMIT_OPTIONS: (number | null)[] = [null, 5, 10, 20, 50];
 
 export type NotificationPreferenceKey = `${NotificationType}:${NotificationChannel}`;
+
+/**
+ * Types that ignore the daily push limit (the "High priority" rows of the push table in api.md).
+ * Everything else counts towards `push_daily_limit` and stops when it is used up.
+ */
+export const HIGH_PRIORITY_NOTIFICATION_TYPES: readonly NotificationType[] = [
+  "new_message",
+  "new_offer",
+  "offer_accepted",
+  "offer_declined",
+  "offer_countered",
+  "review_received",
+  "favourite_price_drop",
+  "order_paid",
+  "order_shipped",
+  "order_delivered",
+  "order_cancelled",
+  "listing_removed",
+];

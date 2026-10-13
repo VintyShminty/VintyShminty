@@ -7,6 +7,8 @@ export class ApiError extends Error {
     readonly code: ErrorCode,
     message: string,
     readonly fields?: Record<string, string>,
+    /** For 429: seconds the app should wait, sent as the `Retry-After` header. */
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
   }

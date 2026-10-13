@@ -1,8 +1,10 @@
 import { createDb, type Database, users } from "@vinty/db";
+import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
 import { type Env, parseEnv } from "./env.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
+import { type MemoryPusher, memoryPusher } from "./lib/push.js";
 import type { Storage } from "./lib/storage.js";
 
 export const databaseUrl = process.env.DATABASE_URL;
@@ -20,7 +22,8 @@ export function testEnv(overrides: Record<string, string> = {}): Env {
 /** Storage that never touches the network. */
 export const fakeStorage: Storage = {
   async presignUpload({ userId, purpose, contentType }) {
-    const key = `${purpose === "avatar" ? "avatars" : "listings"}/${userId}/fake.${contentType.split("/")[1]}`;
+    const folder = { avatar: "avatars", message_photo: "messages", listing_photo: "listings" }[purpose];
+    const key = `${folder}/${userId}/fake.${contentType.split("/")[1]}`;
     return {
       key,
       uploadUrl: `http://storage.test/${key}?signed=1`,
@@ -38,6 +41,7 @@ export const fakeStorage: Storage = {
 export type TestContext = {
   app: Awaited<ReturnType<typeof buildApp>>;
   mailer: MemoryMailer;
+  pusher: MemoryPusher;
   database: Database;
   close: () => Promise<void>;
 };
@@ -47,9 +51,10 @@ export async function buildTestApp(envOverrides: Record<string, string> = {}): P
   const env = testEnv(envOverrides);
   const database = createDb(env.DATABASE_URL);
   const mailer = memoryMailer();
-  const app = await buildApp({ env, database, mailer, storage: fakeStorage });
+  const pusher = memoryPusher();
+  const app = await buildApp({ env, database, mailer, storage: fakeStorage, pusher });
   await app.ready();
-  return { app, mailer, database, close: () => app.close() };
+  return { app, mailer, pusher, database, close: () => app.close() };
 }
 
 let counter = 0;
@@ -117,4 +122,50 @@ export async function signUpTestUser(ctx: TestContext, label: string, createdIds
     id: body.user.id as string,
     username: person.username,
   };
+}
+
+let photoCounter = 0;
+/**
+ * Publishes a small listing for a test seller and returns its id. Needs the seeded reference data
+ * (pnpm db:reset), like the other tests that touch listings.
+ */
+export async function publishTestListing(
+  ctx: TestContext,
+  owner: { token: string; id: string },
+  title: string,
+) {
+  const reference = (await ctx.app.inject({ method: "GET", url: "/v1/reference" })).json() as ReferenceData;
+  const leaves = (nodes: CategoryNode[]): CategoryNode[] =>
+    nodes.flatMap((n) => (n.isLeaf ? [n] : leaves(n.children)));
+  const category = leaves(reference.categories).find(
+    (c) => c.rules.size === "required" && c.rules.brand !== "hidden" && c.sizeGroupIds.length > 0,
+  ) as CategoryNode;
+  const brandId = (await ctx.app.inject({ method: "GET", url: "/v1/brands?limit=1" })).json().items[0].id;
+  const group = reference.sizeGroups.find((g) => category.sizeGroupIds.includes(g.id));
+  photoCounter += 1;
+  const res = await ctx.app.inject({
+    method: "POST",
+    url: "/v1/listings",
+    headers: bearer(owner.token),
+    payload: {
+      title,
+      categoryId: category.id,
+      brandId,
+      sizeId: group?.sizes[0]?.id,
+      conditionId: reference.conditions[0]?.id,
+      colourIds: [reference.colours[0]?.id],
+      priceMinor: 9000,
+      parcelSizeId: reference.parcelSizes[0]?.id,
+      photos: [
+        {
+          key: `listings/${owner.id}/msg-${Date.now().toString(36)}-${photoCounter}.jpg`,
+          width: 900,
+          height: 1200,
+        },
+      ],
+      publish: true,
+    },
+  });
+  if (res.statusCode !== 201) throw new Error(`Could not publish a test listing: ${res.body}`);
+  return (res.json() as { id: string }).id;
 }

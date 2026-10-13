@@ -4,7 +4,6 @@ import {
   favourites,
   listings,
   messages,
-  notifications,
   profiles,
   recentSearches,
   reports,
@@ -36,6 +35,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { queryCardRows, searchTokens, toCards } from "../lib/discovery.js";
 import { ApiError } from "../lib/errors.js";
+import { notifyUser } from "../lib/notify.js";
 
 const idParams = z.object({ id: idSchema });
 const WRITE_LIMIT = { rateLimit: { max: 60, timeWindow: "1 minute" } };
@@ -102,49 +102,31 @@ const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
       // Hearts on a sold item are kept (Favourites shows it with the Sold band) but new ones make no sense.
       if (row.status === "sold") throw new ApiError(409, "listing_unavailable", "This item has been sold");
 
-      const count = await db.transaction(async (tx) => {
+      const { count, added } = await db.transaction(async (tx) => {
         const inserted = await tx
           .insert(favourites)
           .values({ userId, listingId: row.id })
           .onConflictDoNothing()
           .returning({ id: favourites.listingId });
-        if (inserted.length === 0) return countOf(row.id);
+        if (inserted.length === 0) return { count: await countOf(row.id), added: false };
         const [updated] = await tx
           .update(listings)
           // A heart is not an edit: keep updated_at as it is.
           .set({ favouriteCount: sql`${listings.favouriteCount} + 1`, updatedAt: sql`${listings.updatedAt}` })
           .where(eq(listings.id, row.id))
           .returning({ n: listings.favouriteCount });
-
-        // One notification per item, grouped: further hearts while it is unread raise its count.
-        const [open] = await tx
-          .select({ id: notifications.id, data: notifications.data })
-          .from(notifications)
-          .where(
-            and(
-              eq(notifications.userId, row.sellerId),
-              eq(notifications.type, "listing_favourited"),
-              eq(notifications.listingId, row.id),
-              sql`${notifications.readAt} is null`,
-            ),
-          )
-          .limit(1);
-        if (open) {
-          const previous = Number((open.data as { count?: number }).count ?? 1);
-          await tx
-            .update(notifications)
-            .set({ actorId: userId, data: { title: row.title, count: previous + 1 }, createdAt: new Date() })
-            .where(eq(notifications.id, open.id));
-        } else {
-          await tx.insert(notifications).values({
-            userId: row.sellerId,
-            type: "listing_favourited",
-            actorId: userId,
-            listingId: row.id,
-            data: { title: row.title, count: 1 },
-          });
-        }
-        return updated?.n ?? 0;
+        return { count: updated?.n ?? 0, added: true };
+      });
+      if (!added) return { favouriteCount: count };
+      // One notification per item, grouped: further hearts while it is unread raise its count.
+      // It goes through notifyUser so the seller's open app hears about it at once. No push text yet.
+      await notifyUser(app, {
+        userId: row.sellerId,
+        type: "listing_favourited",
+        actorId: userId,
+        listingId: row.id,
+        data: { title: row.title },
+        groupByListing: true,
       });
       return { favouriteCount: count };
     },

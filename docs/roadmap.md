@@ -18,17 +18,17 @@ Version 1 is a working app to inspect, not a throwaway prototype. It includes **
 |---|---|---|---|
 | 0 | Blueprint | Nothing new on the phone. The full data design, the list of app to server requests, all categories and reference data in Hebrew and English, and sample data so every screen has something to show | Done (merged) |
 | 1 | Accounts | Sign up and log in with email, unlock with Face ID, your profile, settings, switch between Hebrew and English. Google and Apple sign in once those accounts exist | Done (merged, PR #2) |
-| 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Built on branch `milestone-2`, in review (pull request "Milestone 2: Selling") |
-| 3 | Discovery | Home feed, Browse grid with category panels, search, filters and sort, item page, seller profiles, favourites, saved searches | Shipped |
-| 4 | Messaging | Live chat, offers (send, accept, decline, counter), notifications, push alerts | Planned |
-| 5 | Orders | Simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Planned |
+| 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Done (merged, PR #9) |
+| 3 | Discovery | Home feed, Browse grid with category panels, search, filters and sort, item page, seller profiles, favourites, saved searches | Done (merged, PRs #10, #11) |
+| 4 | Messaging | Live chat, notifications, push alerts (offers moved to Milestone 5, Eden 2026-10-13, because accepting an offer leads straight to checkout). Also from the Milestone 3 review: the bottom tab bar stays visible on pages opened from a tab (item page, seller profile, search, favourites), switching between Hebrew and English happens instantly without reopening the app (the app flips the layout itself instead of the phone, Eden 2026-10-13), and a heart on sold items in Favourites so they can be removed | In progress |
+| 5 | Orders | Offers (send, accept, decline, counter), simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Planned |
 | 6 | Extras | Boost and bump, invite friends, help pages, holiday mode and the rest of the spec | Planned |
 
 Every milestone ends with something you can use on your phone, in both languages.
 
 ## Foundations already in place
 
-- **Design:** The Vinty look adapted for the phone, Espresso and cream palette, Aileron with Heebo for Hebrew, item card option C, chips and badges option B, bottom tab bar with Browse category panels (`docs/design.md`, decisions D-001 to D-014).
+- **Design:** The Vinty look adapted for the phone, Espresso and cream palette, Aileron with Heebo for Hebrew, item card option C, chips and badges option B, bottom tab bar with Browse category panels (`docs/design.md`, decisions D-001 to D-016).
 - **Components:** 63 components mapped from the spec with a build order (`docs/components.md`), shown in the component sheets in `docs/mockups/` (English and Hebrew).
 - **Tech:** Expo app with NativeWind and React Native Reusables, Fastify server, Postgres with Drizzle, automatic checks on every upload, agent skills and instructions (`CLAUDE.md`).
 - **Expo project:** account `vintys-team`, project `vinty`, app name on the phone "Vinty".

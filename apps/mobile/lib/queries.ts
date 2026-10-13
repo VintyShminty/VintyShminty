@@ -303,6 +303,22 @@ export function useToggleFavourite() {
             : data,
         );
       }
+      // Taking a heart off removes the card from the Favourites list right away.
+      if (!favourite) {
+        queryClient.setQueriesData<InfiniteData<{ items: ListingCard[] }>>(
+          { queryKey: ["favourites"] },
+          (data) =>
+            data?.pages
+              ? {
+                  ...data,
+                  pages: data.pages.map((page) => ({
+                    ...page,
+                    items: page.items.filter((card) => card.id !== id),
+                  })),
+                }
+              : data,
+        );
+      }
     },
     onSettled: (_data, _err, { id }) => {
       void queryClient.invalidateQueries({ queryKey: ["favourites"] });

@@ -10,7 +10,7 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "infoPlist": {
-        "CFBundleLocalizations": ["en", "he"]
+        "CFBundleLocalizations": ["en"]
       },
       "bundleIdentifier": "com.anonymous.vinty"
     },
@@ -42,8 +42,8 @@
         "expo-localization",
         {
           "supportedLocales": {
-            "ios": ["en", "he"],
-            "android": ["en", "he"]
+            "ios": ["en"],
+            "android": ["en"]
           }
         }
       ],
@@ -55,7 +55,8 @@
         }
       ],
       "expo-font",
-      "expo-image"
+      "expo-image",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,

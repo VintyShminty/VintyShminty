@@ -6,6 +6,7 @@ export * from "./fees.js";
 export * from "./health.js";
 export * from "./listing-rules.js";
 export * from "./listings.js";
+export * from "./messaging.js";
 export * from "./money.js";
 export * from "./notification-settings.js";
 export * from "./reference-data.js";

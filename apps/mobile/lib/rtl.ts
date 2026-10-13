@@ -1,31 +1,49 @@
+import { useTranslation } from "react-i18next";
 import { DevSettings, I18nManager, Platform } from "react-native";
 import { isRtlLanguage } from "@/i18n";
 import { readPref, writePref } from "@/lib/secure-prefs";
 
 /**
- * Right-to-left layout with Expo.
+ * Right-to-left layout, controlled by the app (D-018).
  *
- * Layout direction is decided by the native layer when the app starts, so changing it while the app
- * runs needs a restart. Two cases:
- * 1. The device is set to Hebrew and "he" is listed in the expo-localization plugin's supportedLocales
- *    (app.json). The OS then starts the app in RTL on its own. Nothing to do here.
- * 2. The user picks a language inside the app that differs from the device language. We call
- *    I18nManager.allowRTL and forceRTL, then restart the app. In development DevSettings.reload()
- *    does the restart. A production build needs expo-updates (Updates.reloadAsync), which is not
- *    installed yet. Add it when the in-app language picker ships.
+ * The phone's own layout direction is fixed when the app starts, so using it would need a restart to
+ * switch language. Instead the native side always stays left to right and the app says the direction
+ * out loud from the app language:
+ * - app/_layout.tsx puts `direction: "rtl" | "ltr"` on the root view. Every row, margin and padding
+ *   written with logical names (ps-, pe-, ms-, me-, start-, end-) follows it at once.
+ * - app/_layout.tsx also wraps the navigation in expo-router's LocaleProvider, which tells React
+ *   Navigation and react-native-screens which way pages push in and which screen edge swipes back.
+ * - Anything that needs the direction in code (arrows, alignment) uses useIsRtl(), never
+ *   I18nManager.isRTL, which is always false now.
+ * - NativeWind's `rtl:` variant reads I18nManager too, so it never fires. Pick styles from the language.
  *
- * Expo Go forgets forced RTL when you reopen it, so test real RTL with a development build.
- * Style rule: only logical styles (ps-, pe-, ms-, me-, start-, end-, text-start), never left or right.
+ * Style rule: only logical styles (ps-, pe-, ms-, me-, start-, end-), never left or right. Text and
+ * Input set their text alignment from the language.
  */
-export function ensureLayoutDirection(language: string) {
+
+/** True while the app language is written right to left. Re-renders the moment the language changes. */
+export function useIsRtl() {
+  const { i18n } = useTranslation();
+  return isRtlLanguage(i18n.language);
+}
+
+/** The direction to give the root view and the navigation. */
+export function layoutDirection(language: string) {
+  return isRtlLanguage(language) ? "rtl" : "ltr";
+}
+
+/**
+ * Keeps the phone's native direction left to right. Older builds forced it right to left for Hebrew and
+ * the phone remembers that, so the first start after the update resets it and reloads once (development
+ * only, a store build never had the old setting).
+ */
+export function ensureNativeLtr() {
   if (Platform.OS === "web") return;
-  const wantRtl = isRtlLanguage(language);
-  // allowRTL(false) matters for English on a phone set to Hebrew: without it the system keeps the layout right to left.
-  I18nManager.allowRTL(wantRtl);
-  if (I18nManager.isRTL !== wantRtl) {
-    I18nManager.forceRTL(wantRtl);
-    // Never restart twice in a row for the same direction, so a stubborn setting cannot cause a restart loop.
-    const marker = `${wantRtl}:${Math.floor(Date.now() / 15_000)}`;
+  I18nManager.allowRTL(false);
+  I18nManager.forceRTL(false);
+  if (I18nManager.isRTL) {
+    // Never reload twice in a row, so a stubborn setting cannot cause a loop.
+    const marker = String(Math.floor(Date.now() / 15_000));
     if (readPref("vinty.rtl.restart") === marker) return;
     writePref("vinty.rtl.restart", marker);
     if (__DEV__) DevSettings.reload();

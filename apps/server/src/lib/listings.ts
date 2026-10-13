@@ -1,4 +1,5 @@
 import {
+  conversations,
   type Database,
   favourites,
   listingColours,
@@ -89,7 +90,7 @@ export async function loadListingDetail(
   row: ListingRow,
   viewerId?: string,
 ): Promise<ListingDetail> {
-  const [photoRows, colourRows, seller, hearted] = await Promise.all([
+  const [photoRows, colourRows, seller, hearted, chat] = await Promise.all([
     db
       .select()
       .from(listingPhotos)
@@ -106,6 +107,14 @@ export async function loadListingDetail(
           .select({ id: favourites.listingId })
           .from(favourites)
           .where(and(eq(favourites.userId, viewerId), eq(favourites.listingId, row.id)))
+          .limit(1)
+      : Promise.resolve([]),
+    // The chat this viewer already has with the seller about this item, so the app can open it.
+    viewerId && row.sellerId !== viewerId
+      ? db
+          .select({ id: conversations.id })
+          .from(conversations)
+          .where(and(eq(conversations.listingId, row.id), eq(conversations.buyerId, viewerId)))
           .limit(1)
       : Promise.resolve([]),
   ]);
@@ -184,7 +193,7 @@ export async function loadListingDetail(
       isFavourited: hearted.length > 0,
       canBuy: open,
       canOffer: open && row.status === "active",
-      conversationId: null,
+      conversationId: chat[0]?.id ?? null,
     },
   };
 }

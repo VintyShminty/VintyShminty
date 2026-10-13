@@ -6,6 +6,7 @@ import * as Device from "expo-device";
 import * as SecureStore from "expo-secure-store";
 import i18n from "@/i18n";
 import { API_URL } from "@/lib/config";
+import { runBeforeSignOut } from "@/lib/sign-out-hooks";
 
 /** "Vinty/1.0 (iPhone 17 Pro; iOS 26.0)". The Security screen shows the part in brackets as the device name. */
 const userAgent = `Vinty/${Constants.expoConfig?.version ?? "1.0"} (${Device.modelName ?? "Phone"}; ${Device.osName ?? "OS"} ${Device.osVersion ?? ""})`;
@@ -19,7 +20,9 @@ export const authClient = createAuthClient({
   ],
   fetchOptions: {
     // Every request says which language the app is in (for emails) and which phone it is.
-    customFetchImpl: (input, init) => {
+    customFetchImpl: async (input, init) => {
+      // While the session still works: forget this phone for push and close the live connection.
+      if (String(input).includes("/sign-out")) await runBeforeSignOut();
       const headers = new Headers(init?.headers);
       headers.set("Accept-Language", i18n.language);
       headers.set("User-Agent", userAgent);
