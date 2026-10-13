@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { TopBar } from "@/components/ui/top-bar";
 import { findTile, type TileGroup, tileCategoryIds, tileGroups } from "@/lib/browse-tiles";
+import { trackCategoryVisit } from "@/lib/events";
 import { useReference } from "@/lib/reference";
 import { useSearchStore } from "@/lib/search-store";
 
@@ -31,9 +32,9 @@ export default function BrowseTile() {
   // Start a fresh browse search for this tile once the categories are known.
   useEffect(() => {
     if (!tile || !categories) return;
-    useSearchStore.getState().reset("browse", {
-      filters: { sort: "newest", categoryIds: tileCategoryIds(categories, tile) },
-    });
+    const ids = tileCategoryIds(categories, tile);
+    for (const id of ids.slice(0, 6)) trackCategoryVisit(id);
+    useSearchStore.getState().reset("browse", { filters: { sort: "newest", categoryIds: ids } });
     setGroup("all");
     setReady(true);
   }, [tile, categories]);

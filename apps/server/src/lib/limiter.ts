@@ -24,6 +24,19 @@ export class WindowLimiter {
     return true;
   }
 
+  /** Records `count` events at once, or none when they would not all fit. */
+  takeMany(key: string, count: number): boolean {
+    const now = this.now();
+    const recent = (this.hits.get(key) ?? []).filter((t) => now - t < this.windowMs);
+    if (recent.length + count > this.max) {
+      this.hits.set(key, recent);
+      return false;
+    }
+    for (let i = 0; i < count; i++) recent.push(now);
+    this.hits.set(key, recent);
+    return true;
+  }
+
   /** Seconds until the key may try again. */
   retryAfterSeconds(key: string): number {
     const first = (this.hits.get(key) ?? [])[0];

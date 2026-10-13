@@ -35,6 +35,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { queryCardRows, searchTokens, toCards } from "../lib/discovery.js";
 import { ApiError } from "../lib/errors.js";
+import { recordEvents } from "../lib/events.js";
 import { notifyUser } from "../lib/notify.js";
 
 const idParams = z.object({ id: idSchema });
@@ -118,6 +119,7 @@ const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
         return { count: updated?.n ?? 0, added: true };
       });
       if (!added) return { favouriteCount: count };
+      await recordEvents(app, userId, [{ type: "favourite", listingId: row.id }]);
       // One notification per item, grouped: further hearts while it is unread raise its count.
       // It goes through notifyUser so the seller's open app hears about it at once. No push text yet.
       await notifyUser(app, {
@@ -144,12 +146,12 @@ const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
       const id = request.params.id;
       const [row] = await db.select({ id: listings.id }).from(listings).where(eq(listings.id, id)).limit(1);
       if (!row) throw ApiError.notFound();
-      await db.transaction(async (tx) => {
+      const wasHearted = await db.transaction(async (tx) => {
         const removed = await tx
           .delete(favourites)
           .where(and(eq(favourites.userId, userId), eq(favourites.listingId, id)))
           .returning({ id: favourites.listingId });
-        if (removed.length === 0) return;
+        if (removed.length === 0) return false;
         await tx
           .update(listings)
           .set({
@@ -157,7 +159,9 @@ const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
             updatedAt: sql`${listings.updatedAt}`,
           })
           .where(eq(listings.id, id));
+        return true;
       });
+      if (wasHearted) await recordEvents(app, userId, [{ type: "unfavourite", listingId: id }]);
       return { favouriteCount: await countOf(id) };
     },
   );
@@ -266,6 +270,14 @@ const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
         .insert(savedSearches)
         .values({ userId, queryText, filters, notifyOnNew })
         .returning();
+      await recordEvents(app, userId, [
+        {
+          type: "save_search",
+          categoryId: filters.categoryId,
+          brandId: filters.brandIds?.length === 1 ? filters.brandIds[0] : undefined,
+          data: queryText ? { q: queryText.slice(0, 100) } : {},
+        },
+      ]);
       reply.code(201);
       return savedView(row as typeof savedSearches.$inferSelect);
     },
@@ -374,6 +386,14 @@ const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
           ),
         );
       });
+      await recordEvents(app, userId, [
+        {
+          type: "search",
+          categoryId: filters.categoryId,
+          brandId: filters.brandIds?.length === 1 ? filters.brandIds[0] : undefined,
+          data: { q: queryText.slice(0, 100) },
+        },
+      ]);
       return reply.code(204).send(null);
     },
   );

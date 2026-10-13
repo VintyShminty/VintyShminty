@@ -27,12 +27,15 @@ function ListingCard({
   listing,
   hideHeart = false,
   heartOnSold = false,
+  onLongPress,
 }: {
   listing: ListingCardData;
   /** Set where the cards are known to be the viewer's own (for example their own profile). */
   hideHeart?: boolean;
   /** Favourites only: a sold item keeps its heart there so you can take it off the list. Everywhere else sold cards have none. */
   heartOnSold?: boolean;
+  /** Home only: a long press (or the screen reader action) opens "Why you see this". */
+  onLongPress?: (listing: ListingCardData) => void;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -72,6 +75,11 @@ function ListingCard({
       className="flex-1 active:scale-[0.98]"
       role="button"
       accessibilityLabel={listing.title}
+      accessibilityActions={onLongPress ? [{ name: "longpress", label: t("feedWhy.action") }] : undefined}
+      onAccessibilityAction={(e) => {
+        if (e.nativeEvent.actionName === "longpress") onLongPress?.(listing);
+      }}
+      onLongPress={onLongPress ? () => onLongPress(listing) : undefined}
       onPress={() => router.push({ pathname: "/listing/[id]", params: { id: listing.id } })}
     >
       <View className="aspect-[3/4] overflow-hidden rounded-control bg-pressed">

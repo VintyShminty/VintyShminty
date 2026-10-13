@@ -1,10 +1,12 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { type FeedMood, UNDER_50_MINOR } from "@vinty/shared";
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type FeedCard, type FeedMood, UNDER_50_MINOR } from "@vinty/shared";
 import { useRouter } from "expo-router";
 import { Search } from "lucide-react-native";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
+import { FeedReasonSheet } from "@/components/feed-reason-sheet";
 import { ListingGrid } from "@/components/listing-grid";
 import { openSearch } from "@/components/search-bar";
 import { Button } from "@/components/ui/button";
@@ -49,7 +51,23 @@ export default function Home() {
 
   const activeMood: FeedMood =
     !signedIn && mood !== "for_you" && MOODS.find((m) => m.key === mood)?.needsAccount ? "for_you" : mood;
-  const query = useInfiniteQuery(feedQuery({ mood: activeMood }));
+  const feedOptions = feedQuery({ mood: activeMood });
+  const query = useInfiniteQuery(feedOptions);
+  const queryClient = useQueryClient();
+  // The list the cards came from. The app sends it with each "card seen".
+  const feedId = query.data?.pages[0]?.feedId ?? null;
+
+  // Pull to refresh builds a new list: keep only page one, then ask for it again without a cursor.
+  const refreshFeed = async () => {
+    queryClient.setQueryData(feedOptions.queryKey, (old: typeof query.data) =>
+      old ? { pages: old.pages.slice(0, 1), pageParams: old.pageParams.slice(0, 1) } : old,
+    );
+    await query.refetch();
+  };
+
+  // "Why you see this" on a long press.
+  const reasonSheet = useRef<BottomSheetModal>(null);
+  const [whyCard, setWhyCard] = useState<FeedCard | null>(null);
 
   // First name, or the username when the name is empty. Nothing before the account has loaded.
   const who = me.data?.name?.trim().split(/\s+/)[0] || me.data?.username || null;
@@ -142,7 +160,18 @@ export default function Home() {
         emptyTitle={emptyTitle}
         emptyMessage={emptyMessage}
         emptyAction={emptyAction}
+        track={signedIn ? { feedId } : undefined}
+        onRefresh={refreshFeed}
+        onCardLongPress={
+          signedIn
+            ? (card) => {
+                setWhyCard(query.data?.pages.flatMap((p) => p.items).find((c) => c.id === card.id) ?? null);
+                reasonSheet.current?.present();
+              }
+            : undefined
+        }
       />
+      {signedIn ? <FeedReasonSheet ref={reasonSheet} card={whyCard} /> : null}
     </Screen>
   );
 }

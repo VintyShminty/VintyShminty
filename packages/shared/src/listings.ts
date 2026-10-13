@@ -80,6 +80,9 @@ export const listingCardSchema = z.object({
   status: z.enum(LISTING_STATUSES),
   title: z.string(),
   brandName: z.string().nullable(),
+  /** Ids the Home feed needs for "Show less of this brand or category" (Milestone 7). */
+  brandId: idSchema.nullable().optional(),
+  categoryId: idSchema.nullable().optional(),
   sizeLabel: z.string().nullable(),
   conditionSlug: z.string().nullable(),
   priceMinor: z.number().int(),

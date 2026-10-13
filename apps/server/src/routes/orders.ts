@@ -19,6 +19,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { createOrder, quoteCheckout } from "../lib/checkout.js";
 import { ApiError } from "../lib/errors.js";
+import { recordPurchase } from "../lib/events.js";
 import { keysetCursor, olderThan, tsText } from "../lib/keyset.js";
 import {
   type Actor,
@@ -179,6 +180,7 @@ const orderRoutes: FastifyPluginAsyncZod = async (app) => {
       }
       try {
         const paidOrder = await transitionOrder(app, order.id, "pay", { role: "buyer", userId });
+        await recordPurchase(app, userId, order.id);
         return await presentOrderDetail(app, paidOrder, userId);
       } catch (err) {
         // Two taps at once: the second finds the order already paid and gets the same answer as the first.

@@ -29,6 +29,7 @@ import { formatMoney } from "@/lib/money";
 import { useSendOffer } from "@/lib/order-flow-queries";
 import { useLocalName } from "@/lib/reference";
 import { timeAgo } from "@/lib/time";
+import { useDwell } from "@/lib/use-dwell";
 import { cn } from "@/lib/utils";
 
 /** A paragraph cut after three lines with a "Show more" link (docs/components.md, ExpandableText). */
@@ -96,6 +97,7 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   const router = useRouter();
   const name = useLocalName();
   const similar = useInfiniteQuery(similarQuery(listing.id));
+  const dwell = useDwell(listing.id);
   const startChat = useStartConversation();
   const existingChat = listing.viewer.conversationId;
   // A new chat about a sold item is refused by the server, an old one stays open.
@@ -161,7 +163,7 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
         bottomPadding={32}
         header={
           <View>
-            <PhotoCarousel photos={listing.photos} />
+            <PhotoCarousel photos={listing.photos} onSwipe={dwell.onPhotoSwipe} />
             <View className="gap-lg px-lg pt-lg">
               <StatusLine listing={listing} />
 

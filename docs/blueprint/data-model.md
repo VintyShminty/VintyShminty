@@ -29,6 +29,7 @@ Version 1 covers everything in the Vinted app spec except real payments and real
 | Reviews | `reviews` |
 | Money | `wallet_entries` |
 | Engagement and safety | `notifications`, `reports` |
+| Recommendations (Milestone 7) | `user_events`, `user_affinities`, `feed_hidden`, `feed_snapshots`, view `listing_popularity_7d` |
 
 ## Overview diagram
 
@@ -1707,6 +1708,98 @@ Indexes:
 
 - `reports_queue_idx`: btree on (status, created_at)
 - `reports_target_idx`: btree on (target_type, target_id)
+
+## Recommendations (Milestone 7)
+
+What the home feed learns from. The plan is `docs/plans/home-feed.md` (Eden's decisions are in its section 9). Everything stays in Postgres. Weights, fading, price bands and the variety rules live in `packages/shared/src/recommendations.ts`, the enum lists in `packages/shared/src/enums.ts`. Closing an account deletes every row of these tables for the person (the user row stays, so the cascade does not fire). Signed out visitors are never tracked.
+
+### `user_events`
+
+The action diary. One row per thing a signed in person did that says something about their taste. The server copies the item's features (category, brand, size, seller, price band) into the row, so the history survives when the listing is deleted and the app cannot fake it. Most rows are `impression` (card seen), which only stops repeats and measures clicks. Nothing is written when the person turned off the personalised feed.
+
+Used by: the taste profile (`user_affinities`), the popular pile (`listing_popularity_7d`), "shown but never opened".
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | uuid | no | primary key. default gen_random_uuid() |
+| `user_id` | uuid | no | refers to users.id, on delete cascade |
+| `type` | user_event_type | no | purchase, offer, message_seller, favourite, unfavourite, save_search, onboarding_pick, listing_open_repeat, listing_open, listing_dwell, search, category_visit, not_interested or impression |
+| `client_event_id` | uuid | yes | Made by the app. A resent batch never counts twice. Null for events the server records itself |
+| `listing_id` | uuid | yes | refers to listings.id, on delete set null |
+| `category_id` | uuid | yes | Copied from the item (no foreign key, the history outlives it) |
+| `brand_id` | uuid | yes | Copied |
+| `size_id` | uuid | yes | Copied |
+| `seller_id` | uuid | yes | Copied |
+| `price_band` | smallint | yes | 0 under 50, 1 for 50 to 100, 2 for 100 to 200, 3 for 200 to 400, 4 for 400 to 800, 5 for 800 and above |
+| `surface` | feed_surface | yes | home, search or browse |
+| `position` | smallint | yes | Index of the card in the list the person saw |
+| `feed_id` | uuid | yes | The saved home list the card came from |
+| `data` | jsonb | no | default '{}'. Search text, time on an item |
+| `occurred_at` | timestamptz | no | default now() |
+
+Indexes (the only five this feature adds, with the one on `user_affinities`):
+
+- `user_events_user_idx`: btree on (user_id, occurred_at DESC NULLS LAST). What did this person do recently
+- `user_events_listing_idx`: btree on (listing_id, occurred_at DESC NULLS LAST). Which items have the most activity
+- `user_events_occurred_brin_idx`: BRIN on (occurred_at). Which rows are old enough to delete
+- `user_events_client_event_uidx`: unique on (user_id, client_event_id), only where client_event_id IS NOT NULL. Stops a resent batch counting twice
+
+Kept 180 days. `impression` rows are kept 30 days. The nightly cleanup deletes older rows.
+
+### `user_affinities`
+
+A short summary sheet per person: how much they like Dresses, Zara, a size or a price band. One action adds its weight times a share to each feature of the item. A score fades to half after 7 days without a new action: nothing runs at night to fade scores, the math happens when one is read or updated. Things chosen on purpose (sizes, followed brands and sellers) are not here, they stay in `user_sizes`, `user_brands` and `follows`.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `user_id` | uuid | no | primary key (with feature and feature_key). refers to users.id, on delete cascade |
+| `feature` | affinity_feature | no | category, parent_category, brand, seller, size, price_band, colour or condition |
+| `feature_key` | text | no | A category, brand, seller, size, colour or condition id, or a price band "0" to "5" |
+| `score` | real | no | The score at `scored_at`. Never below 0 |
+| `scored_at` | timestamptz | no | default now() |
+| `event_count` | integer | no | default 0 |
+
+Indexes:
+
+- `user_affinities_top_idx`: btree on (user_id, feature, score DESC NULLS LAST). What are this person's top tastes
+
+The nightly cleanup deletes faded scores (below 0.05) and keeps the top 50 per feature per person.
+
+### `feed_hidden`
+
+"Not interested": an item, a seller, a brand or a category the person does not want on the home feed. The list is shown in Settings so it can be undone. It survives a reset of the recommendations.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | uuid | no | primary key. default gen_random_uuid() |
+| `user_id` | uuid | no | refers to users.id, on delete cascade |
+| `scope` | feed_hide_scope | no | item, seller, brand or category |
+| `target_id` | uuid | no | A listing, user, brand or category id. No foreign key, so a hide outlives its target |
+| `created_at` | timestamptz | no | default now() |
+
+Indexes:
+
+- `feed_hidden_target_uidx`: unique on (user_id, scope, target_id)
+
+### `feed_snapshots`
+
+The sorted home list saved for 2 hours, so pages never repeat or skip items while the person scrolls, even when a heart in the middle changes their taste. The first page sorts up to 500 items once. Later pages take the next 20 from this list. After the 500 the feed continues newest first.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | uuid | no | primary key. default gen_random_uuid(). This is the `feedId` the app sees |
+| `user_id` | uuid | yes | refers to users.id, on delete cascade. Null for a visitor who is not signed in |
+| `category_id` | uuid | yes | The category filter the list was made for |
+| `mood` | text | yes | The mood chip the list was made for |
+| `listing_ids` | uuid[] | no | In feed order |
+| `reasons` | jsonb | no | One entry per listing id, same order: `{ kind, name }` or null |
+| `created_at` | timestamptz | no | default now() |
+
+No index, the table holds a few hours of rows and is read by its primary key. The nightly cleanup deletes lists older than 6 hours.
+
+### `listing_popularity_7d` (materialized view)
+
+"Popular this week" per listing: opens count 1, a heart 4, a message to the seller 6, over the last 7 days of `user_events`. A materialized view is a saved query result the database re-counts on request. It is created by hand at the end of migration `0004` and refreshed every 15 minutes (`REFRESH MATERIALIZED VIEW CONCURRENTLY`, which needs the unique index `listing_popularity_7d_listing_uidx` on `listing_id`). Columns: `listing_id` uuid, `pop` integer.
 
 ## Search
 

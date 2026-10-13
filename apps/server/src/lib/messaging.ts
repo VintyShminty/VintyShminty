@@ -25,6 +25,7 @@ import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { loadSellerSummaries } from "./discovery.js";
 import { ApiError } from "./errors.js";
+import { recordFirstMessage } from "./events.js";
 import { tsText } from "./keyset.js";
 import { buyerPrice } from "./listings.js";
 import { INBOX_HIDDEN_TYPES, notifyUser } from "./notify.js";
@@ -442,6 +443,7 @@ export async function sendMessage(
   const [message] = await presentMessages(app, [record]);
   if (!message) throw new Error("Message could not be presented");
   await afterMessageCommitted(app, conversation, userId, otherId, message, preview);
+  await recordFirstMessage(app, conversation, userId);
   return { message, created: true };
 }
 

@@ -23,8 +23,9 @@ Version 1 is a working app to inspect, not a throwaway prototype. It includes **
 | 4 | Messaging | Live chat, notifications, push alerts (offers moved to Milestone 5, Eden 2026-10-13, because accepting an offer leads straight to checkout). Also from the Milestone 3 review: the bottom tab bar stays visible on pages opened from a tab (item page, seller profile, search, favourites), switching between Hebrew and English happens instantly without reopening the app (the app flips the layout itself instead of the phone, Eden 2026-10-13), and a heart on sold items in Favourites so they can be removed | Done (merged, PR #12) |
 | 5 | Orders | Offers (send, accept, decline, counter), simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Done (merged, PR #14) |
 | 6 | Our own look | The app stops reading as a copy of the reference product, with every feature and flow kept (Eden, 2026-10-13). Built from the 16 chosen directions in `docs/originality.md` and D-019: our own wording everywhere (sellers not members, Buzz, Away mode, My sizes, condition names, sell form, settings), the price tag item card with the buyer price pill, one Buy button with "Or make your price", the floating tab bar with the raised Sell button, the greeting and mood chips on Home, photo tiles in Browse, one reviews list, our own seller stamps, the order tracker card in chat, and a redesigned welcome, log in and sign up | Built, in review |
-| 7 | A home feed that learns | Stage 1 of `docs/plans/home-feed.md`: the server and the app record hearts, opens, return visits, searches and category visits, each person gets a taste profile that grows and fades, Home mixes taste, new, popular and a few surprises with variety rules and no repeats while scrolling, two short questions after sign up, "Why you see this", Not interested and Reset in Settings. Before launch so the feed learns from day one. Waits for Eden's five decisions in section 9 of the plan | Planned |
-| 8 | Extras | Boost (Buzz) and the rest of the spec: invite friends, help pages, Away mode settings | Planned |
+| 7 | A home feed that learns | Stage 1 of `docs/plans/home-feed.md`: the server and the app record hearts, opens, return visits, searches and category visits, each person gets a taste profile that grows and fades, Home mixes taste, new, popular and a few surprises with variety rules and no repeats while scrolling, two short questions after sign up, "Why you see this", Not interested and Reset in Settings. Before launch so the feed learns from day one. Decisions made (Eden, 2026-10-13): 7 day fade, 3 surprises in 20, sizes only push up, two skippable questions, 180 days | Built, waiting for review. Server (events, taste profile, feed, hide, reset, onboarding picks, jobs) and app (event queue, Why you see this, hidden list, Reset, two sign up questions) |
+| 8 | Going online | Vinty runs online and on Eden's iPhone (Eden, 2026-10-13, moved before Extras so the feed learns from real people sooner): hosted Postgres (Vercel's Neon), the server on Vercel with a Redis hub for live chat and Vercel Cron for the timers, photos on Cloudflare R2, a real email provider, Sign in with Apple and Google, real push alerts, the app on TestFlight. Needs Eden's accounts: Apple Developer (exists), Google Cloud, Cloudflare (exists), an email provider, Vercel (exists) | Planned |
+| 9 | Extras | Boost (Buzz) and the rest of the spec: invite friends, help pages, Away mode settings | Planned |
 
 Every milestone ends with something you can use on your phone, in both languages.
 
@@ -40,12 +41,12 @@ Every milestone ends with something you can use on your phone, in both languages
 | Service | Needed for | When | Status |
 |---|---|---|---|
 | Expo | Building the installable app | Now | Done |
-| Apple Developer ($99 a year) | Sign in with Apple, installing on phones through TestFlight | Milestone 1. Start early, approval can take days | Not started |
+| Apple Developer ($99 a year) | Sign in with Apple, installing on phones through TestFlight | Milestone 1. Start early, approval can take days | Done (Eden has the account) |
 | Google Cloud | Google sign in | Milestone 1 | Opened, not configured |
 | Mailpit (Docker, development only) | Catches every email the server sends, inbox at localhost:8025 | Milestone 1 | Running |
 | MinIO (Docker, development only) | Stands in for Cloudflare R2 for photos, console at localhost:9001 | Milestone 1 | Running |
 | Email provider (Resend, Postmark or similar) | Sending real emails online | When the app goes online | Not started |
-| Cloudflare R2 | Photo storage online | When the app goes online | Not started |
+| Cloudflare R2 | Photo storage online | When the app goes online | Account opened (Eden), R2 not set up |
 | Vercel (decided, Eden 2026-10-13) | Hosting the server online. Live chat runs on Vercel's WebSocket support (beta since June 2026). Work it needs before going online: a shared Redis hub so Socket.IO reaches people on other instances, the timers (pretend delivery, offer expiry, review reminders) as Vercel cron jobs, a hosted Postgres, and the app already reconnects when Vercel closes a connection (every 5 to 30 minutes) | When the app goes online | Not started |
 
 Until the app goes online, the server, database and photos run on the development Mac.

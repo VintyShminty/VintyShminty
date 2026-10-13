@@ -5,6 +5,7 @@ import {
   errorResponseSchema,
   feedPageSchema,
   feedQuerySchema,
+  homeFeedPageSchema,
   idSchema,
   type ListingCard,
   listingDetailSchema,
@@ -27,11 +28,7 @@ import {
   categorySubtreeIds,
   countMatches,
   FEED_BOOST_MS,
-  feedBoost,
-  filterConditions,
   likeEscape,
-  moodConditions,
-  personalSort,
   queryCardRows,
   searchConditions,
   sortSpec,
@@ -40,6 +37,8 @@ import {
   visibilityConditions,
 } from "../lib/discovery.js";
 import { ApiError } from "../lib/errors.js";
+import { recordEvents } from "../lib/events.js";
+import { feedConditions, homeFeedPage } from "../lib/feed.js";
 import { type ListingRow, loadListingDetail } from "../lib/listings.js";
 import { optionalViewerId } from "../lib/viewer.js";
 
@@ -55,22 +54,17 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
 
   app.get(
     "/v1/feed",
-    { schema: { querystring: feedQuerySchema, response: { 200: feedPageSchema } } },
+    { schema: { querystring: feedQuerySchema, response: { 200: homeFeedPageSchema } } },
     async (request) => {
       const viewerId = await optionalViewerId(app, request);
-      const reference = await app.reference.get();
       const { categoryId, trending, mood, limit, cursor } = request.query;
-      const where = [
-        inArray(listings.status, [...BROWSABLE_STATUSES]),
-        ...visibilityConditions(viewerId),
-        ...filterConditions(categoryId ? { categoryId } : {}, reference),
-        ...(await moodConditions(db, mood, viewerId)),
-      ];
-      // Your own items are not recommended back to you.
-      if (viewerId) where.push(sql`${listings.sellerId} <> ${viewerId}`);
-      const sort = trending ? trendingSort() : personalSort(await feedBoost(db, viewerId));
-      const { rows, nextCursor } = await queryCardRows(db, { where, sort, cursor, limit });
-      return { items: await toCards(app, reference, rows, { viewerId, withSeller: true }), nextCursor };
+      if (!trending) return homeFeedPage(app, { viewerId, categoryId, mood }, { cursor, limit });
+      // Trending keeps its own order: hearts times 5 plus views, no saved list, no reasons.
+      const reference = await app.reference.get();
+      const where = await feedConditions(app, { viewerId, categoryId, mood }, reference);
+      const { rows, nextCursor } = await queryCardRows(db, { where, sort: trendingSort(), cursor, limit });
+      const cards = await toCards(app, reference, rows, { viewerId, withSeller: true });
+      return { items: cards.map((card) => ({ ...card, reason: null })), nextCursor, feedId: null };
     },
   );
 
@@ -250,6 +244,16 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
       const reference = await app.reference.get();
       const row = await openableListing(request.params.id, viewerId);
       const counted = await countView(row, viewerId, request.ip);
+      if (counted && viewerId) {
+        // A second day on the same item says more than the first: "comes back to often".
+        const [days] = await db
+          .select({ n: sql<number>`count(*)::int` })
+          .from(listingViews)
+          .where(and(eq(listingViews.listingId, row.id), eq(listingViews.viewerKey, `u:${viewerId}`)));
+        await recordEvents(app, viewerId, [
+          { type: (days?.n ?? 1) > 1 ? "listing_open_repeat" : "listing_open", listingId: row.id },
+        ]);
+      }
       return loadListingDetail(
         app,
         reference,

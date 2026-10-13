@@ -303,7 +303,18 @@ The tile for one listing: tall rounded photo, brand, description, size and condi
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
 - **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badge is the standard Badge component, outline style, D-008)
 - **Phase:** First flows
+- **Long press (D-022):** On Home a long press opens FeedReasonSheet (an `onLongPress` prop, also a screen reader action).
 - **Status (D-019, supersedes D-007 in part):** The browse card is now the price tag card: seller price big with the heart at the end of that row, brand, size and condition in small capitals, the buyer price pill (`components/price-pill.tsx`), badges on the photo (Buzzing with a zap). Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
+
+### FeedReasonSheet
+
+The "Why you see this" sheet on Home (D-022). It says why a card is in the feed in one sentence and offers Not interested for the item, its seller, its brand or its category. Opened by a long press on a Home card (and a "Why you see this" screen reader action).
+
+- **Variants and states:** One variant. Rows only show when they apply (the seller, brand and category of the card). Tapping a row closes the sheet and the matching cards leave the list at once.
+- **Screens:** Home
+- **Source:** Custom (the Sheet component with Row)
+- **Phase:** Milestone 7
+- **Status:** Built (`apps/mobile/components/feed-reason-sheet.tsx`)
 
 ### HeartPill
 

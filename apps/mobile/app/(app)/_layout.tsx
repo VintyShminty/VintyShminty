@@ -1,12 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
+import { AppState } from "react-native";
 import { useAppStore } from "@/lib/app-store";
 import { authClient } from "@/lib/auth-client";
 import { useBiometricSupport } from "@/lib/biometrics";
+import { events } from "@/lib/events";
 import { isFaceIdEnabled, wasFaceIdOffered } from "@/lib/lock-store";
-import { meQuery } from "@/lib/queries";
+import { useOnboardingPending } from "@/lib/onboarding";
+import { meQuery, settingsQuery } from "@/lib/queries";
 import { readPref, writePref } from "@/lib/secure-prefs";
+import { beforeSignOut } from "@/lib/sign-out-hooks";
 import { useMessagingSession } from "@/lib/use-messaging-session";
 import { colors } from "@/theme";
 
@@ -20,6 +24,34 @@ export default function AppLayout() {
   const support = useBiometricSupport();
   const offered = useRef(false);
   useMessagingSession();
+  const { data: settings } = useQuery({ ...settingsQuery(), enabled: Boolean(userId) });
+  const onboarding = useOnboardingPending(userId);
+  const onboardingShown = useRef(false);
+
+  // The small "card seen" and "time on item" actions are collected only for a signed in person whose personalised
+  // feed is on. They go out when the app goes to the background and just before sign out.
+  const collecting = Boolean(userId) && settings?.personaliseFeed !== false;
+  useEffect(() => {
+    events.setEnabled(collecting);
+    return () => events.setEnabled(false);
+  }, [collecting]);
+  useEffect(() => {
+    const unhook = beforeSignOut(() => events.flush());
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "background") void events.flush();
+    });
+    return () => {
+      unhook();
+      sub.remove();
+    };
+  }, []);
+
+  // Right after a new account is made: the two short questions, then Home.
+  useEffect(() => {
+    if (!onboarding || onboardingShown.current) return;
+    onboardingShown.current = true;
+    router.push("/onboarding");
+  }, [onboarding, router]);
 
   // Your language on the server wins right after you log in, so Hebrew stays Hebrew on a new phone.
   useEffect(() => {
@@ -33,15 +65,16 @@ export default function AppLayout() {
 
   // The first time after logging in, offer Face ID (once per person per phone).
   useEffect(() => {
-    if (offered.current || !userId || !me || !support?.available) return;
+    if (offered.current || onboarding || !userId || !me || !support?.available) return;
     if (isFaceIdEnabled(userId) || wasFaceIdOffered(userId)) return;
     offered.current = true;
     router.push("/face-id-offer");
-  }, [userId, me, support, router]);
+  }, [userId, me, support, router, onboarding]);
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="onboarding" options={{ presentation: "fullScreenModal", gestureEnabled: false }} />
       <Stack.Screen name="face-id-offer" options={{ presentation: "modal" }} />
       <Stack.Screen name="sell-form" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="filters" />
