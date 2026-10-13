@@ -1,11 +1,13 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { X } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Keyboard, LayoutAnimation, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
+import { Icon } from "@/components/ui/icon";
 import { BackIcon } from "@/components/ui/top-bar";
 import { colors } from "@/theme";
 
@@ -80,8 +82,9 @@ function useKeyboardOpen() {
 /**
  * The photo band at the top of log in, sign up and forgot password, with the back button over it (D-021).
  * It shrinks to just the back button while the keyboard is open, so the field and the button always stay in view.
+ * Log in and sign up slide up from the bottom (D-026), so there the button is a close X, not a back arrow.
  */
-function AuthPhotoBand() {
+function AuthPhotoBand({ close = false }: { close?: boolean }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t } = useTranslation();
@@ -116,10 +119,10 @@ function AuthPhotoBand() {
             onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
             hitSlop={8}
             role="button"
-            accessibilityLabel={t("common.back")}
+            accessibilityLabel={close ? t("common.close") : t("common.back")}
             className="h-9 w-9 items-center justify-center rounded-full bg-background/95 active:bg-background"
           >
-            <BackIcon />
+            {close ? <Icon as={X} size={24} /> : <BackIcon />}
           </Pressable>
         </View>
       </View>
