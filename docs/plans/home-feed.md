@@ -55,7 +55,7 @@ The server copies the item's features (category, brand, size, price band, seller
 |---|---|---|
 | Card seen (half visible for 1 second) | `apps/mobile/components/listing-grid.tsx:127` | 0 (only used to stop repeats and to measure) |
 | Time on an item (10 seconds or more, or 3 photos swiped) | item page `listing/[id].tsx` | 1 |
-| Category visit | `apps/mobile/app/(app)/(tabs)/(browse)/browse/category.tsx` | 0.5 |
+| Category visit | `apps/mobile/app/(app)/(tabs)/(shop)/browse/category.tsx` | 0.5 |
 
 The app keeps a small queue (`apps/mobile/lib/events.ts`) and sends it to `POST /v1/events`:
 

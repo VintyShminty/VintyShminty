@@ -15,7 +15,7 @@ type BottomTabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>["tab
 /** The tabs in their fixed order. The same order in Hebrew (D-016). Names are the route folders. */
 const TABS: { route: string; icon: LucideIcon; label: string; sell?: boolean }[] = [
   { route: "(home)", icon: House, label: "tabs.home" },
-  { route: "(browse)", icon: LayoutGrid, label: "tabs.browse" },
+  { route: "(shop)", icon: LayoutGrid, label: "tabs.browse" },
   { route: "sell", icon: Tag, label: "tabs.sell", sell: true },
   { route: "(inbox)", icon: MessageCircle, label: "tabs.inbox" },
   { route: "(profile)", icon: User, label: "tabs.profile" },

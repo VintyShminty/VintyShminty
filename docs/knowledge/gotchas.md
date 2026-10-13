@@ -20,7 +20,7 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 ## App
 
 - **Right to left follows the app language, not the phone (D-018).** The native side is always left to right and the app sets `direction` on its root view, so the language switch needs no restart. Never read `I18nManager.isRTL` (always false), use `useIsRtl()`. NativeWind `rtl:` classes never fire, pick the style from the language. Test in a development build. Source: `CLAUDE.md`, `lib/rtl.ts`.
-- **A page opened from a tab must live inside that tab (D-017).** Put shared pages in `app/(app)/(tabs)/(home,browse,inbox,profile)/`, not on the root stack, or the tab bar disappears. Source: `docs/design.md` D-017.
+- **A page opened from a tab must live inside that tab (D-017).** Put shared pages in `app/(app)/(tabs)/(home,inbox,profile,shop)/`, not on the root stack, or the tab bar disappears. Source: `docs/design.md` D-017.
 - **A hard-coded colour fails a test.** Use tokens from `@/theme`. Source: `apps/mobile/tests/no-hardcoded-colours.test.ts`.
 - **Left and right styles break Hebrew.** Use start and end (`ps-`, `me-`, `text-start`). Real case (before D-018): Hebrew text hugged the left edge because the phone swapped left and right in its own right to left mode. The swap is keyed to the layout direction, so it still happens with D-018: in `Text`, `text-left` means the start edge. `TextInput` does not swap, so `Input` picks right or left from the app language. Source: `CLAUDE.md`, log 2026-10-12 evening, commit `4abebb7`.
 - **Face ID and forced right to left do nothing or crash in Expo Go** (the quick preview app). Use a development build: `npx expo run:ios`, which needs CocoaPods. Source: `CLAUDE.md`, log 2026-10-12 evening.
