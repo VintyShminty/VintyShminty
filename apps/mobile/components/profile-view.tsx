@@ -212,34 +212,24 @@ function ProfileHeader({
 function ReviewSummary({ summary }: { summary: ReviewsPage["summary"] | null }) {
   const { t } = useTranslation();
   if (!summary) return null;
-  const { member, automatic, overall, total } = summary;
+  const { automatic, overall, total } = summary;
   return (
-    <View className="mx-lg my-lg rounded-control border border-border-subtle p-lg">
-      <View className="flex-row items-center gap-lg">
+    <View className="gap-md px-lg py-lg">
+      <View className="flex-row items-center gap-md">
         <Text variant="title">{overall === null ? "-" : overall.toFixed(1)}</Text>
         <View className="gap-xs">
           <StarRating rating={overall} size={18} />
           <Text variant="cardMeta">{t("profile.reviewCount", { count: total })}</Text>
         </View>
       </View>
-      <View className="mt-md gap-xs border-t border-border-subtle pt-md">
-        <View className="flex-row justify-between">
-          <Text variant="bodySmall" className="text-text-2">
-            {t("profile.fromMembers")}
-          </Text>
-          <Text variant="bodySmall" weight={600}>
-            {member.average === null ? "-" : member.average.toFixed(1)} ({member.count})
+      {automatic.count > 0 ? (
+        <View className="flex-row items-center gap-sm self-start rounded-control bg-success-tint px-md py-sm">
+          <Icon as={Check} size={16} className="text-success" />
+          <Text variant="bodySmall" weight={600} className="text-success">
+            {t("profile.smoothSales", { count: automatic.count })}
           </Text>
         </View>
-        <View className="flex-row justify-between">
-          <Text variant="bodySmall" className="text-text-2">
-            {t("profile.automatic")}
-          </Text>
-          <Text variant="bodySmall" weight={600}>
-            {automatic.average === null ? "-" : automatic.average.toFixed(1)} ({automatic.count})
-          </Text>
-        </View>
-      </View>
+      ) : null}
     </View>
   );
 }
@@ -269,7 +259,6 @@ function ReviewRow({
             <Text variant="cardMeta">{formatDate(review.createdAt, i18n.language)}</Text>
           </View>
         </View>
-        {review.isAutomatic ? <Badge variant="neutral" icon={Check} label={t("profile.automatic")} /> : null}
       </View>
       {review.comment ? <Text variant="bodySmall">{review.comment}</Text> : null}
       <Text variant="cardMeta" numberOfLines={1}>
@@ -289,11 +278,9 @@ function ReviewRow({
       ) : null}
       {isSelf ? (
         <View className="flex-row gap-sm">
-          {!review.isAutomatic ? (
-            <Button size="sm" variant="outline" onPress={() => onReply(review)}>
-              <Text>{review.replyBody ? t("review.editReply") : t("review.reply")}</Text>
-            </Button>
-          ) : null}
+          <Button size="sm" variant="outline" onPress={() => onReply(review)}>
+            <Text>{review.replyBody ? t("review.editReply") : t("review.reply")}</Text>
+          </Button>
           <Button
             size="sm"
             variant="ghost"
@@ -360,7 +347,6 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const [tab, setTab] = useState<TabKey>("listings");
   const [status, setStatus] = useState<"active" | "sold">("active");
   const [ownStatus, setOwnStatus] = useState<MyListingStatus>("active");
-  const [source, setSource] = useState<"all" | "member" | "automatic">("all");
 
   const profileQ = useQuery(profileQuery(userId));
   const listingsQ = useInfiniteQuery({
@@ -370,7 +356,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   // Your own page shows every state of your listings, with views and favourites (spec, Own profile).
   const ownQ = useInfiniteQuery({ ...myListingsQuery(ownStatus), enabled: tab === "listings" && isSelf });
   const ownCounts = ownQ.data?.pages[0]?.counts;
-  const reviewsQ = useInfiniteQuery({ ...userReviewsQuery(userId, source), enabled: tab === "reviews" });
+  const reviewsQ = useInfiniteQuery({ ...userReviewsQuery(userId, "member"), enabled: tab === "reviews" });
   const replySheet = useRef<BottomSheetModal>(null);
   const [replyTarget, setReplyTarget] = useState<ReviewItem | null>(null);
 
@@ -520,21 +506,6 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
                   label={t("profile.sold")}
                   selected={status === "sold"}
                   onPress={() => setStatus("sold")}
-                />
-              </View>
-            ) : null}
-            {tab === "reviews" ? (
-              <View className="flex-row gap-sm px-lg pt-lg">
-                <Chip label={t("profile.all")} selected={source === "all"} onPress={() => setSource("all")} />
-                <Chip
-                  label={t("profile.fromMembers")}
-                  selected={source === "member"}
-                  onPress={() => setSource("member")}
-                />
-                <Chip
-                  label={t("profile.automatic")}
-                  selected={source === "automatic"}
-                  onPress={() => setSource("automatic")}
                 />
               </View>
             ) : null}

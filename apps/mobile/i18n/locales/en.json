@@ -254,14 +254,14 @@
       "reviews": "Reviews",
       "about": "About"
     },
-    "fromMembers": "Written reviews",
     "automatic": "Automatic",
-    "all": "All",
+    "smoothSales_one": "{{count}} smooth sale, no problems",
+    "smoothSales_other": "{{count}} smooth sales, no problems",
     "active": "Active",
     "sold": "Sold",
     "noListings": "No items for sale right now",
     "noSold": "Nothing sold yet",
-    "noReviews": "No reviews yet",
+    "noReviews": "No written reviews yet",
     "reviewFor": "For {{title}}",
     "reply": "Reply",
     "about": {
@@ -821,6 +821,14 @@
     }
   },
   "chat": {
+    "tracker": {
+      "paid": "Paid",
+      "sent": "Sent",
+      "arrived": "Arrived",
+      "done": "Done",
+      "track": "Track parcel",
+      "gotIt": "I got it"
+    },
     "composerPlaceholder": "Write a message",
     "send": "Send",
     "addPhoto": "Add a photo",
