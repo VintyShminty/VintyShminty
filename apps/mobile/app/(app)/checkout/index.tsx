@@ -1,5 +1,5 @@
 import { type UseQueryResult, useQuery } from "@tanstack/react-query";
-import type { CheckoutQuote, DeliveryMethod, OrderDetail } from "@vinty/shared";
+import type { DeliveryMethod, OrderDetail } from "@vinty/shared";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Home, Info, MapPin, PackageOpen, Timer } from "lucide-react-native";
@@ -298,7 +298,6 @@ export default function Checkout() {
   const [banner, setBanner] = useState<string | null>(null);
   const [soldOut, setSoldOut] = useState(false);
   const place = usePlaceOrder();
-  const payExisting = usePayOrder();
   const inFlight = useRef(false);
   // One key per checkout screen. It changes with what is being ordered, so a changed address never gets an old order.
   const base = useRef(newClientMessageId());
