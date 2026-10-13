@@ -132,7 +132,7 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
         <PhotoCarousel photos={listing.photos} />
         <View className="gap-lg px-lg pt-lg">
           <StatusNote listing={listing} />
-          {listing.isBumped && listing.bumpedUntil ? (
+          {listing.isBumped && listing.bumpedUntil && listing.status !== "sold" ? (
             <View className="flex-row items-center gap-sm">
               <Badge variant="accent" icon={Zap} label={t("buzz.buzzing")} />
               <Text variant="bodySmall" className="flex-1 text-text-3">
