@@ -96,13 +96,22 @@ function connect(userId: string) {
   socket = s;
 
   s.on("connect", () => {
+    if (__DEV__) console.log("[realtime] connected");
     useRealtimeStore.setState({ connected: true });
     for (const id of openThreads) join(id);
     if (hasConnected) refetchAfterReconnect();
     hasConnected = true;
   });
-  s.on("disconnect", () => useRealtimeStore.setState({ connected: false, typing: {} }));
-  s.on("connect_error", () => useRealtimeStore.setState({ connected: false }));
+  s.on("disconnect", (reason) => {
+    if (__DEV__) console.log("[realtime] disconnected", reason);
+    useRealtimeStore.setState({ connected: false, typing: {} });
+    // When the server closes the connection on purpose (a restart), socket.io does not try again by itself.
+    if (reason === "io server disconnect") setTimeout(() => s.connect(), 1500);
+  });
+  s.on("connect_error", (err) => {
+    if (__DEV__) console.log("[realtime] connect_error", err.message);
+    useRealtimeStore.setState({ connected: false });
+  });
 
   s.on("message:new", ({ conversationId, message }) => {
     upsertMessage(queryClient, message);
