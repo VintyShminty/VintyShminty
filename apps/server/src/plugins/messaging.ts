@@ -14,6 +14,7 @@ import { ApiError } from "../lib/errors.js";
 import { WindowLimiter } from "../lib/limiter.js";
 import { markRead, requireParty, sendMessage, unreadCounts } from "../lib/messaging.js";
 import { createPusher, type Pusher } from "../lib/push.js";
+import { createRealtimeAdapter, type RealtimeAdapter } from "../lib/realtime-adapter.js";
 
 type SocketData = { userId: string };
 type IoServer = Server<ClientToServerEvents, ServerToClientEvents, Record<string, never>, SocketData>;
@@ -51,7 +52,19 @@ export default fp<MessagingPluginOptions>(
       conversation: new WindowLimiter(20, 60_000),
     });
 
+    // With REDIS_URL, messages reach people connected to another copy of the server (Vercel). Without it, in memory.
+    let shared: RealtimeAdapter | null = null;
+    try {
+      shared = await createRealtimeAdapter(env, app.log);
+    } catch (err) {
+      app.log.error(
+        { err },
+        "could not reach Redis, live chat only reaches people on this copy of the server",
+      );
+    }
+
     const io: IoServer = new Server(app.server, {
+      ...(shared ? { adapter: shared.adapter } : {}),
       serveClient: false,
       cors: { origin: env.CORS_ORIGIN === "*" ? true : env.CORS_ORIGIN.split(",").map((o) => o.trim()) },
       // Messages are small. A bigger frame is a sign of abuse.
@@ -168,6 +181,7 @@ export default fp<MessagingPluginOptions>(
       await new Promise<void>((resolve) => {
         io.close(() => resolve());
       });
+      await shared?.close();
     });
   },
   { name: "messaging", dependencies: ["auth"] },

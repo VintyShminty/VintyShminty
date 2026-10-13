@@ -3,7 +3,10 @@ import { buildApp } from "./app.js";
 import { parseEnv } from "./env.js";
 
 const env = parseEnv();
-const database = createDb(env.DATABASE_URL);
+const database = createDb(env.DATABASE_URL, {
+  max: env.DATABASE_POOL_MAX,
+  prepare: env.DATABASE_PREPARED_STATEMENTS,
+});
 const app = await buildApp({ env, database });
 
 try {

@@ -1,11 +1,13 @@
 import { timingSafeEqual } from "node:crypto";
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import { cleanupFeedData, refreshPopularity } from "../lib/feed-jobs.js";
+import { runOrderJobs } from "../lib/order-jobs.js";
 
 /**
  * Entry points for a scheduler (Vercel Cron calls with GET, anything else may use POST). They do the same work as the
  * timers in plugins/jobs.ts, so a host that does not keep a server running can still run the chores.
- * Every call needs `Authorization: Bearer <CRON_SECRET>`. Without CRON_SECRET in the environment they answer 404.
+ * Every call needs `Authorization: Bearer <CRON_SECRET>` (Vercel Cron adds it by itself when the project has a
+ * CRON_SECRET variable). Without CRON_SECRET in the environment they answer 404. Every job is safe to run twice.
  */
 const jobRoutes: FastifyPluginAsync = async (app) => {
   const secret = app.env.CRON_SECRET;
@@ -26,6 +28,14 @@ const jobRoutes: FastifyPluginAsync = async (app) => {
 
   app.route({
     method: ["GET", "POST"],
+    url: "/v1/jobs/orders",
+    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
+    preHandler: guard,
+    handler: async () => ({ ok: true, ...(await runOrderJobs(app)) }),
+  });
+
+  app.route({
+    method: ["GET", "POST"],
     url: "/v1/jobs/feed-popularity",
     config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
     preHandler: guard,
@@ -41,6 +51,20 @@ const jobRoutes: FastifyPluginAsync = async (app) => {
     config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
     preHandler: guard,
     handler: async () => ({ ok: true, ...(await cleanupFeedData(app)) }),
+  });
+
+  // Everything in one call, for a scheduler that may only run once a day (Vercel Hobby).
+  app.route({
+    method: ["GET", "POST"],
+    url: "/v1/jobs/all",
+    config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
+    preHandler: guard,
+    handler: async () => {
+      const orders = await runOrderJobs(app);
+      await refreshPopularity(app);
+      const cleanup = await cleanupFeedData(app);
+      return { ok: true, orders, cleanup };
+    },
   });
 };
 

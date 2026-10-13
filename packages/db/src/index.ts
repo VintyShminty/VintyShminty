@@ -4,8 +4,16 @@ import * as schema from "./schema/index.js";
 
 export * from "./schema/index.js";
 
-export function createDb(databaseUrl: string) {
-  const client = postgres(databaseUrl);
+export type CreateDbOptions = {
+  /** Connections to keep open. Default 10. */
+  max?: number;
+  /** Turn off prepared statements. Needed behind a transaction pooler (Neon's -pooler address, PgBouncer). */
+  prepare?: boolean;
+};
+
+export function createDb(databaseUrl: string, { max = 10, prepare = true }: CreateDbOptions = {}) {
+  // idle_timeout lets a hosted server copy hand connections back when it is quiet.
+  const client = postgres(databaseUrl, { max, prepare, idle_timeout: 20 });
   const db = drizzle(client, { schema });
   return {
     db,

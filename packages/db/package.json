@@ -9,10 +9,12 @@
     "typecheck": "tsc -p tsconfig.json",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
+    "migrate:online": "drizzle-kit migrate --config=drizzle.online.config.ts",
     "test": "vitest run",
     "seed": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts seed",
     "seed:reference": "tsx --env-file-if-exists=.env src/seed/cli.ts reference",
-    "reset": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts reset"
+    "reset": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts reset",
+    "seed:reference:online": "tsx --env-file=.env.online src/seed/cli.ts reference"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.3",

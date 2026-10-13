@@ -8,6 +8,16 @@ const optionalText = z
   .optional()
   .transform((v) => (v && v.trim() !== "" ? v : undefined));
 
+/** True for an address on this machine (localhost, 127.0.0.1, ::1) or one that cannot be read. */
+function isLocalAddress(value: string): boolean {
+  try {
+    const host = new URL(value).hostname;
+    return ["localhost", "127.0.0.1", "::1", "[::1]"].includes(host);
+  } catch {
+    return true;
+  }
+}
+
 const envSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -35,7 +45,9 @@ const envSchema = z
     APPLE_APP_BUNDLE_IDENTIFIER: optionalText,
 
     // Email. "smtp" sends to SMTP_HOST (Mailpit in development). "memory" keeps mail in a list (tests).
-    MAIL_TRANSPORT: z.enum(["smtp", "memory"]).default("smtp"),
+    // "resend" sends through Resend's web API (needs RESEND_API_KEY), used online.
+    MAIL_TRANSPORT: z.enum(["smtp", "resend", "memory"]).default("smtp"),
+    RESEND_API_KEY: optionalText,
     SMTP_HOST: z.string().default("localhost"),
     SMTP_PORT: z.coerce.number().int().default(1025),
     SMTP_USER: optionalText,
@@ -44,7 +56,9 @@ const envSchema = z
       .enum(["true", "false"])
       .default("false")
       .transform((v) => v === "true"),
-    MAIL_FROM: z.string().default("Vinty <no-reply@vinty.local>"),
+    // Empty means "Vinty <no-reply@vinty.local>" for SMTP and "Vinty <onboarding@resend.dev>" (Resend's test sender,
+    // the only one that works before a domain is verified) for Resend.
+    MAIL_FROM: optionalText,
 
     // Push notifications. "log" writes the push to the server log instead of sending it (development, tests).
     // "expo" sends through the Expo push service (needs Apple and Google credentials set up in EAS).
@@ -61,11 +75,27 @@ const envSchema = z
     // 45 in development and off everywhere else, 0 switches it off. The buyer's "I received it" always works.
     SIMULATED_DELIVERY_SECONDS: z.coerce.number().int().min(0).optional(),
 
+    // Runs the timers above inside the server. Empty means yes on a laptop or a normal server and no on Vercel (a
+    // function there only lives while it answers, so the scheduler calls /v1/jobs/... instead, see vercel.json).
+    IN_PROCESS_JOBS: z.enum(["true", "false"]).optional(),
+    /** Set by Vercel itself ("1"). Never set it by hand. */
+    VERCEL: optionalText,
+
     // Protects the scheduler endpoints (GET or POST /v1/jobs/...). A scheduler such as Vercel Cron sends it as
     // "Authorization: Bearer <value>". Empty switches the endpoints off.
     CRON_SECRET: optionalText.refine((v) => v === undefined || v.length >= 16, {
       message: "CRON_SECRET must be at least 16 characters",
     }),
+
+    // Live chat across several server copies (Vercel runs many). Empty keeps everything in memory, right for one
+    // server. A rediss:// address (Upstash) makes a message reach people connected to another copy.
+    REDIS_URL: optionalText,
+
+    // Database connection. Postgres on Neon is reached through a pooler that wants prepared statements off. Empty
+    // means "off when the address contains -pooler", true or false forces it.
+    DATABASE_PREPARED_STATEMENTS: z.enum(["true", "false"]).optional(),
+    /** Connections one server copy keeps open. */
+    DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),
 
     // Object storage (MinIO in development, Cloudflare R2 online)
     S3_ENDPOINT: z.string().url().default("http://localhost:9000"),
@@ -81,16 +111,74 @@ const envSchema = z
     S3_PUBLIC_URL: z.string().url().default("http://localhost:9000/vinty-dev"),
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV === "production" && env.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["BETTER_AUTH_SECRET"],
-        message: "Set a real BETTER_AUTH_SECRET in production (openssl rand -base64 32)",
-      });
-    }
-  });
+    if (env.NODE_ENV !== "production") return;
+    const problem = (path: string, message: string) =>
+      ctx.addIssue({ code: "custom", path: [path], message });
 
-export type Env = z.infer<typeof envSchema>;
+    if (env.BETTER_AUTH_SECRET === DEV_AUTH_SECRET) {
+      problem("BETTER_AUTH_SECRET", "Set a real BETTER_AUTH_SECRET in production (openssl rand -base64 32)");
+    }
+    if (isLocalAddress(env.DATABASE_URL)) {
+      problem(
+        "DATABASE_URL",
+        "In production this must be the hosted database, not a database on this machine",
+      );
+    }
+    if (!env.BETTER_AUTH_URL.startsWith("https://") || isLocalAddress(env.BETTER_AUTH_URL)) {
+      problem("BETTER_AUTH_URL", "In production this must be the public https address of this server");
+    }
+    if (!env.CRON_SECRET) {
+      problem(
+        "CRON_SECRET",
+        "Set CRON_SECRET in production (openssl rand -base64 32), the scheduler needs it",
+      );
+    }
+    if (env.MAIL_TRANSPORT === "memory") {
+      problem("MAIL_TRANSPORT", "In production use resend or smtp, memory throws every email away");
+    } else if (env.MAIL_TRANSPORT === "resend") {
+      if (!env.RESEND_API_KEY) problem("RESEND_API_KEY", "MAIL_TRANSPORT=resend needs RESEND_API_KEY");
+    } else if (env.SMTP_HOST === "localhost" || env.SMTP_HOST === "127.0.0.1") {
+      problem(
+        "SMTP_HOST",
+        "In production set MAIL_TRANSPORT=resend, or point SMTP_HOST at a real mail server",
+      );
+    }
+    if (isLocalAddress(env.S3_ENDPOINT)) {
+      problem(
+        "S3_ENDPOINT",
+        "In production this must be the Cloudflare R2 address https://<account>.r2.cloudflarestorage.com",
+      );
+    }
+    if (isLocalAddress(env.S3_PUBLIC_URL)) {
+      problem("S3_PUBLIC_URL", "In production this must be the public address of the photo bucket");
+    }
+    if (env.S3_ACCESS_KEY_ID === "minioadmin" || env.S3_SECRET_ACCESS_KEY === "minioadmin") {
+      problem(
+        "S3_ACCESS_KEY_ID",
+        "Set the R2 access key (S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY), not the MinIO default",
+      );
+    }
+    if (env.VERCEL && !env.REDIS_URL) {
+      problem(
+        "REDIS_URL",
+        "Vercel runs several copies of the server, live chat needs REDIS_URL to reach all of them",
+      );
+    }
+  })
+  .transform((env) => ({
+    ...env,
+    MAIL_FROM:
+      env.MAIL_FROM ??
+      (env.MAIL_TRANSPORT === "resend" ? "Vinty <onboarding@resend.dev>" : "Vinty <no-reply@vinty.local>"),
+    /** Timers inside the server: on unless Vercel runs us, or the person switched them off. */
+    IN_PROCESS_JOBS: env.IN_PROCESS_JOBS ? env.IN_PROCESS_JOBS === "true" : !env.VERCEL,
+    /** Prepared statements break behind a transaction pooler such as Neon's. */
+    DATABASE_PREPARED_STATEMENTS: env.DATABASE_PREPARED_STATEMENTS
+      ? env.DATABASE_PREPARED_STATEMENTS === "true"
+      : !env.DATABASE_URL.includes("-pooler"),
+  }));
+
+export type Env = z.output<typeof envSchema>;
 
 /** Validates the environment once at startup. Throws a readable error on bad values (fail fast). */
 export function parseEnv(source: NodeJS.ProcessEnv = process.env): Env {

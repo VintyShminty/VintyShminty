@@ -20,6 +20,7 @@
     "@fastify/helmet": "^13.1.1",
     "@fastify/rate-limit": "^11.2.0",
     "@fastify/sensible": "^6.0.6",
+    "@socket.io/redis-adapter": "^8.3.0",
     "@vinty/db": "workspace:*",
     "@vinty/shared": "workspace:*",
     "better-auth": "^1.7.7",
@@ -27,6 +28,7 @@
     "fastify-plugin": "^6.0.0",
     "fastify-type-provider-zod": "^7.0.0",
     "nodemailer": "^10.0.15",
+    "redis": "^6.3.0",
     "socket.io": "4.8.4",
     "zod": "^4.6.5"
   },
@@ -37,5 +39,8 @@
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^5.0.3"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
