@@ -74,7 +74,9 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
         (p) => (p.message as { kind: string }).kind === "offer",
       );
       expect(bubbles).toHaveLength(1);
-      expect((bubbles[0]?.message as { offer: { id: string; status: string } }).offer).toMatchObject({
+      expect(
+        (bubbles[0] as { message: { offer: { id: string; status: string } } }).message.offer,
+      ).toMatchObject({
         id: offer.id,
         status: "pending",
       });
