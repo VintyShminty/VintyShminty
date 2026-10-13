@@ -1,11 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import {
   Bell,
   Globe,
+  HelpCircle,
   Lock,
   LogOut,
   Mail,
   MapPin,
+  Moon,
   ScanFace,
   ShieldCheck,
   SlidersHorizontal,
@@ -22,6 +25,7 @@ import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { authClient } from "@/lib/auth-client";
+import { meQuery } from "@/lib/queries";
 import { queryClient } from "@/lib/query-client";
 import { useFaceId } from "@/lib/use-face-id";
 
@@ -30,6 +34,7 @@ export default function Settings() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { data: session } = authClient.useSession();
+  const { data: me } = useQuery(meQuery());
   const faceId = useFaceId(session?.user.id);
   const [turningOn, setTurningOn] = useState(false);
   const method = t(`biometric.${faceId.kind}`);
@@ -98,6 +103,12 @@ export default function Settings() {
             icon={SlidersHorizontal}
             label={t("shopping.title")}
             onPress={() => router.push("/settings/personalisation")}
+          />
+          <Row
+            icon={Moon}
+            label={t("away.title")}
+            value={me?.profile.holidayMode ? t("away.on") : undefined}
+            onPress={() => router.push("/settings/away-mode")}
             last
           />
         </View>
@@ -123,6 +134,10 @@ export default function Settings() {
           onPress={() => router.push("/settings/language")}
           last
         />
+
+        <View className="mt-xl">
+          <Row icon={HelpCircle} label={t("help.title")} onPress={() => router.push("/settings/help")} last />
+        </View>
 
         <View className="mt-xl">
           <Row icon={LogOut} label={t("settings.logOut")} destructive onPress={logOut} chevron={false} last />

@@ -20,7 +20,7 @@ import { buildSizeOptions, summariseSizes } from "@/lib/size-options";
 import { cn } from "@/lib/utils";
 
 /**
- * Two short questions right after sign up, both skippable (D-025): what do you shop for, then your sizes.
+ * Two short questions right after sign up, both skippable (D-022): what do you shop for, then your sizes.
  * Shown once for a new account. Both answers shape Home from the first day.
  */
 export default function Onboarding() {

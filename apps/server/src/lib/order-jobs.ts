@@ -1,6 +1,7 @@
 import { listings, notifications, offers, orderItems, orders, reviews } from "@vinty/db";
 import { and, eq, gt, inArray, isNotNull, lte, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { endExpiredAwayMode } from "./away.js";
 import { notifyEvent } from "./event-notify.js";
 import { expireOffer } from "./offers.js";
 import { SYSTEM_ACTOR, transitionOrder } from "./orders.js";
@@ -18,6 +19,7 @@ export type JobResult = {
   pretendDelivered: number;
   autoCompleted: number;
   reviewReminders: number;
+  awayEnded: number;
 };
 
 const BATCH = 100;
@@ -61,8 +63,11 @@ export async function runOrderJobs(app: App, now = new Date()): Promise<JobResul
     pretendDelivered: 0,
     autoCompleted: 0,
     reviewReminders: 0,
+    awayEnded: 0,
   };
   const { db } = app;
+
+  result.awayEnded = await endExpiredAwayMode(app, now);
 
   const pending = await db
     .select({ id: offers.id })

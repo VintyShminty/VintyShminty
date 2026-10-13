@@ -23,6 +23,7 @@ import {
 } from "@vinty/shared";
 import { and, eq, inArray, type SQL, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { awayNowSql } from "./away.js";
 import { decodeCursor, encodeCursor } from "./cursor.js";
 import { buyerPrice, type ListingRow, toPhoto } from "./listings.js";
 
@@ -42,7 +43,7 @@ const bumpedMs = sql`(extract(epoch from ${listings.bumpedAt}) * 1000)::bigint`;
 /** Everything a listing needs to leave out for this viewer: holiday sellers, closed accounts, blocked people. */
 export function visibilityConditions(viewerId: string | undefined): SQL[] {
   const conditions: SQL[] = [
-    sql`not exists (select 1 from ${profiles} where ${profiles.userId} = ${listings.sellerId} and (${profiles.holidayModeEnabled} or ${profiles.deletedAt} is not null))`,
+    sql`not exists (select 1 from ${profiles} where ${profiles.userId} = ${listings.sellerId} and (${awayNowSql} or ${profiles.deletedAt} is not null))`,
   ];
   if (viewerId) {
     conditions.push(

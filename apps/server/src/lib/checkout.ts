@@ -26,6 +26,7 @@ import {
 } from "@vinty/shared";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { awayNowSql } from "./away.js";
 import { ApiError } from "./errors.js";
 import { isBlockedBetween } from "./messaging.js";
 import { isUniqueViolation } from "./offers.js";
@@ -135,7 +136,7 @@ export async function resolveTarget(
       coverKey: sql<
         string | null
       >`(select ${listingPhotos.objectKey} from ${listingPhotos} where ${listingPhotos.listingId} = ${listings.id} order by ${listingPhotos.position} asc limit 1)`,
-      sellerGone: sql<boolean>`exists (select 1 from ${profiles} where ${profiles.userId} = ${listings.sellerId} and (${profiles.deletedAt} is not null or ${profiles.holidayModeEnabled}))`,
+      sellerGone: sql<boolean>`exists (select 1 from ${profiles} where ${profiles.userId} = ${listings.sellerId} and (${profiles.deletedAt} is not null or ${awayNowSql}))`,
     })
     .from(listings)
     .leftJoin(sizes, eq(sizes.id, listings.sizeId))
