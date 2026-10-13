@@ -5,6 +5,7 @@ import {
   LISTING_COLOURS_MAX,
   LISTING_DESCRIPTION_MAX,
   LISTING_TITLE_MAX,
+  PHOTO_ASSIST_MAX_CATEGORIES,
   type PhotoSuggestion,
   type ReferenceData,
 } from "@vinty/shared";
@@ -117,14 +118,21 @@ const code = (text: string | null | undefined) => (text ?? "").trim().toUpperCas
 
 /**
  * Turns the model's raw answer into a suggestion the app can trust. Anything that is not in our lists is dropped, and
- * a field without a confidence counts as unsure (0).
+ * a category guess without a confidence counts as unsure (0).
  */
 export async function resolveSuggestion(
   raw: RawReading,
   catalog: CatalogCodes,
   brandMatcher: BrandMatcher,
 ): Promise<PhotoSuggestion> {
-  const categoryId = catalog.categories.get(code(raw.category)) ?? null;
+  // Up to 3 real leaf categories in the order the model gave them. Made up codes and repeats are dropped.
+  const categories: PhotoSuggestion["categories"] = [];
+  for (const guess of raw.categories ?? []) {
+    const id = catalog.categories.get(code(guess.code));
+    if (id && !categories.some((c) => c.id === id))
+      categories.push({ id, confidence: clamp01(guess.confidence) });
+    if (categories.length >= PHOTO_ASSIST_MAX_CATEGORIES) break;
+  }
 
   const colourIds: string[] = [];
   for (const c of raw.colours ?? []) {
@@ -143,18 +151,12 @@ export async function resolveSuggestion(
   }
 
   const suggestion: PhotoSuggestion = {
-    categoryId,
+    categories,
     brand,
     colourIds,
     materialId,
     title: cleanText(raw.title, LISTING_TITLE_MAX),
     description: cleanText(raw.description, LISTING_DESCRIPTION_MAX),
-    confidence: {
-      category: categoryId ? clamp01(raw.categoryConfidence) : 0,
-      brand: brand ? clamp01(raw.brandConfidence) : 0,
-      colours: colourIds.length ? clamp01(raw.coloursConfidence) : 0,
-      material: materialId ? clamp01(raw.materialConfidence) : 0,
-    },
   };
   return suggestion;
 }

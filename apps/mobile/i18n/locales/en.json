@@ -540,7 +540,11 @@
     "conditionPick": "Slide to choose",
     "assist": {
       "reading": "Reading your photos",
-      "suggested": "Suggested"
+      "looksLike": "Looks like",
+      "allOptions": "All options",
+      "fromTag": "From the tag: {{name}}",
+      "useIt": "Use it",
+      "guess": "{{name}}?"
     }
   },
   "item": {

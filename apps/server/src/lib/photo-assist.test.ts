@@ -57,59 +57,62 @@ describe("resolveSuggestion", () => {
   it("turns codes into ids and keeps what is real", async () => {
     const s = await resolveSuggestion(
       {
-        category: " c1 ",
-        categoryConfidence: 0.8,
+        categories: [
+          { code: " c2 ", confidence: 0.7 },
+          { code: "C1", confidence: 0.2 },
+        ],
         brandText: "ZARA",
-        brandConfidence: 0.9,
         colours: ["K1", "K3"],
-        coloursConfidence: 0.7,
         material: "M1",
-        materialConfidence: 0.6,
         title: "  Black   dress ",
         description: "A dress.",
       },
       catalog,
       matcher,
     );
-    expect(s.categoryId).toBe("cat-dresses");
+    expect(s.categories).toEqual([
+      { id: "cat-jeans", confidence: 0.7 },
+      { id: "cat-dresses", confidence: 0.2 },
+    ]);
     expect(s.brand).toEqual({ id: "brand-zara", name: "Zara" });
     expect(s.colourIds).toEqual(["col-black", "col-blue"]);
     expect(s.materialId).toBe("mat-cotton");
     expect(s.title).toBe("Black dress");
-    expect(s.confidence).toEqual({ category: 0.8, brand: 0.9, colours: 0.7, material: 0.6 });
   });
 
-  it("drops codes that are not in our lists and zeroes their confidence", async () => {
+  it("drops codes that are not in our lists, repeats and a third colour", async () => {
     const s = await resolveSuggestion(
       {
-        category: "C99",
-        categoryConfidence: 0.99,
+        categories: [
+          { code: "C99", confidence: 0.99 },
+          { code: "C1", confidence: 7 },
+          { code: "C1", confidence: 0.5 },
+          { code: "C2" },
+        ],
         colours: ["K9", "K2", "K2", "K3", "K1"],
-        coloursConfidence: 2,
         material: "M7",
-        materialConfidence: 1,
         title: "",
       },
       catalog,
       matcher,
     );
-    expect(s.categoryId).toBeNull();
-    expect(s.confidence.category).toBe(0);
+    expect(s.categories).toEqual([
+      { id: "cat-dresses", confidence: 1 },
+      { id: "cat-jeans", confidence: 0 },
+    ]);
     expect(s.colourIds).toEqual(["col-red", "col-blue"]);
-    expect(s.confidence.colours).toBe(1);
     expect(s.materialId).toBeNull();
-    expect(s.confidence.material).toBe(0);
     expect(s.title).toBeNull();
   });
 
   it("keeps a brand we do not know as text only", async () => {
-    const s = await resolveSuggestion({ brandText: "Obscure Label", brandConfidence: 0.5 }, catalog, matcher);
+    const s = await resolveSuggestion({ brandText: "Obscure Label" }, catalog, matcher);
     expect(s.brand).toEqual({ id: null, name: "Obscure Label" });
   });
 
   it("copes with an empty answer", async () => {
     const s = await resolveSuggestion({}, catalog, matcher);
-    expect(s.categoryId).toBeNull();
+    expect(s.categories).toEqual([]);
     expect(s.brand).toBeNull();
     expect(s.colourIds).toEqual([]);
   });

@@ -18,44 +18,41 @@ export type SuggestRequest = z.infer<typeof suggestRequestSchema>;
 
 const confidenceSchema = z.number().min(0).max(1);
 
+/** How many category guesses the helper gives, best first. */
+export const PHOTO_ASSIST_MAX_CATEGORIES = 3;
+
 /**
- * What the helper thinks the photos show. Every id here was checked against our own lists on the server, so the app can
- * use them as they are. A field it could not tell is null (or empty). Confidence is 0 to 1.
+ * What the helper thinks the photos show (D-028). It never fills a field. The app shows these first inside the pickers
+ * the seller goes through anyway. Every id here was checked against our own lists on the server. A field it could not
+ * tell is null (or empty).
  */
 export const photoSuggestionSchema = z.object({
-  categoryId: idSchema.nullable(),
+  /** Up to 3 leaf categories, the most likely first. */
+  categories: z
+    .array(z.object({ id: idSchema, confidence: confidenceSchema }))
+    .max(PHOTO_ASSIST_MAX_CATEGORIES),
   /** The brand read from a tag. `id` is set when it matched a brand we know, otherwise only the text is given. */
   brand: z.object({ id: idSchema.nullable(), name: z.string().min(1).max(80) }).nullable(),
   colourIds: z.array(idSchema).max(LISTING_COLOURS_MAX),
   materialId: idSchema.nullable(),
   title: z.string().max(LISTING_TITLE_MAX).nullable(),
   description: z.string().max(LISTING_DESCRIPTION_MAX).nullable(),
-  confidence: z.object({
-    category: confidenceSchema,
-    brand: confidenceSchema,
-    colours: confidenceSchema,
-    material: confidenceSchema,
-  }),
 });
 export type PhotoSuggestion = z.infer<typeof photoSuggestionSchema>;
 
 /** What comes back when the helper is off, fails or sees nothing useful. */
 export const EMPTY_PHOTO_SUGGESTION: PhotoSuggestion = {
-  categoryId: null,
+  categories: [],
   brand: null,
   colourIds: [],
   materialId: null,
   title: null,
   description: null,
-  confidence: { category: 0, brand: 0, colours: 0, material: 0 },
 };
 
 /** A suggestion that is worth showing: at least one field is filled. */
 export function photoSuggestionHasContent(s: PhotoSuggestion): boolean {
   return Boolean(
-    s.categoryId || s.brand?.id || s.colourIds.length > 0 || s.materialId || s.title || s.description,
+    s.categories.length > 0 || s.brand || s.colourIds.length > 0 || s.materialId || s.title || s.description,
   );
 }
-
-/** The app only fills in a field when the helper is at least this sure of it. */
-export const PHOTO_ASSIST_MIN_CONFIDENCE = 0.6;
