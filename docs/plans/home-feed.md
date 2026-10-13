@@ -373,7 +373,7 @@ group by listing_id;
 
 ## 9. Decisions for Eden
 
-The first option in each is the recommendation.
+The first option in each is the recommendation. Eden left these open on 2026-10-13: decide them at the start of Milestone 7.
 
 1. **How fast does old taste fade?**
    - **Half in 14 days** (taste of the last 2 to 4 weeks)
