@@ -1,3 +1,4 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type {
   ListingCard as ListingCardData,
@@ -14,18 +15,22 @@ import {
   Bookmark,
   Check,
   Heart,
+  Layers,
   Leaf,
   type LucideIcon,
   MapPin,
+  Receipt,
   Settings as SettingsIcon,
   Upload,
+  Wallet,
   Zap,
 } from "lucide-react-native";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, ScrollView, View } from "react-native";
 import { MoreMenu } from "@/components/item/more-menu";
 import { ListingCard } from "@/components/listing-card";
+import { ReplySheet } from "@/components/orders/reply-sheet";
 import { OwnListingCard } from "@/components/own-listing-card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -136,6 +141,18 @@ function ProfileHeader({
         </View>
       ) : null}
 
+      {!isSelf && profile.activeListingCount >= 2 ? (
+        <View className="px-lg pt-lg">
+          <Button
+            variant="outline"
+            onPress={() => router.push({ pathname: "/bundle/[sellerId]", params: { sellerId: profile.id } })}
+          >
+            <Icon as={Layers} size={18} className="text-primary" />
+            <Text>{t("bundle.shop")}</Text>
+          </Button>
+        </View>
+      ) : null}
+
       {isSelf ? (
         <View className="mt-sm">
           <SettingsRow
@@ -147,6 +164,12 @@ function ProfileHeader({
             icon={Bookmark}
             label={t("savedSearches.title")}
             onPress={() => router.push("/saved-searches")}
+          />
+          <SettingsRow icon={Receipt} label={t("orders.title")} onPress={() => router.push("/orders")} />
+          <SettingsRow
+            icon={Wallet}
+            label={t("balance.title")}
+            onPress={() => router.push("/balance")}
             last
           />
         </View>
@@ -217,8 +240,18 @@ function ReviewSummary({ summary }: { summary: ReviewsPage["summary"] | null }) 
   );
 }
 
-function ReviewRow({ review }: { review: ReviewItem }) {
+function ReviewRow({
+  review,
+  isSelf,
+  onReply,
+}: {
+  review: ReviewItem;
+  /** On your own page: you can answer a member review and open its order. */
+  isSelf: boolean;
+  onReply: (review: ReviewItem) => void;
+}) {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   return (
     <View className="mx-lg gap-sm border-b border-border-subtle py-lg">
       <View className="flex-row items-center gap-md">
@@ -235,17 +268,35 @@ function ReviewRow({ review }: { review: ReviewItem }) {
         {review.isAutomatic ? <Badge variant="neutral" icon={Check} label={t("profile.automatic")} /> : null}
       </View>
       {review.comment ? <Text variant="bodySmall">{review.comment}</Text> : null}
-      {review.itemTitle ? (
-        <Text variant="cardMeta" numberOfLines={1}>
-          {t("profile.reviewFor", { title: review.itemTitle })}
-        </Text>
-      ) : null}
+      <Text variant="cardMeta" numberOfLines={1}>
+        {review.itemTitle
+          ? t(review.reviewerRole === "buyer" ? "profile.reviewAsBuyerFor" : "profile.reviewAsSellerFor", {
+              title: review.itemTitle,
+            })
+          : t(review.reviewerRole === "buyer" ? "profile.reviewAsBuyer" : "profile.reviewAsSeller")}
+      </Text>
       {review.replyBody ? (
         <View className="rounded-control bg-surface p-md">
           <Text variant="cardMeta" weight={600} className="mb-xs">
             {t("profile.reply")}
           </Text>
           <Text variant="bodySmall">{review.replyBody}</Text>
+        </View>
+      ) : null}
+      {isSelf ? (
+        <View className="flex-row gap-sm">
+          {!review.isAutomatic ? (
+            <Button size="sm" variant="outline" onPress={() => onReply(review)}>
+              <Text>{review.replyBody ? t("review.editReply") : t("review.reply")}</Text>
+            </Button>
+          ) : null}
+          <Button
+            size="sm"
+            variant="ghost"
+            onPress={() => router.push({ pathname: "/order/[id]", params: { id: review.orderId } })}
+          >
+            <Text>{t("review.viewOrder")}</Text>
+          </Button>
         </View>
       ) : null}
     </View>
@@ -315,6 +366,8 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const ownQ = useInfiniteQuery({ ...myListingsQuery(ownStatus), enabled: tab === "listings" && isSelf });
   const ownCounts = ownQ.data?.pages[0]?.counts;
   const reviewsQ = useInfiniteQuery({ ...userReviewsQuery(userId, source), enabled: tab === "reviews" });
+  const replySheet = useRef<BottomSheetModal>(null);
+  const [replyTarget, setReplyTarget] = useState<ReviewItem | null>(null);
 
   const rows = useMemo<Row[]>(() => {
     if (tab === "about") return [{ kind: "about" }];
@@ -518,7 +571,16 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
                 </View>
               );
             case "review":
-              return <ReviewRow review={item.review} />;
+              return (
+                <ReviewRow
+                  review={item.review}
+                  isSelf={isSelf}
+                  onReply={(review) => {
+                    setReplyTarget(review);
+                    replySheet.current?.present();
+                  }}
+                />
+              );
             case "reviewSummary":
               return <ReviewSummary summary={item.summary} />;
             case "about":
@@ -542,6 +604,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
           }
         }}
       />
+      {isSelf ? <ReplySheet ref={replySheet} review={replyTarget} /> : null}
     </Screen>
   );
 }

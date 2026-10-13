@@ -54,6 +54,13 @@ const envSchema = z
     /** Optional Expo access token. Only needed when "enhanced security" is switched on for the project. */
     EXPO_ACCESS_TOKEN: optionalText,
 
+    // Background jobs for offers and orders (expire offers, release held items, cancel unshipped orders, complete
+    // delivered ones). Every this many seconds. 0 switches them off (the tests run them by hand).
+    JOBS_INTERVAL_SECONDS: z.coerce.number().int().min(0).default(30),
+    // The pretend delivery: a shipped order becomes delivered this many seconds after it shipped. Empty means
+    // 45 in development and off everywhere else, 0 switches it off. The buyer's "I received it" always works.
+    SIMULATED_DELIVERY_SECONDS: z.coerce.number().int().min(0).optional(),
+
     // Object storage (MinIO in development, Cloudflare R2 online)
     S3_ENDPOINT: z.string().url().default("http://localhost:9000"),
     S3_REGION: z.string().default("us-east-1"),

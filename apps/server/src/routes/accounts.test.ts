@@ -20,7 +20,7 @@ describe.skipIf(!databaseUrl)("accounts", () => {
     ctx = await buildTestApp();
   });
   afterAll(async () => {
-    await cleanupTestUsers(ctx.database, createdIds);
+    await cleanupTestUsers(ctx.database, createdIds, { onlyIds: true });
     await ctx.close();
   });
 

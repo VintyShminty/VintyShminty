@@ -2,11 +2,13 @@ import { z } from "zod";
 import { idSchema, isoDateTimeSchema, pageSchema, paginationQuerySchema } from "./common.js";
 import {
   LISTING_STATUSES,
+  type ListingStatus,
   MESSAGE_KINDS,
   type MessageKind,
   NOTIFICATION_TYPES,
   OFFER_STATUSES,
   ORDER_STATUSES,
+  type OrderStatus,
   SYSTEM_MESSAGE_EVENTS,
 } from "./enums.js";
 import { userSummarySchema } from "./users.js";
@@ -65,6 +67,8 @@ export const messageOfferSchema = z.object({
   offeredById: idSchema,
   expiresAt: isoDateTimeSchema,
 });
+
+export type MessageOffer = z.infer<typeof messageOfferSchema>;
 
 export const messageSchema = z.object({
   id: idSchema,
@@ -219,7 +223,16 @@ export type SocketAck<T = Record<string, never>> =
 /** Server to client events and their payloads. */
 export type ServerToClientEvents = {
   "message:new": (payload: { conversationId: string; message: Message }) => void;
-  "message:updated": (payload: { conversationId: string; messageId: string; offer?: unknown }) => void;
+  /** An offer bubble changed status. Also goes to both people's rooms, so a closed thread stays right. */
+  "message:updated": (payload: { conversationId: string; messageId: string; offer?: MessageOffer }) => void;
+  /** An order moved. Goes to the buyer and the seller only. The app refetches the order. */
+  "order:updated": (payload: { orderId: string; status: OrderStatus; conversationId: string | null }) => void;
+  /** A listing was reserved, sold, released or repriced. Goes to people who favourited it or chat about it. */
+  "listing:updated": (payload: {
+    listingId: string;
+    status: ListingStatus;
+    priceMinor: number | null;
+  }) => void;
   "conversation:updated": (payload: {
     conversationId: string;
     lastMessagePreview: string | null;

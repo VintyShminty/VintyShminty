@@ -9,6 +9,8 @@ export class ApiError extends Error {
     readonly fields?: Record<string, string>,
     /** For 429: seconds the app should wait, sent as the `Retry-After` header. */
     readonly retryAfterSeconds?: number,
+    /** Extra values for the body of the error, such as `resetsAt` on `offer_limit_reached`. */
+    readonly extra?: { resetsAt?: string },
   ) {
     super(message);
   }

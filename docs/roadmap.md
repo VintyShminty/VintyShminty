@@ -21,7 +21,7 @@ Version 1 is a working app to inspect, not a throwaway prototype. It includes **
 | 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Done (merged, PR #9) |
 | 3 | Discovery | Home feed, Browse grid with category panels, search, filters and sort, item page, seller profiles, favourites, saved searches | Done (merged, PRs #10, #11) |
 | 4 | Messaging | Live chat, notifications, push alerts (offers moved to Milestone 5, Eden 2026-10-13, because accepting an offer leads straight to checkout). Also from the Milestone 3 review: the bottom tab bar stays visible on pages opened from a tab (item page, seller profile, search, favourites), switching between Hebrew and English happens instantly without reopening the app (the app flips the layout itself instead of the phone, Eden 2026-10-13), and a heart on sold items in Favourites so they can be removed | Done (merged, PR #12) |
-| 5 | Orders | Offers (send, accept, decline, counter), simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Planned |
+| 5 | Orders | Offers (send, accept, decline, counter), simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Built, in review |
 | 6 | Extras | Boost and bump, invite friends, help pages, holiday mode and the rest of the spec | Planned |
 
 Every milestone ends with something you can use on your phone, in both languages.

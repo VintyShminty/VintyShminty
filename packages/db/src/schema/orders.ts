@@ -119,8 +119,12 @@ export const orders = pgTable(
     deliveredAt: ts("delivered_at"),
     completedAt: ts("completed_at"),
     cancelledAt: ts("cancelled_at"),
+    /** While the order waits for payment the item is held for the buyer until this time, then the order cancels itself. */
+    payByAt: ts("pay_by_at"),
     /** The seller must ship before this or the order cancels itself. */
     shipByAt: ts("ship_by_at"),
+    /** The app's Idempotency-Key for creating the order: a repeat with the same key returns this order. */
+    idempotencyKey: text("idempotency_key"),
     /** If the buyer does nothing, the order completes by itself at this time. */
     autoCompleteAt: ts("auto_complete_at"),
     createdAt: createdAt(),
@@ -137,6 +141,10 @@ export const orders = pgTable(
     index("orders_buyer_idx").on(t.buyerId, t.status, t.createdAt.desc()),
     index("orders_seller_idx").on(t.sellerId, t.status, t.createdAt.desc()),
     index("orders_conversation_idx").on(t.conversationId),
+    uniqueIndex("orders_idempotency_unique")
+      .on(t.buyerId, t.idempotencyKey)
+      .where(sql`${t.idempotencyKey} is not null`),
+    index("orders_pay_by_idx").on(t.payByAt).where(sql`${t.status} = 'pending_payment'`),
     // Background jobs: expire unpaid, cancel unshipped, auto complete.
     index("orders_ship_by_idx").on(t.shipByAt).where(sql`${t.status} = 'paid'`),
     index("orders_auto_complete_idx")
@@ -298,12 +306,17 @@ export const walletEntries = pgTable(
     orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
     description: text("description"),
     availableAt: ts("available_at"),
+    /** The app's Idempotency-Key for a withdrawal: a repeat with the same key returns this row. */
+    idempotencyKey: text("idempotency_key"),
     createdAt: createdAt(),
   },
   (t) => [
     check("wallet_entries_nonzero", sql`${t.amountMinor} <> 0`),
     index("wallet_entries_user_idx").on(t.userId, t.createdAt.desc()),
     index("wallet_entries_user_status_idx").on(t.userId, t.status),
+    uniqueIndex("wallet_entries_idempotency_unique")
+      .on(t.userId, t.idempotencyKey)
+      .where(sql`${t.idempotencyKey} is not null`),
     // One sale credit per order and one refund per order.
     uniqueIndex("wallet_entries_order_type_unique")
       .on(t.userId, t.orderId, t.type)
