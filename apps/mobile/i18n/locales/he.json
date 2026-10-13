@@ -545,7 +545,9 @@
     "views": "צפיות",
     "noSimilar": "אין כרגע משהו דומה",
     "messageSeller": "שליחת הודעה למוכר",
-    "chatFailed": "אי אפשר להתחיל שיחה על הפריט הזה"
+    "chatFailed": "אי אפשר להתחיל שיחה על הפריט הזה",
+    "buyNow": "קנו עכשיו",
+    "makeOffer": "הצעת מחיר"
   },
   "seller": {
     "more": "עוד אפשרויות",
@@ -820,6 +822,21 @@
       "offer_expired": "תוקף ההצעה פג",
       "offer_withdrawn": "ההצעה נמשכה",
       "other": "עדכון"
+    },
+    "order": {
+      "number": "הזמנה #{{number}}",
+      "moreItems": "{{title}} ועוד {{count}}",
+      "tracking": "קוד מעקב {{code}}",
+      "view": "לצפייה בהזמנה",
+      "reason": {
+        "buyer_cancelled": "בוטלה על ידי הקונה",
+        "seller_cancelled": "בוטלה על ידי המוכר",
+        "payment_failed": "התשלום לא עבר",
+        "payment_expired": "התשלום לא בוצע בזמן",
+        "shipping_timeout": "ההזמנה לא נשלחה בזמן",
+        "item_unavailable": "הפריט לא היה זמין",
+        "other": ""
+      }
     }
   },
   "push": {
@@ -1149,5 +1166,128 @@
     "withdrawConfirm": "משיכה",
     "withdrawDone": "משכתם {{amount}}",
     "withdrawDoneNote": "הדמיה בלבד. שום דבר לא נשלח לבנק."
+  },
+  "offer": {
+    "title": "הצעת מחיר",
+    "counterTitle": "הצעת נגד",
+    "listedAt": "מחיר המודעה {{price}}",
+    "percentOff": "{{percent}}% הנחה",
+    "yourPrice": "המחיר שלכם",
+    "placeholder": "0",
+    "buyerPays": "הקונה משלם {{price}} כולל הגנת קונה",
+    "send": "שליחת הצעה",
+    "sendAmount": "הצעה של {{amount}}",
+    "left_one": "נשארה הצעה אחת להיום",
+    "left_two": "נשארו שתי הצעות להיום",
+    "left_other": "נשארו {{count}} הצעות להיום",
+    "noneLeft": "ניצלתם את כל ההצעות להיום. אפשר להציע שוב מ-{{time}}",
+    "accept": "אישור",
+    "decline": "דחייה",
+    "counter": "הצעת נגד",
+    "withdraw": "משיכת ההצעה",
+    "buyNow": "קנו עכשיו ב-{{amount}}",
+    "errors": {
+      "positive": "הכניסו סכום גדול מאפס",
+      "belowPrice": "הציעו פחות מ-{{price}}",
+      "limit": "ניצלתם את כל ההצעות להיום",
+      "unavailable": "הפריט כבר לא זמין",
+      "pending": "כבר יש הצעה שממתינה בשיחה הזאת",
+      "closed": "ההצעה כבר השתנתה. טוענים אותה מחדש",
+      "forbidden": "אי אפשר לעשות את זה עם ההצעה הזאת"
+    },
+    "bubble": {
+      "yours": "ההצעה שלכם",
+      "theirs": "ההצעה שלהם",
+      "pending_mine": "ממתינה לתשובה",
+      "pending_theirs": "מחכה לתשובה שלכם",
+      "reservedForYou": "שמור בשבילכם עד {{time}}",
+      "reservedForThem": "שמור לקונה עד {{time}}"
+    },
+    "confirm": {
+      "declineTitle": "לדחות את ההצעה?",
+      "declineNote": "הצד השני יקבל הודעה. אפשר להמשיך לדבר או לשלוח הצעת נגד בשיחה.",
+      "withdrawTitle": "למשוך את ההצעה?",
+      "withdrawNote": "ההצעה תיסגר ואפשר יהיה לשלוח חדשה."
+    }
+  },
+  "checkout": {
+    "title": "תשלום",
+    "items_one": "פריט אחד",
+    "items_two": "שני פריטים",
+    "items_other": "{{count}} פריטים",
+    "bundleDiscount": "הנחת חבילה ({{percent}}%)",
+    "protection": "הגנת קונה",
+    "postage": "משלוח",
+    "total": "סך הכול לתשלום",
+    "delivery": "אופן המשלוח",
+    "pickup": "נקודת איסוף",
+    "pickupNote": "אוספים בקרבת מקום כשזה מגיע",
+    "home": "משלוח עד הבית",
+    "homeNote": "מגיע עד הדלת",
+    "address": "כתובת",
+    "changeAddress": "שינוי כתובת",
+    "addAddress": "הוספת כתובת למשלוח",
+    "change": "שינוי",
+    "newAddress": "הוספת כתובת חדשה",
+    "noAddresses": "עדיין אין לכם כתובות שמורות",
+    "summary": "מחיר",
+    "holdNote": "אנחנו שומרים לכם את הפריט {{minutes}} דקות בזמן התשלום",
+    "simulatedTitle": "מצב תרגול, לא עובר כסף אמיתי",
+    "simulatedNote": "התשלום כאן מדומה בזמן שוינטי נבנית. אנחנו לא מבקשים פרטי כרטיס ושום דבר לא מחויב.",
+    "simulatedDone": "לא עבר כסף אמיתי. זה מצב תרגול.",
+    "needAddress": "הוסיפו כתובת למשלוח עד הבית",
+    "pay": "תשלום {{amount}}",
+    "priceChanged": "המחיר השתנה. הסכום החדש הוא {{total}}. בדקו ולחצו שוב על תשלום",
+    "timedOut": "הזמן לתשלום נגמר. לחצו על תשלום כדי להתחיל מחדש",
+    "problem": {
+      "unavailableTitle": "הפריט כבר נלקח",
+      "unavailableNote": "מישהו הקדים אתכם, או שהמוכר הוריד אותו.",
+      "offerClosedTitle": "ההצעה הסתיימה",
+      "offerClosedNote": "הזמן לקנות נגמר. אפשר להציע שוב.",
+      "ownTitle": "אי אפשר לקנות את זה",
+      "ownNote": "זה הפריט שלכם.",
+      "blockedTitle": "אי אפשר לקנות את זה",
+      "blockedNote": "אי אפשר לקנות מהאדם הזה.",
+      "genericTitle": "לא הצלחנו לפתוח את התשלום",
+      "genericNote": "בדקו את החיבור ונסו שוב.",
+      "close": "סגירה"
+    },
+    "fields": {
+      "required": "חובה למלא",
+      "tooMany": "שמרתם את מספר הכתובות המקסימלי",
+      "fullName": "שם מלא",
+      "line1": "רחוב ומספר",
+      "line2": "דירה, קומה או כניסה (לא חובה)",
+      "city": "עיר",
+      "postcode": "מיקוד",
+      "phone": "טלפון (לא חובה)",
+      "phoneHint": "השליח עשוי להתקשר לגבי המשלוח",
+      "save": "שמירת כתובת"
+    },
+    "done": {
+      "title": "התשלום בוצע",
+      "note": "‏{{seller}} קיבל/ה הודעה לשלוח את ההזמנה. נעדכן אתכם כשהיא תישלח.",
+      "many": "{{title}} ועוד {{count}}",
+      "viewOrder": "לצפייה בהזמנה",
+      "keepShopping": "להמשיך לקנות"
+    }
+  },
+  "bundle": {
+    "title": "קנייה בחבילה",
+    "shop": "קנייה בחבילה",
+    "pickMore": "בחרו לפחות {{count}} פריטים",
+    "addMore_one": "הוסיפו עוד פריט אחד וקבלו {{percent}}% הנחה",
+    "addMore_two": "הוסיפו עוד שני פריטים וקבלו {{percent}}% הנחה",
+    "addMore_other": "הוסיפו עוד {{count}} פריטים וקבלו {{percent}}% הנחה",
+    "tierNext_one": "{{percent}}% הנחה. הוסיפו עוד פריט אחד וקבלו {{next}}% הנחה",
+    "tierNext_two": "{{percent}}% הנחה. הוסיפו עוד שני פריטים וקבלו {{next}}% הנחה",
+    "tierNext_other": "{{percent}}% הנחה. הוסיפו עוד {{count}} פריטים וקבלו {{next}}% הנחה",
+    "tierTop": "{{percent}}% הנחה, מחיר החבילה הכי טוב",
+    "selected_one": "נבחר פריט אחד",
+    "selected_two": "נבחרו שני פריטים",
+    "selected_other": "נבחרו {{count}} פריטים",
+    "continue": "המשך לתשלום",
+    "openFailed": "לא הצלחנו להתחיל חבילה",
+    "changeFailed": "לא הצלחנו לשנות את הפריט. נסו שוב"
   }
 }

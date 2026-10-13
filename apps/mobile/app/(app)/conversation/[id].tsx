@@ -1,6 +1,8 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import type { MessageOffer } from "@vinty/shared";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, FlatList, Pressable, View } from "react-native";
 import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-controller";
@@ -12,6 +14,7 @@ import { ItemStrip } from "@/components/chat/item-strip";
 import { MessageBubble, PendingBubble } from "@/components/chat/message-bubble";
 import { PhotoViewer } from "@/components/chat/photo-viewer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
+import { OfferSheet } from "@/components/offer/offer-sheet";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -28,6 +31,7 @@ import {
 } from "@/lib/chat-send";
 import { pickListingPhotos } from "@/lib/listing-photos";
 import { conversationQuery, messagesQuery } from "@/lib/messaging-queries";
+import { useCounterOffer, useSendOffer } from "@/lib/order-flow-queries";
 import { setOpenThread } from "@/lib/push";
 import { joinThread, leaveThread, markThreadRead, useRealtimeStore } from "@/lib/realtime";
 
@@ -52,6 +56,11 @@ function ConversationScreen() {
   const { data: session } = authClient.useSession();
   const me = session?.user.id;
   const [photo, setPhoto] = useState<string | null>(null);
+  const offerSheet = useRef<BottomSheetModal>(null);
+  // null: a new offer from the buyer. Otherwise the offer the sheet answers with a counter.
+  const [counterOf, setCounterOf] = useState<MessageOffer | null>(null);
+  const sendOffer = useSendOffer();
+  const counterOffer = useCounterOffer();
 
   const detail = useQuery(conversationQuery(id));
   const thread = useInfiniteQuery(messagesQuery(id));
@@ -110,6 +119,20 @@ function ConversationScreen() {
     });
   };
 
+  const openOfferSheet = (counter: MessageOffer | null) => {
+    setCounterOf(counter);
+    offerSheet.current?.present();
+  };
+  const buyAtOffer = (offer: MessageOffer) =>
+    router.push({ pathname: "/checkout", params: { offerId: offer.id } });
+  // Once the item is sold or an order is paid, old offers are history.
+  const orderStatus = conversation?.order?.status;
+  const offersClosed =
+    conversation?.listing.status === "sold" ||
+    Boolean(orderStatus && !["pending_payment", "cancelled", "refunded"].includes(orderStatus));
+  const canOffer =
+    conversation?.role === "buyer" && conversation.listing.status === "active" && !conversation.blocked;
+
   const otherName = conversation?.otherUser.username ?? t("profile.deletedMember");
   const otherLastReadAt = conversation?.otherLastReadAt ?? null;
 
@@ -151,6 +174,10 @@ function ConversationScreen() {
             tight={item.tight}
             statusLine={statusLine}
             onOpenPhoto={setPhoto}
+            role={conversation?.role ?? "buyer"}
+            offersClosed={offersClosed}
+            onCounter={openOfferSheet}
+            onBuy={buyAtOffer}
           />
         );
       }
@@ -207,7 +234,12 @@ function ConversationScreen() {
               </Text>
             </View>
           ) : (
-            <Composer conversationId={id} onSend={sendText} onPickPhoto={() => void pickPhoto()} />
+            <Composer
+              conversationId={id}
+              onSend={sendText}
+              onPickPhoto={() => void pickPhoto()}
+              onOffer={canOffer ? () => openOfferSheet(null) : undefined}
+            />
           )}
         </KeyboardAvoidingView>
       </>
@@ -253,6 +285,19 @@ function ConversationScreen() {
         </View>
         {body}
         <PhotoViewer uri={photo} onClose={() => setPhoto(null)} />
+        {conversation ? (
+          <OfferSheet
+            ref={offerSheet}
+            mode={counterOf ? "counter" : "make"}
+            listingPriceMinor={counterOf?.listingPriceMinor ?? conversation.listing.priceMinor}
+            currency={conversation.listing.currency}
+            showQuota={conversation.role === "buyer"}
+            onSend={async (amountMinor) => {
+              if (counterOf) await counterOffer.mutateAsync({ offerId: counterOf.id, amountMinor });
+              else await sendOffer.mutateAsync({ conversationId: id, amountMinor });
+            }}
+          />
+        ) : null}
       </View>
     </KeyboardProvider>
   );

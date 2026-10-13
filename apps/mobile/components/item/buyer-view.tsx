@@ -1,14 +1,16 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import type { ListingDetail } from "@vinty/shared";
+import { type ListingDetail, messagePageSchema } from "@vinty/shared";
 import { useRouter } from "expo-router";
 import { Check, Clock, Palmtree, ShieldCheck } from "lucide-react-native";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
 import { DetailRow } from "@/components/item/detail-row";
 import { FavouritePill } from "@/components/item/favourite-pill";
 import { MoreMenu } from "@/components/item/more-menu";
 import { ListingGrid } from "@/components/listing-grid";
+import { OfferSheet } from "@/components/offer/offer-sheet";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +20,11 @@ import { Screen } from "@/components/ui/screen";
 import { StarRating } from "@/components/ui/star-rating";
 import { Text } from "@/components/ui/text";
 import { ForwardIcon, TopBar } from "@/components/ui/top-bar";
+import { api } from "@/lib/api";
 import { similarQuery } from "@/lib/item-queries";
 import { useStartConversation } from "@/lib/messaging-queries";
 import { formatMoney } from "@/lib/money";
+import { useSendOffer } from "@/lib/order-flow-queries";
 import { useLocalName } from "@/lib/reference";
 import { timeAgo } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -82,7 +86,7 @@ function StatusLine({ listing }: { listing: ListingDetail }) {
 
 /**
  * The item page for a buyer (spec, Item page): photos, heart with count, title, price block, holiday notice,
- * details, description, the seller card and More like this. Buying, offers and messages arrive in later milestones.
+ * details, description, the seller card and More like this. Buy now, Make an offer and Message seller sit under the price.
  */
 function BuyerView({ listing }: { listing: ListingDetail }) {
   const { t } = useTranslation();
@@ -100,6 +104,39 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
       onSuccess: (chat) => router.push({ pathname: "/conversation/[id]", params: { id: chat.id } }),
       onError: () => Alert.alert(t("item.chatFailed")),
     });
+  };
+  const sendOffer = useSendOffer();
+  const offerSheet = useRef<BottomSheetModal>(null);
+  const [buying, setBuying] = useState(false);
+
+  // Buy now. An item held for me after an accepted offer is bought at that offer's price, not the listed one.
+  const buyNow = async () => {
+    if (buying) return;
+    setBuying(true);
+    try {
+      if (listing.status === "reserved" && existingChat) {
+        const page = await api(`/v1/conversations/${existingChat}/messages?limit=30`, {
+          schema: messagePageSchema,
+        }).catch(() => null);
+        const accepted = page?.items.find(
+          (m) => m.offer?.status === "accepted" && new Date(m.offer.expiresAt).getTime() > Date.now(),
+        );
+        if (accepted?.offer) {
+          router.push({ pathname: "/checkout", params: { offerId: accepted.offer.id } });
+          return;
+        }
+      }
+      router.push({ pathname: "/checkout", params: { listingId: listing.id } });
+    } finally {
+      setBuying(false);
+    }
+  };
+
+  // The offer goes into the chat about this item (made first when there is none), then the chat opens.
+  const makeOffer = async (amountMinor: number) => {
+    const chatId = existingChat ?? (await startChat.mutateAsync(listing.id)).id;
+    await sendOffer.mutateAsync({ conversationId: chatId, amountMinor });
+    setTimeout(() => router.push({ pathname: "/conversation/[id]", params: { id: chatId } }), 250);
   };
   const sold = listing.status === "sold";
   // A published listing always has a price. Only the owner's drafts can lack one.
@@ -165,8 +202,24 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                 ) : null}
               </View>
 
+              {listing.viewer.canBuy ? (
+                <Button size="lg" loading={buying} onPress={() => void buyNow()}>
+                  <Text>{t("item.buyNow")}</Text>
+                </Button>
+              ) : null}
+              {listing.viewer.canOffer ? (
+                <Button variant="outline" size="lg" onPress={() => offerSheet.current?.present()}>
+                  <Text>{t("item.makeOffer")}</Text>
+                </Button>
+              ) : null}
+
               {canMessage ? (
-                <Button variant="outline" size="lg" loading={startChat.isPending} onPress={messageSeller}>
+                <Button
+                  variant={listing.viewer.canBuy || listing.viewer.canOffer ? "ghost" : "outline"}
+                  size="lg"
+                  loading={startChat.isPending}
+                  onPress={messageSeller}
+                >
                   <Text>{t("item.messageSeller")}</Text>
                 </Button>
               ) : null}
@@ -248,6 +301,16 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
           </View>
         }
       />
+      {listing.viewer.canOffer ? (
+        <OfferSheet
+          ref={offerSheet}
+          mode="make"
+          listingPriceMinor={price}
+          currency={listing.currency}
+          showQuota
+          onSend={makeOffer}
+        />
+      ) : null}
     </Screen>
   );
 }

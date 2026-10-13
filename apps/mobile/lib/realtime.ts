@@ -20,6 +20,7 @@ import {
   upsertMessage,
   upsertNotification,
 } from "@/lib/messaging-queries";
+import { applyListingUpdate, patchMessageOffer } from "@/lib/order-flow-queries";
 import { refreshAfterOrderChange } from "@/lib/orders-queries";
 import { queryClient } from "@/lib/query-client";
 
@@ -124,6 +125,17 @@ function connect(userId: string) {
       if (openThreads.has(conversationId)) markThreadRead(conversationId);
     }
   });
+
+  // An offer bubble changed state (accepted, declined, countered...). The chat header may change too: accepting an
+  // offer reserves the item.
+  s.on("message:updated", ({ conversationId, offer }) => {
+    if (offer) patchMessageOffer(queryClient, conversationId, offer.id, offer);
+    void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
+    void queryClient.invalidateQueries({ queryKey: ["offer-quota"] });
+  });
+
+  // An item was reserved, sold, released or repriced: every list that shows it follows.
+  s.on("listing:updated", (update) => applyListingUpdate(queryClient, update));
 
   s.on("conversation:updated", (p) => {
     // Reading a chat sends this event without a kind: keep the preview we already have.

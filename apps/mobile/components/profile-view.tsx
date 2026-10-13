@@ -15,6 +15,7 @@ import {
   Bookmark,
   Check,
   Heart,
+  Layers,
   Leaf,
   type LucideIcon,
   MapPin,
@@ -136,6 +137,18 @@ function ProfileHeader({
         <View className="px-lg pt-lg">
           <Button variant="outline" onPress={() => router.push("/edit-profile")}>
             <Text>{t("profile.edit")}</Text>
+          </Button>
+        </View>
+      ) : null}
+
+      {!isSelf && profile.activeListingCount >= 2 ? (
+        <View className="px-lg pt-lg">
+          <Button
+            variant="outline"
+            onPress={() => router.push({ pathname: "/bundle/[sellerId]", params: { sellerId: profile.id } })}
+          >
+            <Icon as={Layers} size={18} className="text-primary" />
+            <Text>{t("bundle.shop")}</Text>
           </Button>
         </View>
       ) : null}
