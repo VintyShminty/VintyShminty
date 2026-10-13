@@ -18,6 +18,7 @@ import listingRoutes from "./routes/listings.js";
 import meRoutes from "./routes/me.js";
 import messageRoutes from "./routes/messages.js";
 import notificationRoutes from "./routes/notifications.js";
+import offerRoutes from "./routes/offers.js";
 import referenceRoutes from "./routes/reference.js";
 import uploadRoutes from "./routes/uploads.js";
 import userRoutes from "./routes/users.js";
@@ -65,6 +66,7 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
     await app.register(engagementRoutes);
     await app.register(messageRoutes);
     await app.register(notificationRoutes);
+    await app.register(offerRoutes);
   }
 
   return app;
