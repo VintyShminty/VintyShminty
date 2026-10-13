@@ -21,7 +21,7 @@ import {
   MapPin,
   Receipt,
   Settings as SettingsIcon,
-  Upload,
+  Sparkles,
   Wallet,
   Zap,
 } from "lucide-react-native";
@@ -32,6 +32,7 @@ import { MoreMenu } from "@/components/item/more-menu";
 import { ListingCard } from "@/components/listing-card";
 import { ReplySheet } from "@/components/orders/reply-sheet";
 import { OwnListingCard } from "@/components/own-listing-card";
+import { SellerStamp } from "@/components/seller-stamp";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
@@ -50,7 +51,9 @@ import { formatDate, timeAgo } from "@/lib/time";
 
 // Lucide icon for each badge icon name in the database. Unknown names fall back to a medal.
 const BADGE_ICONS: Record<string, LucideIcon> = {
-  upload: Upload,
+  upload: Sparkles,
+  sparkles: Sparkles,
+  award: Award,
   zap: Zap,
   "badge-check": BadgeCheck,
   leaf: Leaf,
@@ -186,7 +189,7 @@ function ProfileHeader({
       {profile.badges.length > 0 ? (
         <View className="flex-row flex-wrap gap-sm px-lg pt-lg">
           {profile.badges.map((b) => (
-            <Badge key={b.slug} variant="accent" icon={BADGE_ICONS[b.icon] ?? Award} label={b.name[lang]} />
+            <SellerStamp key={b.slug} icon={BADGE_ICONS[b.icon] ?? Award} label={b.name[lang]} />
           ))}
         </View>
       ) : null}

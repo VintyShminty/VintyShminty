@@ -483,7 +483,7 @@
     "pattern": "הדפס",
     "price": "מחיר",
     "clear": "ניקוי",
-    "buyerPays": "הקונים משלמים {{price}} עם $t(protectionName)",
+    "buyerPays": "זה מה שהקונים ישלמו",
     "buyerPaysPostage": "את המשלוח משלם הקונה",
     "recommended": "מומלץ",
     "postageFrom": "משלוח מ־{{price}}",
@@ -524,7 +524,10 @@
       "remove": "הסרת התמונה",
       "deniedTitle": "אין גישה לתמונות",
       "denied": "אפשרו ל־Vinty להשתמש בתמונות או במצלמה בהגדרות הטלפון"
-    }
+    },
+    "conditionStop": "{{name}}, {{n}} מתוך {{total}}",
+    "conditionAdjustHint": "החליקו למעלה או למטה כדי לשנות את המצב",
+    "conditionPick": "החליקו כדי לבחור"
   },
   "item": {
     "more": "עוד אפשרויות",
@@ -544,10 +547,17 @@
     "noSimilar": "אין כרגע משהו דומה",
     "messageSeller": "שליחת הודעה למוכר",
     "chatFailed": "אי אפשר להתחיל שיחה על הפריט הזה",
-    "buyNow": "קנו עכשיו",
-    "makeOffer": "הצעת מחיר",
     "away": "‏{{name}} בהפסקה עד {{date}}. אפשר לשמור את הפריט בינתיים.",
-    "awayNoDate": "‏{{name}} בהפסקה כרגע. אפשר לשמור את הפריט בינתיים."
+    "awayNoDate": "‏{{name}} בהפסקה כרגע. אפשר לשמור את הפריט בינתיים.",
+    "buyFor": "קנו ב-{{amount}}",
+    "orMakeYourPrice": "או הציעו מחיר משלכם",
+    "message": "הודעה",
+    "breakdown": {
+      "item": "הפריט",
+      "total": "תשלמו",
+      "note": "הכסף שלכם נשמר עד שהפריט מגיע אליכם. אם הוא לא כמו בתיאור, הכסף חוזר אליכם."
+    },
+    "buyNow": "קנו עכשיו"
   },
   "seller": {
     "more": "עוד אפשרויות",
@@ -1164,7 +1174,6 @@
     "percentOff": "{{percent}}% הנחה",
     "yourPrice": "המחיר שלכם",
     "placeholder": "0",
-    "buyerPays": "תשלמו {{price}} עם $t(protectionName)",
     "send": "שליחת הצעה",
     "sendAmount": "הצעה של {{amount}}",
     "left_one": "נשארה הצעה אחת להיום",
