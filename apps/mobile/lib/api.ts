@@ -11,6 +11,8 @@ export class ApiClientError extends Error {
     readonly code: ErrorResponse["error"]["code"] | "network",
     message: string,
     readonly fields?: Record<string, string>,
+    /** Seconds to wait before trying again, from the `Retry-After` header of a 429. */
+    readonly retryAfter?: number,
   ) {
     super(message);
   }
@@ -52,6 +54,7 @@ export async function api<T = void>(
       error?.code ?? "internal_error",
       error?.message ?? res.statusText,
       error?.fields,
+      Number(res.headers.get("Retry-After")) || undefined,
     );
   }
   return schema ? schema.parse(json) : (json as T);

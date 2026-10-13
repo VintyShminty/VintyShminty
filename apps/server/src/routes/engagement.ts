@@ -4,7 +4,6 @@ import {
   favourites,
   listings,
   messages,
-  notifications,
   profiles,
   recentSearches,
   reports,

@@ -3,7 +3,7 @@ import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 
 type TabsProps<K extends string> = {
-  items: { key: K; label: string }[];
+  items: { key: K; label: string /** A small dot after the label: something new inside. */; dot?: boolean }[];
   value: K;
   onChange: (key: K) => void;
   className?: string;
@@ -29,13 +29,16 @@ function Tabs<K extends string>({ items, value, onChange, className }: TabsProps
                 active ? "border-primary" : "border-transparent",
               )}
             >
-              <Text
-                variant="bodySmall"
-                weight={active ? 700 : 500}
-                className={active ? "text-primary" : "text-text-3"}
-              >
-                {item.label}
-              </Text>
+              <View className="flex-row items-center gap-xs">
+                <Text
+                  variant="bodySmall"
+                  weight={active ? 700 : 500}
+                  className={active ? "text-primary" : "text-text-3"}
+                >
+                  {item.label}
+                </Text>
+                {item.dot ? <View className="h-2 w-2 rounded-full bg-primary" /> : null}
+              </View>
             </View>
           </Pressable>
         );

@@ -1,8 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import { Tabs, useRouter } from "expo-router";
 import type { LucideIcon } from "lucide-react-native";
 import { House, LayoutGrid, MessageCircle, PlusCircle, User } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import type { ColorValue } from "react-native";
+import { authClient } from "@/lib/auth-client";
+import { unreadQuery } from "@/lib/messaging-queries";
 import { colors } from "@/theme";
 
 function tabIcon(Icon: LucideIcon) {
@@ -15,6 +18,10 @@ export default function TabsLayout() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const labelFamily = i18n.language === "he" ? "Heebo-600" : "Aileron-600";
+  // The count pill on the Inbox tab: chats with something new plus unread notifications.
+  const { data: session } = authClient.useSession();
+  const { data: unread } = useQuery({ ...unreadQuery(), enabled: Boolean(session) });
+  const unreadTotal = (unread?.messages ?? 0) + (unread?.notifications ?? 0);
 
   return (
     <Tabs
@@ -51,7 +58,20 @@ export default function TabsLayout() {
           },
         }}
       />
-      <Tabs.Screen name="inbox" options={{ title: t("tabs.inbox"), tabBarIcon: tabIcon(MessageCircle) }} />
+      <Tabs.Screen
+        name="inbox"
+        options={{
+          title: t("tabs.inbox"),
+          tabBarIcon: tabIcon(MessageCircle),
+          tabBarBadge: unreadTotal > 0 ? (unreadTotal > 99 ? "99+" : unreadTotal) : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: colors.accent,
+            color: colors.onAccent,
+            fontFamily: labelFamily,
+            fontSize: 10,
+          },
+        }}
+      />
       <Tabs.Screen name="profile" options={{ title: t("tabs.profile"), tabBarIcon: tabIcon(User) }} />
       <Tabs.Screen name="(dev)/gallery" options={{ href: null }} />
     </Tabs>

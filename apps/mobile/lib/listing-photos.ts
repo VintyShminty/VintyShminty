@@ -60,13 +60,15 @@ export async function shrinkPhoto(photo: PickedPhoto): Promise<PickedPhoto> {
 export async function uploadListingPhoto(
   photo: PickedPhoto,
   onProgress: (fraction: number) => void,
+  /** Chat photos use the same flow with their own folder. */
+  purpose: "listing_photo" | "message_photo" = "listing_photo",
 ): Promise<UploadResponse> {
   const info = await FileSystem.getInfoAsync(photo.uri);
   const byteSize = info.exists ? info.size : 1;
   const upload = await api<UploadResponse>("/v1/uploads", {
     method: "POST",
     body: {
-      purpose: "listing_photo",
+      purpose,
       contentType: "image/jpeg",
       byteSize: Math.max(1, byteSize),
       width: photo.width,

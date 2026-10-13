@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Check, Clock, Palmtree, ShieldCheck } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 import { DetailRow } from "@/components/item/detail-row";
 import { FavouritePill } from "@/components/item/favourite-pill";
 import { MoreMenu } from "@/components/item/more-menu";
@@ -12,12 +12,14 @@ import { ListingGrid } from "@/components/listing-grid";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { StarRating } from "@/components/ui/star-rating";
 import { Text } from "@/components/ui/text";
 import { ForwardIcon, TopBar } from "@/components/ui/top-bar";
 import { similarQuery } from "@/lib/item-queries";
+import { useStartConversation } from "@/lib/messaging-queries";
 import { formatMoney } from "@/lib/money";
 import { useLocalName } from "@/lib/reference";
 import { timeAgo } from "@/lib/time";
@@ -87,6 +89,18 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   const router = useRouter();
   const name = useLocalName();
   const similar = useInfiniteQuery(similarQuery(listing.id));
+  const startChat = useStartConversation();
+  const existingChat = listing.viewer.conversationId;
+  // A new chat about a sold item is refused by the server, an old one stays open.
+  const canMessage = Boolean(existingChat) || listing.status !== "sold";
+
+  const messageSeller = () => {
+    if (existingChat) return router.push({ pathname: "/conversation/[id]", params: { id: existingChat } });
+    startChat.mutate(listing.id, {
+      onSuccess: (chat) => router.push({ pathname: "/conversation/[id]", params: { id: chat.id } }),
+      onError: () => Alert.alert(t("item.chatFailed")),
+    });
+  };
   const sold = listing.status === "sold";
   // A published listing always has a price. Only the owner's drafts can lack one.
   const price = listing.priceMinor ?? 0;
@@ -150,6 +164,12 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                   </View>
                 ) : null}
               </View>
+
+              {canMessage ? (
+                <Button variant="outline" size="lg" loading={startChat.isPending} onPress={messageSeller}>
+                  <Text>{t("item.messageSeller")}</Text>
+                </Button>
+              ) : null}
 
               {listing.sellerOnHoliday ? (
                 <View className="flex-row items-start gap-sm rounded-control border border-warning bg-warning-tint p-md">
