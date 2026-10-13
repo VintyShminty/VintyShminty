@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { ApiClientError } from "@/lib/api";
-import { formatClock } from "@/lib/chat-format";
+import { formatClock, sameDay } from "@/lib/chat-format";
 import { formatMoney } from "@/lib/money";
 import { type OfferAnswer, useAnswerOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
@@ -77,7 +77,15 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
 
   const busy = answer.isPending;
   const canAnswer = status === "pending" && !closed;
-  const until = formatClock(offer.expiresAt, i18n.language);
+  // A hold that runs into tomorrow shows its day too, a bare clock time would read as already over.
+  const until = sameDay(new Date(offer.expiresAt), new Date())
+    ? formatClock(offer.expiresAt, i18n.language)
+    : new Date(offer.expiresAt).toLocaleString(i18n.language, {
+        day: "numeric",
+        month: "short",
+        hour: "numeric",
+        minute: "2-digit",
+      });
 
   return (
     <View

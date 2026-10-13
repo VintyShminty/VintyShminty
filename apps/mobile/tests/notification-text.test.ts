@@ -139,4 +139,16 @@ describe("where a notification leads", () => {
       params: { id: "l1" },
     });
   });
+
+  it("isolates a title of the other script so the sentence keeps its reading order", async () => {
+    const en = await make("en");
+    expect(notificationText(row("order_completed", { title: "מעיל" }), en)).toBe(
+      "Your order \u2068מעיל\u2069 is complete",
+    );
+    const he = await make("he");
+    expect(notificationText(row("order_completed", { title: "Blue coat" }), he)).toContain(
+      "\u2068Blue coat\u2069",
+    );
+    expect(notificationText(row("order_completed", { title: "מעיל" }), he)).not.toContain("\u2068");
+  });
 });
