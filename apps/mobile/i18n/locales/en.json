@@ -525,7 +525,9 @@
     "views": "Views",
     "noSimilar": "Nothing similar right now",
     "messageSeller": "Message seller",
-    "chatFailed": "You cannot start a chat about this item"
+    "chatFailed": "You cannot start a chat about this item",
+    "buyNow": "Buy now",
+    "makeOffer": "Make an offer"
   },
   "seller": {
     "more": "More options",
@@ -783,6 +785,21 @@
       "offer_expired": "Offer expired",
       "offer_withdrawn": "Offer withdrawn",
       "other": "Update"
+    },
+    "order": {
+      "number": "Order #{{number}}",
+      "moreItems": "{{title}} and {{count}} more",
+      "tracking": "Tracking code {{code}}",
+      "view": "View order",
+      "reason": {
+        "buyer_cancelled": "Cancelled by the buyer",
+        "seller_cancelled": "Cancelled by the seller",
+        "payment_failed": "The payment did not go through",
+        "payment_expired": "Payment was not made in time",
+        "shipping_timeout": "It was not shipped in time",
+        "item_unavailable": "The item was not available",
+        "other": ""
+      }
     }
   },
   "push": {
@@ -790,5 +807,123 @@
     "askBody": "Turn on notifications and we will let you know when someone writes back",
     "allow": "Turn on",
     "notNow": "Not now"
+  },
+  "offer": {
+    "title": "Make an offer",
+    "counterTitle": "Make a counter offer",
+    "listedAt": "Listed at {{price}}",
+    "percentOff": "{{percent}}% off",
+    "yourPrice": "Your price",
+    "placeholder": "0",
+    "buyerPays": "Buyer pays {{price}} incl. Buyer Protection",
+    "send": "Send offer",
+    "sendAmount": "Offer {{amount}}",
+    "left_one": "{{count}} offer left for today",
+    "left_other": "{{count}} offers left for today",
+    "noneLeft": "You have used all your offers for today. You can offer again from {{time}}",
+    "accept": "Accept",
+    "decline": "Decline",
+    "counter": "Counter",
+    "withdraw": "Withdraw",
+    "buyNow": "Buy now at {{amount}}",
+    "errors": {
+      "positive": "Enter an amount above zero",
+      "belowPrice": "Offer less than {{price}}",
+      "limit": "You have used all your offers for today",
+      "unavailable": "This item is not available any more",
+      "pending": "There is already an offer waiting in this chat",
+      "closed": "This offer has already changed. Reloading it",
+      "forbidden": "You cannot do that with this offer"
+    },
+    "bubble": {
+      "yours": "Your offer",
+      "theirs": "Their offer",
+      "pending_mine": "Waiting for a reply",
+      "pending_theirs": "Needs your answer",
+      "reservedForYou": "Reserved for you until {{time}}",
+      "reservedForThem": "Held for the buyer until {{time}}"
+    },
+    "confirm": {
+      "declineTitle": "Decline this offer?",
+      "declineNote": "The other person is told. You can still talk or send a counter offer in the chat.",
+      "withdrawTitle": "Withdraw your offer?",
+      "withdrawNote": "The offer closes and you can send a new one."
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "bundleDiscount": "Bundle discount ({{percent}}%)",
+    "protection": "Buyer Protection",
+    "postage": "Postage",
+    "total": "Total to pay",
+    "delivery": "Delivery",
+    "pickup": "Pick-up point",
+    "pickupNote": "Collect it nearby when it arrives",
+    "home": "Home delivery",
+    "homeNote": "Delivered to your door",
+    "address": "Address",
+    "changeAddress": "Change your address",
+    "addAddress": "Add a delivery address",
+    "change": "Change",
+    "newAddress": "Add a new address",
+    "noAddresses": "You have no saved addresses yet",
+    "summary": "Price",
+    "holdNote": "We hold the item for you for {{minutes}} minutes while you pay",
+    "simulatedTitle": "Practice mode, no real money moves",
+    "simulatedNote": "Paying here is pretend while Vinty is being built. We never ask for card details and nothing is charged.",
+    "simulatedDone": "No real money moved. This is practice mode.",
+    "needAddress": "Add an address for home delivery",
+    "pay": "Pay {{amount}}",
+    "priceChanged": "The price changed. The new total is {{total}}. Check it and tap Pay again",
+    "timedOut": "This checkout ran out of time. Tap Pay to start it again",
+    "problem": {
+      "unavailableTitle": "This item was just taken",
+      "unavailableNote": "Someone else got there first, or the seller took it down.",
+      "offerClosedTitle": "This offer has ended",
+      "offerClosedNote": "The time to buy ran out. You can make a new offer.",
+      "ownTitle": "You cannot buy this",
+      "ownNote": "This is your own item.",
+      "blockedTitle": "You cannot buy this",
+      "blockedNote": "You cannot buy from this person.",
+      "genericTitle": "We could not open checkout",
+      "genericNote": "Check your connection and try again.",
+      "close": "Close"
+    },
+    "fields": {
+      "required": "This is needed",
+      "tooMany": "You have saved the most addresses allowed",
+      "fullName": "Full name",
+      "line1": "Street and number",
+      "line2": "Apartment, floor or entrance (optional)",
+      "city": "City",
+      "postcode": "Postcode",
+      "phone": "Phone (optional)",
+      "phoneHint": "The courier may call you about the delivery",
+      "save": "Save address"
+    },
+    "done": {
+      "title": "Payment done",
+      "note": "{{seller}} has been told to send your order. We will let you know when it ships.",
+      "many": "{{title}} and {{count}} more",
+      "viewOrder": "View order",
+      "keepShopping": "Keep shopping"
+    }
+  },
+  "bundle": {
+    "title": "Shop bundle",
+    "shop": "Shop bundle",
+    "pickMore": "Pick at least {{count}} items",
+    "addMore_one": "Add {{count}} more item to get {{percent}}% off",
+    "addMore_other": "Add {{count}} more items to get {{percent}}% off",
+    "tierNext_one": "{{percent}}% off. Add {{count}} more item to get {{next}}% off",
+    "tierNext_other": "{{percent}}% off. Add {{count}} more items to get {{next}}% off",
+    "tierTop": "{{percent}}% off, the best bundle price",
+    "selected_one": "{{count}} item picked",
+    "selected_other": "{{count}} items picked",
+    "continue": "Continue to checkout",
+    "openFailed": "We could not start a bundle",
+    "changeFailed": "That item could not be changed. Try again"
   }
 }

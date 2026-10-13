@@ -1,4 +1,4 @@
-import { ArrowUp, ImagePlus } from "lucide-react-native";
+import { ArrowUp, HandCoins, ImagePlus } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, TextInput, View } from "react-native";
@@ -20,10 +20,13 @@ function Composer({
   conversationId,
   onSend,
   onPickPhoto,
+  onOffer,
 }: {
   conversationId: string;
   onSend: (text: string) => void;
   onPickPhoto: () => void;
+  /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
+  onOffer?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
@@ -75,6 +78,17 @@ function Composer({
       >
         <Icon as={ImagePlus} size={24} className="text-text-2" />
       </Pressable>
+      {onOffer ? (
+        <Pressable
+          onPress={onOffer}
+          hitSlop={6}
+          role="button"
+          accessibilityLabel={t("offer.title")}
+          className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+        >
+          <Icon as={HandCoins} size={24} className="text-text-2" />
+        </Pressable>
+      ) : null}
       <View className="min-h-11 flex-1 justify-center rounded-bar border border-border bg-surface px-md">
         <TextInput
           value={text}
