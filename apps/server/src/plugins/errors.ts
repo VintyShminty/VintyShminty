@@ -12,6 +12,7 @@ export default fp(
       const send = (status: number, body: ErrorBody) => reply.code(status).send(body);
 
       if (err instanceof ApiError) {
+        if (err.retryAfterSeconds !== undefined) reply.header("Retry-After", String(err.retryAfterSeconds));
         return send(err.statusCode, {
           error: { code: err.code, message: err.message, ...(err.fields ? { fields: err.fields } : {}) },
         });

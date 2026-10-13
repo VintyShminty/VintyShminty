@@ -262,6 +262,32 @@ describe.skipIf(!databaseUrl)("socket layer", () => {
     });
   });
 
+  describe("hearts", () => {
+    it("tell the seller's open app at once, grouped by item", async () => {
+      const listing = await publishTestListing(ctx, seller, `Heart ${stamp} scarf`);
+      const sellerSocket = await connectAs(seller.token);
+      const seen = collect<{ notification: { type: string; listingId: string; data: { count: number } } }>(
+        sellerSocket,
+        "notification:new",
+      );
+      const heart = (token: string) =>
+        ctx.app.inject({ method: "PUT", url: `/v1/listings/${listing}/favourite`, headers: bearer(token) });
+      expect((await heart(buyer.token)).statusCode).toBe(200);
+      await until(() => seen.length === 1);
+      expect(seen[0]?.notification).toMatchObject({ type: "listing_favourited", listingId: listing });
+      expect(seen[0]?.notification.data.count).toBe(1);
+
+      // A second heart raises the same row and tells the app again.
+      expect((await heart(stranger.token)).statusCode).toBe(200);
+      await until(() => seen.length === 2);
+      expect(seen[1]?.notification.data.count).toBe(2);
+      // Hearting again changes nothing and says nothing.
+      await heart(stranger.token);
+      await pause(150);
+      expect(seen).toHaveLength(2);
+    });
+  });
+
   describe("push when the thread is open", () => {
     it("pushes while the recipient is not looking, and not while they are", async () => {
       ctx.pusher.sent.length = 0;

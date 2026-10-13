@@ -29,6 +29,8 @@ export type NotifyInput = {
   data?: Record<string, unknown>;
   /** While the earlier one is unread, further ones for the same chat raise its `data.count` instead of adding a row. */
   groupByConversation?: boolean;
+  /** Same idea for one item: further hearts on it raise the unread row's `data.count`. */
+  groupByListing?: boolean;
   /** Title and body for the push in the person's language. Null or missing means no push for this type. */
   push?: (locale: Locale) => { title: string; body: string } | null;
   /** Extra values for the push `data` (the type and the ids are always there). */
@@ -64,7 +66,14 @@ export async function notifyUser(app: App, input: NotifyInput): Promise<{ id: st
   const now = new Date();
   let row: typeof notifications.$inferSelect | undefined;
 
-  if (input.groupByConversation && input.conversationId) {
+  const groupKey =
+    input.groupByConversation && input.conversationId
+      ? eq(notifications.conversationId, input.conversationId)
+      : input.groupByListing && input.listingId
+        ? eq(notifications.listingId, input.listingId)
+        : null;
+  const grouped = groupKey !== null;
+  if (groupKey) {
     const [open] = await app.db
       .select()
       .from(notifications)
@@ -72,7 +81,7 @@ export async function notifyUser(app: App, input: NotifyInput): Promise<{ id: st
         and(
           eq(notifications.userId, input.userId),
           eq(notifications.type, input.type),
-          eq(notifications.conversationId, input.conversationId),
+          groupKey,
           isNull(notifications.readAt),
         ),
       )
@@ -100,7 +109,7 @@ export async function notifyUser(app: App, input: NotifyInput): Promise<{ id: st
         listingId: input.listingId ?? null,
         orderId: input.orderId ?? null,
         conversationId: input.conversationId ?? null,
-        data: { ...input.data, ...(input.groupByConversation ? { count: 1 } : {}) },
+        data: { ...input.data, ...(grouped ? { count: 1 } : {}) },
         createdAt: now,
       })
       .returning();

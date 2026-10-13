@@ -157,6 +157,8 @@ export const conversationDetailSchema = conversationRowSchema.extend({
   order: conversationOrderSchema.nullable(),
   /** The other person blocked you or you blocked them: the thread opens but sending is refused. */
   blocked: z.boolean(),
+  /** When the other person last opened the thread. The app shows "Seen" on your last message if it is later. */
+  otherLastReadAt: isoDateTimeSchema.nullable(),
 });
 export type ConversationDetail = z.infer<typeof conversationDetailSchema>;
 

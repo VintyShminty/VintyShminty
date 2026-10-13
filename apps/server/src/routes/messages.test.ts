@@ -298,6 +298,9 @@ describe.skipIf(!databaseUrl)("conversations and messages", () => {
         .json()
         .items.find((c: { id: string }) => c.id === id);
       expect(row.unread).toBe(false);
+      // The buyer's thread now knows when the seller last read it (the "Seen" line).
+      const buyerDetail = (await call("GET", `/v1/conversations/${id}`, buyer2.token)).json();
+      expect(Date.parse(buyerDetail.otherLastReadAt)).toBeGreaterThan(0);
       // Only the reader's marker moved: the buyer's own view is unaffected.
       await send(seller.token, id, "It is a one size scarf");
       const buyerRow = (await call("GET", "/v1/conversations", buyer2.token))
@@ -373,14 +376,18 @@ describe.skipIf(!databaseUrl)("conversations and messages", () => {
     const listing = await publishTestListing(ctx, b, `Chat ${stamp} limit`);
     const chat = (await call("POST", "/v1/conversations", a.token, { listingId: listing })).json()
       .id as string;
-    let last = 201;
-    let ok = 0;
-    for (let i = 0; i < 22; i++) {
-      last = (await send(a.token, chat, `spam ${i}`)).statusCode;
-      if (last === 201) ok++;
+    let last = await send(a.token, chat, "spam first");
+    let ok = last.statusCode === 201 ? 1 : 0;
+    for (let i = 1; i < 22; i++) {
+      last = await send(a.token, chat, `spam ${i}`);
+      if (last.statusCode === 201) ok++;
     }
     expect(ok).toBe(20);
-    expect(last).toBe(429);
+    expect(last.statusCode).toBe(429);
+    // The app waits this long before it tries again.
+    const wait = Number(last.headers["retry-after"]);
+    expect(wait).toBeGreaterThanOrEqual(1);
+    expect(wait).toBeLessThanOrEqual(60);
     await ctx.database.db.delete(conversations).where(eq(conversations.id, chat));
   });
 });

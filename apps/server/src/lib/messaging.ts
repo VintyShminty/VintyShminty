@@ -313,10 +313,16 @@ export async function loadConversationDetail(
     },
     order: order ?? null,
     blocked,
+    otherLastReadAt:
+      (sideOf(row.c, userId) === "buyer" ? row.c.sellerLastReadAt : row.c.buyerLastReadAt)?.toISOString() ??
+      null,
   };
 }
 
 // ---- Sending ----
+
+const tooFast = (retryAfterSeconds: number) =>
+  new ApiError(429, "rate_limited", "You are sending messages too fast", undefined, retryAfterSeconds);
 
 /** Names of the people in a thread, for push titles. */
 async function displayNameOf(app: Pick<App, "db">, userId: string): Promise<string> {
@@ -366,10 +372,11 @@ export async function sendMessage(
   }
 
   if (!app.messageLimits.user.take(userId)) {
-    throw new ApiError(429, "rate_limited", "You are sending messages too fast");
+    throw tooFast(app.messageLimits.user.retryAfterSeconds(userId));
   }
-  if (!app.messageLimits.conversation.take(`${conversationId}:${userId}`)) {
-    throw new ApiError(429, "rate_limited", "You are sending messages too fast");
+  const chatKey = `${conversationId}:${userId}`;
+  if (!app.messageLimits.conversation.take(chatKey)) {
+    throw tooFast(app.messageLimits.conversation.retryAfterSeconds(chatKey));
   }
 
   if (input.kind === "photo") {
