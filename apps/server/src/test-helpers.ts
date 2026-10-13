@@ -3,6 +3,7 @@ import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
 import { type Env, parseEnv } from "./env.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
+import { type MemoryPusher, memoryPusher } from "./lib/push.js";
 import type { Storage } from "./lib/storage.js";
 
 export const databaseUrl = process.env.DATABASE_URL;
@@ -20,7 +21,8 @@ export function testEnv(overrides: Record<string, string> = {}): Env {
 /** Storage that never touches the network. */
 export const fakeStorage: Storage = {
   async presignUpload({ userId, purpose, contentType }) {
-    const key = `${purpose === "avatar" ? "avatars" : "listings"}/${userId}/fake.${contentType.split("/")[1]}`;
+    const folder = { avatar: "avatars", message_photo: "messages", listing_photo: "listings" }[purpose];
+    const key = `${folder}/${userId}/fake.${contentType.split("/")[1]}`;
     return {
       key,
       uploadUrl: `http://storage.test/${key}?signed=1`,
@@ -38,6 +40,7 @@ export const fakeStorage: Storage = {
 export type TestContext = {
   app: Awaited<ReturnType<typeof buildApp>>;
   mailer: MemoryMailer;
+  pusher: MemoryPusher;
   database: Database;
   close: () => Promise<void>;
 };
@@ -47,9 +50,10 @@ export async function buildTestApp(envOverrides: Record<string, string> = {}): P
   const env = testEnv(envOverrides);
   const database = createDb(env.DATABASE_URL);
   const mailer = memoryMailer();
-  const app = await buildApp({ env, database, mailer, storage: fakeStorage });
+  const pusher = memoryPusher();
+  const app = await buildApp({ env, database, mailer, storage: fakeStorage, pusher });
   await app.ready();
-  return { app, mailer, database, close: () => app.close() };
+  return { app, mailer, pusher, database, close: () => app.close() };
 }
 
 let counter = 0;

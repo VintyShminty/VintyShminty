@@ -46,6 +46,13 @@ const envSchema = z
       .transform((v) => v === "true"),
     MAIL_FROM: z.string().default("Vinty <no-reply@vinty.local>"),
 
+    // Push notifications. "log" writes the push to the server log instead of sending it (development, tests).
+    // "expo" sends through the Expo push service (needs Apple and Google credentials set up in EAS).
+    PUSH_TRANSPORT: z.enum(["log", "expo"]).default("log"),
+    EXPO_PUSH_URL: z.string().url().default("https://exp.host/--/api/v2/push/send"),
+    /** Optional Expo access token. Only needed when "enhanced security" is switched on for the project. */
+    EXPO_ACCESS_TOKEN: optionalText,
+
     // Object storage (MinIO in development, Cloudflare R2 online)
     S3_ENDPOINT: z.string().url().default("http://localhost:9000"),
     S3_REGION: z.string().default("us-east-1"),
