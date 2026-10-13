@@ -149,7 +149,7 @@ Rules: title 3 to 80 characters (a draft may be empty), description up to 2,000,
 
 Owner routes answer 404 for someone else's listing, so they cannot tell it exists. Writes are limited to 60 a minute.
 
-Moved out of Milestone 2: `PUT /v1/me/holiday-mode` goes to Milestone 6 (holiday mode is in Settings, not the sell flow). `GET /v1/me/listing-defaults` waits for shipping addresses (Milestone 5), until then the form starts with the Small parcel and the category's recommended size.
+Moved out of Milestone 2 (built in Milestone 9 as `PUT /v1/me/away-mode`): `PUT /v1/me/holiday-mode` goes to Milestone 6 (holiday mode is in Settings, not the sell flow). `GET /v1/me/listing-defaults` waits for shipping addresses (Milestone 5), until then the form starts with the Small parcel and the category's recommended size.
 
 ## Milestone 3: Discovery
 
@@ -354,8 +354,12 @@ A dispute has no notification type of its own, the other person sees the `order_
 | GET | `/v1/me/vouchers` | Required | none | list | Applied at checkout in version 2 |
 | GET | `/v1/me/bundle-discounts` | Required | none | list of tiers | Profile tab, Bundle discounts |
 | PUT | `/v1/me/bundle-discounts` | Required | `{ tiers: [{ minItems, percentOff }] }` | list of tiers | |
-| GET | `/v1/help/topics` | Public | none | static topics | Help Centre content can start as a bundled screen |
+| GET | `/v1/help/topics` | Public | none | static topics | **Not built, on purpose.** The Help Centre is bundled in the app (Settings, Help): the words are in the locale files under `help.*` and the list of articles is `apps/mobile/lib/help-topics.ts`. A server route can come later if the articles ever need to change without an app update |
+| GET | `/v1/me/away-mode` | Required | none | `awayModeSchema`: `{ enabled, startedAt, endsAt }` | **Built (Milestone 9).** Away mode (holiday mode in the tables). A past `endsAt` reads as off |
+| PUT | `/v1/me/away-mode` | Required | `awayModeInputSchema`: `{ enabled, endsAt? }` | `awayModeSchema` | **Built (Milestone 9).** Replaces `PUT /v1/me/holiday-mode`. `endsAt` is optional (no date means away until switched off), must be in the future and at most 90 days away (`AWAY_MAX_DAYS`), else `400` with field `endsAt` = `validation.away.past` or `validation.away.tooFar`. Switching on again keeps the first `startedAt`. `enabled: false` clears all three columns |
 | GET | `/v1/listings/search-by-photo` | Required | multipart image | page of `listingCardSchema` | Deferred (open decision). Not in version 1 |
+
+**Away mode (Milestone 9).** `lib/away.ts` holds the rule once: a seller is away when `holiday_mode_enabled` is true and `holiday_ends_at` is empty or still in the future. Feed, search, the item page (`sellerOnHoliday`, `canBuy`, `canOffer`), checkout and the public profile all read it, so a past return date counts as back even before a job has run. The step `endExpiredAwayMode` (inside `runOrderJobs`, so it runs in the in-process timers and in `/v1/jobs/orders` and `/v1/jobs/all`, result field `awayEnded`) then switches the flag off for good. While away: chats still open and messages go through, but the item page hides Buy and Make an offer and checkout answers `409 listing_unavailable`. Offers that were already pending or accepted stay as they are: the seller can still answer them, and a buyer cannot pay until the seller is back, so an accepted offer's 24 hour hold may run out first.
 
 ## Milestone 7: A home feed that learns
 
