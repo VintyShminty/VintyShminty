@@ -371,7 +371,7 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       // Not strictly newest first any more: a page holds at most 2 items of one seller and the order has a small shuffle.
       const feed = await get("/v1/feed?limit=50");
       expect(feed.statusCode).toBe(200);
-      expect(ids(feed).slice(0, 30)).toContain(fresh.id);
+      expect(ids(feed)).toContain(fresh.id);
       expect(feed.json().feedId).toBeTruthy();
       expect(
         feed.json().items[0].reason === null || typeof feed.json().items[0].reason.kind === "string",

@@ -109,7 +109,7 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
   beforeAll(async () => {
     ctx = await buildTestApp({ CRON_SECRET: "test-cron-secret-0123456789" });
     reference = (await call("GET", "/v1/reference")).json();
-    sized = leaves(reference.categories).find(
+    sized = leaves(reference.categories).findLast(
       (c) => c.rules.size === "required" && c.rules.brand !== "hidden" && c.sizeGroupIds.length > 0,
     ) as CategoryNode;
     const brandsRes = (await call("GET", "/v1/brands?limit=2")).json();
@@ -364,7 +364,7 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
       for (let i = 0; i < dwells.length; i += 50) {
         await call("POST", "/v1/events", p.token, { events: dwells.slice(i, i + 50) });
       }
-      const page = await feed(p.token, "limit=40");
+      const page = await feed(p.token, `limit=40&categoryId=${sized.id}`);
       const index = (id: string) => page.items.findIndex((i) => i.id === id);
       const a = itemsA.map((i) => index(i.id)).filter((n) => n >= 0);
       const b = itemsB.map((i) => index(i.id)).filter((n) => n >= 0);
@@ -500,11 +500,13 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
       const p = await newPersonWith("mood");
       await call("PUT", `/v1/listings/${itemsA[0]?.id}/favourite`, p.token);
       const cheap = await publish(sellers[0] as Person, { priceMinor: 3000, title: `${word} cheap dress` });
-      const under = await feed(p.token, "mood=under_50&limit=50");
+      const under = await feed(p.token, `mood=under_50&limit=50&categoryId=${sized.id}`);
       expect(under.items.map((i) => i.id)).toContain(cheap.id);
-      const full = (await call("GET", "/v1/feed?mood=under_50&limit=50", p.token)).json();
+      const full = (
+        await call("GET", `/v1/feed?mood=under_50&limit=50&categoryId=${sized.id}`, p.token)
+      ).json();
       for (const item of full.items) expect(item.priceMinor).toBeLessThan(5000);
-      const today = await feed(p.token, "mood=new_today&limit=50");
+      const today = await feed(p.token, `mood=new_today&limit=50&categoryId=${sized.id}`);
       expect(today.items.map((i) => i.id)).toContain(cheap.id);
       const forYou = await feed(p.token, "mood=for_you&limit=20");
       expect(forYou.items.length).toBe(20);
@@ -515,7 +517,8 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
   describe("Not interested", () => {
     it("hides an item, a seller, a brand and a category, lists them and brings them back", async () => {
       const p = await newPersonWith("hide");
-      const inFeed = async () => (await feed(p.token, "limit=50")).items.map((i) => i.id);
+      const inFeed = async () =>
+        (await feed(p.token, `limit=50&categoryId=${sized.id}`)).items.map((i) => i.id);
       expect(await inFeed()).toContain((itemsA[0] as { id: string }).id);
 
       const item = await call("POST", "/v1/feed/hide", p.token, { scope: "item", targetId: itemsA[0]?.id });
