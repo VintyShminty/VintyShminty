@@ -125,4 +125,12 @@ function cssVariables() {
   return vars;
 }
 
-module.exports = { colors, opacity, radii, spacing, typeScale, cssVariables, hexToHslTriplet };
+/** Colours of third party brand marks that must not be recoloured (the Google "G"). Never used for our own UI. */
+const brand = {
+  googleBlue: "#4285F4",
+  googleGreen: "#34A853",
+  googleYellow: "#FBBC05",
+  googleRed: "#EA4335",
+};
+
+module.exports = { brand, colors, opacity, radii, spacing, typeScale, cssVariables, hexToHslTriplet };

@@ -12,9 +12,11 @@
       "infoPlist": {
         "CFBundleLocalizations": ["en"]
       },
-      "bundleIdentifier": "com.anonymous.vinty"
+      "bundleIdentifier": "com.secondhand.marketplace",
+      "usesAppleSignIn": true
     },
     "android": {
+      "package": "com.secondhand.marketplace",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -48,6 +50,7 @@
         }
       ],
       "expo-secure-store",
+      "expo-apple-authentication",
       [
         "expo-local-authentication",
         {

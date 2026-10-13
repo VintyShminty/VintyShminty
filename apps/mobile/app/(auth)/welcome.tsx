@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WelcomePhoto } from "@/components/auth-photo";
+import { SocialButtons } from "@/components/social-buttons";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 
@@ -60,6 +61,7 @@ export default function Welcome() {
               <Text className="text-primary-foreground">{t("welcome.logIn")}</Text>
             </Button>
           </View>
+          <SocialButtons onPhoto className="mt-lg" />
         </View>
       </View>
     </View>

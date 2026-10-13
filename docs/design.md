@@ -432,6 +432,16 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/mobile/app/(auth)/welcome.tsx`, `log-in.tsx`, `sign-up.tsx`, `forgot-password.tsx`, `apps/mobile/components/auth-photo.tsx` (photo, token-coloured fade, band), `apps/mobile/assets/images/welcome-photo.jpg` (credit in `assets/images/CREDITS.md`), strings under `welcome` in both locale files.
 - **References:** `docs/mockups/welcome-options.html`
 
+### D-023 : Continue with Apple and Google
+
+- **Date:** 2026-10-13
+- **Area:** Welcome, Log in, Sign up, Accounts
+- **Status:** Built on branch social-login, off until the keys exist
+- **Decision:** The welcome, log in and sign up screens get "Continue with Apple" (iPhone only) and "Continue with Google" under a thin "or" line. On the welcome photo the Apple button is Apple's white style and the Google button is a white button with Google's four colour G. On the log in and sign up forms, below the main button, Apple's white outline style and a hairline Google button with the same height (48) and radius (12). The Apple button is Apple's own component with Apple's own words, as their rules require. A button only appears when the server says that provider has keys (`GET /v1/auth/providers`), so nothing is shown, and nothing can fail, until Eden adds them, and keys can be switched on without a new app build. Apple signs in with an ID token on the phone. Google opens the system browser sheet with our web client (no extra native library, the same for Android later). A new person who arrives this way gets the two short questions once, like email sign up (D-022), and no confirmation code because Apple and Google have already checked the email. Apple's "hide my email" address is accepted as the email, and since it is random the username is made from the first name (or "user" plus digits), not from the address. Apple sends the name only the first time, so the app passes it along then. Errors are plain: a cancelled sheet says nothing, a missing email, a busy network and everything else have their own sentence.
+- **Rationale:** Fewer steps to a first account, and Apple requires its own sign in when another social sign in is offered. Browser Google keeps Eden's setup to one Google client and no extra native module, at the cost of a browser sheet instead of the Google account picker.
+- **Implementation:** `apps/server/src/lib/social.ts`, `routes/auth-providers.ts`, `apps/mobile/components/social-buttons.tsx`, `google-mark.tsx`, `lib/social-login.ts`, `lib/auth-providers.ts`. Google's brand colours are the only non token colours, kept in `brand` in `theme/tokens.js`.
+- **References:** `docs/going-online.md` Part J
+
 ### D-022 : The home feed explains itself and asks two questions after sign up
 
 - **Date:** 2026-10-13
