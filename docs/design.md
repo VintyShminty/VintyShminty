@@ -368,6 +368,16 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/mobile/app/(app)/sell-form/`, `components/sell/`, `components/ui/sheet.tsx`, `picker-row.tsx`, `radio.tsx`, `checkbox.tsx`.
 - **References:** D-004, D-010, spec Sell form and Category picker, `docs/mockups/component-sheet.html` (PhotoUploader, PickerRow, OptionListSheet)
 
+### D-016 : The tab bar keeps its order in Hebrew
+
+- **Date:** 2026-10-13
+- **Area:** Navigation, Right to left
+- **Status:** Approved (Eden, 2026-10-13)
+- **Decision:** The bottom tab bar is not mirrored in right to left. Home stays at the left and Profile at the right in Hebrew, as in English. Everything else in the app still mirrors.
+- **Rationale:** People switch between the two languages and the tab positions are muscle memory. iOS would mirror the bar by default, so this is a deliberate exception.
+- **Implementation:** `direction: "ltr"` on the tab bar style in `apps/mobile/app/(app)/(tabs)/_layout.tsx`.
+- **References:** D-011, CLAUDE.md Right to left
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 
