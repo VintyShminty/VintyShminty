@@ -1,28 +1,50 @@
 import { useRouter } from "expo-router";
+import { ArrowRight } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PhotoTile } from "@/components/photo-tile";
 import { SearchBar } from "@/components/search-bar";
 import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
-import { categoryIcon } from "@/lib/category-icons";
-import { useLocalName, useReference } from "@/lib/reference";
+import { type BrowseTile, TILES, tilePhotoUrl } from "@/lib/browse-tiles";
+import { useIsRtl } from "@/lib/rtl";
 
-/** The Browse tab: the search bar, then the main categories as a two column grid of tiles (D-009). */
+/** One row of two tiles. A single tile keeps its half width. */
+function TileRow({ tiles, onOpen }: { tiles: BrowseTile[]; onOpen: (tile: BrowseTile) => void }) {
+  const { t } = useTranslation();
+  return (
+    <View className="flex-row gap-md">
+      {tiles.map((tile) => (
+        <PhotoTile
+          key={tile.key}
+          label={t(`browse.tiles.${tile.key}`)}
+          photoUrl={tilePhotoUrl(tile)}
+          onPress={() => onOpen(tile)}
+          className="aspect-[4/5] flex-1"
+        />
+      ))}
+      {tiles.length === 1 ? <View className="flex-1" /> : null}
+    </View>
+  );
+}
+
+/** The Browse tab: the search bar, then photo tiles by item type and a More tile (D-019, row 5). */
 export default function Browse() {
   const { t } = useTranslation();
   const router = useRouter();
-  const name = useLocalName();
-  const reference = useReference();
-  const categories = reference.data?.categories ?? [];
+  const rtl = useIsRtl();
+  const insets = useSafeAreaInsets();
 
-  const rows: (typeof categories)[] = [];
-  for (let i = 0; i < categories.length; i += 2) rows.push(categories.slice(i, i + 2));
+  const rows: BrowseTile[][] = [];
+  for (let i = 0; i < TILES.length; i += 2) rows.push(TILES.slice(i, i + 2));
 
   return (
     <Screen bottomInset={false}>
       <ScrollView
-        contentContainerClassName="gap-md px-lg pb-xl pt-sm"
+        contentContainerClassName="gap-md px-lg pt-sm"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -30,42 +52,24 @@ export default function Browse() {
           {t("tabs.browse")}
         </Text>
         <SearchBar />
-        {reference.isPending
-          ? [0, 1, 2, 3].map((n) => (
-              <View key={n} className="flex-row gap-md">
-                <View className="h-24 flex-1 rounded-control bg-pressed" />
-                <View className="h-24 flex-1 rounded-control bg-pressed" />
-              </View>
-            ))
-          : null}
-        {reference.isError && categories.length === 0 ? (
-          <Text variant="subtitle" className="py-xl text-center text-text-3">
-            {t("errors.general")}
-          </Text>
-        ) : null}
         {rows.map((row) => (
-          <View key={row[0]?.id} className="flex-row gap-md">
-            {row.map((category) => (
-              <Pressable
-                key={category.id}
-                onPress={() =>
-                  router.push({ pathname: "/browse/category", params: { parent: category.id, depth: "1" } })
-                }
-                role="button"
-                accessibilityLabel={name(category.name)}
-                className="h-24 flex-1 overflow-hidden rounded-control bg-accent-tint p-md active:scale-[0.98]"
-              >
-                <Text weight={700} numberOfLines={2} className="text-primary">
-                  {name(category.name)}
-                </Text>
-                <View className="absolute bottom-md end-md">
-                  <Icon as={categoryIcon(category.icon)} size={32} className="text-primary opacity-70" />
-                </View>
-              </Pressable>
-            ))}
-            {row.length === 1 ? <View className="flex-1" /> : null}
-          </View>
+          <TileRow
+            key={row[0]?.key}
+            tiles={row}
+            onOpen={(tile) => router.push({ pathname: "/browse/tile", params: { tile: tile.key } })}
+          />
         ))}
+        <Pressable
+          onPress={() => router.push("/browse/more")}
+          role="button"
+          accessibilityLabel={t("browse.more")}
+          className="h-16 flex-row items-center justify-between rounded-control bg-accent-tint px-lg active:opacity-90"
+        >
+          <Text variant="heading" weight={700} className="text-primary">
+            {t("browse.more")}
+          </Text>
+          <Icon as={ArrowRight} size={20} className={rtl ? "rotate-180 text-primary" : "text-primary"} />
+        </Pressable>
       </ScrollView>
     </Screen>
   );

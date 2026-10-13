@@ -1,23 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, useRouter } from "expo-router";
-import type { LucideIcon } from "lucide-react-native";
-import { House, LayoutGrid, MessageCircle, PlusCircle, User } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import type { ColorValue } from "react-native";
+import { FloatingTabBar } from "@/components/navigation/floating-tab-bar";
 import { authClient } from "@/lib/auth-client";
 import { unreadQuery } from "@/lib/messaging-queries";
 import { colors } from "@/theme";
 
-function tabIcon(Icon: LucideIcon) {
-  return ({ color, size }: { color: ColorValue; size: number }) => (
-    <Icon color={color as string} size={size} strokeWidth={1.75} />
-  );
-}
-
+/** The five tabs behind the floating bar (D-019). The bar itself is `FloatingTabBar`. */
 export default function TabsLayout() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
-  const labelFamily = i18n.language === "he" ? "Heebo-600" : "Aileron-600";
   // The count pill on the Inbox tab: chats with something new plus unread notifications.
   const { data: session } = authClient.useSession();
   const { data: unread } = useQuery({ ...unreadQuery(), enabled: Boolean(session) });
@@ -25,33 +17,15 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.text3,
-        tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.borderSubtle,
-          borderTopWidth: 1,
-          // The tabs keep the same order in Hebrew as in English, Home at the left and Profile at the right (D-016).
-          direction: "ltr",
-        },
-        tabBarLabelStyle: {
-          fontFamily: labelFamily,
-          fontSize: 10,
-          letterSpacing: 1,
-          textTransform: "uppercase",
-        },
-        sceneStyle: { backgroundColor: colors.background },
-      }}
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.background } }}
     >
-      <Tabs.Screen name="(home)" options={{ title: t("tabs.home"), tabBarIcon: tabIcon(House) }} />
-      <Tabs.Screen name="(browse)" options={{ title: t("tabs.browse"), tabBarIcon: tabIcon(LayoutGrid) }} />
+      <Tabs.Screen name="(home)" options={{ title: t("tabs.home") }} />
+      <Tabs.Screen name="(browse)" options={{ title: t("tabs.browse") }} />
       {/* Sell is a launcher: it opens the full-screen sell form over the tabs (spec, Sell form). */}
       <Tabs.Screen
         name="sell"
-        options={{ title: t("tabs.sell"), tabBarIcon: tabIcon(PlusCircle) }}
+        options={{ title: t("tabs.sell") }}
         listeners={{
           tabPress: (event) => {
             event.preventDefault();
@@ -63,17 +37,10 @@ export default function TabsLayout() {
         name="(inbox)"
         options={{
           title: t("tabs.inbox"),
-          tabBarIcon: tabIcon(MessageCircle),
           tabBarBadge: unreadTotal > 0 ? (unreadTotal > 99 ? "99+" : unreadTotal) : undefined,
-          tabBarBadgeStyle: {
-            backgroundColor: colors.accent,
-            color: colors.onAccent,
-            fontFamily: labelFamily,
-            fontSize: 10,
-          },
         }}
       />
-      <Tabs.Screen name="(profile)" options={{ title: t("tabs.profile"), tabBarIcon: tabIcon(User) }} />
+      <Tabs.Screen name="(profile)" options={{ title: t("tabs.profile") }} />
       <Tabs.Screen name="(dev)/gallery" options={{ href: null }} />
     </Tabs>
   );

@@ -208,6 +208,8 @@ export const brandRequestInputSchema = z.object({
 export const searchFiltersSchema = z.object({
   q: z.string().trim().max(100).optional(),
   categoryId: idSchema.optional(),
+  /** Several categories at once (a Browse tile covers a few). Each one includes everything below it. */
+  categoryIds: z.array(idSchema).max(40).optional(),
   brandIds: z.array(idSchema).max(20).optional(),
   sizeIds: z.array(idSchema).max(30).optional(),
   conditionIds: z.array(idSchema).max(5).optional(),

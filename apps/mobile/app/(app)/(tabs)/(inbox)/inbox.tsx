@@ -3,6 +3,7 @@ import { Archive } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, RefreshControl, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ConversationRow } from "@/components/inbox/conversation-row";
 import { NotificationRow } from "@/components/inbox/notification-row";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,7 @@ function LoadError({ onRetry }: { onRetry: () => void }) {
 
 /** The chats (Messages tab) or the archive. */
 function MessagesList({ archived, onOpenArchive }: { archived: boolean; onOpenArchive?: () => void }) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const query = useInfiniteQuery(conversationsQuery(archived));
   const [refreshing, setRefreshing] = useState(false);
@@ -135,12 +137,14 @@ function MessagesList({ archived, onOpenArchive }: { archived: boolean; onOpenAr
         <RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={colors.accent} />
       }
       showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: insets.bottom }}
     />
   );
 }
 
 /** The news list: sentences written from the type and values the server sends. */
 function NotificationsList() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const query = useInfiniteQuery(notificationsQuery());
   const [refreshing, setRefreshing] = useState(false);
@@ -177,6 +181,7 @@ function NotificationsList() {
         <RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} tintColor={colors.accent} />
       }
       showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: insets.bottom }}
     />
   );
 }

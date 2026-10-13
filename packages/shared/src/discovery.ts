@@ -26,6 +26,7 @@ const queryMinor = z.coerce.number().int().min(0).max(2_000_000_000).optional();
 
 /** The filters as they travel in a query string (GET /v1/listings, /v1/listings/count). */
 export const searchFiltersQuerySchema = searchFiltersSchema.extend({
+  categoryIds: idList(40),
   brandIds: idList(20),
   sizeIds: idList(30),
   conditionIds: idList(5),
@@ -52,8 +53,15 @@ export type SearchPage = z.infer<typeof searchPageSchema>;
 export const searchCountSchema = searchPageSchema.pick({ total: true, totalCapped: true });
 export type SearchCount = z.infer<typeof searchCountSchema>;
 
-/** GET /v1/feed. A category chip passes `categoryId`, the Trending chip passes `trending=true`. */
+/** The mood chips on Home. `for_you` is the normal personalised feed. */
+export const FEED_MOODS = ["for_you", "new_today", "under_50", "your_sizes", "near_you"] as const;
+export type FeedMood = (typeof FEED_MOODS)[number];
+/** Under 50 means below 5000 minor units (50.00) in the default currency. */
+export const UNDER_50_MINOR = 5000;
+
+/** GET /v1/feed. A mood chip passes `mood`, a category passes `categoryId`, Trending passes `trending=true`. */
 export const feedQuerySchema = paginationQuerySchema.extend({
+  mood: z.enum(FEED_MOODS).optional(),
   categoryId: idSchema.optional(),
   trending: z
     .enum(["true", "false"])
