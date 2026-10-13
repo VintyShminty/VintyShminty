@@ -191,6 +191,13 @@
         "invalid": "Prices are in shekels"
       },
       "notEditable": "This listing can no longer be changed"
+    },
+    "address": {
+      "fullName": "Enter your full name",
+      "line1": "Enter the street and number",
+      "city": "Enter the city",
+      "postcode": "Enter the postcode",
+      "tooLong": "That is too long"
     }
   },
   "errors": {
@@ -790,5 +797,30 @@
     "askBody": "Turn on notifications and we will let you know when someone writes back",
     "allow": "Turn on",
     "notNow": "Not now"
+  },
+  "address": {
+    "title": "Addresses",
+    "emptyTitle": "No addresses yet",
+    "emptyNote": "Add one now and checkout will be a tap faster",
+    "add": "Add an address",
+    "addTitle": "New address",
+    "editTitle": "Edit address",
+    "missing": "We could not find that address",
+    "default": "Default",
+    "delete": "Delete",
+    "deleteTitle": "Delete this address?",
+    "deleteNote": "Orders you already placed keep their own copy",
+    "limit": "You can save up to 10 addresses",
+    "fullName": "Full name",
+    "line1": "Street and number",
+    "line2": "Apartment, floor or entrance (optional)",
+    "city": "City",
+    "postcode": "Postcode",
+    "phone": "Phone (optional)",
+    "phoneHint": "Only the courier sees it",
+    "label": "Name for this address (optional)",
+    "labelHint": "For example Home or Work",
+    "country": "Country",
+    "makeDefault": "Use as my default address"
   }
 }
