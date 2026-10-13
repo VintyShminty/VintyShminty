@@ -15,6 +15,7 @@ import { Pressable, View } from "react-native";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { ForwardIcon } from "@/components/ui/top-bar";
+import { isolate } from "@/lib/bidi";
 
 type DividerStyle = { icon: LucideIcon; tone: string };
 
