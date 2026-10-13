@@ -71,10 +71,10 @@ describe("notification sentences", () => {
     );
     expect(notificationText(row("order_shipped", data), t)).toBe("Your order Coat is on its way");
     expect(notificationText(row("order_completed", { ...data, role: "seller" }), t)).toBe(
-      "The sale of Coat is complete",
+      "Coat is sold and paid",
     );
     expect(notificationText(row("order_completed", { ...data, role: "buyer" }), t)).toBe(
-      "Your order Coat is complete",
+      "Coat is all wrapped up",
     );
     expect(
       notificationText(row("balance_released", { ...data, amountMinor: 4500, currency: "ILS" }), t),
@@ -143,7 +143,7 @@ describe("where a notification leads", () => {
   it("isolates a title of the other script so the sentence keeps its reading order", async () => {
     const en = await make("en");
     expect(notificationText(row("order_completed", { title: "מעיל" }), en)).toBe(
-      "Your order \u2068מעיל\u2069 is complete",
+      "\u2068מעיל\u2069 is all wrapped up",
     );
     const he = await make("he");
     expect(notificationText(row("order_completed", { title: "Blue coat" }), he)).toContain(

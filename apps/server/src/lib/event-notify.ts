@@ -69,15 +69,15 @@ export function pushCopy(
       };
     case "order_paid":
       return {
-        title: he ? "מכרת פריט" : "You made a sale",
+        title: he ? "מישהו קנה ממך" : "Someone bought from you",
         body: he ? `${title} מחכה למשלוח` : `${title} is waiting to be shipped`,
       };
     case "order_shipped":
-      return { title: "Vinty", body: he ? `${title} בדרך אליך` : `${title} is on its way` };
+      return { title: "Vinty", body: he ? `${title} יצא לדרך` : `${title} is on the way to you` };
     case "order_delivered":
       return {
         title: "Vinty",
-        body: he ? `${title} נמסר. אשר/י שקיבלת אותו` : `${title} was delivered. Confirm that you got it`,
+        body: he ? `${title} הגיע. אשרו שהוא אצלכם` : `${title} has arrived. Tap to say it reached you`,
       };
     case "order_completed":
       return {
@@ -85,11 +85,11 @@ export function pushCopy(
         body:
           text(data, "role") === "buyer"
             ? he
-              ? `ההזמנה הושלמה. אפשר להשאיר משוב`
-              : `Your order is complete. Leave some feedback`
+              ? `הכול סגור. ספרו איך היה`
+              : `All wrapped up. Tell us how it went`
             : he
-              ? `המכירה של ${title} הושלמה`
-              : `Your sale of ${title} is complete`,
+              ? `${title} נמכר והכסף ביתרה שלכם`
+              : `${title} is sold and the money is in your balance`,
       };
     case "balance_released":
       return {

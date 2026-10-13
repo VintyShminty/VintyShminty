@@ -48,7 +48,7 @@ export const platformSettingSeed: { key: string; value: unknown; description: st
     value: 5000,
     description: "Smallest order the referral voucher can be used on",
   },
-  { key: "bundle_min_items", value: 2, description: "Items needed before a bundle discount can apply" },
+  { key: "bundle_min_items", value: 2, description: "Items needed before a closet deal can apply" },
   {
     key: "single_market",
     value: true,
@@ -63,8 +63,8 @@ export const bundleDiscountDefaults = [
 ];
 
 export const bumpPlanSeed: (Named & { slug: string; durationHours: number; priceMinor: number })[] = [
-  { slug: "bump-3d", en: "Bump for 3 days", he: "קידום ל-3 ימים", durationHours: 72, priceMinor: 0 },
-  { slug: "bump-7d", en: "Bump for 7 days", he: "קידום ל-7 ימים", durationHours: 168, priceMinor: 0 },
+  { slug: "bump-3d", en: "Buzz for 3 days", he: "באז ל-3 ימים", durationHours: 72, priceMinor: 0 },
+  { slug: "bump-7d", en: "Buzz for 7 days", he: "באז ל-7 ימים", durationHours: 168, priceMinor: 0 },
 ];
 
 export const badgeSeed: (Named & {
@@ -77,20 +77,20 @@ export const badgeSeed: (Named & {
 })[] = [
   {
     slug: "frequent-uploads",
-    en: "Frequent uploads",
-    he: "מעלה פריטים באופן קבוע",
-    descEn: "Lists new items every week",
-    descHe: "מעלה פריטים חדשים כל שבוע",
-    icon: "upload",
+    en: "Fresh drops weekly",
+    he: "חדש בארון כל שבוע",
+    descEn: "Puts something new in the closet every week",
+    descHe: "מעלה משהו חדש לארון בכל שבוע",
+    icon: "sparkles",
     target: 4,
     showOnProfile: true,
   },
   {
     slug: "speedy-shipping",
-    en: "Speedy shipping",
-    he: "שליחה מהירה",
-    descEn: "Ships orders within 2 days",
-    descHe: "שולח הזמנות בתוך יומיים",
+    en: "Sends within a day",
+    he: "שולח/ת תוך יום",
+    descEn: "Usually posts an order within a day or two",
+    descHe: "בדרך כלל שולח/ת הזמנה תוך יום או יומיים",
     icon: "zap",
     target: 5,
     showOnProfile: true,
@@ -117,11 +117,11 @@ export const badgeSeed: (Named & {
   },
   {
     slug: "five-star-seller",
-    en: "Five star seller",
-    he: "מוכר/ת חמישה כוכבים",
+    en: "Loved by buyers",
+    he: "אהוב/ה על הקונים",
     descEn: "Keeps an average of 4.8 or more over 10 reviews",
-    descHe: "ממוצע של 4.8 ומעלה על פני 10 חוות דעת",
-    icon: "star",
+    descHe: "ממוצע של 4.8 ומעלה על פני 10 ביקורות",
+    icon: "award",
     target: 10,
     showOnProfile: true,
   },

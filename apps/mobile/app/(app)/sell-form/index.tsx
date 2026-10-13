@@ -13,19 +13,19 @@ import {
   validateListing,
 } from "@vinty/shared";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ShieldCheck } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PricePill } from "@/components/price-pill";
 import { BrandSheet } from "@/components/sell/brand-sheet";
+import { ConditionSlider } from "@/components/sell/condition-slider";
 import { type Option, OptionListSheet } from "@/components/sell/option-list-sheet";
 import { ParcelSizes } from "@/components/sell/parcel-sizes";
 import { PhotoUploader } from "@/components/sell/photo-uploader";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { PickerRow } from "@/components/ui/picker-row";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
@@ -69,11 +69,9 @@ function BuyerPricePreview({ priceMinor }: { priceMinor: number | null }) {
   });
   if (priceMinor === null || priceMinor <= 0 || !preview.data) return null;
   return (
-    <View className="flex-row items-center gap-xs">
-      <Icon as={ShieldCheck} size={16} className="text-primary" />
-      <Text variant="bodySmall" className="flex-1 text-text-2">
-        {t("sell.buyerPays", { price: formatMoney(preview.data.buyerPriceMinor, preview.data.currency) })}
-      </Text>
+    <View className="gap-xs">
+      <PricePill amountMinor={preview.data.buyerPriceMinor} currency={preview.data.currency} />
+      <Text variant="cardDesc">{t("sell.buyerPays")}</Text>
     </View>
   );
 }
@@ -125,7 +123,6 @@ export default function SellForm() {
 
   const brandRef = useRef<BottomSheetModal>(null);
   const sizeRef = useRef<BottomSheetModal>(null);
-  const conditionRef = useRef<BottomSheetModal>(null);
   const colourRef = useRef<BottomSheetModal>(null);
   const materialRef = useRef<BottomSheetModal>(null);
   const patternRef = useRef<BottomSheetModal>(null);
@@ -165,7 +162,6 @@ export default function SellForm() {
     );
   })();
   const sizeLabel = sizeOptions.find((o) => o.id === values.sizeId)?.label;
-  const condition = ref.conditions.find((c) => c.id === values.conditionId);
   const colourNames = values.colourIds
     .map((cid) => name(ref.colours.find((c) => c.id === cid)?.name))
     .filter(Boolean)
@@ -312,12 +308,24 @@ export default function SellForm() {
             />
           ) : null}
           {category && mode("condition") !== "hidden" ? (
-            <PickerRow
-              label={t("sell.condition")}
-              value={name(condition?.name)}
-              onPress={() => openSheet(conditionRef)}
-              error={err("conditionId")}
-            />
+            <View className="gap-sm">
+              <Text variant="smallLabel" weight={600}>
+                {t("sell.condition")}
+              </Text>
+              <ConditionSlider
+                stops={ref.conditions.map((c) => ({
+                  id: c.id,
+                  label: name(c.name),
+                  description: name(c.description),
+                }))}
+                value={values.conditionId}
+                onChange={(conditionId) => {
+                  set({ conditionId });
+                  clearError("conditionId");
+                }}
+                error={err("conditionId")}
+              />
+            </View>
           ) : null}
           {category && mode("colour") !== "hidden" ? (
             <PickerRow
@@ -428,21 +436,6 @@ export default function SellForm() {
         onChange={([sizeId]) => {
           set({ sizeId: sizeId ?? null });
           clearError("sizeId");
-        }}
-      />
-      <OptionListSheet
-        ref={conditionRef}
-        title={t("sell.condition")}
-        mode="single"
-        options={ref.conditions.map((c) => ({
-          id: c.id,
-          label: name(c.name),
-          description: name(c.description),
-        }))}
-        selected={values.conditionId ? [values.conditionId] : []}
-        onChange={([conditionId]) => {
-          set({ conditionId: conditionId ?? null });
-          clearError("conditionId");
         }}
       />
       <OptionListSheet

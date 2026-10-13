@@ -12,6 +12,7 @@ import { Composer } from "@/components/chat/composer";
 import { IntroCard } from "@/components/chat/intro-card";
 import { ItemStrip } from "@/components/chat/item-strip";
 import { MessageBubble, PendingBubble } from "@/components/chat/message-bubble";
+import { OrderTracker } from "@/components/chat/order-tracker";
 import { PhotoViewer } from "@/components/chat/photo-viewer";
 import { TypingIndicator } from "@/components/chat/typing-indicator";
 import { OfferSheet } from "@/components/offer/offer-sheet";
@@ -133,7 +134,7 @@ function ConversationScreen() {
   const canOffer =
     conversation?.role === "buyer" && conversation.listing.status === "active" && !conversation.blocked;
 
-  const otherName = conversation?.otherUser.username ?? t("profile.deletedMember");
+  const otherName = conversation?.otherUser.username ?? t("profile.closedAccount");
   const otherLastReadAt = conversation?.otherLastReadAt ?? null;
 
   const renderItem = ({ item }: { item: ThreadItem }) => {
@@ -208,6 +209,7 @@ function ConversationScreen() {
     body = (
       <>
         <ItemStrip listing={conversation.listing} />
+        {conversation.order ? <OrderTracker orderId={conversation.order.id} /> : null}
         <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
           <FlatList
             inverted

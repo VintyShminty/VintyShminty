@@ -245,7 +245,7 @@ export default function SearchScreen() {
           <Tabs
             items={[
               { key: "items", label: t("search.items") },
-              { key: "members", label: t("search.members") },
+              { key: "members", label: t("search.sellers") },
             ]}
             value={tab}
             onChange={setTab}
@@ -275,7 +275,7 @@ function Members({ q, bottom }: { q: string; bottom: number }) {
   if (!q.trim()) {
     return (
       <Text variant="subtitle" className="px-lg py-xl text-center text-text-3">
-        {t("search.membersHint")}
+        {t("search.sellersHint")}
       </Text>
     );
   }
@@ -299,7 +299,7 @@ function Members({ q, bottom }: { q: string; bottom: number }) {
       ListFooterComponent={query.isFetchingNextPage ? <Spinner /> : null}
       ListEmptyComponent={
         <Text variant="subtitle" className="px-lg py-xl text-center text-text-3">
-          {t("search.noMembers")}
+          {t("search.noSellers")}
         </Text>
       }
       renderItem={({ item }) => (

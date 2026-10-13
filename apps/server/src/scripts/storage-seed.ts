@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HeadBucketCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
@@ -8,7 +8,8 @@ import { parseEnv } from "../env.js";
 
 /**
  * Development only. Uploads the sample photos in packages/db/seed-assets to the dev bucket under the keys
- * the sample listings use (seed/listings/<n>/<file>.jpg), so the sample data shows real pictures.
+ * the sample listings use (seed/listings/<n>/<file>.jpg), so the sample data shows real pictures. It also uploads
+ * every file as browse/<file>.jpg for the Browse tiles.
  */
 const env = parseEnv();
 if (env.NODE_ENV !== "development") {
@@ -58,7 +59,22 @@ try {
     );
     uploaded++;
   }
-  console.log(`Uploaded ${uploaded} sample photos (listings and chats) to ${env.S3_PUBLIC_URL}`);
+  // The Browse tile photos (browse/<file>.jpg) are the same sample files, see apps/mobile/lib/browse-tiles.ts.
+  for (const file of readdirSync(assets).filter((f) => f.endsWith(".jpg"))) {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: env.S3_BUCKET,
+        Key: `browse/${file}`,
+        Body: readFileSync(`${assets}${file}`),
+        ContentType: "image/jpeg",
+        CacheControl: "public, max-age=31536000, immutable",
+      }),
+    );
+    uploaded++;
+  }
+  console.log(
+    `Uploaded ${uploaded} sample photos (listings, chats and Browse tiles) to ${env.S3_PUBLIC_URL}`,
+  );
 } finally {
   await database.close();
 }

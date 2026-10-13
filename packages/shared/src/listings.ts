@@ -127,6 +127,8 @@ export const listingDetailSchema = listingCardSchema.extend({
   seller: userSummarySchema,
   /** The seller is on holiday: the item opens from a link but is not in the feed or search, and cannot be bought. */
   sellerOnHoliday: z.boolean(),
+  /** When the seller is back, if they gave a date. Only set while they are away. */
+  sellerAwayUntil: isoDateTimeSchema.nullable(),
   /** What the viewer can do with it. Lets the app show or hide the sticky bar buttons. */
   viewer: z.object({
     isOwner: z.boolean(),
@@ -206,6 +208,8 @@ export const brandRequestInputSchema = z.object({
 export const searchFiltersSchema = z.object({
   q: z.string().trim().max(100).optional(),
   categoryId: idSchema.optional(),
+  /** Several categories at once (a Browse tile covers a few). Each one includes everything below it. */
+  categoryIds: z.array(idSchema).max(40).optional(),
   brandIds: z.array(idSchema).max(20).optional(),
   sizeIds: z.array(idSchema).max(30).optional(),
   conditionIds: z.array(idSchema).max(5).optional(),

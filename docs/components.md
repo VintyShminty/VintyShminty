@@ -43,7 +43,7 @@ A thin outline icon from one set (Lucide) that always takes the colour of its su
 
 ### Screen
 
-The page container. It handles the safe area, 16px side padding and clearance above the tab bar.
+The page container. It handles the safe area and 16px side padding. Inside a tab the safe area includes the room under the floating tab bar (`TabStack`, `lib/tab-bar.ts`), so a list or scroll view that adds `insets.bottom` under its last row never ends up behind the bar.
 
 - **Variants and states:** With tab bar clearance, without tab bar (task pages), fixed header, scrolling or static body.
 - **Screens:** Every screen
@@ -303,7 +303,7 @@ The tile for one listing: tall rounded photo, brand, description, size and condi
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
 - **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badge is the standard Badge component, outline style, D-008)
 - **Phase:** First flows
-- **Status:** Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
+- **Status (D-019, supersedes D-007 in part):** The browse card is now the price tag card: seller price big with the heart at the end of that row, brand, size and condition in small capitals, the buyer price pill (`components/price-pill.tsx`), badges on the photo (Buzzing with a zap). Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
 
 ### HeartPill
 
@@ -313,6 +313,31 @@ A small white pill with a heart and the number of people who saved the item. A c
 - **Screens:** Home feed, Search and results, Item page, Seller profile, Favourites
 - **Source:** Custom (Composed from Pressable, Icon and Text)
 - **Phase:** First flows
+
+### PricePill (D-019)
+
+A soft accent-tint pill with a check icon and "{price} with {protectionName}", the buyer price. Replaces the shield and the "incl." line. `PriceBreakdownCard` (same file) is the item page breakdown: Item, protection, You pay and how the buyer is covered.
+
+- **Variants and states:** Variants: normal, muted (sold). 
+- **Screens:** Item card, own listing, sell form price preview, offer sheet, item page (breakdown)
+- **Source:** Custom, `components/price-pill.tsx`
+- **Status:** Built in Milestone 6
+
+### ConditionSlider (D-019)
+
+A five stop slider for the sell form condition (names and hints from reference data), with the chosen level's hint below. Drag, tap, or VoiceOver adjustable (swipe up or down). The first stop is at the start side, so it runs right to left in Hebrew. Replaces the condition option sheet.
+
+- **Screens:** Sell form
+- **Source:** Custom, `components/sell/condition-slider.tsx` (Gesture Handler and Reanimated)
+- **Status:** Built in Milestone 6
+
+### SellerStamp (D-019)
+
+A seller badge as an outline stamp in the accent colour with an icon and the name, no progress ring.
+
+- **Screens:** Seller profile
+- **Source:** Custom, `components/seller-stamp.tsx`
+- **Status:** Built in Milestone 6
 
 ### PriceBlock
 
@@ -325,7 +350,7 @@ Shows the seller price and what the buyer pays, with the buyer protection shield
 
 ### SearchBar
 
-The big rounded search box at the top of Home and Browse, with a camera for photo search.
+The big rounded search box at the top of Browse (Home uses a round search button beside the greeting since D-019), with a camera for photo search.
 
 - **Variants and states:** States: idle (tap opens search), focused, filled with clear, busy (Searching...). Camera icon on the right. 32px radius.
 - **Screens:** Home feed, Browse, Search and results
@@ -343,16 +368,25 @@ The scrolling row of filter chips above search results, with the Filter button f
 
 ### CategoryTile
 
-A light tinted tile on the Browse grid: label top-left, picture bottom-right. Opens one main category (D-009).
+Superseded in part by D-019: Browse now uses PhotoTile. Kept for reference. A light tinted tile on the Browse grid: label top-left, picture bottom-right. Opens one main category (D-009).
 
 - **Variants and states:** Variants: icon tile (a Lucide line icon is a placeholder, illustration style to decide). States: default, pressed (scale 0.98). Long labels wrap. Fill accent-tint, 12px radius.
 - **Screens:** Browse
 - **Source:** Custom (Composed from Pressable, Icon and Text)
 - **Phase:** First flows
 
+### PhotoTile
+
+A Browse tile (D-019, row 5): a photo with the name at the bottom start over a dark gradient (an SVG gradient drawn from the text-1 token, no hex). 12px radius, portrait 4:5, in a 2 column grid. Built with `components/photo-tile.tsx`. The tiles and their order live in `lib/browse-tiles.ts`, photos are the `browse/` files in object storage (`pnpm storage:seed` in development).
+
+- **Variants and states:** With photo, plain tint (the More tile). States: default, pressed (opacity). The More tile is a full width accent-tint bar with an arrow that turns in Hebrew.
+- **Screens:** Browse, Browse More
+- **Source:** Custom (Pressable, expo-image, react-native-svg)
+- **Phase:** Milestone 6
+
 ### CategoryGrid
 
-The body of the Browse tab: the search bar on top, then the main categories as a 2 column grid of CategoryTiles (Women, Men, Designer, Kids, Home, Electronics, Books and media, Hobbies and collectables, Sports).
+Superseded in part by D-019 (the Browse root is now PhotoTiles, the category tree sits behind the More tile). Was: the body of the Browse tab: the search bar on top, then the main categories as a 2 column grid of CategoryTiles (Women, Men, Designer, Kids, Home, Electronics, Books and media, Hobbies and collectables, Sports).
 
 - **Variants and states:** 2 columns, 12px gaps, scrolls. States: default, loading (skeleton tiles).
 - **Screens:** Browse
@@ -389,9 +423,9 @@ The two-column feed of item cards with infinite scroll and a loading spinner at 
 
 ### BottomTabBar
 
-The five tabs at the bottom: Home, Browse, Sell, Inbox, Profile. The default navigation, no side drawer (D-009).
+The five tabs: Home, Browse, Sell, Inbox, Profile. The default navigation, no side drawer (D-009). Since D-019 it is a floating bar (`components/navigation/floating-tab-bar.tsx`): 64px tall, 32px radius, 95 percent white with a hairline border and a soft shadow, 16px from each side and above the home indicator, over the content. Icons only, each tab keeps its name for screen readers. The active tab sits on an accent-tint pill. Sell is a raised 56px round espresso button with a price tag icon (Eden, 2026-10-13) that opens the sell form. It hides while the keyboard is open.
 
-- **Variants and states:** States per tab: idle (outline icon, muted label), active (accent icon and label), pressed. Inbox unread count pill. Hidden on task pages only: the sell form, the Filter panel, the conversation screen. Stays visible on every page opened from a tab (item page, member profile, Search, Favourites, Saved searches, Settings), because each tab has its own stack (D-017). Tapping the active tab goes back to its first screen. Keeps its order in Hebrew (D-016). Sits above the home indicator.
+- **Variants and states:** States per tab: idle (muted icon), active (accent icon on an accent-tint pill), pressed. Inbox unread count pill. Hidden on task pages only: the sell form, the Filter panel, the conversation screen. Stays visible on every page opened from a tab (item page, member profile, Search, Favourites, Saved searches, Settings), because each tab has its own stack (D-017). Tapping the active tab goes back to its first screen. Keeps its order in Hebrew (D-016). Sits above the home indicator.
 - **Screens:** Home feed, Browse, Search and results, Inbox, Profile menu, Favourites, My orders
 - **Source:** Custom (Built on the Expo Router tab bar)
 - **Phase:** First flows
@@ -453,7 +487,7 @@ The top of a member's profile with identity, trust details and the follow button
 
 ### ReviewSummary
 
-The big average score with stars and a count, and a split of reviews by source.
+The big average score with stars and the count of written reviews, plus one success-tint line for automatic reviews ("36 smooth sales, no problems", hidden at zero). Built in D-019 (m6-reviews), the source chips and the member and automatic split are gone.
 
 - **Variants and states:** Variants: with member and automatic split, member only. Empty (no reviews yet).
 - **Screens:** Seller profile, Own profile
@@ -504,6 +538,15 @@ A chat bubble that shows an offer: the new price, the old price struck through, 
 - **Screens:** Conversation thread
 - **Source:** Custom (Composed from MessageBubble, PriceBlock and Badge)
 - **Phase:** First flows
+
+### OrderTracker
+
+The card pinned at the top of a chat that has an order (D-019). Four step icons Paid, Sent, Arrived, Done with dates, the status on the top line, and the buttons the order allows: Pay now, Mark as shipped, Track parcel, I got it. Tap the card to open the order. Live through `order:updated`. Cancelled and refunded show the state instead of the steps.
+
+- **Variants and states:** Per order status: waiting for payment, paid, shipped, arrived, complete, cancelled, refunded, disputed. Buttons depend on the role and `actions`.
+- **Screens:** Conversation thread
+- **Source:** Custom (`components/chat/order-tracker.tsx`)
+- **Phase:** Milestone 6
 
 ### OrderTimeline
 

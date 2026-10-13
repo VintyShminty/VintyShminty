@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Bell, Trash2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -126,6 +127,7 @@ function SavedSearchRow({ search }: { search: SavedSearch }) {
 
 /** Your saved searches (spec, Saved searches). Tapping one runs the search again with its filters. */
 export default function SavedSearches() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const query = useQuery(savedSearchesQuery());
   const items = query.data?.items ?? [];
@@ -146,6 +148,7 @@ export default function SavedSearches() {
         <FlatList
           data={items}
           keyExtractor={(s) => s.id}
+          contentContainerStyle={{ paddingBottom: insets.bottom }}
           renderItem={({ item }) => <SavedSearchRow search={item} />}
           refreshControl={
             <RefreshControl

@@ -178,6 +178,19 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(ids(await get(`${base}&conditionIds=${detail.condition.id}`))).toHaveLength(2);
     });
 
+    it("searches several categories at once with categoryIds", async () => {
+      const base = `/v1/listings?q=${word}`;
+      const other = leaves(reference.categories).find((c) => c.id !== sized.id) as CategoryNode;
+      expect(ids(await get(`${base}&categoryIds=${sized.id},${other.id}`))).toHaveLength(2);
+      expect(ids(await get(`${base}&categoryIds=${sized.id}&categoryIds=${other.id}`))).toHaveLength(2);
+      expect(ids(await get(`${base}&categoryIds=${other.id}`))).toHaveLength(0);
+      const top = categoryTrail(reference.categories, sized.id)[0] as CategoryNode;
+      expect(ids(await get(`${base}&categoryIds=${top.id}`))).toHaveLength(2);
+      expect((await get(`${base}&categoryIds=nope`)).statusCode).toBe(400);
+      const count = (await get(`/v1/listings/count?q=${word}&categoryIds=${sized.id}`)).json();
+      expect(count.total).toBe(2);
+    });
+
     it("rejects a bad filter with 400", async () => {
       expect((await get("/v1/listings?categoryId=nope")).statusCode).toBe(400);
       expect((await get("/v1/listings?sort=weird")).statusCode).toBe(400);
@@ -374,6 +387,79 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       const seen = new Set(paged.items.map((i: { id: string }) => i.id));
       for (const item of next.items) expect(seen.has(item.id)).toBe(false);
       await ctx.database.db.delete(listings).where(eq(listings.id, fresh.id));
+    });
+
+    describe("mood chips", () => {
+      it("for_you is the normal feed", async () => {
+        const plain = ids(await get("/v1/feed?limit=50"));
+        expect(ids(await get("/v1/feed?mood=for_you&limit=50"))).toEqual(plain);
+        expect((await get("/v1/feed?mood=weird")).statusCode).toBe(400);
+      });
+
+      it("new_today keeps only what was listed in the last 24 hours", async () => {
+        const old = await publish(alice, { title: `${word} last week piece` });
+        await ctx.database.db
+          .update(listings)
+          .set({ publishedAt: new Date(Date.now() - 48 * 3_600_000) })
+          .where(eq(listings.id, old.id));
+        const fresh = await publish(alice, { title: `${word} today piece` });
+        const res = await get("/v1/feed?mood=new_today&limit=50");
+        expect(ids(res)).toContain(fresh.id);
+        expect(ids(res)).not.toContain(old.id);
+        await ctx.database.db.delete(listings).where(eq(listings.id, old.id));
+        await ctx.database.db.delete(listings).where(eq(listings.id, fresh.id));
+      });
+
+      it("under_50 means below 50.00 in shekels", async () => {
+        const cheap = await publish(alice, { title: `${word} cheap piece`, priceMinor: 4900 });
+        const edge = await publish(alice, { title: `${word} edge piece`, priceMinor: 5000 });
+        const res = await get("/v1/feed?mood=under_50&limit=50");
+        expect(ids(res)).toContain(cheap.id);
+        expect(ids(res)).not.toContain(edge.id);
+        for (const item of res.json().items) {
+          expect(item.currency).toBe("ILS");
+          expect(item.priceMinor).toBeLessThan(5000);
+        }
+        await ctx.database.db.delete(listings).where(eq(listings.id, cheap.id));
+        await ctx.database.db.delete(listings).where(eq(listings.id, edge.id));
+      });
+
+      it("your_sizes uses the viewer's sizes and is empty without any", async () => {
+        const detail = (await get(`/v1/listings/${dress.id}`)).json();
+        expect((await get("/v1/feed?mood=your_sizes&limit=50")).json().items).toEqual([]);
+        const none = await get("/v1/feed?mood=your_sizes&limit=50", carol.token);
+        expect(none.json().items).toEqual([]);
+        const put = await ctx.app.inject({
+          method: "PUT",
+          url: "/v1/me/personalisation/sizes",
+          headers: bearer(carol.token),
+          payload: { sizeIds: [detail.size.id] },
+        });
+        expect(put.statusCode, put.body).toBe(200);
+        const res = await get("/v1/feed?mood=your_sizes&limit=50", carol.token);
+        expect(ids(res)).toContain(dress.id);
+        for (const item of res.json().items) expect(item.sizeLabel).toBe(detail.size.label);
+        await ctx.app.inject({
+          method: "PUT",
+          url: "/v1/me/personalisation/sizes",
+          headers: bearer(carol.token),
+          payload: { sizeIds: [] },
+        });
+      });
+
+      it("near_you matches the viewer's city and is empty without one", async () => {
+        const db = ctx.database.db;
+        await db.update(listings).set({ city: "Haifa" }).where(eq(listings.id, dress.id));
+        await db.update(listings).set({ city: "Eilat" }).where(eq(listings.id, coat.id));
+        expect((await get("/v1/feed?mood=near_you&limit=50")).json().items).toEqual([]);
+        await db.update(profiles).set({ city: null }).where(eq(profiles.userId, carol.id));
+        expect((await get("/v1/feed?mood=near_you&limit=50", carol.token)).json().items).toEqual([]);
+        await db.update(profiles).set({ city: " haifa " }).where(eq(profiles.userId, carol.id));
+        const res = await get("/v1/feed?mood=near_you&limit=50", carol.token);
+        expect(ids(res)).toContain(dress.id);
+        expect(ids(res)).not.toContain(coat.id);
+        await db.update(profiles).set({ city: null }).where(eq(profiles.userId, carol.id));
+      });
     });
 
     it("leaves out your own items for a signed in person", async () => {

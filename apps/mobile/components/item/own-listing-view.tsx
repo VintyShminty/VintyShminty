@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ListingDetail } from "@vinty/shared";
 import { useRouter } from "expo-router";
-import { Check, Clock, Eye, EyeOff, Heart, Pencil, ShieldCheck, Trash2 } from "lucide-react-native";
+import { Check, Clock, Eye, EyeOff, Heart, Pencil, Trash2 } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DetailRow } from "@/components/item/detail-row";
 import { PhotoCarousel } from "@/components/photo-carousel";
+import { PricePill } from "@/components/price-pill";
 import { Badge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
@@ -153,12 +154,7 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
               </Text>
             ) : null}
             {listing.buyerPriceMinor !== null ? (
-              <View className="flex-row items-center gap-xs">
-                <Icon as={ShieldCheck} size={16} className="text-primary" />
-                <Text variant="bodySmall" className="text-text-2">
-                  {t("listing.buyerPays", { price: formatMoney(listing.buyerPriceMinor, listing.currency) })}
-                </Text>
-              </View>
+              <PricePill amountMinor={listing.buyerPriceMinor} currency={listing.currency} />
             ) : null}
           </View>
 

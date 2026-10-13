@@ -34,15 +34,15 @@
     "reserved": "שמור",
     "cancelled": "בוטל",
     "priceDrop": "הורדת מחיר",
-    "info": "העלאות תכופות",
+    "info": "חדש בארון כל שבוע",
     "all": "הכול",
     "dresses": "שמלות",
-    "bundleDiscounts": "הנחות על חבילות"
+    "bundleDiscounts": "הנחות ארון"
   },
   "welcome": {
-    "heroLight": "בגדים אהובים,",
-    "heroBold": "חיים שניים",
-    "subtitle": "קונים ומוכרים אופנה יד שנייה, ישר מהארונות של אנשים אחרים.",
+    "title": "טעם טוב\nעובר הלאה",
+    "subtitle": "מוצאים פריט אהוב מאנשים בסביבה,\nאו מעלים משלכם תוך דקה.",
+    "photoChip": "המעיל של נועה · \u2066₪140\u2069",
     "signUp": "הרשמה",
     "logIn": "התחברות"
   },
@@ -137,7 +137,7 @@
     },
     "listing": {
       "title": {
-        "required": "הוסיפו כותרת",
+        "required": "תנו לו שם",
         "tooShort": "לפחות 3 תווים",
         "tooLong": "עד 80 תווים"
       },
@@ -179,7 +179,7 @@
         "invalid": "בחרו הדפס מהרשימה"
       },
       "price": {
-        "required": "הוסיפו מחיר",
+        "required": "קבעו מחיר",
         "tooLow": "המחיר הנמוך ביותר הוא {{min}}",
         "tooHigh": "המחיר גבוה מדי"
       },
@@ -242,7 +242,6 @@
     "turnOnFailed": "לא הצלחנו להפעיל את {{method}}. אפשר לנסות שוב בהגדרות, אבטחה."
   },
   "profile": {
-    "deletedMember": "חבר שנמחק",
     "reviewCount_one": "ביקורת אחת",
     "reviewCount_two": "{{count}} ביקורות",
     "reviewCount_other": "{{count}} ביקורות",
@@ -256,14 +255,15 @@
       "reviews": "ביקורות",
       "about": "אודות"
     },
-    "fromMembers": "מחברים",
     "automatic": "אוטומטיות",
-    "all": "הכול",
+    "smoothSales_one": "מכירה חלקה אחת, בלי בעיות",
+    "smoothSales_two": "שתי מכירות חלקות, בלי בעיות",
+    "smoothSales_other": "{{count}} מכירות חלקות, בלי בעיות",
     "active": "פעילים",
     "sold": "נמכרו",
     "noListings": "אין פריטים למכירה כרגע",
     "noSold": "עוד לא נמכר כלום",
-    "noReviews": "עדיין אין ביקורות",
+    "noReviews": "עדיין אין ביקורות כתובות",
     "reviewFor": "על {{title}}",
     "reply": "תגובה",
     "about": {
@@ -292,7 +292,8 @@
     "reviewAsBuyerFor": "מקונה של {{title}}",
     "reviewAsSellerFor": "ממוכר/ת של {{title}}",
     "reviewAsBuyer": "מקונה",
-    "reviewAsSeller": "מהמוכר/ת"
+    "reviewAsSeller": "מהמוכר/ת",
+    "closedAccount": "חשבון סגור"
   },
   "countries": {
     "IL": "ישראל"
@@ -300,14 +301,13 @@
   "listing": {
     "sold": "נמכר",
     "priceDrop": "הורדת מחיר",
-    "bumped": "מקודם",
+    "bumped": "חם עכשיו",
     "was": "היה: {{price}}",
     "percentOff": "{{percent}}% הנחה",
-    "includesProtection": "{{price}} כולל",
     "reserved": "שמור",
     "hidden": "מוסתר",
     "draft": "טיוטה",
-    "buyerPays": "הקונה משלם {{price}} כולל הגנת קונה",
+    "buyerPays": "{{price}} עם $t(protectionName)",
     "continueEditing": "להמשיך לערוך",
     "edit": "עריכת המודעה",
     "delete": "מחיקת המודעה",
@@ -340,7 +340,7 @@
     "yourListing": "המודעה שלך"
   },
   "editProfile": {
-    "title": "פרטי פרופיל",
+    "title": "הפרופיל שלכם",
     "save": "עדכון פרופיל",
     "changePhoto": "החלפת תמונה",
     "removePhoto": "הסרת תמונה",
@@ -351,23 +351,23 @@
   },
   "settings": {
     "title": "הגדרות",
-    "promoTitle": "אבטחה חזקה וגישה מהירה",
+    "promoTitle": "בטוח יותר, ופותח מהר יותר",
     "promoBody": "השתמשו ב-{{method}} כדי לפתוח את Vinty בטלפון הזה.",
     "promoButton": "הגדרת {{method}}",
-    "profileDetails": "פרטי פרופיל",
-    "account": "הגדרות חשבון",
-    "security": "אבטחה",
-    "privacy": "הגדרות פרטיות",
+    "profileDetails": "הפרופיל שלכם",
+    "account": "החשבון שלכם",
+    "security": "כניסה וביטחון",
+    "privacy": "הפרטיות שלכם",
     "notifications": "התראות",
-    "push": "התראות פוש",
-    "email": "התראות באימייל",
+    "push": "בטלפון",
+    "email": "באימייל",
     "appLanguage": "שפת האפליקציה",
     "language": "שפה",
     "logOut": "התנתקות",
     "logOutTitle": "להתנתק מ-Vinty?"
   },
   "account": {
-    "title": "הגדרות חשבון",
+    "title": "החשבון שלכם",
     "verifyEmail": "אימות האימייל",
     "notVerified": "לא מאומת",
     "verified": "מאומת",
@@ -395,7 +395,7 @@
     "deleteConfirm": "מחיקה"
   },
   "security": {
-    "title": "אבטחה",
+    "title": "כניסה וביטחון",
     "faceId": "פתיחה עם {{method}}",
     "faceIdHint": "Vinty תבקש {{method}} כשתפתחו אותה או תחזרו אליה אחרי זמן מה.",
     "sessions": "איפה אתם מחוברים",
@@ -409,7 +409,7 @@
     "onlyThisDevice": "אתם מחוברים רק בטלפון הזה."
   },
   "privacy": {
-    "title": "הגדרות פרטיות",
+    "title": "הפרטיות שלכם",
     "showLastSeen": "להציג מתי הייתי מחובר לאחרונה",
     "showLastSeenHint": "אנשים אחרים יראו נראה לאחרונה בלשונית אודות."
   },
@@ -419,25 +419,25 @@
   },
   "notifications": {
     "groups": {
-      "high": "התראות בעדיפות גבוהה",
-      "other": "התראות נוספות"
+      "high": "כדאי לא לפספס",
+      "other": "טוב לדעת"
     },
     "types": {
       "new_message": "הודעות חדשות",
-      "review_received": "משוב חדש",
-      "favourite_price_drop": "פריטים שהוזלו",
-      "listing_favourited": "פריטים שסומנו כמועדפים",
-      "favourite_sold": "פריט מועדף נמכר",
+      "review_received": "ביקורות חדשות",
+      "favourite_price_drop": "ירידות מחיר בפריטים ששמרתם",
+      "listing_favourited": "לבבות על הפריטים שלכם",
+      "favourite_sold": "פריט ששמרתם נמכר",
       "new_follower": "עוקבים חדשים",
-      "followed_seller_new_item": "פריטים חדשים ממי שאתם עוקבים אחריהם"
+      "followed_seller_new_item": "חדש ממי שאתם עוקבים אחריהם"
     },
-    "dailyLimit": "הגבלה יומית",
+    "dailyLimit": "תקרה להתראות ביום",
     "noLimit": "ללא הגבלה",
     "upTo": "עד {{count}} ביום",
-    "dailyLimitHint": "המספר המרבי של התראות פוש ש-Vinty שולחת לכם ביום.",
-    "enablePush": "הפעלת התראות פוש",
-    "enableEmail": "הפעלת התראות באימייל",
-    "notSentYet": "הבחירות שלכם נשמרות. ההתראות האלה יתחילו להגיע כשהתכונות ששולחות אותן ייצאו."
+    "dailyLimitHint": "המספר המרבי של התראות ש-Vinty שולחת לטלפון שלכם ביום.",
+    "enablePush": "לאפשר התראות בטלפון הזה",
+    "enableEmail": "לאפשר התראות באימייל",
+    "notSentYet": "הבחירות שלכם נשמרות. ההתראות האלה יתחילו להגיע כשהתכונות שמאחוריהן ייצאו."
   },
   "time": {
     "justNow": "הרגע",
@@ -463,69 +463,72 @@
     "fakeBiometricPass": "תואם"
   },
   "sell": {
-    "title": "מכירת פריט",
+    "title": "מודעה חדשה",
     "editTitle": "עריכת המודעה",
-    "about": "על הפריט",
-    "details": "פרטי הפריט",
-    "pricing": "תמחור",
-    "shipping": "משלוח",
-    "aiPhotos": "השתמשתי בבינה מלאכותית ליצירה או עריכה של התמונות",
-    "titleLabel": "כותרת",
-    "titlePlaceholder": "ספרו לקונים מה אתם מוכרים",
-    "descriptionLabel": "תיאור",
-    "descriptionPlaceholder": "ספרו עוד: מידה, גזרה, פגמים אם יש",
+    "about": "הפריט",
+    "details": "הפרטים",
+    "pricing": "המחיר שלכם",
+    "shipping": "שליחה",
+    "aiPhotos": "חלק מהתמונות נוצרו או שופרו בבינה מלאכותית",
+    "titleLabel": "שם הפריט",
+    "titlePlaceholder": "מה זה? למשל, שמלת קיץ מפשתן",
+    "descriptionLabel": "הסיפור שלו",
+    "descriptionPlaceholder": "איך הוא יושב, כמה פעמים נלבש, אם יש סימנים",
     "category": "קטגוריה",
     "brand": "מותג",
     "size": "מידה",
     "condition": "מצב",
     "colours": "צבעים",
     "material": "חומר",
-    "materialRecommended": "חומר (מומלץ)",
+    "materialRecommended": "חומר (עוזר שימצאו אותו)",
     "pattern": "הדפס",
     "price": "מחיר",
     "clear": "ניקוי",
-    "buyerPays": "הקונה משלם {{price}} כולל הגנת קונה",
-    "buyerPaysPostage": "הקונה תמיד משלם על המשלוח",
+    "buyerPays": "זה מה שהקונים ישלמו",
+    "buyerPaysPostage": "את המשלוח משלם הקונה",
     "recommended": "מומלץ",
-    "postageFrom": "משלוח החל מ־{{price}}",
+    "postageFrom": "משלוח מ־{{price}}",
     "findCategory": "חיפוש קטגוריה",
     "noCategories": "אין קטגוריה שמתאימה",
     "searchBrands": "חיפוש מותגים",
     "popularBrands": "מותגים פופולריים",
     "noBrands": "אין מותג שמתאים",
-    "requestBrand": "לא מצאתם? בקשו להוסיף את \"{{name}}\"",
-    "brandRequested": "תודה. נבדוק את הוספת \"{{name}}\"",
-    "sizeHint": "בחרו את המידה שכתובה על התווית",
+    "requestBrand": "לא רואים? בקשו שנוסיף את \"{{name}}\"",
+    "brandRequested": "תודה, נבדוק אם להוסיף את \"{{name}}\"",
+    "sizeHint": "המידה שכתובה על התווית",
     "coloursHint": "אפשר לבחור עד {{max}} צבעים",
-    "saveDraft": "שמירת טיוטה",
-    "upload": "העלאה",
-    "saveChanges": "שמירת השינויים",
-    "checkFields": "חסרים כמה פרטים. בדקו את השדות שמסומנים באדום",
-    "waitForPhotos": "התמונות עדיין עולות. עוד רגע",
-    "closeTitle": "לשמור את השינויים לפני הסגירה?",
-    "closeSave": "שמירה",
-    "closeDiscard": "ביטול השינויים",
+    "saveDraft": "שמירה כטיוטה",
+    "upload": "פרסמו",
+    "saveChanges": "עדכון המודעה",
+    "checkFields": "עוד כמה דברים חסרים. חפשו את השדות באדום",
+    "waitForPhotos": "התמונות עוד בדרך למעלה. רגע",
+    "closeTitle": "לשמור את השינויים?",
+    "closeSave": "שמירה למועד אחר",
+    "closeDiscard": "לזרוק",
     "photos": {
       "title": "תמונות",
-      "upload": "העלאת תמונות",
+      "upload": "הוסיפו תמונות",
       "add": "הוספת תמונות",
       "addTitle": "הוספת תמונות",
-      "library": "בחירה מהגלריה",
-      "camera": "צילום תמונה",
-      "hint": "אפשר להוסיף עד {{max}} תמונות. הראשונה היא תמונת השער",
-      "count": "{{count}} מתוך {{max}} תמונות. הראשונה היא תמונת השער. הקישו על תמונה כדי להזיז אותה",
+      "library": "מהגלריה שלכם",
+      "camera": "לצלם עכשיו",
+      "hint": "עד {{max}} תמונות. הראשונה היא השער",
+      "count": "{{count}} מתוך {{max}} תמונות. הראשונה היא השער. הקישו על תמונה כדי להזיז אותה",
       "failed": "תמונה אחת לא עלתה. הקישו עליה כדי לנסות שוב",
       "retry": "ההעלאה נכשלה, הקישו כדי לנסות שוב",
       "tileLabel": "תמונה {{n}} מתוך {{total}}",
-      "main": "ראשית",
+      "main": "שער",
       "optionsTitle": "תמונה",
-      "makeCover": "להפוך לתמונת השער",
+      "makeCover": "להפוך לשער",
       "moveEarlier": "להזיז קדימה",
       "moveLater": "להזיז אחורה",
       "remove": "הסרת התמונה",
       "deniedTitle": "אין גישה לתמונות",
       "denied": "אפשרו ל־Vinty להשתמש בתמונות או במצלמה בהגדרות הטלפון"
-    }
+    },
+    "conditionStop": "{{name}}, {{n}} מתוך {{total}}",
+    "conditionAdjustHint": "החליקו למעלה או למטה כדי לשנות את המצב",
+    "conditionPick": "החליקו כדי לבחור"
   },
   "item": {
     "more": "עוד אפשרויות",
@@ -534,7 +537,6 @@
     "removeFavourite": "הסרה מהמועדפים",
     "soldNote": "הפריט הזה נמכר",
     "reservedNote": "הפריט הזה שמור למישהו אחר",
-    "holiday": "‏{{name}} בחופשה. אפשר להסתכל, אבל אי אפשר לקנות עד שיחזרו",
     "unavailable": "הפריט הזה לא זמין",
     "unavailableNote": "ייתכן שהמוכר הסיר אותו",
     "showMore": "עוד",
@@ -546,13 +548,22 @@
     "noSimilar": "אין כרגע משהו דומה",
     "messageSeller": "שליחת הודעה למוכר",
     "chatFailed": "אי אפשר להתחיל שיחה על הפריט הזה",
-    "buyNow": "קנו עכשיו",
-    "makeOffer": "הצעת מחיר"
+    "away": "‏{{name}} בהפסקה עד {{date}}. אפשר לשמור את הפריט בינתיים.",
+    "awayNoDate": "‏{{name}} בהפסקה כרגע. אפשר לשמור את הפריט בינתיים.",
+    "buyFor": "קנו ב-{{amount}}",
+    "orMakeYourPrice": "או הציעו מחיר משלכם",
+    "message": "הודעה",
+    "breakdown": {
+      "item": "הפריט",
+      "total": "תשלמו",
+      "note": "הכסף שלכם נשמר עד שהפריט מגיע אליכם. אם הוא לא כמו בתיאור, הכסף חוזר אליכם."
+    },
+    "buyNow": "קנו עכשיו"
   },
   "seller": {
     "more": "עוד אפשרויות",
-    "report": "דיווח על המשתמש",
-    "unavailable": "המשתמש הזה לא זמין"
+    "report": "דיווח על המוכר/ת",
+    "unavailable": "המוכר/ת הזה לא זמין/ה"
   },
   "favourites": {
     "title": "מועדפים",
@@ -611,36 +622,87 @@
       "other": "משהו אחר"
     }
   },
-  "personalisation": {
-    "title": "התאמה אישית",
-    "sizes": "המידות שלי",
-    "sizesNote": "פריטים במידות שלכם יופיעו ראשונים בפיד",
-    "none": "לא נבחרו מידות",
-    "count_one": "נבחרה מידה אחת",
-    "count_other": "נבחרו {{count}} מידות",
-    "pick": "בחרו את המידות שלכם",
-    "max": "אפשר לבחור עד {{count}} מידות"
-  },
   "browse": {
     "favourite": "הוספה למועדפים",
     "unfavourite": "הסרה מהמועדפים",
     "search": "חיפוש",
-    "all": "הכול"
-  },
-  "home": {
-    "chips": {
-      "all": "הכול",
+    "all": "הכול",
+    "more": "עוד",
+    "moreTitle": "עוד לגלות",
+    "allCategories": "כל הקטגוריות",
+    "groups": {
       "women": "נשים",
       "men": "גברים",
-      "trending": "פופולרי",
-      "designer": "מעצבים",
       "kids": "ילדים"
+    },
+    "tiles": {
+      "dresses": "שמלות",
+      "tops": "חולצות",
+      "jeans": "ג'ינסים",
+      "trousers": "מכנסיים",
+      "skirts": "חצאיות",
+      "coats": "מעילים וג'קטים",
+      "knitwear": "סריגים",
+      "sneakers": "סניקרס",
+      "shoes": "נעליים",
+      "bags": "תיקים",
+      "accessories": "אקססוריז",
+      "kids": "ילדים",
+      "sportswear": "בגדי ספורט",
+      "designer": "מעצבים",
+      "home": "בית",
+      "electronics": "אלקטרוניקה",
+      "media": "ספרים ומדיה",
+      "hobbies": "תחביבים"
+    }
+  },
+  "home": {
+    "greeting": {
+      "morning": "בוקר טוב,",
+      "afternoon": "צהריים טובים,",
+      "evening": "ערב טוב,"
+    },
+    "greetingGuest": "ברוכים הבאים",
+    "moods": {
+      "for_you": "בשבילך",
+      "new_today": "חדש היום",
+      "under_50": "עד {{amount}}",
+      "your_sizes": "המידות שלך",
+      "near_you": "לידך"
+    },
+    "empty": {
+      "newToday": {
+        "title": "עוד לא עלה כלום היום",
+        "note": "שווה לחזור עוד מעט, הארונות מתמלאים לאורך היום"
+      },
+      "under50": {
+        "title": "אין כרגע שום דבר עד {{amount}}",
+        "note": "פריטים קטנים נחטפים מהר, כדאי להציץ שוב בהמשך"
+      },
+      "sizes": {
+        "title": "עוד אין כלום במידות שלך",
+        "note": "פריטים חדשים במידות שלך יופיעו כאן"
+      },
+      "sizesUnset": {
+        "title": "ספרו לנו מה המידות שלכם",
+        "note": "מוסיפים פעם אחת, והלשונית הזו תראה רק מה שמתאים",
+        "action": "הוספת המידות שלי"
+      },
+      "near": {
+        "title": "עוד אין כלום ליד {{city}}",
+        "note": "פריטים ממוכרים בעיר שלכם יופיעו כאן"
+      },
+      "cityUnset": {
+        "title": "באיזו עיר אתם גרים?",
+        "note": "מוסיפים עיר והלשונית הזו תראה פריטים ממוכרים קרובים אליכם",
+        "action": "הוספת העיר שלי"
+      }
     },
     "emptyTitle": "עדיין אין כאן כלום",
     "emptyMessage": "פריטים חדשים יופיעו כאן ברגע שיעלו למכירה"
   },
   "search": {
-    "placeholder": "חיפוש פריטים או חברים",
+    "placeholder": "חיפוש בגדים, מותגים או מוכרים",
     "clearField": "ניקוי החיפוש",
     "saved": "החיפוש נשמר",
     "save": "שמירת החיפוש",
@@ -649,14 +711,14 @@
     "clearAll": "ניקוי הכול",
     "noRecent": "החיפושים האחרונים שלכם יופיעו כאן",
     "items": "פריטים",
-    "members": "חברים",
-    "membersHint": "הקלידו שם כדי למצוא חברים",
-    "noMembers": "לא נמצאו חברים",
     "results_one": "תוצאה אחת",
     "results_other": "{{count}} תוצאות",
     "resultsCapped": "{{count}}+ תוצאות",
     "noResults": "לא נמצאו פריטים",
-    "noResultsHint": "נסו מילים אחרות או פחות מסננים"
+    "noResultsHint": "נסו מילים אחרות או פחות מסננים",
+    "sellers": "מוכרים",
+    "sellersHint": "הקלידו שם כדי למצוא מוכר/ת",
+    "noSellers": "לא נמצא מוכר/ת בשם הזה"
   },
   "filters": {
     "title": "סינון",
@@ -708,7 +770,7 @@
     "previewOffer": "הצעה",
     "previewSystem": "עדכון",
     "emptyMessagesTitle": "עוד אין הודעות",
-    "emptyMessagesNote": "שאלו מוכר על פריט והשיחה תופיע כאן",
+    "emptyMessagesNote": "כתבו למוכר/ת על פריט והשיחה תופיע כאן",
     "emptyArchivedTitle": "הארכיון ריק",
     "emptyArchivedNote": "שיחות שהעברתם לארכיון מחכות כאן עד שמישהו יכתוב שוב",
     "emptyNotificationsTitle": "אין התראות עדיין",
@@ -737,8 +799,8 @@
       "saved_search_match": "פריט חדש בחיפוש השמור שלכם: {{title}}",
       "order_paid": "מכרתם את {{title}} לקונה {{name}}",
       "order_shipped": "ההזמנה של {{title}} בדרך אליכם",
-      "order_delivered": "{{title}} נמסר. הקישו כדי לאשר שקיבלתם",
-      "order_completed": "ההזמנה של {{title}} הושלמה",
+      "order_delivered": "{{title}} הגיע. הקישו כדי לאשר שהוא אצלכם",
+      "order_completed": "‏{{title}} סגור ומסודר",
       "order_cancelled": "ההזמנה של {{title}} בוטלה",
       "review_received": "קיבלתם ביקורת חדשה",
       "review_receivedRating_one": "‏{{name}} נתן/ה לכם כוכב אחד",
@@ -748,7 +810,7 @@
       "balance_released": "{{amount}} זמינים עכשיו ביתרה שלכם",
       "referral_rewarded": "ההזמנה הראשונה של החבר/ה שהזמנתם הושלמה. קיבלתם פרס",
       "listing_removed": "{{title}} הוסר על ידי הצוות שלנו",
-      "bump_ended": "הקידום של {{title}} הסתיים",
+      "bump_ended": "הבאז של {{title}} הסתיים",
       "platform_message": "הודעה מ-Vinty",
       "platform_welcome": "ברוכים הבאים ל-Vinty. אפשר להתחיל לגלוש או להעלות את הפריט הראשון",
       "platform_welcome_back": "ברוכים השבים ל-Vinty",
@@ -759,7 +821,7 @@
       "offer_declinedAmount": "ההצעה שלכם על {{title}} ({{amount}}) נדחתה",
       "order_paidEarn": "‏{{name}} קנה/תה את {{title}}. תרוויחו {{amount}}",
       "order_shippedTracking": "ההזמנה של {{title}} בדרך אליכם. קוד מעקב {{code}}",
-      "order_completedSeller": "המכירה של {{title}} הושלמה",
+      "order_completedSeller": "‏{{title}} נמכר והכסף אצלכם",
       "order_cancelled_buyer": "הקונה ביטל את ההזמנה של {{title}}",
       "order_cancelled_seller": "המוכר ביטל את ההזמנה של {{title}}",
       "order_cancelled_refunded": "התשלום על {{title}} הוחזר לכם",
@@ -769,6 +831,14 @@
     }
   },
   "chat": {
+    "tracker": {
+      "paid": "שולם",
+      "sent": "נשלח",
+      "arrived": "הגיע",
+      "done": "סגור",
+      "track": "מעקב אחר החבילה",
+      "gotIt": "קיבלתי"
+    },
     "composerPlaceholder": "כתבו הודעה",
     "send": "שליחה",
     "addPhoto": "הוספת תמונה",
@@ -791,7 +861,7 @@
     "today": "היום",
     "yesterday": "אתמול",
     "menuTitle": "אפשרויות שיחה",
-    "reportMember": "דיווח על החבר/ה",
+    "reportMember": "דיווח על המשתמש/ת",
     "typing": "‏{{name}} מקליד/ה",
     "loadFailed": "לא הצלחנו לטעון את השיחה",
     "openProfile": "‏פתיחת הפרופיל של {{name}}",
@@ -808,9 +878,9 @@
     },
     "system": {
       "order_paid": "ההזמנה שולמה",
-      "order_shipped": "ההזמנה נשלחה",
-      "order_delivered": "ההזמנה נמסרה",
-      "order_completed": "ההזמנה הושלמה",
+      "order_shipped": "בדרך אליכם",
+      "order_delivered": "הגיע",
+      "order_completed": "הכול סגור",
       "order_cancelled": "ההזמנה בוטלה",
       "order_disputed": "דווחה בעיה",
       "order_refunded": "בוצע החזר על ההזמנה",
@@ -938,8 +1008,8 @@
         "seller": "נשלח"
       },
       "delivered": {
-        "buyer": "נמסר",
-        "seller": "נמסר"
+        "buyer": "הגיע",
+        "seller": "הגיע"
       },
       "completed": {
         "buyer": "הושלם",
@@ -1037,7 +1107,7 @@
       "create": "ההזמנה נוצרה",
       "pay": "התשלום התקבל",
       "ship": "סומן כנשלח",
-      "deliver": "נמסר",
+      "deliver": "הגיע",
       "confirm_received": "הקבלה אושרה",
       "auto_complete": "הושלם אוטומטית",
       "cancel": "ההזמנה בוטלה",
@@ -1069,9 +1139,9 @@
     "message": "הודעה אל {{name}}",
     "price": "מחיר",
     "itemsSubtotal": "פריטים",
-    "bundleDiscount": "הנחת חבילה",
-    "protection": "הגנת קונה",
-    "protectionNote": "הגנת הקונה מכסה אתכם אם הפריט שונה מהתיאור",
+    "bundleDiscount": "הנחת ארון",
+    "protection": "$t(protectionName)",
+    "protectionNote": "$t(protectionName) אומר שהכסף חוזר אליכם אם הפריט שונה מהתיאור",
     "shipping": "דמי משלוח",
     "voucher": "שובר",
     "total": "סך הכול",
@@ -1174,7 +1244,6 @@
     "percentOff": "{{percent}}% הנחה",
     "yourPrice": "המחיר שלכם",
     "placeholder": "0",
-    "buyerPays": "הקונה משלם {{price}} כולל הגנת קונה",
     "send": "שליחת הצעה",
     "sendAmount": "הצעה של {{amount}}",
     "left_one": "נשארה הצעה אחת להיום",
@@ -1215,15 +1284,15 @@
     "items_one": "פריט אחד",
     "items_two": "שני פריטים",
     "items_other": "{{count}} פריטים",
-    "bundleDiscount": "הנחת חבילה ({{percent}}%)",
-    "protection": "הגנת קונה",
+    "bundleDiscount": "הנחת ארון ({{percent}}%)",
+    "protection": "$t(protectionName)",
     "postage": "משלוח",
     "total": "סך הכול לתשלום",
     "delivery": "אופן המשלוח",
     "pickup": "נקודת איסוף",
     "pickupNote": "אוספים בקרבת מקום כשזה מגיע",
     "home": "משלוח עד הבית",
-    "homeNote": "מגיע עד הדלת",
+    "homeNote": "ישר עד הדלת",
     "address": "כתובת",
     "changeAddress": "שינוי כתובת",
     "addAddress": "הוספת כתובת למשלוח",
@@ -1260,8 +1329,8 @@
     }
   },
   "bundle": {
-    "title": "קנייה בחבילה",
-    "shop": "קנייה בחבילה",
+    "title": "הנחת ארון",
+    "shop": "הנחת ארון",
     "pickMore": "בחרו לפחות {{count}} פריטים",
     "addMore_one": "הוסיפו עוד פריט אחד וקבלו {{percent}}% הנחה",
     "addMore_two": "הוסיפו עוד שני פריטים וקבלו {{percent}}% הנחה",
@@ -1269,12 +1338,23 @@
     "tierNext_one": "{{percent}}% הנחה. הוסיפו עוד פריט אחד וקבלו {{next}}% הנחה",
     "tierNext_two": "{{percent}}% הנחה. הוסיפו עוד שני פריטים וקבלו {{next}}% הנחה",
     "tierNext_other": "{{percent}}% הנחה. הוסיפו עוד {{count}} פריטים וקבלו {{next}}% הנחה",
-    "tierTop": "{{percent}}% הנחה, מחיר החבילה הכי טוב",
+    "tierTop": "{{percent}}% הנחה, ההנחה הכי גבוהה",
     "selected_one": "נבחר פריט אחד",
     "selected_two": "נבחרו שני פריטים",
     "selected_other": "נבחרו {{count}} פריטים",
     "continue": "המשך לתשלום",
-    "openFailed": "לא הצלחנו להתחיל חבילה",
+    "openFailed": "לא הצלחנו להכין את זה",
     "changeFailed": "לא הצלחנו לשנות את הפריט. נסו שוב"
+  },
+  "protectionName": "כיסוי",
+  "shopping": {
+    "title": "העדפות קנייה",
+    "sizes": "המידות שלי",
+    "sizesNote": "פריטים במידות שלכם יופיעו ראשונים בדף הבית",
+    "none": "עדיין לא נבחרו מידות",
+    "count_one": "נבחרה מידה אחת",
+    "count_other": "נבחרו {{count}} מידות",
+    "pick": "בחרו את המידות שלכם",
+    "max": "אפשר לבחור עד {{count}} מידות"
   }
 }

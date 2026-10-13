@@ -1,25 +1,12 @@
-import { ShieldCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { formatMoney } from "@/lib/money";
 
-function Line({
-  label,
-  value,
-  strong,
-  icon,
-}: {
-  label: string;
-  value: string;
-  strong?: boolean;
-  icon?: boolean;
-}) {
+function Line({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <View className="flex-row items-center justify-between gap-md py-xs">
       <View className="flex-1 flex-row items-center gap-xs">
-        {icon ? <Icon as={ShieldCheck} size={15} className="text-primary" /> : null}
         <Text
           variant={strong ? "body" : "bodySmall"}
           weight={strong ? 700 : 400}
@@ -67,7 +54,7 @@ function PriceBreakdown({ quote }: { quote: Totals }) {
           value={`-${money(quote.bundleDiscountMinor)}`}
         />
       ) : null}
-      <Line icon label={t("checkout.protection")} value={money(quote.buyerProtectionFeeMinor)} />
+      <Line label={t("checkout.protection")} value={money(quote.buyerProtectionFeeMinor)} />
       <Line label={t("checkout.postage")} value={money(quote.shippingMinor)} />
       <View className="my-xs h-px bg-border-subtle" />
       <Line strong label={t("checkout.total")} value={money(quote.totalMinor)} />

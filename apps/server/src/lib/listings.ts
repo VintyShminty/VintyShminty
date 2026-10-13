@@ -187,6 +187,7 @@ export async function loadListingDetail(
       reviewCount: seller.reviewCount,
     },
     sellerOnHoliday: seller.holidayMode,
+    sellerAwayUntil: seller.holidayMode ? seller.holidayEndsAt : null,
     ...(viewerId ? { isFavourited: hearted.length > 0 } : {}),
     viewer: {
       isOwner,

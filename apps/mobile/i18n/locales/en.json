@@ -34,15 +34,15 @@
     "reserved": "Reserved",
     "cancelled": "Cancelled",
     "priceDrop": "Price drop",
-    "info": "Frequent uploads",
+    "info": "Fresh drops weekly",
     "all": "All",
     "dresses": "Dresses",
-    "bundleDiscounts": "Bundle discounts"
+    "bundleDiscounts": "Closet deals"
   },
   "welcome": {
-    "heroLight": "Pre-loved,",
-    "heroBold": "loved again",
-    "subtitle": "Buy and sell second-hand fashion, straight from other people's wardrobes.",
+    "title": "Good taste,\npassed on",
+    "subtitle": "Find a piece you love from someone nearby,\nor post yours in a minute.",
+    "photoChip": "Noa’s coat · \u2066₪140\u2069",
     "signUp": "Sign up",
     "logIn": "Log in"
   },
@@ -137,7 +137,7 @@
     },
     "listing": {
       "title": {
-        "required": "Add a title",
+        "required": "Give it a name",
         "tooShort": "Use at least 3 characters",
         "tooLong": "Use at most 80 characters"
       },
@@ -179,7 +179,7 @@
         "invalid": "Choose a pattern from the list"
       },
       "price": {
-        "required": "Add a price",
+        "required": "Set a price",
         "tooLow": "The lowest price is {{min}}",
         "tooHigh": "That price is too high"
       },
@@ -242,7 +242,6 @@
     "turnOnFailed": "We could not turn on {{method}}. You can try again in Settings, Security."
   },
   "profile": {
-    "deletedMember": "Deleted member",
     "reviewCount_one": "{{count}} review",
     "reviewCount_other": "{{count}} reviews",
     "noReviewsYet": "No reviews yet",
@@ -255,14 +254,14 @@
       "reviews": "Reviews",
       "about": "About"
     },
-    "fromMembers": "From members",
     "automatic": "Automatic",
-    "all": "All",
+    "smoothSales_one": "{{count}} smooth sale, no problems",
+    "smoothSales_other": "{{count}} smooth sales, no problems",
     "active": "Active",
     "sold": "Sold",
     "noListings": "No items for sale right now",
     "noSold": "Nothing sold yet",
-    "noReviews": "No reviews yet",
+    "noReviews": "No written reviews yet",
     "reviewFor": "For {{title}}",
     "reply": "Reply",
     "about": {
@@ -291,7 +290,8 @@
     "reviewAsBuyerFor": "From a buyer of {{title}}",
     "reviewAsSellerFor": "From the seller of {{title}}",
     "reviewAsBuyer": "From a buyer",
-    "reviewAsSeller": "From the seller"
+    "reviewAsSeller": "From the seller",
+    "closedAccount": "Closed account"
   },
   "countries": {
     "IL": "Israel"
@@ -299,14 +299,13 @@
   "listing": {
     "sold": "Sold",
     "priceDrop": "Price drop",
-    "bumped": "Bumped",
+    "bumped": "Buzzing",
     "was": "Was: {{price}}",
     "percentOff": "{{percent}}% off",
-    "includesProtection": "{{price}} incl.",
     "reserved": "Reserved",
     "hidden": "Hidden",
     "draft": "Draft",
-    "buyerPays": "Buyer pays {{price}} incl. Buyer Protection",
+    "buyerPays": "{{price}} with $t(protectionName)",
     "continueEditing": "Continue editing",
     "edit": "Edit listing",
     "delete": "Delete listing",
@@ -339,7 +338,7 @@
     "yourListing": "Your listing"
   },
   "editProfile": {
-    "title": "Profile details",
+    "title": "Your profile",
     "save": "Update profile",
     "changePhoto": "Change photo",
     "removePhoto": "Remove photo",
@@ -350,23 +349,23 @@
   },
   "settings": {
     "title": "Settings",
-    "promoTitle": "Stronger security and faster access",
+    "promoTitle": "Safer, and quicker to open",
     "promoBody": "Use {{method}} to unlock Vinty on this phone.",
     "promoButton": "Set up {{method}}",
-    "profileDetails": "Profile details",
-    "account": "Account settings",
-    "security": "Security",
-    "privacy": "Privacy settings",
-    "notifications": "Notifications",
-    "push": "Push notifications",
-    "email": "Email notifications",
+    "profileDetails": "Your profile",
+    "account": "Your account",
+    "security": "Sign in and safety",
+    "privacy": "Your privacy",
+    "notifications": "Alerts",
+    "push": "On your phone",
+    "email": "By email",
     "appLanguage": "Your app's language",
     "language": "Language",
     "logOut": "Log out",
     "logOutTitle": "Log out of Vinty?"
   },
   "account": {
-    "title": "Account settings",
+    "title": "Your account",
     "verifyEmail": "Verify your email",
     "notVerified": "Not verified",
     "verified": "Verified",
@@ -394,7 +393,7 @@
     "deleteConfirm": "Delete"
   },
   "security": {
-    "title": "Security",
+    "title": "Sign in and safety",
     "faceId": "Unlock with {{method}}",
     "faceIdHint": "Vinty asks for {{method}} when you open it or come back after a while.",
     "sessions": "Where you are logged in",
@@ -408,7 +407,7 @@
     "onlyThisDevice": "You are only logged in on this phone."
   },
   "privacy": {
-    "title": "Privacy settings",
+    "title": "Your privacy",
     "showLastSeen": "Show when I was last online",
     "showLastSeenHint": "Other people see Last seen on your About tab."
   },
@@ -418,25 +417,25 @@
   },
   "notifications": {
     "groups": {
-      "high": "High-priority notifications",
-      "other": "Other notifications"
+      "high": "Do not miss these",
+      "other": "Good to know"
     },
     "types": {
       "new_message": "New messages",
-      "review_received": "New feedback",
-      "favourite_price_drop": "Reduced items",
-      "listing_favourited": "Favourited items",
-      "favourite_sold": "A favourite item is sold",
+      "review_received": "New reviews",
+      "favourite_price_drop": "Price drops on your hearts",
+      "listing_favourited": "Hearts on your pieces",
+      "favourite_sold": "A saved piece sells",
       "new_follower": "New followers",
-      "followed_seller_new_item": "New items from people you follow"
+      "followed_seller_new_item": "New from people you follow"
     },
-    "dailyLimit": "Set a daily limit",
+    "dailyLimit": "Cap alerts per day",
     "noLimit": "No limit",
     "upTo": "Up to {{count}} a day",
-    "dailyLimitHint": "The most push notifications Vinty sends you in one day.",
-    "enablePush": "Enable push notifications",
-    "enableEmail": "Enable email notifications",
-    "notSentYet": "Your choices are saved. These notifications start arriving as the features that send them launch."
+    "dailyLimitHint": "The most phone alerts Vinty sends you in a day.",
+    "enablePush": "Allow alerts on this phone",
+    "enableEmail": "Allow alerts by email",
+    "notSentYet": "Your choices are saved. These alerts start arriving as the features behind them launch."
   },
   "time": {
     "justNow": "just now",
@@ -457,61 +456,61 @@
     "fakeBiometricPass": "Match"
   },
   "sell": {
-    "title": "Sell an item",
-    "editTitle": "Edit listing",
-    "about": "About your item",
-    "details": "Item details",
-    "pricing": "Pricing",
-    "shipping": "Shipping",
-    "aiPhotos": "I used AI to create or edit photos",
-    "titleLabel": "Title",
-    "titlePlaceholder": "Tell buyers what you're selling",
-    "descriptionLabel": "Description",
-    "descriptionPlaceholder": "Tell buyers more about it: size, fit, any flaws",
+    "title": "New listing",
+    "editTitle": "Edit your listing",
+    "about": "The piece",
+    "details": "The details",
+    "pricing": "Your price",
+    "shipping": "Sending it",
+    "aiPhotos": "Some photos were made or touched up with AI",
+    "titleLabel": "Name",
+    "titlePlaceholder": "What is it? For example, linen summer dress",
+    "descriptionLabel": "Its story",
+    "descriptionPlaceholder": "How it fits, how often it was worn, any marks",
     "category": "Category",
     "brand": "Brand",
     "size": "Size",
     "condition": "Condition",
     "colours": "Colours",
     "material": "Material",
-    "materialRecommended": "Material (recommended)",
+    "materialRecommended": "Material (helps it get found)",
     "pattern": "Pattern",
     "price": "Price",
     "clear": "Clear",
-    "buyerPays": "Buyer pays {{price}} incl. Buyer Protection",
-    "buyerPaysPostage": "The buyer always pays for postage",
-    "recommended": "Recommended",
-    "postageFrom": "Postage from {{price}}",
-    "findCategory": "Find a category",
+    "buyerPays": "This is what buyers pay",
+    "buyerPaysPostage": "Postage is on the buyer",
+    "recommended": "Helpful",
+    "postageFrom": "Postage starts at {{price}}",
+    "findCategory": "Search categories",
     "noCategories": "No category matches that",
     "searchBrands": "Search for brands",
     "popularBrands": "Popular brands",
     "noBrands": "No brand matches that",
-    "requestBrand": "Can't find it? Request \"{{name}}\"",
-    "brandRequested": "Thanks. We will look at adding \"{{name}}\"",
-    "sizeHint": "Pick the size printed on the label",
+    "requestBrand": "Not here? Ask us to add \"{{name}}\"",
+    "brandRequested": "Thanks, we will look at adding \"{{name}}\"",
+    "sizeHint": "Use the size on the label",
     "coloursHint": "Pick up to {{max}} colours",
-    "saveDraft": "Save draft",
-    "upload": "Upload",
-    "saveChanges": "Save changes",
-    "checkFields": "A few details are missing. Check the fields marked in red",
-    "waitForPhotos": "Your photos are still uploading. Give it a moment",
-    "closeTitle": "Save changes before closing?",
-    "closeSave": "Save",
-    "closeDiscard": "Discard",
+    "saveDraft": "Keep as draft",
+    "upload": "Post it",
+    "saveChanges": "Update listing",
+    "checkFields": "A few things are still missing. Look for the red fields",
+    "waitForPhotos": "Photos are still on their way up. One moment",
+    "closeTitle": "Keep your changes?",
+    "closeSave": "Save for later",
+    "closeDiscard": "Throw away",
     "photos": {
       "title": "Photos",
-      "upload": "Upload photos",
+      "upload": "Add your photos",
       "add": "Add photos",
       "addTitle": "Add photos",
-      "library": "Choose from library",
-      "camera": "Take a photo",
-      "hint": "Add up to {{max}} photos. The first one is the cover",
-      "count": "{{count}} of {{max}} photos. The first photo is the cover. Tap a photo to move it",
+      "library": "Pick from your photos",
+      "camera": "Use the camera",
+      "hint": "Show it off with up to {{max}} photos. The first is its cover",
+      "count": "{{count}} of {{max}} photos. The first is the cover. Tap a photo to move it",
       "failed": "A photo did not upload. Tap it to try again",
       "retry": "Upload failed, tap to try again",
       "tileLabel": "Photo {{n}} of {{total}}",
-      "main": "Main",
+      "main": "Cover",
       "optionsTitle": "Photo",
       "makeCover": "Make it the cover",
       "moveEarlier": "Move earlier",
@@ -519,7 +518,10 @@
       "remove": "Remove photo",
       "deniedTitle": "No access to photos",
       "denied": "Allow Vinty to use your photos or camera in the phone's Settings"
-    }
+    },
+    "conditionStop": "{{name}}, {{n}} of {{total}}",
+    "conditionAdjustHint": "Swipe up or down to change the condition",
+    "conditionPick": "Slide to choose"
   },
   "item": {
     "more": "More options",
@@ -528,7 +530,6 @@
     "removeFavourite": "Remove from favourites",
     "soldNote": "This item has been sold",
     "reservedNote": "This item is reserved for someone else",
-    "holiday": "{{name}} is on holiday. You can look around, but you cannot buy until they are back",
     "unavailable": "This item is not available",
     "unavailableNote": "It may have been removed by the seller",
     "showMore": "Show more",
@@ -540,13 +541,22 @@
     "noSimilar": "Nothing similar right now",
     "messageSeller": "Message seller",
     "chatFailed": "You cannot start a chat about this item",
-    "buyNow": "Buy now",
-    "makeOffer": "Make an offer"
+    "away": "{{name}} is away until {{date}}. You can still save it.",
+    "awayNoDate": "{{name}} is away for now. You can still save it.",
+    "buyFor": "Buy for {{amount}}",
+    "orMakeYourPrice": "Or make your price",
+    "message": "Message",
+    "breakdown": {
+      "item": "Item",
+      "total": "You pay",
+      "note": "Your money is held until the item reaches you. If it is not as described, it goes back to you."
+    },
+    "buyNow": "Buy now"
   },
   "seller": {
     "more": "More options",
-    "report": "Report this member",
-    "unavailable": "This member is not available"
+    "report": "Report this seller",
+    "unavailable": "This seller is not available"
   },
   "favourites": {
     "title": "Favourites",
@@ -605,36 +615,87 @@
       "other": "Something else"
     }
   },
-  "personalisation": {
-    "title": "Personalisation",
-    "sizes": "My sizes",
-    "sizesNote": "Items in your sizes show up first in your feed",
-    "none": "None chosen",
-    "count_one": "{{count}} size chosen",
-    "count_other": "{{count}} sizes chosen",
-    "pick": "Choose your sizes",
-    "max": "You can choose up to {{count}} sizes"
-  },
   "browse": {
     "favourite": "Add to favourites",
     "unfavourite": "Remove from favourites",
     "search": "Search",
-    "all": "All"
-  },
-  "home": {
-    "chips": {
-      "all": "All",
+    "all": "All",
+    "more": "More",
+    "moreTitle": "More to explore",
+    "allCategories": "All categories",
+    "groups": {
       "women": "Women",
       "men": "Men",
-      "trending": "Trending",
-      "designer": "Designer",
       "kids": "Kids"
+    },
+    "tiles": {
+      "dresses": "Dresses",
+      "tops": "Tops",
+      "jeans": "Jeans",
+      "trousers": "Trousers",
+      "skirts": "Skirts",
+      "coats": "Coats and jackets",
+      "knitwear": "Knitwear",
+      "sneakers": "Sneakers",
+      "shoes": "Shoes",
+      "bags": "Bags",
+      "accessories": "Accessories",
+      "kids": "Kids",
+      "sportswear": "Sportswear",
+      "designer": "Designer",
+      "home": "Home",
+      "electronics": "Electronics",
+      "media": "Books and media",
+      "hobbies": "Hobbies"
+    }
+  },
+  "home": {
+    "greeting": {
+      "morning": "Good morning,",
+      "afternoon": "Good afternoon,",
+      "evening": "Good evening,"
+    },
+    "greetingGuest": "Welcome in",
+    "moods": {
+      "for_you": "For you",
+      "new_today": "New today",
+      "under_50": "Under {{amount}}",
+      "your_sizes": "Your sizes",
+      "near_you": "Near you"
+    },
+    "empty": {
+      "newToday": {
+        "title": "Nothing new yet today",
+        "note": "Check back soon, closets fill up through the day"
+      },
+      "under50": {
+        "title": "Nothing under {{amount}} right now",
+        "note": "Small finds go fast, so look again later"
+      },
+      "sizes": {
+        "title": "Nothing in your sizes yet",
+        "note": "New pieces in your sizes will show up here"
+      },
+      "sizesUnset": {
+        "title": "Tell us your sizes",
+        "note": "Add them once and this tab shows only what fits",
+        "action": "Add my sizes"
+      },
+      "near": {
+        "title": "Nothing near {{city}} yet",
+        "note": "Pieces from sellers in your city will show up here"
+      },
+      "cityUnset": {
+        "title": "Where are you based?",
+        "note": "Add your city and this tab shows pieces from sellers close to you",
+        "action": "Add my city"
+      }
     },
     "emptyTitle": "Nothing here yet",
     "emptyMessage": "New items show up as soon as they are listed"
   },
   "search": {
-    "placeholder": "Search for items or members",
+    "placeholder": "Search clothes, brands or sellers",
     "clearField": "Clear the search",
     "saved": "Search saved",
     "save": "Save this search",
@@ -643,14 +704,14 @@
     "clearAll": "Clear all",
     "noRecent": "Your recent searches show up here",
     "items": "Items",
-    "members": "Members",
-    "membersHint": "Type a name to find members",
-    "noMembers": "No members found",
     "results_one": "{{count}} result",
     "results_other": "{{count}} results",
     "resultsCapped": "{{count}}+ results",
     "noResults": "No items found",
-    "noResultsHint": "Try different words or fewer filters"
+    "noResultsHint": "Try different words or fewer filters",
+    "sellers": "Sellers",
+    "sellersHint": "Look up a seller by name",
+    "noSellers": "No seller by that name"
   },
   "filters": {
     "title": "Filter",
@@ -702,11 +763,11 @@
     "previewOffer": "Offer",
     "previewSystem": "Update",
     "emptyMessagesTitle": "No messages yet",
-    "emptyMessagesNote": "Ask a seller about an item and the chat shows up here",
+    "emptyMessagesNote": "Message a seller about a piece and the chat lands here",
     "emptyArchivedTitle": "Nothing archived",
     "emptyArchivedNote": "Chats you archive wait here until someone writes again",
     "emptyNotificationsTitle": "No notifications yet",
-    "emptyNotificationsNote": "News about your items, offers and orders shows up here",
+    "emptyNotificationsNote": "News about your pieces, offers and orders lands here",
     "markAllRead": "Mark all read",
     "notif": {
       "someone": "Someone",
@@ -730,8 +791,8 @@
       "saved_search_match": "New item for your saved search: {{title}}",
       "order_paid": "You sold {{title}} to {{name}}",
       "order_shipped": "Your order {{title}} is on its way",
-      "order_delivered": "{{title}} was delivered. Tap to confirm you got it",
-      "order_completed": "Your order {{title}} is complete",
+      "order_delivered": "{{title}} has arrived. Tap to say it reached you",
+      "order_completed": "{{title}} is all wrapped up",
       "order_cancelled": "The order for {{title}} was cancelled",
       "review_received": "You got a new review",
       "review_receivedRating_one": "{{name}} gave you {{count}} star",
@@ -740,7 +801,7 @@
       "balance_released": "{{amount}} is now available in your balance",
       "referral_rewarded": "Your friend's first order is done. You earned a reward",
       "listing_removed": "{{title}} was removed by our team",
-      "bump_ended": "The bump on {{title}} has ended",
+      "bump_ended": "The buzz on {{title}} has ended",
       "platform_message": "A message from Vinty",
       "platform_welcome": "Welcome to Vinty. Start by browsing, or list your first item",
       "platform_welcome_back": "Welcome back to Vinty",
@@ -750,7 +811,7 @@
       "offer_declinedAmount": "Your offer of {{amount}} on {{title}} was declined",
       "order_paidEarn": "{{name}} bought {{title}}. You will earn {{amount}}",
       "order_shippedTracking": "Your order {{title}} is on its way. Tracking code {{code}}",
-      "order_completedSeller": "The sale of {{title}} is complete",
+      "order_completedSeller": "{{title}} is sold and paid",
       "order_cancelled_buyer": "The buyer cancelled the order for {{title}}",
       "order_cancelled_seller": "The seller cancelled the order for {{title}}",
       "order_cancelled_refunded": "Your payment for {{title}} was refunded",
@@ -760,6 +821,14 @@
     }
   },
   "chat": {
+    "tracker": {
+      "paid": "Paid",
+      "sent": "Sent",
+      "arrived": "Arrived",
+      "done": "Done",
+      "track": "Track parcel",
+      "gotIt": "I got it"
+    },
     "composerPlaceholder": "Write a message",
     "send": "Send",
     "addPhoto": "Add a photo",
@@ -781,7 +850,7 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "menuTitle": "Chat options",
-    "reportMember": "Report this member",
+    "reportMember": "Report this person",
     "typing": "{{name}} is typing",
     "loadFailed": "We could not load this chat",
     "openProfile": "Open {{name}}'s profile",
@@ -798,9 +867,9 @@
     },
     "system": {
       "order_paid": "Order paid",
-      "order_shipped": "Order shipped",
-      "order_delivered": "Order delivered",
-      "order_completed": "Order complete",
+      "order_shipped": "On its way",
+      "order_delivered": "It arrived",
+      "order_completed": "All done",
       "order_cancelled": "Order cancelled",
       "order_disputed": "A problem was reported",
       "order_refunded": "Order refunded",
@@ -878,7 +947,7 @@
         },
         "in_progress": {
           "title": "Nothing on its way",
-          "note": "Orders that are being paid, shipped or delivered wait here"
+          "note": "Orders that are being paid, sent or on their way wait here"
         },
         "completed": {
           "title": "No completed orders",
@@ -927,8 +996,8 @@
         "seller": "Shipped"
       },
       "delivered": {
-        "buyer": "Delivered",
-        "seller": "Delivered"
+        "buyer": "Arrived",
+        "seller": "Arrived"
       },
       "completed": {
         "buyer": "Complete",
@@ -1026,7 +1095,7 @@
       "create": "Order placed",
       "pay": "Payment received",
       "ship": "Marked as shipped",
-      "deliver": "Delivered",
+      "deliver": "Arrived",
       "confirm_received": "Receipt confirmed",
       "auto_complete": "Completed automatically",
       "cancel": "Order cancelled",
@@ -1057,9 +1126,9 @@
     "message": "Message {{name}}",
     "price": "Price",
     "itemsSubtotal": "Items",
-    "bundleDiscount": "Bundle discount",
-    "protection": "Buyer Protection",
-    "protectionNote": "Buyer Protection covers you if the item is not as described",
+    "bundleDiscount": "Closet deal",
+    "protection": "$t(protectionName)",
+    "protectionNote": "$t(protectionName) means your money comes back if the item is not as described",
     "shipping": "Postage",
     "voucher": "Voucher",
     "total": "Total",
@@ -1161,7 +1230,6 @@
     "percentOff": "{{percent}}% off",
     "yourPrice": "Your price",
     "placeholder": "0",
-    "buyerPays": "Buyer pays {{price}} incl. Buyer Protection",
     "send": "Send offer",
     "sendAmount": "Offer {{amount}}",
     "left_one": "{{count}} offer left for today",
@@ -1200,15 +1268,15 @@
     "title": "Checkout",
     "items_one": "{{count}} item",
     "items_other": "{{count}} items",
-    "bundleDiscount": "Bundle discount ({{percent}}%)",
-    "protection": "Buyer Protection",
+    "bundleDiscount": "Closet deal ({{percent}}%)",
+    "protection": "$t(protectionName)",
     "postage": "Postage",
     "total": "Total to pay",
     "delivery": "Delivery",
     "pickup": "Pick-up point",
     "pickupNote": "Collect it nearby when it arrives",
     "home": "Home delivery",
-    "homeNote": "Delivered to your door",
+    "homeNote": "Brought to your door",
     "address": "Address",
     "changeAddress": "Change your address",
     "addAddress": "Add a delivery address",
@@ -1245,18 +1313,29 @@
     }
   },
   "bundle": {
-    "title": "Shop bundle",
-    "shop": "Shop bundle",
+    "title": "Closet deal",
+    "shop": "Closet deal",
     "pickMore": "Pick at least {{count}} items",
     "addMore_one": "Add {{count}} more item to get {{percent}}% off",
     "addMore_other": "Add {{count}} more items to get {{percent}}% off",
     "tierNext_one": "{{percent}}% off. Add {{count}} more item to get {{next}}% off",
     "tierNext_other": "{{percent}}% off. Add {{count}} more items to get {{next}}% off",
-    "tierTop": "{{percent}}% off, the best bundle price",
+    "tierTop": "{{percent}}% off, the best closet deal",
     "selected_one": "{{count}} item picked",
     "selected_other": "{{count}} items picked",
     "continue": "Continue to checkout",
-    "openFailed": "We could not start a bundle",
+    "openFailed": "We could not set that up",
     "changeFailed": "That item could not be changed. Try again"
+  },
+  "protectionName": "Covered",
+  "shopping": {
+    "title": "Shopping preferences",
+    "sizes": "My sizes",
+    "sizesNote": "Pieces in your sizes show up first on Home",
+    "none": "None picked yet",
+    "count_one": "{{count}} size picked",
+    "count_other": "{{count}} sizes picked",
+    "pick": "Choose your sizes",
+    "max": "You can choose up to {{count}} sizes"
   }
 }

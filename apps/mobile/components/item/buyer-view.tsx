@@ -2,7 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { type ListingDetail, messagePageSchema } from "@vinty/shared";
 import { useRouter } from "expo-router";
-import { Check, Clock, Palmtree, ShieldCheck } from "lucide-react-native";
+import { Check, Clock, Moon } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
@@ -12,14 +12,16 @@ import { MoreMenu } from "@/components/item/more-menu";
 import { ListingGrid } from "@/components/listing-grid";
 import { OfferSheet } from "@/components/offer/offer-sheet";
 import { PhotoCarousel } from "@/components/photo-carousel";
+import { PriceBreakdownCard } from "@/components/price-pill";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { StarRating } from "@/components/ui/star-rating";
 import { Text } from "@/components/ui/text";
-import { ForwardIcon, TopBar } from "@/components/ui/top-bar";
+import { TopBar } from "@/components/ui/top-bar";
 import { api } from "@/lib/api";
 import { similarQuery } from "@/lib/item-queries";
 import { useStartConversation } from "@/lib/messaging-queries";
@@ -85,11 +87,12 @@ function StatusLine({ listing }: { listing: ListingDetail }) {
 }
 
 /**
- * The item page for a buyer (spec, Item page): photos, heart with count, title, price block, holiday notice,
- * details, description, the seller card and More like this. Buy now, Make an offer and Message seller sit under the price.
+ * The item page for a buyer (spec, Item page): photos, heart with count, title, price block, away notice,
+ * details, description, the seller card and More like this. One Buy button with "Or make your price" under it sits
+ * under the price (D-019, row 8), and Message is a chip on the seller row.
  */
 function BuyerView({ listing }: { listing: ListingDetail }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const name = useLocalName();
   const similar = useInfiniteQuery(similarQuery(listing.id));
@@ -145,7 +148,7 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   const priceDrop = listing.previousPriceMinor !== null && listing.previousPriceMinor > price;
   const percentOff = priceDrop ? Math.round((1 - price / (listing.previousPriceMinor as number)) * 100) : 0;
   const seller = listing.seller;
-  const sellerName = seller.username ?? t("profile.deletedMember");
+  const sellerName = seller.username ?? t("profile.closedAccount");
 
   return (
     <Screen bottomInset={false}>
@@ -192,43 +195,57 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                     {` · ${t("listing.percentOff", { percent: percentOff })}`}
                   </Text>
                 ) : null}
-                {!sold ? (
-                  <View className="flex-row items-center gap-xs">
-                    <Icon as={ShieldCheck} size={16} className="text-primary" />
-                    <Text variant="bodySmall" className="flex-1 text-text-2">
-                      {t("listing.buyerPays", { price: formatMoney(buyerPrice, listing.currency) })}
-                    </Text>
-                  </View>
-                ) : null}
               </View>
 
-              {listing.viewer.canBuy ? (
-                <Button size="lg" loading={buying} onPress={() => void buyNow()}>
-                  <Text>{t("item.buyNow")}</Text>
-                </Button>
-              ) : null}
-              {listing.viewer.canOffer ? (
-                <Button variant="outline" size="lg" onPress={() => offerSheet.current?.present()}>
-                  <Text>{t("item.makeOffer")}</Text>
-                </Button>
-              ) : null}
+              {sold ? null : (
+                <PriceBreakdownCard
+                  priceMinor={price}
+                  buyerPriceMinor={buyerPrice}
+                  currency={listing.currency}
+                />
+              )}
 
-              {canMessage ? (
-                <Button
-                  variant={listing.viewer.canBuy || listing.viewer.canOffer ? "ghost" : "outline"}
-                  size="lg"
-                  loading={startChat.isPending}
-                  onPress={messageSeller}
-                >
-                  <Text>{t("item.messageSeller")}</Text>
+              {listing.viewer.canBuy ? (
+                <View className="gap-sm">
+                  <Button size="lg" loading={buying} onPress={() => void buyNow()}>
+                    <Text>
+                      {listing.status === "reserved"
+                        ? t("item.buyNow")
+                        : t("item.buyFor", { amount: formatMoney(buyerPrice, listing.currency) })}
+                    </Text>
+                  </Button>
+                  {listing.viewer.canOffer ? (
+                    <Pressable
+                      role="button"
+                      hitSlop={8}
+                      onPress={() => offerSheet.current?.present()}
+                      className="items-center py-xs active:opacity-60"
+                    >
+                      <Text variant="bodySmall" weight={600} className="text-primary">
+                        {t("item.orMakeYourPrice")}
+                      </Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              ) : listing.viewer.canOffer ? (
+                <Button variant="outline" size="lg" onPress={() => offerSheet.current?.present()}>
+                  <Text>{t("item.orMakeYourPrice")}</Text>
                 </Button>
               ) : null}
 
               {listing.sellerOnHoliday ? (
                 <View className="flex-row items-start gap-sm rounded-control border border-warning bg-warning-tint p-md">
-                  <Icon as={Palmtree} size={18} className="mt-px text-warning" />
+                  <Icon as={Moon} size={18} className="mt-px text-warning" />
                   <Text variant="bodySmall" className="flex-1 text-warning">
-                    {t("item.holiday", { name: sellerName })}
+                    {listing.sellerAwayUntil
+                      ? t("item.away", {
+                          name: sellerName,
+                          date: new Date(listing.sellerAwayUntil).toLocaleDateString(i18n.language, {
+                            day: "numeric",
+                            month: "short",
+                          }),
+                        })
+                      : t("item.awayNoDate", { name: sellerName })}
                   </Text>
                 </View>
               ) : null}
@@ -290,7 +307,14 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                       )}
                     </View>
                   </View>
-                  <ForwardIcon />
+                  {canMessage ? (
+                    <Chip
+                      label={t("item.message")}
+                      accessibilityLabel={t("item.messageSeller")}
+                      disabled={startChat.isPending}
+                      onPress={messageSeller}
+                    />
+                  ) : null}
                 </Pressable>
               </View>
             </View>

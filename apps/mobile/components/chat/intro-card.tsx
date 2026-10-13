@@ -13,7 +13,7 @@ import { timeAgo } from "@/lib/time";
 function IntroCard({ person }: { person: ConversationDetail["otherUser"] }) {
   const { t } = useTranslation();
   const router = useRouter();
-  const name = person.username ?? t("profile.deletedMember");
+  const name = person.username ?? t("profile.closedAccount");
   return (
     <Pressable
       onPress={() => person.username && router.push({ pathname: "/user/[id]", params: { id: person.id } })}

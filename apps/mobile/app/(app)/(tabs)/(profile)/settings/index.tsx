@@ -25,7 +25,7 @@ import { authClient } from "@/lib/auth-client";
 import { queryClient } from "@/lib/query-client";
 import { useFaceId } from "@/lib/use-face-id";
 
-/** Settings list. Rows for Postage, Payments, Holiday mode and so on arrive with their milestones. */
+/** Settings list. Rows for Postage, Payments, Away mode and so on arrive with their milestones. */
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -96,7 +96,7 @@ export default function Settings() {
           <Row icon={Lock} label={t("settings.privacy")} onPress={() => router.push("/settings/privacy")} />
           <Row
             icon={SlidersHorizontal}
-            label={t("personalisation.title")}
+            label={t("shopping.title")}
             onPress={() => router.push("/settings/personalisation")}
             last
           />

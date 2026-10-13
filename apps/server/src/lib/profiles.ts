@@ -101,6 +101,7 @@ export async function loadPublicProfile(
     googleVerified: googleRows.length > 0,
     badges: badgeRows.map((b) => ({ slug: b.slug, icon: b.icon, name: { en: b.nameEn, he: b.nameHe } })),
     holidayMode: profile.holidayModeEnabled,
+    holidayEndsAt: profile.holidayEndsAt?.toISOString() ?? null,
     ...(viewerRows
       ? { viewer: { isFollowing: viewerRows[0].length > 0, isBlocked: viewerRows[1].length > 0 } }
       : {}),

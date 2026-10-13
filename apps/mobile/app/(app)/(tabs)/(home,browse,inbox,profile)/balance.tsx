@@ -6,6 +6,7 @@ import { Clock, Landmark, ShoppingBag, XCircle } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, RefreshControl, SectionList, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState, ListSkeleton, LoadError } from "@/components/orders/states";
 import { WithdrawSheet } from "@/components/orders/withdraw-sheet";
 import { Badge } from "@/components/ui/badge";
@@ -105,6 +106,7 @@ function EntryRow({ entry }: { entry: BalanceEntry }) {
 
 /** Balance: what you can withdraw, what is still waiting for a delivery, and every move, newest first by month. */
 export default function Balance() {
+  const insets = useSafeAreaInsets();
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const balance = useQuery(balanceQuery());
@@ -157,6 +159,7 @@ export default function Balance() {
           </Text>
         )}
         stickySectionHeadersEnabled={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom }}
         ListHeaderComponent={
           <View className="items-center gap-lg px-lg pb-md pt-md">
             {balance.isError && !b ? (

@@ -14,11 +14,14 @@ import {
 } from "@vinty/db";
 import {
   type CategoryNode,
+  DEFAULT_CURRENCY,
+  type FeedMood,
   findCategory,
   type ListingCard,
   type ReferenceData,
   SEARCH_TOTAL_CAP,
   type SearchFilters,
+  UNDER_50_MINOR,
   type UserSummary,
 } from "@vinty/shared";
 import { and, eq, inArray, type SQL, sql } from "drizzle-orm";
@@ -106,6 +109,12 @@ export function filterConditions(filters: Filters, reference: Pick<ReferenceData
   if (filters.priceMaxMinor !== undefined)
     conditions.push(sql`${listings.priceMinor} <= ${filters.priceMaxMinor}`);
   if (filters.sellerId) conditions.push(eq(listings.sellerId, filters.sellerId));
+  if (filters.categoryIds?.length) {
+    const ids = [
+      ...new Set(filters.categoryIds.flatMap((id) => categorySubtreeIds(reference.categories, id))),
+    ];
+    conditions.push(ids.length > 0 ? inArray(listings.categoryId, ids) : sql`false`);
+  }
   conditions.push(...textConditions(searchTokens(filters.q)));
   return conditions;
 }
@@ -327,6 +336,38 @@ export async function feedBoost(db: Db, viewerId: string | undefined): Promise<S
     + (case when ${listings.brandId} in (select brand_id from (${hearted}) h where brand_id is not null union select ${userBrands.brandId} from ${userBrands} where ${userBrands.userId} = ${viewerId}) then 2 else 0 end)
     + (case when ${listings.sizeId} in (select ${userSizes.sizeId} from ${userSizes} where ${userSizes.userId} = ${viewerId}) then 2 else 0 end)
   )`;
+}
+
+/**
+ * The extra WHERE of a mood chip on Home. `viewer` is what the chip needs to know about the person: their sizes and
+ * city. A chip that needs something the person has not set (no sizes, no city, not signed in) matches nothing.
+ */
+export async function moodConditions(
+  db: Db,
+  mood: FeedMood | undefined,
+  viewerId: string | undefined,
+): Promise<SQL[]> {
+  if (!mood || mood === "for_you") return [];
+  if (mood === "new_today") {
+    return [sql`${listings.publishedAt} > now() - interval '24 hours'`];
+  }
+  if (mood === "under_50") {
+    return [sql`${listings.currency} = ${DEFAULT_CURRENCY}`, sql`${listings.priceMinor} < ${UNDER_50_MINOR}`];
+  }
+  if (!viewerId) return [sql`false`];
+  if (mood === "your_sizes") {
+    return [
+      sql`${listings.sizeId} in (select ${userSizes.sizeId} from ${userSizes} where ${userSizes.userId} = ${viewerId})`,
+    ];
+  }
+  const [profile] = await db
+    .select({ city: profiles.city })
+    .from(profiles)
+    .where(eq(profiles.userId, viewerId))
+    .limit(1);
+  const city = profile?.city?.trim().toLowerCase();
+  if (!city) return [sql`false`];
+  return [sql`lower(trim(${listings.city})) = ${city}`];
 }
 
 /** Feed order: bump time plus the personal boost. */

@@ -1,13 +1,12 @@
 import { type BottomSheetModal, BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
-import { ShieldCheck } from "lucide-react-native";
 import { type Ref, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PricePill } from "@/components/price-pill";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
 import { ApiClientError } from "@/lib/api";
@@ -186,14 +185,7 @@ function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota 
                 {fieldError}
               </Text>
             ) : preview.data && valid ? (
-              <View className="flex-row items-center gap-xs">
-                <Icon as={ShieldCheck} size={14} className="text-primary" />
-                <Text variant="cardDesc" className="flex-1 text-text-2">
-                  {t("offer.buyerPays", {
-                    price: formatMoney(preview.data.buyerPriceMinor, preview.data.currency),
-                  })}
-                </Text>
-              </View>
+              <PricePill amountMinor={preview.data.buyerPriceMinor} currency={preview.data.currency} />
             ) : null}
           </View>
 

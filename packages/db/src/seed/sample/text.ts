@@ -3,7 +3,7 @@ import type { Rng } from "./rng.js";
 export const descIntroHe = [
   "במצב מצוין, לבשתי כמה פעמים בלבד.",
   "קניתי ולא התאים לי בסוף.",
-  "פינוי ארון, הכל במצב טוב.",
+  "עושה סדר בארון, הכול במצב טוב.",
   "אהבתי מאוד אבל כבר לא משתמשת.",
   "קנוי בחנות, יש חשבונית.",
   "מתנה שקיבלתי ולא התאימה.",
@@ -13,7 +13,7 @@ export const descIntroHe = [
 export const descIntroEn = [
   "In excellent condition, worn only a few times.",
   "Bought it and it did not suit me in the end.",
-  "Clearing my wardrobe, everything is in good shape.",
+  "Sorting out my closet, everything is in good shape.",
   "I loved it but I no longer use it.",
   "Bought in store, I still have the receipt.",
   "A gift that did not fit.",
@@ -48,7 +48,7 @@ export const descOutroEn = [
   "Feel free to send an offer.",
   "I ship within two days of payment.",
   "Ask me anything.",
-  "Take a few items together for a bundle discount.",
+  "Take a few pieces together and I will knock something off.",
 ];
 
 export function describe(rng: Rng, lang: "he" | "en", extra: string): string {

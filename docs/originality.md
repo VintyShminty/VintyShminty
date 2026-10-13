@@ -16,13 +16,13 @@ The Vinted UX breakdown that `docs/design.md` refers to guides how things work. 
 
 ## Chosen directions
 
-Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `docs/mockups/originality-round-2.html` (open them to see each option). Recorded as D-019 in `docs/design.md`. Nothing is built yet.
+Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `docs/mockups/originality-round-2.html` (open them to see each option). Recorded as D-019 in `docs/design.md`. Phase A (wording) is built, see the checklist. Built since: the tab bar (row 14), the Home top (row 4) Browse tiles (row 5), reviews (row 11) and the chat order card (row 16). The other visual parts are not built yet.
 
 | # | Area | Choice | Still open |
 |---|---|---|---|
 | 1 | Product voice | Friends' closets: people first, warm and local | Write the voice guide (tone, sample words) |
 | 2 | Price and protection | Two prices, our own way: seller price, then a soft pill with the buyer price, and a breakdown (item, protection, you pay) on the item page | The name for the protection. "Covered" is a placeholder Eden is not sure about |
-| 3 | Item card | Price tag card: big price first, then brand, size and condition in small capitals ("MANGO · S · LIKE NEW"), then the buyer price pill from row 2 (round 2) | None |
+| 3 | Item card (built) | Price tag card: big price first, then brand, size and condition in small capitals ("MANGO · S · LIKE NEW"), then the buyer price pill from row 2 (round 2) | None |
 | 4 | Home screen top | Large greeting ("Good morning, Noa") with a small round search button beside it, then the mood chips (For you, New today, Under ₪50, Your sizes, Near you) and the grid (round 2) | None |
 | 5 | Browse | Photo tiles grouped by item type (Dresses, Jeans, Sneakers, Bags...) | Final list and order of tiles |
 | 6 | Search and "members" | "Sellers": "Search clothes, brands or sellers", tabs Items and Sellers | None |
@@ -30,12 +30,12 @@ Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `doc
 | 8 | Item page actions | One Buy button, "Or make your price" as a link, "Message" on the seller row. The protection stays as a concept in the same places, with a new name and new text, and reminds the buyer how they are covered and what they pay for | Write the protection copy (depends on 2) |
 | 9 | Sell form | Same long form, every heading, hint and button rewritten in our words | Write the copy in the new voice |
 | 10 | Condition | A slider with five stops (Eden): Unworn with tags, Unworn, Like new, Worn, Well loved. Tags become the first stop, so no separate switch. Five levels match today's data, so only the names change | Eden to confirm the five names |
-| 11 | Reviews | One list of written reviews plus a single line for automatic ones ("36 smooth sales") | None |
+| 11 | Reviews (built) | One list of written reviews plus a single line for automatic ones ("36 smooth sales") | None |
 | 12 | Settings and notifications | Same list in the same order, renamed as in the mockup: Your profile, Shopping preferences, Sign in and safety, Your privacy, Alerts, Language | The rows inside Alerts (today "Push notifications", "High-priority notifications") were not in the mockup. "My sizes" (row 15) sits inside Shopping preferences |
 | 13 | Seller badges | Our own outline stamps, no progress rings | Final badge names |
-| 14 | Tab bar | A floating rounded bar (32 point shape) above the content, icons only, the active tab on a soft tint, and a raised round espresso Sell button with a camera in the middle. Each tab keeps a hidden name that screen readers read aloud (round 2) | None |
+| 14 | Tab bar | A floating rounded bar (32 point shape) above the content, icons only, the active tab on a soft tint, and a raised round espresso Sell button with a price tag in the middle (a camera at first, changed by Eden 2026-10-13). Each tab keeps a hidden name that screen readers read aloud (round 2) | None |
 | 15 | Holiday mode and sizes | "Away mode" with a moon and a return date, and "My sizes" | None |
-| 16 | Order updates in chat | Tracker card pinned at the top of the chat, mixing both round 2 options: the line of step icons (Paid, Sent, Arrived, Done) with send and arrival dates, plus the "Track parcel" and "I got it" buttons | Mock it once Milestone 5 starts |
+| 16 | Order updates in chat (built) | Tracker card pinned at the top of the chat, mixing both round 2 options: the line of step icons (Paid, Sent, Arrived, Done) with send and arrival dates, plus the "Track parcel" and "I got it" buttons | None |
 
 ## Guidelines for our work
 
@@ -94,29 +94,80 @@ Tick an item when it is changed in both English and Hebrew.
 - [ ] **App name.** Replace "Vinty" and "VintyShminty" everywhere: the name under the app icon, the welcome screen, the loading screen wordmark and the app's link name (the short code other apps use to open it)
 - [ ] **Trademark search** on the new name, in Israel and the EU
 - [ ] **App icon and splash screen.** Our own design, not the Expo placeholder
-- [ ] **"Buyer Protection".** A new name for the fee and the promise behind it
-- [ ] **The shield and "incl." line** under every price. A new way to show the price the buyer pays: wording, icon and placement
-- [ ] **"Buyer pays ₪X incl. Buyer Protection"** on the sell form and item page. Rewrite with the new name
-- [ ] **"Bumped" badge** and the boost feature. A new word for both
-- [ ] **Search bar text** "Search for items or members". Rewrite
-- [ ] **"Members"** as the word for users (search, results tabs, "From members"). Pick our own word
+- [x] **"Buyer Protection".** A new name for the fee and the promise behind it (temporary: "Covered", one key `protectionName`, Eden still to choose)
+- [x] **The shield and "incl." line** under every price. The "incl." text is gone from cards and the chat strip (wording done). The price pill is built (`components/price-pill.tsx`)
+- [x] **"Buyer pays ₪X incl. Buyer Protection"** on the sell form and item page. Rewrite with the new name
+- [x] **"Bumped" badge** and the boost feature. A new word for both ("Buzz", placeholder, trademark check pending)
+- [x] **Search bar text** "Search for items or members". Rewrite
+- [x] **"Members"** as the word for users (search, results tabs, "From members"). Pick our own word
 
 ### Should change (the combination)
 
-- [ ] **Item card.** Change at least two details: the order of brand, description and price, where the heart count sits, or the badge look
-- [ ] **Home screen top.** Make the search bar and category chips feel like ours (a greeting, a different chip style or order)
-- [ ] **Condition names.** Replace "Satisfactory" at least, reword the rest in our voice
-- [ ] **"Bundle discounts".** Rename
+- [x] **Item card.** Change at least two details: the order of brand, description and price, where the heart count sits, or the badge look
+- [x] **Home screen top.** Make the search bar and category chips feel like ours (a greeting, a different chip style or order). Greeting, round search button and mood chips built, Home no longer has category chips
+- [x] **Condition names.** Replace "Satisfactory" at least, reword the rest in our voice
+- [x] **"Bundle discounts".** Rename
 
 ### Process
 
 - [x] **Design guide rule.** Change "follow the Vinted UX deconstruction" in `docs/design.md` so it covers how things work only, never names, wording or visual details
 - [ ] **Product voice.** Decide it (`docs/design.md` still says "to decide"). Every rename above depends on it
-- [ ] **Wording pass.** Read every user-facing sentence in English and Hebrew and rewrite anything that sounds like Vinted
-- [ ] **Screens not yet checked.** Item page, sell form, profile, inbox, filters
+- [x] **Wording pass.** Read every user-facing sentence in English and Hebrew and rewrite anything that sounds like Vinted (phase A, banned words guarded by a test. A second read-through for tone is still worth doing once the screens change)
+- [ ] **Screens not yet checked.** Item page, sell form, filters (profile Reviews tab and the chat order card were checked in m6-reviews)
 - [ ] **IP lawyer.** One hour with an Israeli lawyer for brands, designs and copyright, with the new name and screenshots next to Vinted's
 - [x] **Apple copycat rule.** Read it before the App Store submission
 
 ### Already fine, no action
 
-Espresso and cream colours, Aileron and Heebo fonts, outline pill badges, espresso star ratings, the tab bar, and the order of steps in the sell form and filters.
+Espresso and cream colours, Aileron and Heebo fonts, outline pill badges, espresso star ratings, and the order of steps in the sell form and filters. The tab bar is now our own floating bar (row 14).
+
+## Proposals for Eden
+
+Written during phase A (wording). Nothing here is applied unless it says so. Pick, change or throw away.
+
+### 1. Names inside Alerts (applied, easy to change)
+
+Applied in both languages. Settings shows a section called Alerts with two rows, and each row opens its own screen.
+
+| Where | Was | Now |
+|---|---|---|
+| Row | Push notifications | On your phone |
+| Row | Email notifications | By email |
+| Group | High-priority notifications | Do not miss these |
+| Group | Other notifications | Good to know |
+| Type | New feedback | New reviews |
+| Type | Reduced items | Price drops on your hearts |
+| Type | Favourited items | Hearts on your pieces |
+| Type | A favourite item is sold | A saved piece sells |
+| Type | New items from people you follow | New from people you follow |
+| Switch | Set a daily limit | Cap alerts per day |
+| Switch | Enable push notifications | Allow alerts on this phone |
+| Switch | Enable email notifications | Allow alerts by email |
+
+Settings rows now read: Your profile, Your account (was Account settings), Addresses, Sign in and safety (was Security), Your privacy, Shopping preferences (was Personalisation, it holds My sizes), then Alerts and Language. "Your account" is mine, the six names you picked had no slot for email and password.
+
+### 2. Seller badge names (three options)
+
+Applied now: option A, so the banned names are gone. Change it in `packages/db/src/seed/reference/settings.ts` (the badge list), then run `pnpm db:seed:reference`.
+
+| Badge | A (applied) | B | C |
+|---|---|---|---|
+| Lists often (was Frequent uploads) | Fresh drops weekly | Always something new | Restocks the rack |
+| Ships fast (was Speedy shipping) | Sends within a day | Out the door fast | Quick to post |
+| Great reviews (was Five star seller) | Loved by buyers | Five star closet | Buyers come back |
+
+The other four (First sale, 10 sales, Complete profile, Eco hero) are not Vinted words, so I left them.
+
+### 3. Browse tiles (photo tiles by item type)
+
+Applied in part (m6-nav): the first ten tiles plus a More tile, in `apps/mobile/lib/browse-tiles.ts` (reorder there). More holds Accessories, Kids, Sportswear, Designer, Home, Electronics, Books and media, Hobbies and then the whole category tree as rows. Vintage finds is not a category, so it has no tile. Proposed order, most browsed first, with a photo per tile and the name over a dark gradient: Dresses, Tops, Jeans, Trousers, Skirts, Coats and jackets, Knitwear, Sneakers, Shoes, Bags, Accessories, Kids, Sportswear, Vintage finds. Fourteen is a lot for one screen, so a first version could stop at ten (up to Bags) and put the rest behind a "More" tile. Women, Men and Kids stay as filters inside each tile, not as the first level.
+
+### 4. Voice guide draft: Friends' closets
+
+**Tone.** A friend who has good taste and shows you what is in her closet. Short sentences, plain words, a little warmth, never hype. People come first (a name, a face, a city), then the pieces. Local: shekels, Hebrew that sounds spoken, not translated. Say what will happen next. No shouting, no exclamation marks except to celebrate something done.
+
+**Ten words we use:** closet, piece, find, hearts (saved items), drop (a new listing), sellers, away, post it, take a look, passed on.
+
+**Ten words we avoid:** members, wardrobe, bump, protection (as the headline), bundle, holiday mode, personalisation, satisfactory, submit, utilise.
+
+Examples: "Post it" not "Upload". "Keep as draft" not "Save draft". "Noa is away until 20 Oct. You can still save it." not "User is on holiday".

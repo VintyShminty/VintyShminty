@@ -3,10 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import type { OrderDetail, ReviewItem } from "@vinty/shared";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { MessageCircle, ShieldCheck, Star } from "lucide-react-native";
+import { MessageCircle, Star } from "lucide-react-native";
 import { type ReactNode, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NoteSheet } from "@/components/orders/note-sheet";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { OrderTimeline } from "@/components/orders/order-timeline";
@@ -99,6 +100,7 @@ function ReviewCard({ title, review, onReply }: { title: string; review: ReviewI
 
 /** One order: what is in it, who with, where it stands, the money, and the buttons that make sense right now. */
 export default function OrderScreen() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -158,7 +160,7 @@ export default function OrderScreen() {
 
   const isSeller = order.role === "seller";
   const other = isSeller ? order.buyer : order.seller;
-  const otherName = other.username ?? t("profile.deletedMember");
+  const otherName = other.username ?? t("profile.closedAccount");
   const has = (a: OrderDetail["actions"][number]) => order.actions.includes(a);
   const addr = order.shippingAddress;
   const checkout = () =>
@@ -172,7 +174,7 @@ export default function OrderScreen() {
       <TopBar title={t("orders.orderNumber", { number: order.orderNumber })} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="pb-2xl"
+        contentContainerStyle={{ paddingBottom: hasFooter ? 40 : insets.bottom + 40 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -333,12 +335,7 @@ export default function OrderScreen() {
               )}
             </View>
           </View>
-          {!isSeller ? (
-            <View className="flex-row items-center gap-xs">
-              <Icon as={ShieldCheck} size={14} className="text-text-3" />
-              <Text variant="cardMeta">{t("orders.protectionNote")}</Text>
-            </View>
-          ) : null}
+          {!isSeller ? <Text variant="cardMeta">{t("orders.protectionNote")}</Text> : null}
         </Section>
 
         <Section title={t("orders.delivery")}>
@@ -421,7 +418,10 @@ export default function OrderScreen() {
       </ScrollView>
 
       {hasFooter ? (
-        <View className="gap-sm border-t border-border-subtle bg-background px-lg py-md">
+        <View
+          className="gap-sm border-t border-border-subtle bg-background px-lg pt-md"
+          style={{ paddingBottom: insets.bottom }}
+        >
           {has("pay") ? (
             <Button size="lg" onPress={checkout}>
               <Text>{t("orders.pay")}</Text>

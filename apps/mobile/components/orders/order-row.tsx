@@ -29,7 +29,7 @@ export function OrderRow({ order }: { order: OrderRowData }) {
           count: order.itemCount - 1,
         })
       : order.title;
-  const who = order.otherUser.username ?? t("profile.deletedMember");
+  const who = order.otherUser.username ?? t("profile.closedAccount");
 
   return (
     <Pressable
