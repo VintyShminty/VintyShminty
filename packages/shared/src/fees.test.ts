@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buyerPriceMinor, calculateBuyerProtectionFee, calculateOrderTotals } from "./fees.js";
+import {
+  buyerPriceMinor,
+  bundleDiscountPercentFor,
+  calculateBuyerProtectionFee,
+  calculateOrderTotals,
+  nextBundleTier,
+} from "./fees.js";
 import { formatMoney, fromMinorUnits, toMinorUnits } from "./money.js";
 
 // The spec rule: about 5% plus 0.70 in the spec's currency.
@@ -69,5 +75,25 @@ describe("money helpers", () => {
 
   it("formats with the currency symbol", () => {
     expect(formatMoney(12_500, "ILS", "en")).toContain("125.00");
+  });
+});
+
+describe("bundle ladder", () => {
+  const tiers = [
+    { minItems: 2, percentOff: 5 },
+    { minItems: 3, percentOff: 10 },
+    { minItems: 5, percentOff: 15 },
+  ];
+  it("picks the best step the item count reaches", () => {
+    expect(bundleDiscountPercentFor(tiers, 1)).toBe(0);
+    expect(bundleDiscountPercentFor(tiers, 2)).toBe(5);
+    expect(bundleDiscountPercentFor(tiers, 4)).toBe(10);
+    expect(bundleDiscountPercentFor(tiers, 9)).toBe(15);
+    expect(bundleDiscountPercentFor([], 4)).toBe(0);
+  });
+  it("says how many more items reach the next step", () => {
+    expect(nextBundleTier(tiers, 1)).toEqual({ addItems: 1, percentOff: 5 });
+    expect(nextBundleTier(tiers, 3)).toEqual({ addItems: 2, percentOff: 15 });
+    expect(nextBundleTier(tiers, 5)).toBeNull();
   });
 });

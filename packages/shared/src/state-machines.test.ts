@@ -2,14 +2,19 @@ import { describe, expect, it } from "vitest";
 import { OFFER_EVENTS, OFFER_STATUSES, ORDER_EVENTS, ORDER_STATUSES } from "./enums.js";
 import {
   allowedOrderEvents,
+  canActorCancel,
   canActorTransition,
   canOfferActorTransition,
   canOfferTransition,
   canTransition,
+  cancelReasonFor,
+  DISPUTE_WINDOW_HOURS,
   isFinalOrderStatus,
+  isWithinDisputeWindow,
   nextOfferStatus,
   nextOrderStatus,
   ORDER_TRANSITIONS,
+  orderActionsFor,
 } from "./state-machines.js";
 
 describe("order state machine", () => {
@@ -108,5 +113,63 @@ describe("offer state machine", () => {
     expect(canOfferActorTransition("pending", "accept", "offerer")).toBe(false);
     expect(canOfferActorTransition("pending", "withdraw", "offerer")).toBe(true);
     expect(canOfferActorTransition("pending", "expire", "system")).toBe(true);
+  });
+});
+
+describe("cancelling an order", () => {
+  it("lets only the buyer and the system end an unpaid order", () => {
+    expect(canActorCancel("pending_payment", "buyer")).toBe(true);
+    expect(canActorCancel("pending_payment", "system")).toBe(true);
+    expect(canActorCancel("pending_payment", "seller")).toBe(false);
+  });
+
+  it("lets both people cancel a paid order that is not shipped", () => {
+    expect(canActorCancel("paid", "buyer")).toBe(true);
+    expect(canActorCancel("paid", "seller")).toBe(true);
+    expect(canActorCancel("shipped", "buyer")).toBe(false);
+    expect(canActorCancel("shipped", "seller")).toBe(false);
+    expect(canActorCancel("completed", "admin")).toBe(false);
+  });
+
+  it("names the reason after who cancelled", () => {
+    expect(cancelReasonFor("buyer")).toBe("buyer_cancelled");
+    expect(cancelReasonFor("seller")).toBe("seller_cancelled");
+    expect(cancelReasonFor("system")).toBe("other");
+  });
+});
+
+describe("dispute window", () => {
+  const delivered = new Date("2026-10-01T10:00:00Z");
+  it("is open for 48 hours after delivery", () => {
+    expect(DISPUTE_WINDOW_HOURS).toBe(48);
+    expect(isWithinDisputeWindow(delivered, new Date("2026-10-03T09:59:00Z"))).toBe(true);
+    expect(isWithinDisputeWindow(delivered, new Date("2026-10-03T10:01:00Z"))).toBe(false);
+    expect(isWithinDisputeWindow(null, new Date("2030-01-01T00:00:00Z"))).toBe(true);
+  });
+});
+
+describe("actions shown to each person", () => {
+  const now = new Date("2026-10-02T00:00:00Z");
+  it("gives the buyer Pay and Cancel while paying", () => {
+    expect(orderActionsFor("pending_payment", "buyer", null, now)).toEqual(["pay", "cancel"]);
+    expect(orderActionsFor("pending_payment", "seller", null, now)).toEqual([]);
+  });
+  it("gives the seller Ship and Cancel once paid", () => {
+    expect(orderActionsFor("paid", "seller", null, now)).toEqual(["ship", "cancel"]);
+    expect(orderActionsFor("paid", "buyer", null, now)).toEqual(["cancel"]);
+  });
+  it("lets the buyer confirm or report a problem after shipping", () => {
+    expect(orderActionsFor("shipped", "buyer", null, now)).toEqual(["confirm_received", "open_dispute"]);
+    expect(orderActionsFor("shipped", "seller", null, now)).toEqual([]);
+  });
+  it("closes the problem button after the window", () => {
+    const late = new Date("2026-09-20T00:00:00Z");
+    expect(orderActionsFor("delivered", "buyer", late, now)).toEqual(["confirm_received"]);
+  });
+  it("gives nothing on final orders", () => {
+    for (const status of ["completed", "cancelled", "refunded", "disputed"] as const) {
+      expect(orderActionsFor(status, "buyer", null, now)).toEqual([]);
+      expect(orderActionsFor(status, "seller", null, now)).toEqual([]);
+    }
   });
 });

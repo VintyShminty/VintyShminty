@@ -21,6 +21,10 @@ export const reviewItemSchema = z.object({
   reviewer: userSummarySchema,
   /** Title of the item that was bought, from the order snapshot. */
   itemTitle: z.string().nullable(),
+  /** The order the feedback is about. */
+  orderId: idSchema,
+  /** The role the reviewer had in that order. */
+  reviewerRole: z.enum(["buyer", "seller"]),
   replyBody: z.string().nullable(),
   repliedAt: isoDateTimeSchema.nullable(),
 });
