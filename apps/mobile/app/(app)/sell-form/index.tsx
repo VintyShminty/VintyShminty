@@ -9,6 +9,7 @@ import {
   LISTING_TITLE_MAX,
   type ListingField,
   listingLimits,
+  type PhotoSuggestion,
   stripHiddenAttributes,
   validateListing,
 } from "@vinty/shared";
@@ -24,7 +25,7 @@ import { ConditionSlider } from "@/components/sell/condition-slider";
 import { type Option, OptionListSheet } from "@/components/sell/option-list-sheet";
 import { ParcelSizes } from "@/components/sell/parcel-sizes";
 import { PhotoUploader } from "@/components/sell/photo-uploader";
-import { SuggestedTag } from "@/components/sell/suggested-tag";
+import { UseItChip } from "@/components/sell/use-it-chip";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,6 +38,7 @@ import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { ApiClientError } from "@/lib/api";
 import { describeApiError } from "@/lib/auth-errors";
+import { categoryGuesses } from "@/lib/category-guesses";
 import { formatMoney, priceTextToMinor } from "@/lib/money";
 import { ownListingQuery, pricePreviewQuery, useSaveListing } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
@@ -103,10 +105,12 @@ export default function SellForm() {
   const status = useSellStore((s) => s.status);
   const listingId = useSellStore((s) => s.listingId);
   const assist = useSellStore((s) => s.assist);
-  const suggested = useSellStore((s) => s.suggested);
+  const suggestion = useSellStore((s) => s.suggestion);
   const { set, setErrors, clearError, start } = useSellStore.getState();
   const [banner, setBanner] = useState<string | null>(null);
   const [ready, setReady] = useState(!id);
+  // The pickers show the helper's guesses as they were when the picker opened, so an open list never jumps.
+  const [shown, setShown] = useState<PhotoSuggestion | null>(null);
 
   // Start fresh for a new listing, or fill the form from the saved listing.
   const started = useRef(false);
@@ -131,7 +135,8 @@ export default function SellForm() {
     );
   }, [id, firstParcel]);
 
-  // Reads the first photos in the background (new listings only) and fills empty fields with suggestions.
+  // Reads the first photos in the background (new listings only). Nothing is filled in: the guesses show first in the
+  // pickers the seller goes through anyway.
   usePhotoAssist({ enabled: !id, language: i18n.language === "he" ? "he" : "en", reference: reference.data });
 
   const brandRef = useRef<BottomSheetModal>(null);
@@ -166,6 +171,12 @@ export default function SellForm() {
     if (!key) return undefined;
     return t(key, { min: formatMoney(limits.minPriceMinor, "ILS"), max: limits.maxPhotos });
   };
+
+  // While no category is chosen, the top guess shows quietly on the row ("Boots?"). It opens the panels, nothing is picked.
+  const topGuess = values.categoryId
+    ? undefined
+    : categoryGuesses(suggestion, ref.categories, ["designer"])[0]?.node;
+  const categoryHint = topGuess ? t("sell.assist.guess", { name: name(topGuess.name) }) : undefined;
 
   const sizeOptions: Option[] = (() => {
     if (!category) return [];
@@ -246,7 +257,10 @@ export default function SellForm() {
     ]);
   };
 
-  const openSheet = (sheet: React.RefObject<BottomSheetModal | null>) => sheet.current?.present();
+  const openSheet = (sheet: React.RefObject<BottomSheetModal | null>) => {
+    setShown(useSellStore.getState().suggestion);
+    sheet.current?.present();
+  };
 
   return (
     <Screen bottomInset={false}>
@@ -279,7 +293,7 @@ export default function SellForm() {
         <Section title={t("sell.about")}>
           <Input
             label={t("sell.titleLabel")}
-            placeholder={t("sell.titlePlaceholder")}
+            placeholder={(!values.title.trim() && suggestion?.title) || t("sell.titlePlaceholder")}
             value={values.title}
             onChangeText={(title) => {
               set({ title });
@@ -288,12 +302,21 @@ export default function SellForm() {
             maxLength={LISTING_TITLE_MAX}
             footerEnd={`${values.title.length}/${LISTING_TITLE_MAX}`}
             error={err("title")}
-            labelEnd={suggested.includes("title") ? <SuggestedTag /> : undefined}
+            labelEnd={
+              !values.title.trim() && suggestion?.title ? (
+                <UseItChip
+                  label={t("sell.assist.useIt")}
+                  onPress={() => set({ title: suggestion.title ?? "" })}
+                />
+              ) : undefined
+            }
             returnKeyType="next"
           />
           <Input
             label={t("sell.descriptionLabel")}
-            placeholder={t("sell.descriptionPlaceholder")}
+            placeholder={
+              (!values.description.trim() && suggestion?.description) || t("sell.descriptionPlaceholder")
+            }
             value={values.description}
             onChangeText={(description) => {
               set({ description });
@@ -303,7 +326,14 @@ export default function SellForm() {
             maxLength={LISTING_DESCRIPTION_MAX}
             footerEnd={`${values.description.length}/${LISTING_DESCRIPTION_MAX}`}
             error={err("description")}
-            labelEnd={suggested.includes("description") ? <SuggestedTag /> : undefined}
+            labelEnd={
+              !values.description.trim() && suggestion?.description ? (
+                <UseItChip
+                  label={t("sell.assist.useIt")}
+                  onPress={() => set({ description: suggestion.description ?? "" })}
+                />
+              ) : undefined
+            }
           />
         </Section>
 
@@ -313,7 +343,7 @@ export default function SellForm() {
             value={trail.length ? name(trail.at(-1)?.name) : null}
             onPress={() => router.push({ pathname: "/sell-form/category", params: { depth: "1" } })}
             error={err("categoryId")}
-            suggested={suggested.includes("category")}
+            hint={categoryHint}
           />
           {category && mode("brand") !== "hidden" ? (
             <PickerRow
@@ -321,7 +351,6 @@ export default function SellForm() {
               value={values.brand?.name}
               onPress={() => openSheet(brandRef)}
               error={err("brandId")}
-              suggested={suggested.includes("brand")}
             />
           ) : null}
           {category && mode("size") !== "hidden" ? (
@@ -358,7 +387,6 @@ export default function SellForm() {
               value={colourNames}
               onPress={() => openSheet(colourRef)}
               error={err("colourIds")}
-              suggested={suggested.includes("colours")}
             />
           ) : null}
           {category && mode("material") !== "hidden" ? (
@@ -367,7 +395,6 @@ export default function SellForm() {
               value={name(material?.name)}
               onPress={() => openSheet(materialRef)}
               error={err("materialId")}
-              suggested={suggested.includes("material")}
             />
           ) : null}
           {category && mode("pattern") !== "hidden" ? (
@@ -447,6 +474,7 @@ export default function SellForm() {
       <BrandSheet
         ref={brandRef}
         selected={values.brand}
+        fromTag={shown?.brand}
         onChange={(brand) => {
           set({ brand });
           clearError("brandId");
@@ -472,6 +500,7 @@ export default function SellForm() {
         max={LISTING_COLOURS_MAX}
         options={ref.colours.map((c) => ({ id: c.id, label: name(c.name), swatch: c.swatchHex }))}
         selected={values.colourIds}
+        suggestedIds={shown?.colourIds}
         clearable
         header={
           <Text variant="bodySmall" className="text-text-3">
@@ -489,6 +518,7 @@ export default function SellForm() {
         mode="single"
         options={ref.materials.map((m) => ({ id: m.id, label: name(m.name) }))}
         selected={values.materialId ? [values.materialId] : []}
+        suggestedIds={shown?.materialId ? [shown.materialId] : undefined}
         clearable={mode("material") === "optional"}
         onChange={([materialId]) => {
           set({ materialId: materialId ?? null });

@@ -4,11 +4,9 @@ import type {
   ListingFieldErrors,
   ListingStatus,
   PhotoSuggestion,
-  ReferenceData,
 } from "@vinty/shared";
 import { create } from "zustand";
 import { minorToPriceText, priceTextToMinor } from "@/lib/money";
-import { planSuggestion, type SuggestedField } from "@/lib/sell-assist-plan";
 
 export type SellPhoto = {
   /** Local id for the tile. */
@@ -67,13 +65,13 @@ type SellState = {
   errors: ListingFieldErrors;
   /** The photo helper: not asked yet, reading the photos, or finished (with or without an answer). */
   assist: "idle" | "reading" | "done";
-  /** Fields the helper filled that the seller has not touched yet. They carry a "Suggested" mark. */
-  suggested: SuggestedField[];
+  /** What the helper saw. Never filled in, the pickers show it first as "Looks like". */
+  suggestion: PhotoSuggestion | null;
   /** Counts up on every start(), so a late answer for an earlier form is thrown away. */
   session: number;
   setAssist: (assist: "idle" | "reading" | "done") => void;
   finishAssist: (session: number) => void;
-  applyPhotoSuggestion: (session: number, suggestion: PhotoSuggestion, reference: ReferenceData) => void;
+  receiveSuggestion: (session: number, suggestion: PhotoSuggestion) => void;
   start: (listing?: ListingDetail) => void;
   set: (patch: Partial<SellValues>) => void;
   updatePhoto: (id: string, patch: Partial<SellPhoto>) => void;
@@ -91,40 +89,21 @@ export const newPhotoId = () => {
  * The sell form's values while the person moves between the form, the category panels and the pickers.
  * Small app state, so it lives in Zustand. The saved listing itself comes from the server.
  */
-/** Which "Suggested" mark goes away when the seller changes a value. */
-const SUGGESTED_BY_VALUE: Partial<Record<keyof SellValues, SuggestedField>> = {
-  title: "title",
-  description: "description",
-  categoryId: "category",
-  brand: "brand",
-  colourIds: "colours",
-  materialId: "material",
-};
-
-export const useSellStore = create<SellState>((set, get) => ({
+export const useSellStore = create<SellState>((set) => ({
   values: EMPTY,
   dirty: false,
   errors: {},
   assist: "idle",
-  suggested: [],
+  suggestion: null,
   session: 0,
   setAssist: (assist) => set({ assist }),
   finishAssist: (session) => set((s) => (s.session === session ? { assist: "done" } : s)),
-  applyPhotoSuggestion: (session, suggestion, reference) => {
-    if (get().session !== session) return;
-    // Plans against the values as they are now, so anything the seller chose while it was reading stays theirs.
-    const { patch, fields } = planSuggestion(get().values, suggestion, reference);
-    set((s) => ({
-      assist: "done",
-      values: { ...s.values, ...patch },
-      suggested: [...s.suggested.filter((f) => !fields.includes(f)), ...fields],
-      dirty: s.dirty || fields.length > 0,
-    }));
-  },
+  receiveSuggestion: (session, suggestion) =>
+    set((s) => (s.session === session ? { assist: "done", suggestion } : s)),
   start: (listing) =>
     set((s) => ({
       assist: "idle",
-      suggested: [],
+      suggestion: null,
       session: s.session + 1,
       listingId: listing?.id,
       status: listing?.status,
@@ -157,18 +136,7 @@ export const useSellStore = create<SellState>((set, get) => ({
           }
         : EMPTY,
     })),
-  set: (patch) =>
-    set((s) => {
-      // Only a real change counts as touching it (choosing a category rewrites the other rows with the same values).
-      const touched = (Object.keys(patch) as (keyof SellValues)[])
-        .filter((k) => JSON.stringify(patch[k]) !== JSON.stringify(s.values[k]))
-        .map((k) => SUGGESTED_BY_VALUE[k]);
-      return {
-        values: { ...s.values, ...patch },
-        dirty: true,
-        suggested: s.suggested.filter((f) => !touched.includes(f)),
-      };
-    }),
+  set: (patch) => set((s) => ({ values: { ...s.values, ...patch }, dirty: true })),
   updatePhoto: (id, patch) =>
     set((s) => ({
       values: { ...s.values, photos: s.values.photos.map((p) => (p.id === id ? { ...p, ...patch } : p)) },

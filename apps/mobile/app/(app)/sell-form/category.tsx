@@ -11,6 +11,7 @@ import { Screen } from "@/components/ui/screen";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
+import { categoryGuesses } from "@/lib/category-guesses";
 import { categoryIcon } from "@/lib/category-icons";
 import { useLocalName, useReference } from "@/lib/reference";
 import { useSellStore } from "@/lib/sell-store";
@@ -34,6 +35,8 @@ export default function CategoryPanel() {
   const depth = Number(depthParam ?? "1");
   const reference = useReference();
   const selectedId = useSellStore((s) => s.values.categoryId);
+  // What the photo helper saw, taken once when the panel opens so the list never jumps if the answer comes later.
+  const [suggestion] = useState(() => useSellStore.getState().suggestion);
   const [query, setQuery] = useState("");
   const isHe = i18n.language === "he";
 
@@ -66,6 +69,11 @@ export default function CategoryPanel() {
     walk(tree, []);
     return found.slice(0, 50);
   }, [query, tree, name]);
+
+  const guesses = useMemo(
+    () => (node ? [] : categoryGuesses(suggestion, allCategories, SELL_HIDDEN_ROOTS)),
+    [suggestion, allCategories, node],
+  );
 
   const closeAll = () => router.dismiss(depth);
 
@@ -190,6 +198,29 @@ export default function CategoryPanel() {
           data={rows}
           keyExtractor={(r) => r.id}
           contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+          ListHeaderComponent={
+            guesses.length > 0 ? (
+              <View>
+                <Text variant="sectionLabel" className="px-lg pb-sm pt-sm">
+                  {t("sell.assist.looksLike")}
+                </Text>
+                {guesses.map((guess) => (
+                  <CategoryRow
+                    key={guess.node.id}
+                    kind="leaf"
+                    label={name(guess.node.name)}
+                    detail={guess.parents.map((p) => name(p.name)).join(" · ")}
+                    icon={iconFor(guess.node)}
+                    selected={guess.node.id === selectedId}
+                    onPress={() => choose(guess.node)}
+                  />
+                ))}
+                <Text variant="sectionLabel" className="px-lg pb-sm pt-lg">
+                  {t("sell.assist.allOptions")}
+                </Text>
+              </View>
+            ) : null
+          }
           renderItem={({ item }) => (
             <CategoryRow
               kind={item.isLeaf ? "leaf" : "branch"}

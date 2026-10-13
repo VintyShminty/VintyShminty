@@ -76,7 +76,7 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     const res = await t.suggest();
     expect(res.statusCode).toBe(200);
     const body = res.json() as PhotoSuggestion;
-    expect(body.categoryId).toBeNull();
+    expect(body.categories).toEqual([]);
     expect(body.title).toBeNull();
     expect(t.reader.calls).toHaveLength(0);
   });
@@ -119,14 +119,18 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
   });
 
   it("turns codes into real ids and drops anything not in our lists", async () => {
-    const dressCode = [...catalog.categories.keys()][0] as string;
+    const [first, second, third, fourth] = [...catalog.categories.keys()] as string[];
     const answer: RawReading = {
-      category: dressCode,
-      categoryConfidence: 0.9,
+      categories: [
+        { code: first, confidence: 0.6 },
+        { code: "C99999", confidence: 0.5 },
+        { code: first, confidence: 0.4 },
+        { code: second, confidence: 0.3 },
+        { code: third, confidence: 0.2 },
+        { code: fourth, confidence: 0.1 },
+      ],
       colours: ["K1", "K2", "K3", "K999"],
-      coloursConfidence: 0.8,
       material: "M999",
-      materialConfidence: 0.9,
       title: "A dress",
       description: "Nice.",
     };
@@ -135,21 +139,26 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     const res = await t.suggest({ photoKeys: [`listings/${t.id}/a.jpg`, `listings/${t.id}/b.jpg`] });
     expect(res.statusCode).toBe(200);
     const body = res.json() as PhotoSuggestion;
-    expect(body.categoryId).toBe(catalog.categories.get(dressCode));
+    // Best first, a made up code and a repeat are dropped, and there are never more than 3.
+    expect(body.categories).toEqual([
+      { id: catalog.categories.get(first as string), confidence: 0.6 },
+      { id: catalog.categories.get(second as string), confidence: 0.3 },
+      { id: catalog.categories.get(third as string), confidence: 0.2 },
+    ]);
     expect(body.colourIds).toEqual([catalog.colours.get("K1"), catalog.colours.get("K2")]);
     expect(body.materialId).toBeNull();
-    expect(body.confidence.material).toBe(0);
     expect(body.title).toBe("A dress");
     expect(t.reader.calls).toHaveLength(1);
     expect(t.reader.calls[0]?.images).toHaveLength(2);
   });
 
   it("passes a made up category through as nothing", async () => {
-    const t = await withApp({ category: "00000000-0000-4000-8000-000000000000", categoryConfidence: 1 });
+    const t = await withApp({
+      categories: [{ code: "00000000-0000-4000-8000-000000000000", confidence: 1 }],
+    });
     contexts.push(t.ctx);
     const body = (await t.suggest()).json() as PhotoSuggestion;
-    expect(body.categoryId).toBeNull();
-    expect(body.confidence.category).toBe(0);
+    expect(body.categories).toEqual([]);
   });
 
   it("matches a brand read from a tag to our brands, ignoring case and accents", async () => {
@@ -160,19 +169,19 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     }[];
     const target = all[0] as { id: string; name: string };
     const shout = target.name.toUpperCase().replace(/E/g, "É");
-    const t = await withApp({ brandText: shout, brandConfidence: 0.9 });
+    const t = await withApp({ brandText: shout });
     contexts.push(t.ctx);
     const body = (await t.suggest()).json() as PhotoSuggestion;
     expect(body.brand).toEqual({ id: target.id, name: target.name });
 
     // A tag that says a bit more than the brand still finds it.
-    const longer = await withApp({ brandText: `${target.name} Basic`, brandConfidence: 0.7 });
+    const longer = await withApp({ brandText: `${target.name} Basic` });
     contexts.push(longer.ctx);
     expect(((await longer.suggest()).json() as PhotoSuggestion).brand?.id).toBe(target.id);
   });
 
   it("keeps an unknown brand as text only", async () => {
-    const t = await withApp({ brandText: "Zzyzx Unheard Of", brandConfidence: 0.6 });
+    const t = await withApp({ brandText: "Zzyzx Unheard Of" });
     contexts.push(t.ctx);
     const body = (await t.suggest()).json() as PhotoSuggestion;
     expect(body.brand).toEqual({ id: null, name: "Zzyzx Unheard Of" });

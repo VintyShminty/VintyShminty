@@ -20,14 +20,10 @@ export type PhotoReadUsage = { inputTokens: number; outputTokens: number; cacheR
  * optional because a photo often cannot answer every question. The server drops what it cannot verify.
  */
 export const rawReadingSchema = z.object({
-  category: z.string().nullish(),
-  categoryConfidence: z.number().nullish(),
+  categories: z.array(z.object({ code: z.string().nullish(), confidence: z.number().nullish() })).nullish(),
   brandText: z.string().nullish(),
-  brandConfidence: z.number().nullish(),
   colours: z.array(z.string()).nullish(),
-  coloursConfidence: z.number().nullish(),
   material: z.string().nullish(),
-  materialConfidence: z.number().nullish(),
   title: z.string().nullish(),
   description: z.string().nullish(),
 });
@@ -44,43 +40,35 @@ export interface PhotoReader {
 const READING_JSON_SCHEMA = {
   type: "object",
   properties: {
-    category: { type: ["string", "null"] },
-    categoryConfidence: { type: ["number", "null"] },
+    categories: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { code: { type: "string" }, confidence: { type: "number" } },
+        required: ["code", "confidence"],
+        additionalProperties: false,
+      },
+    },
     brandText: { type: ["string", "null"] },
-    brandConfidence: { type: ["number", "null"] },
     colours: { type: "array", items: { type: "string" } },
-    coloursConfidence: { type: ["number", "null"] },
     material: { type: ["string", "null"] },
-    materialConfidence: { type: ["number", "null"] },
     title: { type: ["string", "null"] },
     description: { type: ["string", "null"] },
   },
-  required: [
-    "category",
-    "categoryConfidence",
-    "brandText",
-    "brandConfidence",
-    "colours",
-    "coloursConfidence",
-    "material",
-    "materialConfidence",
-    "title",
-    "description",
-  ],
+  required: ["categories", "brandText", "colours", "material", "title", "description"],
   additionalProperties: false,
 } as const;
 
 /** The fixed part of the prompt. It does not change between requests, so it is cached together with the lists. */
-const INSTRUCTIONS = `You help a seller list one second-hand clothing item for sale. You get 1 to 4 photos of the same item. Fill in the form fields the photos can show. Never guess.
+const INSTRUCTIONS = `You help a seller list one second-hand clothing item for sale. You get 1 to 4 photos of the same item. Suggest values for the form fields the photos can show. The seller will see your suggestions as shortcuts and picks for themselves, so a wrong top guess is fine as long as the right one is among your three.
 
 Rules:
-- category: the code of the single best matching category from the list below (codes look like C12), or null if the item does not clearly fit one.
+- categories: your 3 most likely leaf categories from the list below, the most likely first, each with a confidence from 0 to 1. Codes look like C12. Give fewer than 3 only if the item is so unclear that fewer fit. Think carefully about the exact type of item (for footwear: boots vs sneakers vs sandals vs heels vs flats, ankle height, sole, laces), about the gender and age group it is made for (women, men, girls, boys, baby), and about the cut. If the photos could fit both a men's and a women's category, include both. Never copy the same type three times when the type itself is unsure.
 - brandText: the brand exactly as printed on a clothing tag, label, logo or the item itself. null if you cannot read one. Never guess a brand from the style of the item.
 - colours: the codes of the 1 or 2 main colours of the item (codes look like K3), most dominant first. Empty if unclear.
 - material: the code of the fabric only if a care label or the photo makes it clear (codes look like M2), otherwise null.
 - title: a short, plain listing title, at most 60 characters, such as "Linen summer dress" or "Nike running shorts". Include the brand only if you read it.
 - description: one or two plain sentences about what is visible (type, colour, cut, details). Do not invent size, condition, measurements, price or history. No emojis, no sales talk.
-- Each confidence is a number from 0 to 1 for how sure you are of that field.
 - Title and description are written in the language the user message asks for. The codes and brand stay as they are.`;
 
 const MAX_TOKENS = 700;

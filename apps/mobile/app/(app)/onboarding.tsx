@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Two short questions right after sign up, both skippable (D-022): what do you shop for, then your sizes.
- * The sizes come as a body figure that lights up one part at a time (D-026).
+ * The sizes come as an ink drawing, one picture per step (D-029).
  * Shown once for a new account. Both answers shape Home from the first day.
  */
 export default function Onboarding() {

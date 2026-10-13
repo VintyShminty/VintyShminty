@@ -27,10 +27,12 @@ type BrandSheetProps = {
   ref: Ref<BottomSheetModal>;
   selected: { id: string; name: string } | null;
   onChange: (brand: { id: string; name: string } | null) => void;
+  /** The brand the photo helper read from a tag. Shown first, never picked for the seller. `id` is null when it is not in our list. */
+  fromTag?: { id: string | null; name: string } | null;
 };
 
 /** Brand picker: a search, the most popular brands when empty, and Request a brand when nothing fits. */
-function BrandSheet({ ref, selected, onChange }: BrandSheetProps) {
+function BrandSheet({ ref, selected, onChange, fromTag }: BrandSheetProps) {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const [text, setText] = useState("");
@@ -90,9 +92,35 @@ function BrandSheet({ ref, selected, onChange }: BrandSheetProps) {
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         ListHeaderComponent={
           q === "" ? (
-            <Text variant="sectionLabel" className="px-lg pb-sm pt-sm">
-              {t("sell.popularBrands")}
-            </Text>
+            <View>
+              {fromTag ? (
+                <Pressable
+                  onPress={() => {
+                    if (fromTag.id) {
+                      onChange({ id: fromTag.id, name: fromTag.name });
+                      close();
+                    } else {
+                      // Not in our list: search for it, so the usual "Ask us to add" path is one tap away.
+                      setText(fromTag.name);
+                    }
+                  }}
+                  role={fromTag.id ? "radio" : "button"}
+                  accessibilityState={fromTag.id ? { checked: selected?.id === fromTag.id } : undefined}
+                  accessibilityLabel={t("sell.assist.fromTag", { name: fromTag.name })}
+                  className="active:bg-surface"
+                >
+                  <View className="min-h-14 flex-row items-center gap-md border-b border-border-subtle px-lg">
+                    <Text weight={600} className="flex-1">
+                      {t("sell.assist.fromTag", { name: fromTag.name })}
+                    </Text>
+                    {fromTag.id ? <Radio checked={selected?.id === fromTag.id} /> : null}
+                  </View>
+                </Pressable>
+              ) : null}
+              <Text variant="sectionLabel" className="px-lg pb-sm pt-sm">
+                {t("sell.popularBrands")}
+              </Text>
+            </View>
           ) : null
         }
         renderItem={({ item }: { item: Brand }) => {
