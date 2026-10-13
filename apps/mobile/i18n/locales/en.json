@@ -962,11 +962,11 @@
       },
       "shipped": {
         "buyer": "Your order is on its way",
-        "seller": "Your parcel is on its way"
+        "seller": "The parcel is on its way to the buyer"
       },
       "delivered": {
         "buyer": "It arrived. Is everything right?",
-        "seller": "Your parcel arrived"
+        "seller": "The parcel reached the buyer"
       },
       "completed": {
         "buyer": "All done",
@@ -982,7 +982,7 @@
       },
       "refunded": {
         "buyer": "Your money was returned",
-        "seller": "This order was refunded"
+        "seller": "The buyer was refunded"
       }
     },
     "nextNote": {
