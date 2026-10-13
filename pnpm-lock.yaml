@@ -265,6 +265,9 @@ importers:
       '@types/nodemailer':
         specifier: ^8.0.2
         version: 8.0.2
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
       socket.io-client:
         specifier: 4.8.4
         version: 4.8.4
@@ -7152,9 +7155,7 @@ snapshots:
       metro-runtime: 0.84.6
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 
