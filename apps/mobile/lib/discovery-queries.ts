@@ -2,7 +2,7 @@ import { infiniteQueryOptions, queryOptions, useMutation, useQueryClient } from 
 import {
   type CreateSavedSearchInput,
   type FeedMood,
-  feedPageSchema,
+  homeFeedPageSchema,
   membersPageSchema,
   recentSearchListSchema,
   type SearchFilters,
@@ -60,7 +60,7 @@ export const feedQuery = ({ categoryId, trending, mood }: FeedParams) =>
     queryFn: ({ pageParam }) =>
       api(
         `/v1/feed?${paging(pageParam)}${categoryId ? `&categoryId=${categoryId}` : ""}${trending ? "&trending=true" : ""}${mood ? `&mood=${mood}` : ""}`,
-        { schema: feedPageSchema },
+        { schema: homeFeedPageSchema },
       ),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });

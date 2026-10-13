@@ -409,7 +409,9 @@
   "privacy": {
     "title": "Your privacy",
     "showLastSeen": "Show when I was last online",
-    "showLastSeenHint": "Other people see Last seen on your About tab."
+    "showLastSeenHint": "Other people see Last seen on your About tab.",
+    "tailorFeed": "Tailor Home to what I do",
+    "tailorFeedHint": "Home learns from what you heart, open and browse. Turning this off also clears what it learned"
   },
   "languages": {
     "en": "English",
@@ -1336,6 +1338,65 @@
     "count_one": "{{count}} size picked",
     "count_other": "{{count}} sizes picked",
     "pick": "Choose your sizes",
-    "max": "You can choose up to {{count}} sizes"
+    "max": "You can choose up to {{count}} sizes",
+    "hiddenTitle": "Hidden from your feed",
+    "hiddenNote": "Items, sellers, brands and categories you said you are not interested in",
+    "hiddenNone": "You have not hidden anything",
+    "hiddenUnknown": "No longer available",
+    "scope_item": "Item",
+    "scope_seller": "Seller",
+    "scope_brand": "Brand",
+    "scope_category": "Category",
+    "undo": "Undo",
+    "resetTitle": "Reset my recommendations",
+    "resetBody": "Home forgets what it learned from your hearts, opens and visits. Your hearts, sizes, follows and hidden items stay.",
+    "resetAction": "Reset",
+    "resetDone": "Home is starting fresh"
+  },
+  "feedWhy": {
+    "action": "Why you see this",
+    "title": "Why you see this",
+    "notInterested": "Not interested",
+    "hideItem": "Hide this item",
+    "hideSeller": "Hide everything from {{name}}",
+    "thisSeller": "this seller",
+    "hideBrand": "Show less of {{name}}",
+    "hideCategory": "Show less of {{name}}",
+    "note": "Hidden things stay off Home. You can bring them back in Settings, under Shopping preferences",
+    "reasons": {
+      "none": "A mix of new and popular finds",
+      "follows_seller": "You follow {{name}}",
+      "follows_sellerNoName": "You follow this seller",
+      "like_seller": "You like things from {{name}}",
+      "like_sellerNoName": "You like things from this seller",
+      "like_brand": "You like {{name}}",
+      "like_brandNoName": "You like this brand",
+      "like_category": "You look at {{name}} a lot",
+      "like_categoryNoName": "You look at this kind of thing a lot",
+      "matches_size": "In one of your sizes",
+      "new_in_category": "New in {{name}}",
+      "new_in_categoryNoName": "Just listed",
+      "new": "Just listed",
+      "popular": "Popular this week",
+      "price_drop": "The price just dropped",
+      "explore": "Something new for you"
+    }
+  },
+  "onboarding": {
+    "step": "{{current}} of {{total}}",
+    "skip": "Skip",
+    "continue": "Continue",
+    "finish": "Start browsing",
+    "shopFor": {
+      "title": "What do you shop for?",
+      "subtitle": "Pick as many as you like and we will show those first",
+      "women": "Women",
+      "men": "Men",
+      "kids": "Kids"
+    },
+    "sizes": {
+      "title": "What are your sizes?",
+      "subtitle": "Pieces in your sizes show up first on Home. You can change this any time in Settings"
+    }
   }
 }

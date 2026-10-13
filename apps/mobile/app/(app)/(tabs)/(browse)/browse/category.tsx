@@ -1,6 +1,7 @@
 import { type CategoryNode, categoryTrail, findCategory } from "@vinty/shared";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { LayoutGrid, Search } from "lucide-react-native";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,6 +12,7 @@ import { Screen } from "@/components/ui/screen";
 import { Spinner } from "@/components/ui/spinner";
 import { TopBar } from "@/components/ui/top-bar";
 import { categoryIcon } from "@/lib/category-icons";
+import { trackCategoryVisit } from "@/lib/events";
 import { useLocalName, useReference } from "@/lib/reference";
 
 /**
@@ -28,8 +30,15 @@ export default function BrowseCategory() {
   const all = reference.data?.categories ?? [];
   const node = findCategory(all, parent);
 
-  const showResults = (row: CategoryNode) =>
+  // Opening a panel is a visit to that category, and so is opening its results.
+  useEffect(() => {
+    if (parent) trackCategoryVisit(parent);
+  }, [parent]);
+
+  const showResults = (row: CategoryNode) => {
+    if (row.id !== parent) trackCategoryVisit(row.id);
     router.push({ pathname: "/browse/results", params: { categoryId: row.id, title: name(row.name) } });
+  };
   const iconFor = (row: CategoryNode) => {
     if (row.icon) return categoryIcon(row.icon);
     return categoryIcon(categoryTrail(all, row.id).findLast((p) => p.icon)?.icon);

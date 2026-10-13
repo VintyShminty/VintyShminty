@@ -8,6 +8,7 @@ import { ListingCard } from "@/components/listing-card";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { useImpressions } from "@/lib/use-impressions";
 import { colors } from "@/theme";
 
 type ListingPage = { items: ListingCardData[]; nextCursor: string | null };
@@ -28,6 +29,12 @@ type ListingGridProps = {
   /** Extra space under the last row, on top of the safe area (inside a tab, that includes the floating bar). */
   bottomPadding?: number;
   onScrollBeginDrag?: () => void;
+  /** Home only: count "card seen" for the cards on screen. `feedId` names the list they came from. */
+  track?: { feedId: string | null };
+  /** Home only: a long press on a card (see components/feed-reason-sheet.tsx). */
+  onCardLongPress?: (listing: ListingCardData) => void;
+  /** Replaces the plain refetch of pull to refresh (Home builds a new list from page one). */
+  onRefresh?: () => Promise<unknown> | unknown;
 };
 
 type Row = { key: string; left: ListingCardData; right?: ListingCardData };
@@ -61,13 +68,22 @@ function ListingGrid({
   heartOnSold,
   bottomPadding,
   onScrollBeginDrag,
+  track,
+  onCardLongPress,
+  onRefresh,
 }: ListingGridProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
 
   const rows = useMemo<Row[]>(() => {
-    const items = query.data?.pages.flatMap((p) => p.items) ?? [];
+    // A card never shows twice, even if two pages overlap.
+    const seen = new Set<string>();
+    const items = (query.data?.pages.flatMap((p) => p.items) ?? []).filter((c) => {
+      if (seen.has(c.id)) return false;
+      seen.add(c.id);
+      return true;
+    });
     const out: Row[] = [];
     for (let i = 0; i < items.length; i += 2) {
       const left = items[i] as ListingCardData;
@@ -76,13 +92,15 @@ function ListingGrid({
     return out;
   }, [query.data]);
 
+  const impressions = useImpressions(Boolean(track), track?.feedId ?? null);
+
   const loading = query.isPending;
   const failed = query.isError && rows.length === 0;
 
   const refresh = async () => {
     setRefreshing(true);
     try {
-      await query.refetch();
+      await (onRefresh ? onRefresh() : query.refetch());
     } finally {
       setRefreshing(false);
     }
@@ -135,9 +153,19 @@ function ListingGrid({
       ListEmptyComponent={body}
       renderItem={({ item }) => (
         <View className="flex-row gap-md px-lg pb-lg">
-          <ListingCard listing={item.left} hideHeart={hideHearts} heartOnSold={heartOnSold} />
+          <ListingCard
+            listing={item.left}
+            hideHeart={hideHearts}
+            heartOnSold={heartOnSold}
+            onLongPress={onCardLongPress}
+          />
           {item.right ? (
-            <ListingCard listing={item.right} hideHeart={hideHearts} heartOnSold={heartOnSold} />
+            <ListingCard
+              listing={item.right}
+              hideHeart={hideHearts}
+              heartOnSold={heartOnSold}
+              onLongPress={onCardLongPress}
+            />
           ) : (
             <View className="flex-1" />
           )}
@@ -149,6 +177,8 @@ function ListingGrid({
       }}
       onEndReachedThreshold={0.6}
       onScrollBeginDrag={onScrollBeginDrag}
+      onViewableItemsChanged={track ? impressions.onViewableItemsChanged : undefined}
+      viewabilityConfig={track ? impressions.viewabilityConfig : undefined}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.accent} />
       }

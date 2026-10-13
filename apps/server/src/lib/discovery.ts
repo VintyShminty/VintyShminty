@@ -290,6 +290,8 @@ export async function toCards(
       status: l.status,
       title: l.title,
       brandName: l.brandName,
+      brandId: l.brandId,
+      categoryId: l.categoryId,
       sizeLabel: l.sizeId ? (sizeLabels.get(l.sizeId) ?? null) : null,
       conditionSlug: l.conditionId ? (conditionSlugs.get(l.conditionId) ?? null) : null,
       priceMinor: price,
