@@ -13,6 +13,7 @@ import messagingPlugin from "./plugins/messaging.js";
 import referencePlugin from "./plugins/reference.js";
 import securityPlugin from "./plugins/security.js";
 import addressRoutes from "./routes/addresses.js";
+import authErrorRoutes from "./routes/auth-error.js";
 import authProvidersRoutes from "./routes/auth-providers.js";
 import bundleRoutes from "./routes/bundles.js";
 import discoveryRoutes from "./routes/discovery.js";
@@ -55,6 +56,7 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
   await app.register(dbPlugin, { database });
   await app.register(healthRoutes);
   await app.register(authProvidersRoutes, { env });
+  await app.register(authErrorRoutes, { env });
 
   // Accounts need the query builder. The health tests build the app with a database that only answers ping.
   if (database.db) {

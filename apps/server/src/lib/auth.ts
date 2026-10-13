@@ -33,6 +33,11 @@ export function pickLocale(
   return (LOCALES as readonly string[]).includes(first ?? "") ? (first as Locale) : "en";
 }
 
+/** Where Better Auth sends the browser when a social login is refused. */
+export function authErrorUrl(env: Env): string {
+  return `${env.BETTER_AUTH_URL.replace(/\/+$/, "")}/v1/auth/error`;
+}
+
 export type AuthDeps = { env: Env; db: Db; mailer: Mailer };
 
 /**
@@ -91,6 +96,9 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
       revokeSessionsOnPasswordReset: true,
     },
     socialProviders: buildSocialProviders(env),
+    // A refused Google or Apple login lands on a friendly page (routes/auth-error.ts) instead of a bare "Not found".
+    // Better Auth adds ?error=<code> (and sometimes &error_description=...) to this address.
+    onAPIError: { errorURL: authErrorUrl(env) },
     account: { accountLinking: { enabled: true, trustedProviders: ["google", "apple"] } },
     session: { expiresIn: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
     // Better Auth's own limiter (per IP and path). The stricter per route limits sit in plugins/auth.ts.
