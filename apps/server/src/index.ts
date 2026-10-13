@@ -9,12 +9,12 @@ const database = createDb(env.DATABASE_URL, {
 });
 const app = await buildApp({ env, database });
 
-try {
-  await app.listen({ port: env.PORT, host: env.HOST });
-} catch (err) {
+// Not awaited: on Vercel, listen is swapped for a stub that never resolves while the platform waits for this file
+// to finish loading, so awaiting it would hang every request.
+app.listen({ port: env.PORT, host: env.HOST }).catch((err: unknown) => {
   app.log.error(err);
   process.exit(1);
-}
+});
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, () => {
