@@ -1214,7 +1214,6 @@
     "addAddress": "Add a delivery address",
     "change": "Change",
     "newAddress": "Add a new address",
-    "noAddresses": "You have no saved addresses yet",
     "summary": "Price",
     "holdNote": "We hold the item for you for {{minutes}} minutes while you pay",
     "simulatedTitle": "Practice mode, no real money moves",
@@ -1236,18 +1235,6 @@
       "genericTitle": "We could not open checkout",
       "genericNote": "Check your connection and try again.",
       "close": "Close"
-    },
-    "fields": {
-      "required": "This is needed",
-      "tooMany": "You have saved the most addresses allowed",
-      "fullName": "Full name",
-      "line1": "Street and number",
-      "line2": "Apartment, floor or entrance (optional)",
-      "city": "City",
-      "postcode": "Postcode",
-      "phone": "Phone (optional)",
-      "phoneHint": "The courier may call you about the delivery",
-      "save": "Save address"
     },
     "done": {
       "title": "Payment done",

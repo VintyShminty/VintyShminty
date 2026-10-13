@@ -1,9 +1,13 @@
 import { View } from "react-native";
 import { Text } from "@/components/ui/text";
-import type { CheckoutAddress } from "@/lib/order-flow-queries";
+import type { Address } from "@/lib/orders-queries";
 
 /** An address written out on lines: name, street, city and postcode, phone. */
-function AddressLines({ address }: { address: CheckoutAddress }) {
+function AddressLines({
+  address,
+}: {
+  address: Pick<Address, "fullName" | "line1" | "line2" | "city" | "postcode" | "phone">;
+}) {
   return (
     <View className="gap-px">
       <Text weight={600}>{address.fullName}</Text>

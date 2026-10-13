@@ -2,7 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import type { OrderDetail, ReviewItem } from "@vinty/shared";
 import { Image } from "expo-image";
-import { type Href, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { MessageCircle, ShieldCheck, Star } from "lucide-react-native";
 import { type ReactNode, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -162,8 +162,8 @@ export default function OrderScreen() {
   const has = (a: OrderDetail["actions"][number]) => order.actions.includes(a);
   const addr = order.shippingAddress;
   const checkout = () =>
-    // The checkout flow lives in app/(app)/checkout (another branch). It takes the waiting order's id.
-    router.push({ pathname: "/checkout", params: { orderId: order.id } } as unknown as Href);
+    // Checkout takes the waiting order's id and pays it.
+    router.push({ pathname: "/checkout", params: { orderId: order.id } });
   const primary = has("pay") || has("ship") || has("confirm_received");
   const hasFooter = primary || has("cancel") || has("open_dispute");
 

@@ -66,7 +66,11 @@ export default function CheckoutDone() {
         </View>
       )}
       <View className="gap-sm px-lg pt-md" style={{ paddingBottom: insets.bottom + 12 }}>
-        <Button size="lg" disabled={!o} onPress={() => router.replace(`/order/${orderId}` as never)}>
+        <Button
+          size="lg"
+          disabled={!o}
+          onPress={() => router.replace({ pathname: "/order/[id]", params: { id: orderId } })}
+        >
           <Text>{t("checkout.done.viewOrder")}</Text>
         </Button>
         <Button variant="ghost" size="lg" onPress={() => router.dismissAll()}>

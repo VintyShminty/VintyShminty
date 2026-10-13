@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import type { CheckoutQuote, DeliveryMethod } from "@vinty/shared";
+import { type UseQueryResult, useQuery } from "@tanstack/react-query";
+import type { CheckoutQuote, DeliveryMethod, OrderDetail } from "@vinty/shared";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Home, Info, MapPin, PackageOpen, Timer } from "lucide-react-native";
@@ -23,10 +23,11 @@ import { useCheckoutStore } from "@/lib/checkout-store";
 import { formatMoney } from "@/lib/money";
 import {
   type CheckoutTarget,
-  checkoutAddressesQuery,
   checkoutQuoteQuery,
+  usePayOrder,
   usePlaceOrder,
 } from "@/lib/order-flow-queries";
+import { addressesQuery, orderQuery } from "@/lib/orders-queries";
 import { cn } from "@/lib/utils";
 
 type Problem = "unavailable" | "offerClosed" | "own" | "blocked" | "generic";
@@ -71,7 +72,7 @@ function ProblemView({
   );
 }
 
-function ItemRow({ item, currency }: { item: CheckoutQuote["items"][number]; currency: string }) {
+function ItemRow({ item, currency }: { item: OrderDetail["items"][number]; currency: string }) {
   return (
     <View className="flex-row items-center gap-md">
       <View className="h-16 w-16 overflow-hidden rounded-control bg-pressed">
@@ -138,6 +139,135 @@ function MethodCard({
   );
 }
 
+function SimulatedNote() {
+  const { t } = useTranslation();
+  return (
+    <View className="flex-row items-start gap-sm rounded-control border border-border bg-accent-tint p-md">
+      <Icon as={Info} size={18} className="mt-px text-primary" />
+      <View className="flex-1 gap-xs">
+        <Text variant="bodySmall" weight={600} className="text-primary">
+          {t("checkout.simulatedTitle")}
+        </Text>
+        <Text variant="bodySmall" className="text-text-2">
+          {t("checkout.simulatedNote")}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+/** Pay an order that already exists (the order page's Pay button). Shows its summary and pays it, once. */
+function PayExisting({
+  orderId,
+  order,
+  close,
+}: {
+  orderId: string;
+  order: UseQueryResult<OrderDetail>;
+  close: () => void;
+}) {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const pay = usePayOrder();
+  const inFlight = useRef(false);
+  const key = useRef(newClientMessageId());
+  const [banner, setBanner] = useState<string | null>(null);
+  const o = order.data;
+
+  if (!o) {
+    return (
+      <Screen>
+        <TopBar leading="close" title={t("checkout.title")} />
+        {order.isError ? (
+          <ProblemView
+            problem={
+              order.error instanceof ApiClientError && order.error.status === 404 ? "unavailable" : "generic"
+            }
+            onRetry={() => void order.refetch()}
+            onClose={close}
+          />
+        ) : (
+          <Spinner size="large" />
+        )}
+      </Screen>
+    );
+  }
+  // Paid already (maybe on another phone) or closed: nothing to pay, show the order.
+  if (o.status !== "pending_payment" || !o.actions.includes("pay")) {
+    return (
+      <Screen>
+        <TopBar leading="close" title={t("checkout.title")} />
+        <ProblemView problem="unavailable" onRetry={close} onClose={close} />
+      </Screen>
+    );
+  }
+
+  const submit = async () => {
+    if (inFlight.current || pay.isPending) return;
+    inFlight.current = true;
+    setBanner(null);
+    try {
+      const paid = await pay.mutateAsync({ orderId, key: key.current });
+      router.replace({ pathname: "/checkout/done", params: { orderId: paid.id } });
+    } catch (err) {
+      // If the order closed meanwhile, the reloaded order turns this screen into the "taken" view by itself.
+      if (err instanceof ApiClientError && err.code === "network") setBanner(t("errors.network"));
+      else setBanner(t("errors.general"));
+    } finally {
+      inFlight.current = false;
+    }
+  };
+
+  const home = o.deliveryMethod === "home";
+  return (
+    <Screen bottomInset={false}>
+      <TopBar leading="back" title={t("checkout.title")} />
+      <ScreenScroll contentContainerClassName="gap-xl pb-xl pt-sm">
+        <View className="gap-md">
+          {o.items.map((item) => (
+            <ItemRow key={item.listingId ?? item.title} item={item} currency={o.currency} />
+          ))}
+        </View>
+
+        <View className="gap-sm">
+          <Text variant="sectionLabel">{t("checkout.delivery")}</Text>
+          <View className="flex-row items-center gap-md rounded-control border border-border p-md">
+            <Icon as={home ? Home : MapPin} size={22} className="text-text-2" />
+            <View className="flex-1 gap-px">
+              <Text weight={600}>{home ? t("checkout.home") : t("checkout.pickup")}</Text>
+              <Text variant="cardDesc">{home ? t("checkout.homeNote") : t("checkout.pickupNote")}</Text>
+            </View>
+          </View>
+          {home && o.shippingAddress ? (
+            <View className="rounded-control border border-border p-md">
+              <AddressLines address={o.shippingAddress} />
+            </View>
+          ) : null}
+        </View>
+
+        <View className="gap-sm">
+          <Text variant="sectionLabel">{t("checkout.summary")}</Text>
+          <PriceBreakdown quote={o} />
+        </View>
+
+        <SimulatedNote />
+
+        {banner ? <Banner variant="error">{banner}</Banner> : null}
+      </ScreenScroll>
+
+      <View
+        className="gap-sm border-t border-border-subtle bg-background px-lg pt-md"
+        style={{ paddingBottom: insets.bottom + 12 }}
+      >
+        <Button size="lg" loading={pay.isPending} onPress={() => void submit()}>
+          <Text>{t("checkout.pay", { amount: formatMoney(o.totalMinor, o.currency) })}</Text>
+        </Button>
+      </View>
+    </Screen>
+  );
+}
+
 /**
  * Checkout (docs/components.md, Checkout): what you are buying, how it gets to you, where to, the honest price
  * breakdown and Pay. Reached from Buy now on the item page, an accepted offer in the chat, or a bundle. Paying is
@@ -147,7 +277,12 @@ export default function Checkout() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ listingId?: string; offerId?: string; bundleId?: string }>();
+  const params = useLocalSearchParams<{
+    listingId?: string;
+    offerId?: string;
+    bundleId?: string;
+    orderId?: string;
+  }>();
   const target: CheckoutTarget | null = params.offerId
     ? { offerId: params.offerId }
     : params.bundleId
@@ -155,26 +290,32 @@ export default function Checkout() {
       : params.listingId
         ? { listingId: params.listingId }
         : null;
+  // An order that already exists and waits for payment (opened from the order page): nothing to choose, only to pay.
+  const existingId = params.orderId ?? null;
+  const existing = useQuery({ ...orderQuery(existingId ?? "none"), enabled: existingId !== null });
   const [method, setMethod] = useState<DeliveryMethod>("pickup_point");
   const pickedAddress = useCheckoutStore((s) => s.addressId);
   const [banner, setBanner] = useState<string | null>(null);
   const [soldOut, setSoldOut] = useState(false);
   const place = usePlaceOrder();
+  const payExisting = usePayOrder();
   const inFlight = useRef(false);
   // One key per checkout screen. It changes with what is being ordered, so a changed address never gets an old order.
   const base = useRef(newClientMessageId());
 
   const quote = useQuery({
     ...checkoutQuoteQuery(target ?? { listingId: "none" }, method),
-    enabled: target !== null,
+    enabled: target !== null && existingId === null,
   });
-  const addresses = useQuery(checkoutAddressesQuery());
+  const addresses = useQuery({ ...addressesQuery(), enabled: existingId === null });
   const list = addresses.data ?? [];
   const address =
     list.find((a) => a.id === pickedAddress) ?? list.find((a) => a.isDefault) ?? list[0] ?? null;
   const needsAddress = method === "home" && !address;
 
   const close = () => (router.canGoBack() ? router.back() : router.replace("/"));
+
+  if (existingId) return <PayExisting orderId={existingId} order={existing} close={close} />;
 
   if (!target) {
     return (
@@ -324,17 +465,7 @@ export default function Checkout() {
           </View>
         </View>
 
-        <View className="flex-row items-start gap-sm rounded-control border border-border bg-accent-tint p-md">
-          <Icon as={Info} size={18} className="mt-px text-primary" />
-          <View className="flex-1 gap-xs">
-            <Text variant="bodySmall" weight={600} className="text-primary">
-              {t("checkout.simulatedTitle")}
-            </Text>
-            <Text variant="bodySmall" className="text-text-2">
-              {t("checkout.simulatedNote")}
-            </Text>
-          </View>
-        </View>
+        <SimulatedNote />
 
         {banner ? <Banner variant="error">{banner}</Banner> : null}
       </ScreenScroll>

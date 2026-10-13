@@ -76,7 +76,7 @@ function OrderDivider({
   return (
     <View className="px-lg py-sm">
       <Pressable
-        onPress={() => orderId && router.push(`/order/${orderId}` as never)}
+        onPress={() => orderId && router.push({ pathname: "/order/[id]", params: { id: orderId } })}
         disabled={!orderId}
         role="button"
         accessibilityLabel={`${t(`chat.system.${event}`)}. ${t("chat.order.view")}`}

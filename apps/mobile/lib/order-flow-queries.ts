@@ -20,12 +20,11 @@ import {
   offerSchema,
   orderDetailSchema,
 } from "@vinty/shared";
-import { z } from "zod";
 import { api } from "@/lib/api";
 import type { MessagesData } from "@/lib/messaging-queries";
 
 // Queries for offers, checkout and bundles (Milestone 5, buying side). Keys:
-// ["offer-quota"], ["checkout-quote", target, method], ["checkout-addresses"], ["bundle", id].
+// ["offer-quota"], ["checkout-quote", target, method], ["bundle", id].
 
 // ---- Offers ----
 
@@ -136,51 +135,19 @@ export const checkoutQuoteQuery = (target: CheckoutTarget, deliveryMethod: Deliv
     retry: false,
   });
 
-export const checkoutAddressSchema = z.object({
-  id: z.string(),
-  label: z.string().nullish(),
-  fullName: z.string(),
-  line1: z.string(),
-  line2: z.string().nullish(),
-  city: z.string(),
-  postcode: z.string(),
-  countryCode: z.string(),
-  phone: z.string().nullish(),
-  isDefault: z.boolean(),
-});
-export type CheckoutAddress = z.infer<typeof checkoutAddressSchema>;
-
-// The coordinator may replace these two with the shared addresses query of the orders screens.
-export const checkoutAddressesQuery = () =>
-  queryOptions({
-    queryKey: ["checkout-addresses"],
-    queryFn: () => api("/v1/me/addresses", { schema: z.array(checkoutAddressSchema) }),
-  });
-
-export type NewAddress = {
-  fullName: string;
-  line1: string;
-  line2?: string | null;
-  city: string;
-  postcode: string;
-  phone?: string | null;
-  isDefault?: boolean;
-};
-
-export function useCreateCheckoutAddress() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (input: NewAddress) =>
-      api<CheckoutAddress>("/v1/me/addresses", {
-        method: "POST",
-        body: { ...input, countryCode: "IL" },
-        schema: checkoutAddressSchema,
-      }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["checkout-addresses"] });
-      void queryClient.invalidateQueries({ queryKey: ["addresses"] });
-    },
-  });
+/** After an order was paid: the order, lists, balance, chat and the item pages all change. */
+function refreshAfterPay(queryClient: QueryClient, order: OrderDetail) {
+  queryClient.setQueryData(["order", order.id], order);
+  void queryClient.invalidateQueries({ queryKey: ["orders"] });
+  void queryClient.invalidateQueries({ queryKey: ["balance"] });
+  void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+  for (const item of order.items) {
+    if (item.listingId) void queryClient.invalidateQueries({ queryKey: ["listing", item.listingId] });
+  }
+  if (order.conversationId) {
+    void queryClient.invalidateQueries({ queryKey: ["messages", order.conversationId] });
+    void queryClient.invalidateQueries({ queryKey: ["conversation", order.conversationId] });
+  }
 }
 
 /**
@@ -209,23 +176,26 @@ export function usePlaceOrder() {
         schema: orderDetailSchema,
       });
     },
-    onSuccess: (order) => {
-      queryClient.setQueryData(["order", order.id], order);
-      void queryClient.invalidateQueries({ queryKey: ["orders"] });
-      void queryClient.invalidateQueries({ queryKey: ["balance"] });
-      void queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      for (const item of order.items) {
-        if (item.listingId) void queryClient.invalidateQueries({ queryKey: ["listing", item.listingId] });
-      }
-      if (order.conversationId) {
-        void queryClient.invalidateQueries({ queryKey: ["messages", order.conversationId] });
-        void queryClient.invalidateQueries({ queryKey: ["conversation", order.conversationId] });
-      }
-    },
+    onSuccess: (order) => refreshAfterPay(queryClient, order),
     onError: () => {
       // Someone else may have bought it, or the price moved: show the truth next time.
       void queryClient.invalidateQueries({ queryKey: ["checkout-quote"] });
     },
+  });
+}
+
+/** Pays an order that already exists and waits for payment (opened from the order page). Same key rules as above. */
+export function usePayOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, key }: { orderId: string; key: string }) =>
+      api<OrderDetail>(`/v1/orders/${orderId}/pay`, {
+        method: "POST",
+        headers: { "Idempotency-Key": `${key}-pay` },
+        schema: orderDetailSchema,
+      }),
+    onSuccess: (order) => refreshAfterPay(queryClient, order),
+    onError: (_err, { orderId }) => void queryClient.invalidateQueries({ queryKey: ["order", orderId] }),
   });
 }
 

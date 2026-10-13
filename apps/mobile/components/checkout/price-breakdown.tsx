@@ -1,4 +1,3 @@
-import type { CheckoutQuote } from "@vinty/shared";
 import { ShieldCheck } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -36,8 +35,20 @@ function Line({
   );
 }
 
+/** The numbers shown: a checkout quote or an existing order. The discount percent is worked out when it is not given. */
+type Totals = {
+  currency: string;
+  items: unknown[];
+  itemsSubtotalMinor: number;
+  bundleDiscountMinor: number;
+  bundleDiscountPercent?: number;
+  buyerProtectionFeeMinor: number;
+  shippingMinor: number;
+  totalMinor: number;
+};
+
 /** The numbers of an order: items, bundle discount, Buyer Protection, postage and the total. All from the server. */
-function PriceBreakdown({ quote }: { quote: CheckoutQuote }) {
+function PriceBreakdown({ quote }: { quote: Totals }) {
   const { t } = useTranslation();
   const money = (v: number) => formatMoney(v, quote.currency);
   return (
@@ -48,7 +59,11 @@ function PriceBreakdown({ quote }: { quote: CheckoutQuote }) {
       />
       {quote.bundleDiscountMinor > 0 ? (
         <Line
-          label={t("checkout.bundleDiscount", { percent: quote.bundleDiscountPercent })}
+          label={t("checkout.bundleDiscount", {
+            percent:
+              quote.bundleDiscountPercent ??
+              Math.round((quote.bundleDiscountMinor / Math.max(quote.itemsSubtotalMinor, 1)) * 100),
+          })}
           value={`-${money(quote.bundleDiscountMinor)}`}
         />
       ) : null}
