@@ -87,9 +87,6 @@ export default function Gallery() {
               <Chip label="English" selected={language === "en"} onPress={() => setLanguage("en")} />
               <Chip label="עברית" selected={language === "he"} onPress={() => setLanguage("he")} />
             </View>
-            <Text variant="cardMeta" className="mt-sm">
-              {t("common.restartNote")}
-            </Text>
           </Section>
 
           <Section title={t("gallery.colours")}>

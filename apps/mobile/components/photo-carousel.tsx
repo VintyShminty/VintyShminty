@@ -31,9 +31,11 @@ function PhotoCarousel({ photos }: { photos: Photo[] }) {
         data={photos}
         horizontal
         pagingEnabled
+        // Photos page left to right in both languages. Paging a horizontal list that lays out right to left starts on the wrong photo.
+        style={{ direction: "ltr" }}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(p) => p.key}
-        onMomentumScrollEnd={(e) => setIndex(Math.round(Math.abs(e.nativeEvent.contentOffset.x) / width))}
+        onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
         renderItem={({ item, index: i }) => (
           <Image
             source={{ uri: item.url }}

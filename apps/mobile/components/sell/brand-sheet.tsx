@@ -77,7 +77,7 @@ function BrandSheet({ ref, selected, onChange }: BrandSheetProps) {
             autoCapitalize="none"
             returnKeyType="search"
             accessibilityLabel={t("sell.searchBrands")}
-            className="flex-1 font-aileron-400 text-body text-text-1 rtl:font-heebo-400"
+            className={`flex-1 text-body text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
             style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
           />
           {brands.isFetching ? <ActivityIndicator size="small" color={colors.accent} /> : null}

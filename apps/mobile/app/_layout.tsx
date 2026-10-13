@@ -3,7 +3,7 @@ import "@/i18n";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { LocaleProvider, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -12,13 +12,12 @@ import { AppState, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppLock } from "@/components/app-lock";
-import { isRtlLanguage } from "@/i18n";
 import { authClient } from "@/lib/auth-client";
 import { useBiometricSupport } from "@/lib/biometrics";
 import { useAppFonts } from "@/lib/fonts";
 import { useIsLocked, useLockStore } from "@/lib/lock-store";
 import { queryClient } from "@/lib/query-client";
-import { ensureLayoutDirection } from "@/lib/rtl";
+import { ensureNativeLtr, layoutDirection } from "@/lib/rtl";
 import { colors } from "@/theme";
 
 void SplashScreen.preventAutoHideAsync();
@@ -32,9 +31,11 @@ export default function RootLayout() {
   const locked = useIsLocked(userId);
   const support = useBiometricSupport();
 
+  // The phone's own direction stays left to right. The app sets the direction below (D-018).
   useEffect(() => {
-    ensureLayoutDirection(i18n.language);
-  }, [i18n.language]);
+    ensureNativeLtr();
+  }, []);
+  const direction = layoutDirection(i18n.language);
 
   // Keep the splash screen up until the fonts are ready and we know whether someone is logged in,
   // so the first thing on screen is the right screen.
@@ -60,23 +61,25 @@ export default function RootLayout() {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, direction }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <BottomSheetModalProvider>
             <StatusBar style="dark" />
-            {/* Say the direction out loud: on a phone set to Hebrew with the app in English, scroll views would otherwise lay out right to left. */}
-            <View style={{ flex: 1, direction: isRtlLanguage(i18n.language) ? "rtl" : "ltr" }}>
-              <Stack
-                screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
-              >
-                <Stack.Protected guard={!signedIn}>
-                  <Stack.Screen name="(auth)" />
-                </Stack.Protected>
-                <Stack.Protected guard={signedIn}>
-                  <Stack.Screen name="(app)" />
-                </Stack.Protected>
-              </Stack>
+            {/* The app, not the phone, decides the layout direction (the style on the root view above), so a language switch mirrors everything at once, sheets included (D-018). */}
+            <View style={{ flex: 1 }}>
+              <LocaleProvider direction={direction}>
+                <Stack
+                  screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
+                >
+                  <Stack.Protected guard={!signedIn}>
+                    <Stack.Screen name="(auth)" />
+                  </Stack.Protected>
+                  <Stack.Protected guard={signedIn}>
+                    <Stack.Screen name="(app)" />
+                  </Stack.Protected>
+                </Stack>
+              </LocaleProvider>
             </View>
             {signedIn && locked ? (
               <AppLock kind={support?.kind ?? "generic"} onUsePassword={usePassword} />

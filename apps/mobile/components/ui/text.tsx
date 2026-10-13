@@ -100,9 +100,9 @@ function Text({ className, variant, weight, font, asChild = false, ...props }: T
     <Component
       className={cn(
         textVariants({ variant: resolvedVariant }),
-        // Start edge of the layout. React Native swaps "left" and "right" when the layout is right to left,
-        // so "text-left" means the start edge in both languages (right in Hebrew, left in English). The old
-        // "text-right for Hebrew" got swapped back to the left. className can still override (text-center).
+        // Start edge of the layout. React Native swaps "left" and "right" in text when the layout direction is
+        // right to left, so "text-left" means the start edge in both languages (right in Hebrew, left in English).
+        // className can still override (text-center).
         "text-left",
         family === "heebo" ? HEEBO[resolvedWeight] : AILERON[resolvedWeight],
         ctx.className,

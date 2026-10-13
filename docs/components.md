@@ -391,7 +391,7 @@ The two-column feed of item cards with infinite scroll and a loading spinner at 
 
 The five tabs at the bottom: Home, Browse, Sell, Inbox, Profile. The default navigation, no side drawer (D-009).
 
-- **Variants and states:** States per tab: idle (outline icon, muted label), active (accent icon and label), pressed. Inbox unread count pill. Hidden on task pages. Stays visible, with Browse active, while category panels push in. Sits above the home indicator.
+- **Variants and states:** States per tab: idle (outline icon, muted label), active (accent icon and label), pressed. Inbox unread count pill. Hidden on task pages only: the sell form, the Filter panel, the conversation screen. Stays visible on every page opened from a tab (item page, member profile, Search, Favourites, Saved searches, Settings), because each tab has its own stack (D-017). Tapping the active tab goes back to its first screen. Keeps its order in Hebrew (D-016). Sits above the home indicator.
 - **Screens:** Home feed, Browse, Search and results, Inbox, Profile menu, Favourites, My orders
 - **Source:** Custom (Built on the Expo Router tab bar)
 - **Phase:** First flows

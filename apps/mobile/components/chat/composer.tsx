@@ -86,7 +86,10 @@ function Composer({
           accessibilityLabel={t("chat.composerPlaceholder")}
           multiline
           maxLength={4000}
-          className="max-h-[120px] py-sm font-aileron-400 text-body text-text-1 rtl:font-heebo-400"
+          className={cn(
+            "max-h-[120px] py-sm text-body text-text-1",
+            isHe ? "font-heebo-400" : "font-aileron-400",
+          )}
           style={{
             textAlign: isHe ? "right" : "left",
             writingDirection: isHe ? "rtl" : "ltr",

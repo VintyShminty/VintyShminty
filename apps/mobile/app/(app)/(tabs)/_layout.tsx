@@ -27,6 +27,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.text3,
         tabBarStyle: {
@@ -45,8 +46,8 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: colors.background },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: t("tabs.home"), tabBarIcon: tabIcon(House) }} />
-      <Tabs.Screen name="browse" options={{ title: t("tabs.browse"), tabBarIcon: tabIcon(LayoutGrid) }} />
+      <Tabs.Screen name="(home)" options={{ title: t("tabs.home"), tabBarIcon: tabIcon(House) }} />
+      <Tabs.Screen name="(browse)" options={{ title: t("tabs.browse"), tabBarIcon: tabIcon(LayoutGrid) }} />
       {/* Sell is a launcher: it opens the full-screen sell form over the tabs (spec, Sell form). */}
       <Tabs.Screen
         name="sell"
@@ -59,7 +60,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="inbox"
+        name="(inbox)"
         options={{
           title: t("tabs.inbox"),
           tabBarIcon: tabIcon(MessageCircle),
@@ -72,7 +73,7 @@ export default function TabsLayout() {
           },
         }}
       />
-      <Tabs.Screen name="profile" options={{ title: t("tabs.profile"), tabBarIcon: tabIcon(User) }} />
+      <Tabs.Screen name="(profile)" options={{ title: t("tabs.profile"), tabBarIcon: tabIcon(User) }} />
       <Tabs.Screen name="(dev)/gallery" options={{ href: null }} />
     </Tabs>
   );

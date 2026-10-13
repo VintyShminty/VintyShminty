@@ -17,16 +17,19 @@ import { colors } from "@/theme";
 /**
  * Item card, option C (D-007): portrait 3:4 photo with 12px corners, outline badge bottom-start,
  * brand in bold, two line description, price in espresso with the buyer price under it.
- * The white circle heart sits top-end on the photo for a signed in viewer, never on your own items or sold ones.
+ * The white circle heart sits top-end on the photo for a signed in viewer, never on your own items. Sold items have none, except on the Favourites screen (heartOnSold).
  * The heart changes at once and goes back if the server says no. Tapping the card opens the item page.
  */
 function ListingCard({
   listing,
   hideHeart = false,
+  heartOnSold = false,
 }: {
   listing: ListingCardData;
   /** Set where the cards are known to be the viewer's own (for example their own profile). */
   hideHeart?: boolean;
+  /** Favourites only: a sold item keeps its heart there so you can take it off the list. Everywhere else sold cards have none. */
+  heartOnSold?: boolean;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -46,7 +49,7 @@ function ListingCard({
 
   const viewerId = session?.user.id;
   const isOwn = Boolean(viewerId) && listing.seller?.id === viewerId;
-  const showHeart = Boolean(viewerId) && !isOwn && !hideHeart && !sold;
+  const showHeart = Boolean(viewerId) && !isOwn && !hideHeart && (!sold || heartOnSold);
 
   const onHeart = () => {
     const next = !favourited;

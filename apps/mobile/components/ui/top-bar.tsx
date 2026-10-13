@@ -2,25 +2,22 @@ import { useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight, X } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { I18nManager, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { useIsRtl } from "@/lib/rtl";
 import { cn } from "@/lib/utils";
 
 /** Arrow that points back: left in left-to-right languages, right in right-to-left ones. */
 function BackIcon({ className }: { className?: string }) {
-  return <Icon as={I18nManager.isRTL ? ChevronRight : ChevronLeft} size={24} className={className} />;
+  const rtl = useIsRtl();
+  return <Icon as={rtl ? ChevronRight : ChevronLeft} size={24} className={className} />;
 }
 
 /** Arrow that points forward (rows that open another screen). */
 function ForwardIcon({ className }: { className?: string }) {
-  return (
-    <Icon
-      as={I18nManager.isRTL ? ChevronLeft : ChevronRight}
-      size={20}
-      className={className ?? "text-text-4"}
-    />
-  );
+  const rtl = useIsRtl();
+  return <Icon as={rtl ? ChevronLeft : ChevronRight} size={20} className={className ?? "text-text-4"} />;
 }
 
 type TopBarProps = {
