@@ -25,3 +25,13 @@ export async function endExpiredAwayMode(
     .returning({ userId: profiles.userId });
   return ended.length;
 }
+
+/** Is this seller in away mode right now? Uses the same rule as {@link isAway}. */
+export async function isSellerAway(app: Pick<FastifyInstance, "db">, sellerId: string): Promise<boolean> {
+  const [row] = await app.db
+    .select({ enabled: profiles.holidayModeEnabled, endsAt: profiles.holidayEndsAt })
+    .from(profiles)
+    .where(eq(profiles.userId, sellerId))
+    .limit(1);
+  return row ? isAway(row.enabled, row.endsAt) : false;
+}

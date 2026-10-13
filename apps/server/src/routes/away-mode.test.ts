@@ -85,6 +85,12 @@ describe.skipIf(!databaseUrl)("away mode", () => {
 
     const chat = await call("POST", "/v1/conversations", buyer.token, { listingId, body: "Hi, is it nice?" });
     expect([200, 201]).toContain(chat.statusCode);
+
+    const offer = await call("POST", `/v1/conversations/${chat.json().id}/offers`, buyer.token, {
+      amountMinor: 100,
+    });
+    expect(offer.statusCode).toBe(409);
+    expect(offer.json().error.code).toBe("listing_unavailable");
   });
 
   it("keeps the first start when only the date changes, and accepts no date", async () => {

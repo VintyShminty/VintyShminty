@@ -10,6 +10,7 @@ import {
 } from "@vinty/shared";
 import { and, count, eq, gt, ne, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { isSellerAway } from "./away.js";
 import { ApiError } from "./errors.js";
 import { notifyEvent } from "./event-notify.js";
 import { recordEvents } from "./events.js";
@@ -148,6 +149,9 @@ export async function createOffer(
     throw new ApiError(403, "blocked", "You cannot make an offer to this person");
   }
   const listing = await requireOpenListing(app.db, conversation.listingId);
+  if (await isSellerAway(app, conversation.sellerId)) {
+    throw new ApiError(409, "listing_unavailable", "This seller is away right now");
+  }
   checkAmount(amountMinor, listing.priceMinor);
   const settings = await loadOrderSettings(app.db);
   const now = new Date();
