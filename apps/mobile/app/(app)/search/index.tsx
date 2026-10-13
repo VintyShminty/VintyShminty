@@ -43,9 +43,7 @@ export default function SearchScreen() {
   const { setQuery, setFilters, setBrands, setCategory } = useSearchStore.getState();
   const [draft, setDraft] = useState(state.q);
   // Opened with words or filters already chosen (a saved search): show the results, not the keyboard.
-  const [startsCommitted] = useState(() =>
-    Object.keys(activeFilters(state)).some((k) => k !== "sort"),
-  );
+  const [startsCommitted] = useState(() => Object.keys(activeFilters(state)).some((k) => k !== "sort"));
   const [focused, setFocused] = useState(!startsCommitted);
   const [tab, setTab] = useState<TabKey>("items");
   const [savedKey, setSavedKey] = useState<string | null>(null);
