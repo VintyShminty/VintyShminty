@@ -910,7 +910,7 @@ Used by: Home feed, Search, Catalog, Brand page, Item page, Favourites, Sell for
 | `view_count` | integer | no | default 0. Incremented by the server, deduplicated per viewer per day |
 | `favourite_count` | integer | no | default 0. Updated together with the favourites table |
 | `bumped_at` | timestamptz | no | default now(). Feed order. Equals published_at until the listing is bumped or relisted |
-| `bumped_until` | timestamptz | yes | While in the future the card shows the Bumped badge |
+| `bumped_until` | timestamptz | yes | While in the future the card shows the Buzzing badge. The end step sets it back to empty once it has passed (the history stays in `bumps`) |
 | `published_at` | timestamptz | yes |  |
 | `sold_at` | timestamptz | yes |  |
 | `reserved_for_user_id` | uuid | yes | refers to users.id, on delete set null. Only set while status is reserved |

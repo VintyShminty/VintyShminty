@@ -170,6 +170,7 @@ function ProfileHeader({
             onPress={() => router.push("/saved-searches")}
           />
           <SettingsRow icon={Receipt} label={t("orders.title")} onPress={() => router.push("/orders")} />
+          <SettingsRow icon={Zap} label={t("buzz.yourBuzzes")} onPress={() => router.push("/buzzes")} />
           <SettingsRow
             icon={Wallet}
             label={t("balance.title")}

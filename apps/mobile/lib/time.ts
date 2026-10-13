@@ -17,3 +17,13 @@ export function timeAgo(iso: string, t: TFunction, now: number = Date.now()): st
 export function formatDate(iso: string, language: string): string {
   return new Date(iso).toLocaleDateString(language, { year: "numeric", month: "short", day: "numeric" });
 }
+
+/** "Oct 16, 18:30", for when something ends. */
+export function formatDateTime(iso: string, language: string): string {
+  return new Date(iso).toLocaleString(language, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}

@@ -1,6 +1,6 @@
 import type { MyListingCard } from "@vinty/shared";
 import { Image } from "expo-image";
-import { Check, Clock, EyeOff, Pencil, TrendingDown } from "lucide-react-native";
+import { Check, Clock, EyeOff, Pencil, TrendingDown, Zap } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * The owner's own card (spec, Own profile: "a mini dashboard"): the photo with a state badge, then money and
- * performance first, price, views and favourites. Bump arrives with Milestone 6.
+ * performance first, price, views and favourites. A buzzing item wears the Buzzing badge.
  */
 function OwnListingCard({ listing, onPress }: { listing: MyListingCard; onPress: () => void }) {
   const { t } = useTranslation();
@@ -29,6 +29,8 @@ function OwnListingCard({ listing, onPress }: { listing: MyListingCard; onPress:
       <Badge variant="neutral" icon={EyeOff} label={t("listing.hidden")} />
     ) : listing.status === "draft" ? (
       <Badge variant="neutral" icon={Pencil} label={t("listing.draft")} />
+    ) : listing.isBumped ? (
+      <Badge variant="accent" icon={Zap} label={t("buzz.buzzing")} />
     ) : priceDrop ? (
       <Badge variant="accent" icon={TrendingDown} label={t("listing.priceDrop")} />
     ) : null;

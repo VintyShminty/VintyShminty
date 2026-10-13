@@ -344,9 +344,9 @@ A dispute has no notification type of its own, the other person sees the `order_
 
 | Method | Path | Auth | Request | Response | Notes |
 |---|---|---|---|---|---|
-| GET | `/v1/bump-plans` | Required | none | list of plans | Free in version 1 |
-| POST | `/v1/listings/:id/bump` | Owner | `{ planId }` | the bump | Free. Sets `bumped_at` and `bumped_until`. In version 1 the price is 0 and the response says `payment: "free"` |
-| GET | `/v1/me/bumps` | Required | page query | page of bumps with the listing | Promotional tools |
+| GET | `/v1/bump-plans` | Required | none | `{ items }` of plans (id, slug, name en/he, durationHours, priceMinor, currency), shortest first | Free in version 1. Built (Buzz) |
+| POST | `/v1/listings/:id/bump` | Owner | `{ planId }` | the bump (`201`) | Free. Sets `bumped_at` and `bumped_until`. In version 1 the price is 0 and the response says `payment: "free"`. Built. Not the owner or not found is `404`, an item that is not `active` or is already buzzing is `409`, an unknown plan is `400` |
+| GET | `/v1/me/bumps` | Required | page query | page of bumps with the listing and plan (`isActive`), newest first | Promotional tools. Built, shown as "Your buzzes" on the own profile |
 | GET | `/v1/me/badges` | Required | none | `{ earned, total, items }` | The Badges you earned card |
 | PUT | `/v1/me/personalisation/brands` | Required | `{ brandIds }` | `{ brandIds }` | Follow brands |
 | GET | `/v1/me/referral` | Required | none | `{ inviteCode, link, referrals, vouchers }` | Invite friends |
@@ -356,6 +356,8 @@ A dispute has no notification type of its own, the other person sees the `order_
 | PUT | `/v1/me/bundle-discounts` | Required | `{ tiers: [{ minItems, percentOff }] }` | list of tiers | |
 | GET | `/v1/help/topics` | Public | none | static topics | Help Centre content can start as a bundled screen |
 | GET | `/v1/listings/search-by-photo` | Required | multipart image | page of `listingCardSchema` | Deferred (open decision). Not in version 1 |
+
+**Buzz (built, Milestone 9).** `POST /v1/listings/:id/bump` locks the item row, so two taps make one buzz, and writes a `bumps` row (`payment_provider` free, price 0). An item counts as buzzing only while `bumped_until` is in the future (the cards, discovery and the feed all compare it with the clock, so nothing waits for a job). The own card and the own item view also carry `bumpedUntil` for "Ends ...". The end step (`endFinishedBuzzes` in `lib/bumps.ts`) runs hourly in the in-process timers, in `/v1/jobs/all` and alone at `/v1/jobs/buzz-end`: it clears `bumped_until` and sends `bump_ended` once to the seller if the item is still for sale (clearing and reading is one statement, so running twice never tells twice). `bumped_at` keeps its value, so the item does not drop back down the feed. There is no daily cap while buzz is free (open decision 13 in `data-model.md`).
 
 ## Milestone 7: A home feed that learns
 
