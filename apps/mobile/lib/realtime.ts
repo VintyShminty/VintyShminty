@@ -83,6 +83,10 @@ function refetchAfterReconnect() {
   void queryClient.invalidateQueries({ queryKey: ["notifications"] });
   void queryClient.invalidateQueries({ queryKey: ["orders"] });
   void queryClient.invalidateQueries({ queryKey: ["order"] });
+  void queryClient.invalidateQueries({ queryKey: ["balance"] });
+  // Offers (the bubbles are inside the messages) and items (reserved, sold, repriced) may have moved too.
+  void queryClient.invalidateQueries({ queryKey: ["offer-quota"] });
+  void queryClient.invalidateQueries({ queryKey: ["listing"] });
   for (const id of openThreads) {
     void queryClient.invalidateQueries({ queryKey: ["messages", id] });
     void queryClient.invalidateQueries({ queryKey: ["conversation", id] });

@@ -1,5 +1,5 @@
 import type { OrderDetail } from "@vinty/shared";
-import { Check } from "lucide-react-native";
+import { Check, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Icon } from "@/components/ui/icon";
@@ -12,6 +12,8 @@ type Step = {
   note?: string;
   at?: string;
   state: "done" | "current" | "upcoming";
+  /** The order stopped here (cancelled or refunded): not a happy tick. */
+  stopped?: boolean;
 };
 
 // The steps still to come on the happy path, by where the order is now.
@@ -49,6 +51,7 @@ export function OrderTimeline({ order }: { order: OrderDetail }) {
           .join(". ") || undefined,
       at: e.createdAt,
       state: "done" as const,
+      stopped: e.toStatus === "cancelled" || e.toStatus === "refunded",
     };
   });
   const ahead = (UPCOMING[order.status] ?? []).map((k, i) => ({
@@ -68,17 +71,28 @@ export function OrderTimeline({ order }: { order: OrderDetail }) {
               <View
                 className={cn(
                   "h-5 w-5 items-center justify-center rounded-full border-2",
-                  step.state === "done" && "border-success bg-success",
+                  step.state === "done" && !step.stopped && "border-success bg-success",
+                  step.state === "done" && step.stopped && "border-error bg-error",
                   step.state === "current" && "border-primary bg-background",
                   step.state === "upcoming" && "border-border bg-background",
                 )}
               >
                 {step.state === "done" ? (
-                  <Icon as={Check} size={11} strokeWidth={3} className="text-primary-foreground" />
+                  <Icon
+                    as={step.stopped ? X : Check}
+                    size={11}
+                    strokeWidth={3}
+                    className="text-primary-foreground"
+                  />
                 ) : null}
               </View>
               {last ? null : (
-                <View className={cn("w-px flex-1", step.state === "done" ? "bg-success" : "bg-border")} />
+                <View
+                  className={cn(
+                    "w-px flex-1",
+                    step.state === "done" && !step.stopped ? "bg-success" : "bg-border",
+                  )}
+                />
               )}
             </View>
             <View className={cn("flex-1 gap-px", last ? "pb-0" : "pb-lg")}>
