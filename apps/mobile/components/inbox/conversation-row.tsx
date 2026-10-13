@@ -61,7 +61,7 @@ function ConversationRow({ row }: { row: Row }) {
   const router = useRouter();
   const archive = useArchive();
   const mute = useMute();
-  const name = row.otherUser.username ?? t("profile.deletedMember");
+  const name = row.otherUser.username ?? t("profile.closedAccount");
 
   const openOptions = () =>
     Alert.alert(name, row.listing.title, [

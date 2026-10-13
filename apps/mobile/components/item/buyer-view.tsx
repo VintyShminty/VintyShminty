@@ -2,7 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { type ListingDetail, messagePageSchema } from "@vinty/shared";
 import { useRouter } from "expo-router";
-import { Check, Clock, Palmtree, ShieldCheck } from "lucide-react-native";
+import { Check, Clock, Moon, ShieldCheck } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
@@ -85,11 +85,11 @@ function StatusLine({ listing }: { listing: ListingDetail }) {
 }
 
 /**
- * The item page for a buyer (spec, Item page): photos, heart with count, title, price block, holiday notice,
+ * The item page for a buyer (spec, Item page): photos, heart with count, title, price block, away notice,
  * details, description, the seller card and More like this. Buy now, Make an offer and Message seller sit under the price.
  */
 function BuyerView({ listing }: { listing: ListingDetail }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const name = useLocalName();
   const similar = useInfiniteQuery(similarQuery(listing.id));
@@ -145,7 +145,7 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   const priceDrop = listing.previousPriceMinor !== null && listing.previousPriceMinor > price;
   const percentOff = priceDrop ? Math.round((1 - price / (listing.previousPriceMinor as number)) * 100) : 0;
   const seller = listing.seller;
-  const sellerName = seller.username ?? t("profile.deletedMember");
+  const sellerName = seller.username ?? t("profile.closedAccount");
 
   return (
     <Screen bottomInset={false}>
@@ -226,9 +226,17 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
 
               {listing.sellerOnHoliday ? (
                 <View className="flex-row items-start gap-sm rounded-control border border-warning bg-warning-tint p-md">
-                  <Icon as={Palmtree} size={18} className="mt-px text-warning" />
+                  <Icon as={Moon} size={18} className="mt-px text-warning" />
                   <Text variant="bodySmall" className="flex-1 text-warning">
-                    {t("item.holiday", { name: sellerName })}
+                    {listing.sellerAwayUntil
+                      ? t("item.away", {
+                          name: sellerName,
+                          date: new Date(listing.sellerAwayUntil).toLocaleDateString(i18n.language, {
+                            day: "numeric",
+                            month: "short",
+                          }),
+                        })
+                      : t("item.awayNoDate", { name: sellerName })}
                   </Text>
                 </View>
               ) : null}

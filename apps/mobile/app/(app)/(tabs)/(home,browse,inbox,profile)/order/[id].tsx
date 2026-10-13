@@ -158,7 +158,7 @@ export default function OrderScreen() {
 
   const isSeller = order.role === "seller";
   const other = isSeller ? order.buyer : order.seller;
-  const otherName = other.username ?? t("profile.deletedMember");
+  const otherName = other.username ?? t("profile.closedAccount");
   const has = (a: OrderDetail["actions"][number]) => order.actions.includes(a);
   const addr = order.shippingAddress;
   const checkout = () =>

@@ -481,7 +481,7 @@ describe.skipIf(!databaseUrl)("accounts", () => {
 
       const [user] = await ctx.database.db.select().from(users).where(eq(users.id, body.user.id));
       expect(user).toBeTruthy(); // the row stays so orders and reviews keep their history
-      expect(user?.name).toBe("Deleted member");
+      expect(user?.name).toBe("Closed account");
       expect(user?.username).toBeNull();
       expect(user?.displayUsername).toBeNull();
       expect(user?.email).not.toBe(person.email);

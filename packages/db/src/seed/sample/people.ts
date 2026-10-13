@@ -15,8 +15,8 @@ export const samplePeople: SamplePerson[] = [
     name: "Noa Levi",
     city: "Tel Aviv",
     locale: "he",
-    bioHe: "אוהבת וינטג' ושמלות. מפנה ארון כל עונה.",
-    bioEn: "Vintage and dresses. I clear my wardrobe every season.",
+    bioHe: "אוהבת וינטג' ושמלות. עושה סדר בארון כל עונה.",
+    bioEn: "Vintage and dresses. I sort out my closet every season.",
     daysAgo: 400,
   },
   {

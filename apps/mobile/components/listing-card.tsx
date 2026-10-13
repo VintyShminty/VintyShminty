@@ -144,13 +144,6 @@ function ListingCard({
             {` · ${t("listing.percentOff", { percent: percentOff })}`}
           </Text>
         ) : null}
-        {!sold ? (
-          <Text variant="cardMeta">
-            {t("listing.includesProtection", {
-              price: formatMoney(listing.buyerPriceMinor, listing.currency),
-            })}
-          </Text>
-        ) : null}
       </View>
     </Pressable>
   );

@@ -133,7 +133,7 @@ function ConversationScreen() {
   const canOffer =
     conversation?.role === "buyer" && conversation.listing.status === "active" && !conversation.blocked;
 
-  const otherName = conversation?.otherUser.username ?? t("profile.deletedMember");
+  const otherName = conversation?.otherUser.username ?? t("profile.closedAccount");
   const otherLastReadAt = conversation?.otherLastReadAt ?? null;
 
   const renderItem = ({ item }: { item: ThreadItem }) => {

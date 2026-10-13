@@ -40,6 +40,8 @@ export const publicProfileSchema = userSummarySchema.extend({
   googleVerified: z.boolean(),
   badges: z.array(z.object({ slug: z.string(), icon: z.string(), name: localisedNameSchema })),
   holidayMode: z.boolean(),
+  /** When away mode ends, if the person set a date. */
+  holidayEndsAt: isoDateTimeSchema.nullable(),
   /** Relation to the viewer. Absent when not signed in. */
   viewer: z.object({ isFollowing: z.boolean(), isBlocked: z.boolean() }).optional(),
 });

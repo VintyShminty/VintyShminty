@@ -41,7 +41,7 @@ import { ApiError } from "../lib/errors.js";
 import { loadMe } from "../lib/profiles.js";
 import { keyBelongsToUser, MAX_UPLOAD_BYTES } from "../lib/storage.js";
 
-const DELETED_NAME = "Deleted member";
+const DELETED_NAME = "Closed account";
 
 const meRoutes: FastifyPluginAsyncZod = async (app) => {
   const { db } = app;

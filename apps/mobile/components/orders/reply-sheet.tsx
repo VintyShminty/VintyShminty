@@ -19,7 +19,7 @@ export function ReplySheet({ ref, review }: { ref: Ref<BottomSheetModal>; review
       title={t("review.replyTitle")}
       intro={
         review
-          ? t("review.replyIntro", { name: review.reviewer.username ?? t("profile.deletedMember") })
+          ? t("review.replyIntro", { name: review.reviewer.username ?? t("profile.closedAccount") })
           : undefined
       }
       label={t("review.replyLabel")}

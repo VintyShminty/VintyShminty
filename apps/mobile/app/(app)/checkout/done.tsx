@@ -38,7 +38,7 @@ export default function CheckoutDone() {
             {t("checkout.done.title")}
           </Text>
           <Text className="text-center text-text-2">
-            {t("checkout.done.note", { seller: o.seller.username ?? t("profile.deletedMember") })}
+            {t("checkout.done.note", { seller: o.seller.username ?? t("profile.closedAccount") })}
           </Text>
           <View className="w-full flex-row items-center gap-md rounded-control border border-border-subtle bg-surface p-md">
             <View className="h-14 w-14 overflow-hidden rounded-control bg-pressed">

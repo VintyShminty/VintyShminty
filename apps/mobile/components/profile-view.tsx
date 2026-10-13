@@ -105,7 +105,7 @@ function ProfileHeader({
         <Avatar uri={profile.avatarUrl} name={profile.username ?? profile.name} size={72} />
         <View className="flex-1 gap-xs">
           <Text variant="heading" numberOfLines={1} className="self-start">
-            {profile.username ?? t("profile.deletedMember")}
+            {profile.username ?? t("profile.closedAccount")}
           </Text>
           {profile.name && profile.name !== profile.username ? (
             <Text variant="bodySmall" className="self-start text-text-3" numberOfLines={1}>
@@ -258,7 +258,7 @@ function ReviewRow({
         <Avatar uri={review.reviewer.avatarUrl} name={review.reviewer.username} size={36} />
         <View className="flex-1">
           <Text variant="bodySmall" weight={600}>
-            {review.reviewer.username ?? t("profile.deletedMember")}
+            {review.reviewer.username ?? t("profile.closedAccount")}
           </Text>
           <View className="flex-row items-center gap-sm">
             <StarRating rating={review.rating} size={12} />

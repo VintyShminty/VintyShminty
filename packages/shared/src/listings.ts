@@ -127,6 +127,8 @@ export const listingDetailSchema = listingCardSchema.extend({
   seller: userSummarySchema,
   /** The seller is on holiday: the item opens from a link but is not in the feed or search, and cannot be bought. */
   sellerOnHoliday: z.boolean(),
+  /** When the seller is back, if they gave a date. Only set while they are away. */
+  sellerAwayUntil: isoDateTimeSchema.nullable(),
   /** What the viewer can do with it. Lets the app show or hide the sticky bar buttons. */
   viewer: z.object({
     isOwner: z.boolean(),

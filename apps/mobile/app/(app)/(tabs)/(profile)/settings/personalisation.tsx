@@ -16,7 +16,7 @@ import { describeApiError } from "@/lib/auth-errors";
 import { personalisationSizesQuery, useSavePersonalisationSizes } from "@/lib/item-queries";
 import { useLocalName, useReference } from "@/lib/reference";
 
-/** Settings, Personalisation: the sizes your feed puts first. Brands arrive in Milestone 6. */
+/** Settings, Shopping preferences: the sizes your feed puts first. Brands arrive in Milestone 6. */
 export default function Personalisation() {
   const { t } = useTranslation();
   const name = useLocalName();
@@ -28,7 +28,7 @@ export default function Personalisation() {
   if (saved.isPending || reference.isPending) {
     return (
       <Screen>
-        <TopBar title={t("personalisation.title")} />
+        <TopBar title={t("shopping.title")} />
         <Spinner size="large" />
       </Screen>
     );
@@ -36,7 +36,7 @@ export default function Personalisation() {
   if (saved.isError || reference.isError || !saved.data || !reference.data) {
     return (
       <Screen>
-        <TopBar title={t("personalisation.title")} />
+        <TopBar title={t("shopping.title")} />
         <View className="gap-lg px-lg">
           <Banner variant="error">{t("errors.loadFailed")}</Banner>
           <Button
@@ -64,27 +64,22 @@ export default function Personalisation() {
   const sizeIds = saved.data.sizeIds;
   const summary =
     sizeIds.length === 0
-      ? t("personalisation.none")
+      ? t("shopping.none")
       : sizeIds.length <= 3
         ? sizeIds
             .map((id) => options.find((o) => o.id === id)?.label)
             .filter(Boolean)
             .join(", ")
-        : t("personalisation.count", { count: sizeIds.length });
+        : t("shopping.count", { count: sizeIds.length });
 
   return (
     <Screen>
-      <TopBar title={t("personalisation.title")} />
+      <TopBar title={t("shopping.title")} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-2xl">
-        <SectionHeader className="pt-sm">{t("personalisation.sizes")}</SectionHeader>
-        <Row
-          label={t("personalisation.pick")}
-          value={summary}
-          onPress={() => sheetRef.current?.present()}
-          last
-        />
+        <SectionHeader className="pt-sm">{t("shopping.sizes")}</SectionHeader>
+        <Row label={t("shopping.pick")} value={summary} onPress={() => sheetRef.current?.present()} last />
         <Text variant="cardDesc" className="px-lg pt-sm text-text-3">
-          {t("personalisation.sizesNote")}
+          {t("shopping.sizesNote")}
         </Text>
         {save.isError ? (
           <View className="px-lg pt-lg">
@@ -94,7 +89,7 @@ export default function Personalisation() {
       </ScrollView>
       <OptionListSheet
         ref={sheetRef}
-        title={t("personalisation.sizes")}
+        title={t("shopping.sizes")}
         options={options}
         mode="multi"
         max={PERSONALISATION_SIZES_MAX}
@@ -102,7 +97,7 @@ export default function Personalisation() {
         onChange={(ids) => save.mutate(ids)}
         header={
           <Text variant="bodySmall" className="text-text-3">
-            {t("personalisation.max", { count: PERSONALISATION_SIZES_MAX })}
+            {t("shopping.max", { count: PERSONALISATION_SIZES_MAX })}
           </Text>
         }
       />
