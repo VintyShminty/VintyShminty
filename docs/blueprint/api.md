@@ -284,6 +284,61 @@ Background jobs (not routes): expire pending offers, release reservations after 
 | GET | `/v1/me/balance/entries` | Required | page query | page of ledger rows grouped by month | The Balance list |
 | POST | `/v1/me/balance/withdrawals` | Required | `{ amountMinor }`, `Idempotency-Key` header | the ledger row | **SIMULATED.** Writes a negative available row. No bank is contacted |
 
+### Milestone 5 notes (as built)
+
+Routes: `routes/offers.ts`, `routes/orders.ts` (checkout, orders, support, development helpers), `routes/bundles.ts`, `routes/reviews.ts` (reviews and balance), `routes/addresses.ts`. Rules live in `lib/offers.ts`, `lib/checkout.ts`, `lib/orders.ts` (every order move goes through `transitionOrder`), `lib/bundles.ts`, `lib/reviews.ts`, `lib/wallet.ts`, `lib/thread.ts` (dividers and bubbles in the chat, broadcasts), `lib/event-notify.ts` (push sentences), `lib/order-jobs.ts` (background jobs). Shared schemas: `packages/shared/src/orders.ts` (offers, bundles, checkout, orders, balance), `reviews.ts`, `messaging.ts` (socket event types). State machine helpers added in `state-machines.ts`: `canActorCancel`, `cancelReasonFor`, `isWithinDisputeWindow`, `orderActionsFor`. Tests: `routes/offers.test.ts`, `routes/orders.test.ts`, `routes/reviews.test.ts`, `order-realtime.test.ts`.
+
+**Offers**
+- Quota: only offers a person sends as the buyer count (their own counters to a seller's counter count too, a seller's counters do not). `GET /v1/offers/quota` is `offerQuotaSchema`, `resetsAt` is when the oldest offer in the 24 hours frees a slot (now plus 24 hours when none were sent). `429 offer_limit_reached` carries `error.resetsAt` and a `Retry-After` header.
+- `POST /v1/conversations/:id/offers` is only for the buyer of that chat (the seller gets `403 forbidden`, a stranger 404). Amount must be above 0 and below the listing price (`400 validation_failed`, `fields.amountMinor` is `validation.offer.positive` or `validation.offer.belowPrice`). The item must be `active`, otherwise `409 listing_unavailable`. A second pending offer in the chat is `409 conflict`. Answer `201` with `offerSchema`.
+- Accept, decline, counter, withdraw answer with `offerSchema`. Counter answers `201` with the new offer (the one waiting for the other person), the old one is `countered` and the new one has `parentOfferId`. The wrong side is `403 forbidden`, a finished offer `409 invalid_transition`, a stranger 404. An unanswered offer past `expiresAt` is turned into `expired` on the spot and the call is `409 invalid_transition`.
+- Accept reserves the listing for the buyer for `accepted_offer_hold_hours` (24): `listing.status = reserved`, `reservedForUserId`, `reservedUntil`. The offer's `expiresAt` becomes the end of that hold and `reservedUntil` in the response says the same. A hold that runs out without an order expires the offer and puts the item back on sale.
+- The thread gets an `offer` bubble for every new offer and a `system` divider for every answer (`offer_accepted`, `offer_declined`, `offer_countered`, `offer_withdrawn`, `offer_expired`) with `payload` `{ offerId, amountMinor, currency, title }`. `message:updated` carries the bubble's new `offer` (`messageOfferSchema`).
+
+**Checkout and orders**
+- `POST /v1/checkout/quote` answers `checkoutQuoteSchema`. Both delivery methods cost the biggest parcel's postage in version 1. `addressId` is required for `home`, optional for `pickup_point` (there is no pickup point picker yet, an address given is kept). The address routes of Milestone 1 (`/v1/me/addresses`) were missing and are built now, with a limit of 10.
+- `POST /v1/orders` answers `orderDetailSchema`, `201` for a new order and `200` when the same `Idempotency-Key`, or the same buyer opening checkout again for the same items, finds the order that already waits. A different checkout for the same item cancels the old waiting one. The item is held for `checkout_hold_minutes` (30), `payByAt` says until when. A chat about the first item is created when there is none, so the order dividers have a thread. An offer must be `accepted` and not run out, and belong to the caller. A bundle must be the caller's and open.
+- A seller does not see an order before it is paid: `GET /v1/orders/:id` is 404, the Sold tab leaves it out and so does `order` in the conversation detail.
+- `orderDetailSchema` adds to the list row: both people, items, all money fields, `shippingAddress` (a copy from checkout), `payment` and `shipment` (with `simulated: true`), `timeline`, the milestone times, `actions` (what this person can do now: `pay`, `cancel`, `ship`, `confirm_received`, `open_dispute`), `canReview` and `reviews: { mine, theirs }`. `sellerEarningsMinor` is null for the buyer.
+- `POST /orders/:id/pay` is idempotent by nature: paying a paid order answers `200` with it and charges nothing again (the `Idempotency-Key` header is accepted and not needed). Paying after the hold ran out cancels the order (`payment_expired`) and answers `409 invalid_transition`.
+- Moves: only the buyer pays, confirms and disputes (the seller gets `403 forbidden`), only the seller ships. `confirm-received` on a shipped parcel records `deliver` first, then `confirm_received` (both in the timeline). Cancel is allowed to the buyer before shipping and to the seller after payment and before shipping (a seller has nothing to cancel before payment). Dispute is allowed from shipped or delivered, up to 48 hours after delivery. Support: `POST /v1/admin/orders/:id/refund` (disputed to refunded, item back on sale) and `/release` (disputed to completed, credit available, no automatic review). Both are for users with role `moderator` or `admin`, `403` for anyone else.
+- When an order completes (`confirm_received`, `auto_complete`): the seller's pending credit becomes available, a 5 star automatic review is left for the seller (`review_auto_left` divider), the seller gets `order_completed` and `balance_released`, the buyer `order_completed`.
+- Dividers in the thread (`system_event`): `order_paid`, `order_shipped`, `order_delivered`, `order_completed`, `order_cancelled`, `order_disputed`, `order_refunded`, `review_auto_left`, each with `orderId` and `payload` `{ orderNumber, title, itemCount }` (plus `reason` on cancelled, `details` on disputed). A buyer who confirms a parcel in transit sees only `order_completed`.
+
+**Notifications** (all through `notifyUser`, so the push rules apply; the push sentence is written in `lib/event-notify.ts`; the Notifications tab writes its own from `type` and `data`)
+
+| Type | To | `data` | Ids on the row |
+|---|---|---|---|
+| `new_offer` | seller | `offerId`, `amountMinor`, `currency`, `listingPriceMinor`, `title` | listing, conversation, actor (buyer) |
+| `offer_accepted`, `offer_declined`, `offer_countered` | the person who made the offer | `offerId`, `amountMinor` (the new amount for a counter), `currency`, `listingPriceMinor`, `title` | listing, conversation, actor |
+| `offer_expired` | both | same as above | listing, conversation |
+| `order_paid` | seller | `orderNumber`, `title`, `itemCount`, `amountMinor` (their earnings), `currency` | order, listing, conversation, actor (buyer) |
+| `order_shipped` | buyer | `orderNumber`, `title`, `itemCount`, `trackingCode` | order, listing, conversation |
+| `order_delivered` | buyer | `orderNumber`, `title`, `itemCount` | order, listing, conversation |
+| `order_completed` | seller and buyer | `orderNumber`, `title`, `itemCount`, `role` (`seller` or `buyer`, whose notification it is) | order, listing, conversation |
+| `balance_released` | seller | `orderNumber`, `title`, `itemCount`, `amountMinor`, `currency` | order |
+| `order_cancelled` | the other person (both when the system cancels) | `orderNumber`, `title`, `itemCount`, `reason` (an `order_cancel_reason`, or `refunded` after support refunded), `byRole` | order, listing, conversation |
+| `review_received` | reviewed person | `orderId`, `rating`, `title`, `role` (the reviewer's role) | order, conversation, actor (reviewer) |
+| `review_reminder` | each side without feedback, 2 days after completion (once) | `orderNumber`, `title`, `role` | order, conversation |
+| `favourite_sold` | people who hearted a sold item | `title` | listing |
+
+A dispute has no notification type of its own, the other person sees the `order_disputed` divider and the `order:updated` event. `favourite_price_drop` is not written yet.
+
+**Socket.** Every offer and order event goes to the two people's `user:` rooms and the thread room and to nobody else. `message:new` (bubbles and dividers) and `message:updated` (bubble status) also go to both `user:` rooms, so a thread that is not open stays right. `order:updated` `{ orderId, status, conversationId }` goes to the buyer and, once the order is paid, the seller. `listing:updated` `{ listingId, status, priceMinor }` goes to the seller, whoever hearted the item and whoever chats about it, when it is reserved, sold or back on sale.
+
+**Reviews and balance**
+- `POST /v1/orders/:id/reviews` answers `201` with `reviewItemSchema`, which now also has `orderId` and `reviewerRole` (`GET /v1/users/:id/reviews` returns the same). Only for a completed order, once per person per order (`409 conflict`). A buyer's review turns the automatic one into a member review (same row, `isAutomatic` false, counters move from automatic to member). Comments are trimmed, up to 400 characters.
+- `PUT /v1/reviews/:id/reply` is for the reviewed person (404 for anyone else), replaces an earlier reply, and `409 conflict` on an automatic review.
+- `GET /v1/me/balance` is `balanceSchema`. `GET /v1/me/balance/entries` is a page of `balanceEntrySchema` newest first with `month` (`YYYY-MM`, UTC) for the grouping, `orderNumber`, `status` (`void` rows are cancelled sales). `POST /v1/me/balance/withdrawals` answers `201` (`200` for a repeated key), `400` with `fields.amountMinor = validation.withdrawal.tooMuch` when it is more than `available`. Concurrent withdrawals cannot overdraw.
+
+**Bundles.** `POST /v1/bundles` answers `201` or `200` with `bundleSchema`. Items must be the seller's, `active` (or held for the buyer), adding twice changes nothing. The ladder is the seller's `bundle_discount_tiers` (set by the seller in Milestone 6, the sample sellers have the default 5, 10, 15 percent), `nextTier` is `{ addItems, percentOff }`. Items that were sold meanwhile stay in `items` with their status and do not count towards the totals. Checking out with `bundleId` applies the discount to the order, and paying marks the bundle `ordered`.
+
+**Background jobs** (`lib/order-jobs.ts`, run every `JOBS_INTERVAL_SECONDS`, default 30, by `plugins/jobs.ts`): pending offers expire, accepted offers expire after the hold (unless an order uses them), unpaid checkouts cancel after the hold (`payment_expired`), held items without an order go back on sale, paid orders not shipped by `shipByAt` cancel (`shipping_timeout`), delivered orders complete at `autoCompleteAt` (`auto_complete`), review reminders. Every step locks its row, so running twice is safe.
+
+**Pretend delivery in development.** Shipping an order starts a timer: after `SIMULATED_DELIVERY_SECONDS` (default 45 in development, off elsewhere, `0` turns it off) a job moves the order from `shipped` to `delivered` (buyer gets `order_delivered`, `autoCompleteAt` is 48 hours away). It only picks up parcels shipped in the last hour, so the older sample orders stay as they are. To not wait: `POST /v1/dev/orders/:id/deliver` (either person of the order, not registered when `NODE_ENV` is `production`). The buyer's "I received it" works on a shipped or a delivered order.
+
+**Sample data.** `pnpm db:reset` gives `oliver.smith`, `tamar.avraham` and `noa_levi` offers in every state (pending, accepted and reserved, declined, countered, withdrawn, expired) as buyer and as seller, orders as buyer and seller in paid, shipped, delivered, completed and cancelled (plus `pending_payment` for oliver and a refunded one for tamar), member and automatic reviews with replies, and a balance with pending, available and a pretend withdrawal. Sample checkouts waiting for payment hold the item for 12 hours, sample delivered orders complete by themselves after 3 days.
+
 ## Milestone 6: Extras
 
 | Method | Path | Auth | Request | Response | Notes |
