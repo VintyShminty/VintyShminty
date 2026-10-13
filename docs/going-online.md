@@ -20,7 +20,7 @@ Three rules while you do this:
 
 The alarm clock matters. Vercel's free plan (Hobby) only allows an alarm that rings once a day, and a deploy fails if a faster alarm is set ([Cron limits](https://vercel.com/docs/cron-jobs/usage-and-pricing)). Vinty wants its order timer to ring every minute so offers expire and held items return on time. That needs the Pro plan. The Hobby plan also says it is for non-commercial use, and Vinty is meant to become a business.
 
-Decision for you: Pro (recommended), or Hobby with a daily alarm (everything still works but expiry happens up to a day late). The Hobby switch is described under the settings table in Part F.
+Decided (Eden, 2026-10-13): Hobby for private testing, with one daily alarm (`/v1/jobs/all` at 03:00 UTC), so offers and held items expire up to a day late. Before real users or anything commercial, move to Pro and restore the faster list described in Part F.
 
 ## Part A: Vercel project
 
@@ -80,7 +80,7 @@ The server checks all of this when it starts. If something is missing or still p
 
 Not needed yet: Google and Apple sign in, real push alerts (they wait for the app ID). Push stays on its online default, which tries to send through Expo.
 
-If you chose Hobby in the plan decision: open `apps/server/vercel.json` and replace the whole `crons` list by one entry, `{ "path": "/v1/jobs/all", "schedule": "0 3 * * *" }`. The coordinator can do this edit.
+`apps/server/vercel.json` holds the Hobby list (one entry, `/v1/jobs/all` daily). When moving to Pro, replace it with `/v1/jobs/orders` every minute (`* * * * *`), `/v1/jobs/feed-popularity` every 15 minutes (`*/15 * * * *`) and `/v1/jobs/feed-cleanup` daily (`0 3 * * *`).
 
 The coordinator can add all of these with `vercel env add` if you read the values out of the websites yourself and type them in the terminal prompts. Do not hand secrets over in chat.
 
