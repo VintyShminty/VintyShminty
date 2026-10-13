@@ -21,8 +21,9 @@ Version 1 is a working app to inspect, not a throwaway prototype. It includes **
 | 2 | Selling | The full sell form with categories and photos, drafts, your own listings, editing and deleting | Done (merged, PR #9) |
 | 3 | Discovery | Home feed, Browse grid with category panels, search, filters and sort, item page, seller profiles, favourites, saved searches | Done (merged, PRs #10, #11) |
 | 4 | Messaging | Live chat, notifications, push alerts (offers moved to Milestone 5, Eden 2026-10-13, because accepting an offer leads straight to checkout). Also from the Milestone 3 review: the bottom tab bar stays visible on pages opened from a tab (item page, seller profile, search, favourites), switching between Hebrew and English happens instantly without reopening the app (the app flips the layout itself instead of the phone, Eden 2026-10-13), and a heart on sold items in Favourites so they can be removed | Done (merged, PR #12) |
-| 5 | Orders | Offers (send, accept, decline, counter), simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Built, in review |
-| 6 | Extras | Boost and bump, invite friends, help pages, holiday mode and the rest of the spec | Planned |
+| 5 | Orders | Offers (send, accept, decline, counter), simulated checkout, order timeline, pretend balance and withdrawals, reviews, bundles | Done (merged, PR #14) |
+| 6 | Our own look | The app stops reading as a copy of the reference product, with every feature and flow kept (Eden, 2026-10-13). Built from the 16 chosen directions in `docs/originality.md` and D-019: our own wording everywhere (sellers not members, Buzz, Away mode, My sizes, condition names, sell form, settings), the price tag item card with the buyer price pill, one Buy button with "Or make your price", the floating tab bar with the raised Sell button, the greeting and mood chips on Home, photo tiles in Browse, one reviews list, our own seller stamps, the order tracker card in chat, and a redesigned welcome, log in and sign up | In progress |
+| 7 | Extras | Boost (Buzz) and the rest of the spec: invite friends, help pages, Away mode settings | Planned |
 
 Every milestone ends with something you can use on your phone, in both languages.
 
