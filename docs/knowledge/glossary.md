@@ -25,4 +25,4 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Supply chain.** The outside libraries the app is built from. We only install versions at least 7 days old and scan for known vulnerabilities.
 - **Trailing and leading edge.** The end and start of a line. Right and left in English, left and right in Hebrew.
 - **Push panel.** A full-screen page that slides in from the trailing edge and shoves the current screen aside. Used for categories and filters.
-- **Product spec.** The Vinted UX deconstruction. Where we have not decided something ourselves, we follow it.
+- **Product spec.** The Vinted UX deconstruction. Where we have not decided something ourselves, we follow it for how things work, never for names, wording or looks (`docs/originality.md`).
