@@ -198,6 +198,9 @@
       "city": "Enter the city",
       "postcode": "Enter the postcode",
       "tooLong": "That is too long"
+    },
+    "withdrawal": {
+      "tooMuch": "That is more than you have available"
     }
   },
   "errors": {
@@ -284,7 +287,11 @@
       "reserved": "Nothing reserved",
       "sold": "Nothing sold yet",
       "hidden": "Nothing hidden"
-    }
+    },
+    "reviewAsBuyerFor": "From a buyer of {{title}}",
+    "reviewAsSellerFor": "From the seller of {{title}}",
+    "reviewAsBuyer": "From a buyer",
+    "reviewAsSeller": "From the seller"
   },
   "countries": {
     "IL": "Israel"
@@ -719,14 +726,14 @@
       "new_follower": "{{name}} started following you",
       "followed_seller_new_item": "{{name}} listed {{title}}",
       "saved_search_match": "New item for your saved search: {{title}}",
-      "order_paid": "You sold {{title}}",
+      "order_paid": "You sold {{title}} to {{name}}",
       "order_shipped": "Your order {{title}} is on its way",
-      "order_delivered": "{{title}} was delivered",
-      "order_completed": "The order for {{title}} is complete",
+      "order_delivered": "{{title}} was delivered. Tap to confirm you got it",
+      "order_completed": "Your order {{title}} is complete",
       "order_cancelled": "The order for {{title}} was cancelled",
       "review_received": "You got a new review",
-      "review_receivedRating_one": "You got a new {{count}} star review",
-      "review_receivedRating_other": "You got a new {{count}} star review",
+      "review_receivedRating_one": "{{name}} gave you {{count}} star",
+      "review_receivedRating_other": "{{name}} gave you {{count}} stars",
       "review_reminder": "How was your order? Leave feedback",
       "balance_released": "{{amount}} is now available in your balance",
       "referral_rewarded": "Your friend's first order is done. You earned a reward",
@@ -734,7 +741,20 @@
       "bump_ended": "The bump on {{title}} has ended",
       "platform_message": "A message from Vinty",
       "platform_welcome": "Welcome to Vinty. Start by browsing, or list your first item",
-      "platform_welcome_back": "Welcome back to Vinty"
+      "platform_welcome_back": "Welcome back to Vinty",
+      "andMore_one": "{{title}} and {{count}} more",
+      "andMore_other": "{{title}} and {{count}} more",
+      "offer_acceptedAmount": "Your offer of {{amount}} on {{title}} was accepted",
+      "offer_declinedAmount": "Your offer of {{amount}} on {{title}} was declined",
+      "order_paidEarn": "{{name}} bought {{title}}. You will earn {{amount}}",
+      "order_shippedTracking": "Your order {{title}} is on its way. Tracking code {{code}}",
+      "order_completedSeller": "The sale of {{title}} is complete",
+      "order_cancelled_buyer": "The buyer cancelled the order for {{title}}",
+      "order_cancelled_seller": "The seller cancelled the order for {{title}}",
+      "order_cancelled_refunded": "Your payment for {{title}} was refunded",
+      "order_cancelled_payment_expired": "The order for {{title}} was cancelled because it was not paid in time",
+      "order_cancelled_shipping_timeout": "The order for {{title}} was cancelled because it was not shipped in time",
+      "review_reminderTitle": "How was {{title}}? Leave feedback"
     }
   },
   "chat": {
@@ -822,5 +842,299 @@
     "labelHint": "For example Home or Work",
     "country": "Country",
     "makeDefault": "Use as my default address"
+  },
+  "orders": {
+    "title": "My orders",
+    "bought": "Bought",
+    "sold": "Sold",
+    "filter": {
+      "all": "All",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "empty": {
+      "bought": {
+        "all": {
+          "title": "No purchases yet",
+          "note": "When you buy something it shows up here"
+        },
+        "in_progress": {
+          "title": "Nothing on its way",
+          "note": "Orders that are being paid, shipped or delivered wait here"
+        },
+        "completed": {
+          "title": "No completed orders",
+          "note": "Orders you have received show up here"
+        },
+        "cancelled": {
+          "title": "No cancelled orders",
+          "note": "Good news, nothing was cancelled"
+        }
+      },
+      "sold": {
+        "all": {
+          "title": "No sales yet",
+          "note": "When someone buys your item it shows up here"
+        },
+        "in_progress": {
+          "title": "Nothing to ship",
+          "note": "Paid orders waiting for you or on their way show up here"
+        },
+        "completed": {
+          "title": "No completed sales",
+          "note": "Sales that finished show up here"
+        },
+        "cancelled": {
+          "title": "No cancelled sales",
+          "note": "Good news, nothing was cancelled"
+        }
+      }
+    },
+    "moreItems_one": "{{title}} and {{count}} more",
+    "moreItems_other": "{{title}} and {{count}} more",
+    "soldTo": "Sold to {{name}}",
+    "boughtFrom": "Bought from {{name}}",
+    "youEarn": "You earn",
+    "status": {
+      "pending_payment": {
+        "buyer": "Waiting for payment",
+        "seller": "Waiting for payment"
+      },
+      "paid": {
+        "buyer": "Paid",
+        "seller": "Ready to ship"
+      },
+      "shipped": {
+        "buyer": "On its way",
+        "seller": "Shipped"
+      },
+      "delivered": {
+        "buyer": "Delivered",
+        "seller": "Delivered"
+      },
+      "completed": {
+        "buyer": "Complete",
+        "seller": "Complete"
+      },
+      "cancelled": {
+        "buyer": "Cancelled",
+        "seller": "Cancelled"
+      },
+      "disputed": {
+        "buyer": "Under review",
+        "seller": "Under review"
+      },
+      "refunded": {
+        "buyer": "Refunded",
+        "seller": "Refunded"
+      }
+    },
+    "orderTitle": "Order",
+    "orderNumber": "Order #{{number}}",
+    "notFound": "We could not find this order",
+    "notFoundNote": "It may belong to someone else, or it is not paid yet",
+    "next": {
+      "pending_payment": {
+        "buyer": "Finish paying for this order",
+        "seller": "Waiting for the buyer to pay"
+      },
+      "paid": {
+        "buyer": "Waiting for the seller to ship",
+        "seller": "Time to ship this order"
+      },
+      "shipped": {
+        "buyer": "Your order is on its way",
+        "seller": "Your parcel is on its way"
+      },
+      "delivered": {
+        "buyer": "It arrived. Is everything right?",
+        "seller": "Your parcel arrived"
+      },
+      "completed": {
+        "buyer": "All done",
+        "seller": "Sold and paid"
+      },
+      "cancelled": {
+        "buyer": "This order was cancelled",
+        "seller": "This order was cancelled"
+      },
+      "disputed": {
+        "buyer": "We are looking into it",
+        "seller": "We are looking into it"
+      },
+      "refunded": {
+        "buyer": "Your money was returned",
+        "seller": "This order was refunded"
+      }
+    },
+    "nextNote": {
+      "pending_payment": {
+        "buyer": "We are holding the item for you for a short time. Pay before it goes back on sale",
+        "seller": "You will see the order once it is paid"
+      },
+      "paid": {
+        "buyer": "You will hear from us as soon as it ships. If it is not shipped in time, the order is cancelled",
+        "seller": "Pack the item and tap Mark as shipped. Orders that are not shipped in time are cancelled"
+      },
+      "shipped": {
+        "buyer": "Tap I received it when it arrives. If it is not what you expected, you can open a dispute",
+        "seller": "{{name}} will confirm when it arrives and you are paid after that"
+      },
+      "delivered": {
+        "buyer": "Tap I received it to finish the order. If something is wrong, open a dispute within 2 days",
+        "seller": "The money moves to your balance when {{name}} confirms, or on its own after 2 days"
+      },
+      "completed": {
+        "buyer": "Thank you for buying second hand",
+        "seller": "The money is in your balance"
+      },
+      "cancelled": {
+        "buyer": "The item went back on sale. Any payment was returned",
+        "seller": "The item went back on sale. Any payment was returned to the buyer"
+      },
+      "disputed": {
+        "buyer": "Our team is reviewing this order and will get in touch. You do not need to do anything now",
+        "seller": "Our team is reviewing this order and will get in touch. You do not need to do anything now"
+      },
+      "refunded": {
+        "buyer": "Our team ruled in your favour and the payment was returned",
+        "seller": "Our team ruled for the buyer and the item is back on sale"
+      }
+    },
+    "payBy": "Pay before {{time}}",
+    "pretendNote": "No real money moves in this version. Paying, shipping and delivery here are pretend, so you can try the whole flow safely.",
+    "progress": "Progress",
+    "event": {
+      "create": "Order placed",
+      "pay": "Payment received",
+      "ship": "Marked as shipped",
+      "deliver": "Delivered",
+      "confirm_received": "Receipt confirmed",
+      "auto_complete": "Completed automatically",
+      "cancel": "Order cancelled",
+      "open_dispute": "Dispute opened",
+      "refund": "Refunded",
+      "release": "Payment released to the seller"
+    },
+    "ahead": {
+      "pay": "Payment",
+      "ship": "Shipping",
+      "deliver": "Delivery",
+      "complete": "Complete"
+    },
+    "cancelReason": {
+      "buyer_cancelled": "The buyer cancelled",
+      "seller_cancelled": "The seller cancelled",
+      "payment_failed": "The payment did not go through",
+      "payment_expired": "It was not paid in time",
+      "shipping_timeout": "It was not shipped in time",
+      "item_unavailable": "The item was no longer available",
+      "other": "Cancelled"
+    },
+    "items_one": "Item",
+    "items_other": "Items",
+    "buyer": "Buyer",
+    "seller": "Seller",
+    "openProfile": "Open {{name}}'s profile",
+    "message": "Message {{name}}",
+    "price": "Price",
+    "itemsSubtotal": "Items",
+    "bundleDiscount": "Bundle discount",
+    "protection": "Buyer Protection",
+    "protectionNote": "Buyer Protection covers you if the item is not as described",
+    "shipping": "Postage",
+    "voucher": "Voucher",
+    "total": "Total",
+    "delivery": "Delivery",
+    "deliveryMethod": {
+      "home": "Home delivery",
+      "pickup_point": "Pickup point"
+    },
+    "noAddress": "No address was needed for this order",
+    "tracking": "Tracking code",
+    "pretendParcel": "A pretend parcel, nothing is really moving",
+    "simulateDelivery": "Simulate delivery (development only)",
+    "feedback": "Feedback",
+    "placedOn": "Placed on {{date}}, order #{{number}}",
+    "pay": "Pay now",
+    "ship": "Mark as shipped",
+    "shipConfirmTitle": "Mark as shipped?",
+    "shipConfirmNote": "The buyer will be told it is on its way. In this version no real parcel is created.",
+    "received": "I received it",
+    "receivedConfirmTitle": "Confirm you received it?",
+    "receivedConfirmNote": "This finishes the order and releases the money to the seller. You cannot undo it.",
+    "dispute": "Open a dispute",
+    "disputeTitle": "Open a dispute",
+    "disputeIntro": "Tell us what is wrong. The money stays on hold while our team looks into it.",
+    "disputeDetails": "What went wrong",
+    "disputeHint": "For example the item is damaged or not as described",
+    "disputeConfirm": "Send to our team",
+    "cancel": "Cancel order",
+    "cancelTitle": "Cancel this order?",
+    "cancelIntroBuyer": "The item goes back on sale and any payment is returned. You cannot undo this.",
+    "cancelIntroSeller": "The buyer is refunded and the item goes back on sale. You cannot undo this.",
+    "cancelReasonLabel": "Reason (optional)",
+    "cancelReasonHint": "Tell the other person why",
+    "cancelConfirm": "Yes, cancel the order",
+    "changed": "This order just changed, so we refreshed it. Have a look and try again",
+    "notAllowed": "You cannot do that on this order"
+  },
+  "review": {
+    "title": "Leave a review",
+    "intro": "How was your experience with {{name}}?",
+    "stars_one": "{{count}} star",
+    "stars_other": "{{count}} stars",
+    "rating": {
+      "1": "Poor",
+      "2": "Not great",
+      "3": "Okay",
+      "4": "Good",
+      "5": "Excellent"
+    },
+    "comment": "Your review (optional)",
+    "commentHint": "Say what went well",
+    "send": "Send review",
+    "already": "You already left a review for this order",
+    "prompt": "How was it with {{name}}?",
+    "leave": "Leave a review",
+    "yours": "Your review",
+    "theirs": "{{name}} wrote about you",
+    "reply": "Reply",
+    "editReply": "Edit reply",
+    "replyTitle": "Reply to review",
+    "replyIntro": "Your answer to {{name}} is public",
+    "replyLabel": "Your reply",
+    "replyHint": "Say thank you or clear things up",
+    "replySend": "Send reply",
+    "viewOrder": "View order"
+  },
+  "balance": {
+    "title": "Balance",
+    "available": "Available to withdraw",
+    "pendingLine": "{{amount}} pending until deliveries are confirmed",
+    "withdraw": "Withdraw",
+    "shop": "Shop",
+    "pretendNote": "Your balance and withdrawals are pretend for now. No real money moves.",
+    "emptyTitle": "No activity yet",
+    "emptyNote": "Sales and withdrawals show up here",
+    "pending": "Pending",
+    "void": "Cancelled",
+    "entry": {
+      "sale_credit": "Sale",
+      "withdrawal": "Withdrawal",
+      "balance_spend": "Paid with balance",
+      "refund": "Refund",
+      "referral_bonus": "Referral reward",
+      "adjustment": "Adjustment"
+    },
+    "withdrawTitle": "Withdraw",
+    "withdrawNote": "This is a pretend withdrawal. Nothing is sent to a bank, we only update your balance.",
+    "amount": "Amount",
+    "availableHint": "You have {{amount}} available",
+    "useAll": "Withdraw all",
+    "withdrawConfirm": "Withdraw",
+    "withdrawDone": "Withdrew {{amount}}",
+    "withdrawDoneNote": "Pretend only. Nothing was sent to a bank."
   }
 }

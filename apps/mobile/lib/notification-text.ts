@@ -12,10 +12,19 @@ const num = (v: unknown): number | null => (typeof v === "number" && Number.isFi
  */
 export function notificationText(n: AppNotification, t: TFunction): string {
   const data = n.data;
-  const title = str(data.title) ?? t("inbox.notif.yourItem");
+  const itemCount = num(data.itemCount) ?? 1;
+  const rawTitle = str(data.title);
+  // "Blue coat and 2 more" when an order holds several items (a bundle).
+  const title =
+    rawTitle === null
+      ? t("inbox.notif.yourItem")
+      : itemCount > 1
+        ? t("inbox.notif.andMore", { title: rawTitle, count: itemCount - 1 })
+        : rawTitle;
   const name = n.actor?.username ?? str(data.username) ?? t("inbox.notif.someone");
   const amount = num(data.amountMinor);
-  const money = (minor: number) => formatMoney(minor, "ILS");
+  const currency = str(data.currency) ?? "ILS";
+  const money = (minor: number) => formatMoney(minor, currency);
   const key = (k: string) => `inbox.notif.${k}`;
 
   switch (n.type) {
@@ -27,6 +36,36 @@ export function notificationText(n: AppNotification, t: TFunction): string {
       return amount !== null
         ? t(key("offer_counteredAmount"), { title, amount: money(amount) })
         : t(key("offer_countered"), { title });
+    case "offer_accepted":
+    case "offer_declined":
+      return amount !== null
+        ? t(key(`${n.type}Amount`), { title, amount: money(amount) })
+        : t(key(n.type), { title });
+    case "order_paid":
+      return amount !== null
+        ? t(key("order_paidEarn"), { name, title, amount: money(amount) })
+        : t(key("order_paid"), { name, title });
+    case "order_shipped": {
+      const code = str(data.trackingCode);
+      return code ? t(key("order_shippedTracking"), { title, code }) : t(key("order_shipped"), { title });
+    }
+    case "order_completed":
+      return t(key(data.role === "seller" ? "order_completedSeller" : "order_completed"), { title });
+    case "order_cancelled": {
+      const reason = str(data.reason);
+      const by = str(data.byRole);
+      const variant =
+        reason === "refunded"
+          ? "refunded"
+          : reason === "payment_expired" || reason === "shipping_timeout"
+            ? reason
+            : by === "buyer" || by === "seller"
+              ? by
+              : null;
+      return t(key(variant ? `order_cancelled_${variant}` : "order_cancelled"), { title });
+    }
+    case "review_reminder":
+      return rawTitle ? t(key("review_reminderTitle"), { title }) : t(key("review_reminder"));
     case "listing_favourited": {
       const total = num(data.count) ?? 1;
       return total > 1
@@ -42,7 +81,7 @@ export function notificationText(n: AppNotification, t: TFunction): string {
     case "review_received": {
       const rating = num(data.rating);
       return rating !== null && rating >= 1
-        ? t(key("review_receivedRating"), { count: Math.round(rating) })
+        ? t(key("review_receivedRating"), { count: Math.round(rating), name })
         : t(key("review_received"));
     }
     case "balance_released":
@@ -56,19 +95,12 @@ export function notificationText(n: AppNotification, t: TFunction): string {
       return t(key("platform_message"));
     }
     case "new_message":
-    case "offer_accepted":
-    case "offer_declined":
     case "offer_expired":
     case "favourite_sold":
     case "new_follower":
     case "followed_seller_new_item":
     case "saved_search_match":
-    case "order_paid":
-    case "order_shipped":
     case "order_delivered":
-    case "order_completed":
-    case "order_cancelled":
-    case "review_reminder":
     case "referral_rewarded":
     case "listing_removed":
     case "bump_ended":

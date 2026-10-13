@@ -20,6 +20,7 @@ import {
   upsertMessage,
   upsertNotification,
 } from "@/lib/messaging-queries";
+import { refreshAfterOrderChange } from "@/lib/orders-queries";
 import { queryClient } from "@/lib/query-client";
 
 // One live connection for the signed in person (docs/blueprint/api.md, Socket.IO). Events write into the same
@@ -79,6 +80,8 @@ function refetchAfterReconnect() {
   void queryClient.invalidateQueries({ queryKey: ["conversations"] });
   void queryClient.invalidateQueries({ queryKey: ["unread"] });
   void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+  void queryClient.invalidateQueries({ queryKey: ["orders"] });
+  void queryClient.invalidateQueries({ queryKey: ["order"] });
   for (const id of openThreads) {
     void queryClient.invalidateQueries({ queryKey: ["messages", id] });
     void queryClient.invalidateQueries({ queryKey: ["conversation", id] });
@@ -157,6 +160,12 @@ function connect(userId: string) {
     void queryClient.invalidateQueries({ queryKey: ["unread"] });
   });
   s.on("unread:count", (counts) => setUnread(queryClient, counts));
+  // An order moved (paid, shipped, delivered...): My orders, the open order page and the balance read it again.
+  s.on("order:updated", ({ orderId, conversationId }) => {
+    void queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+    refreshAfterOrderChange(queryClient);
+    if (conversationId) void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
+  });
   s.on("typing", ({ conversationId, userId: who, isTyping }) => {
     if (who !== me) setTyping(conversationId, isTyping);
   });

@@ -3,6 +3,7 @@ import { createInstance } from "i18next";
 import { describe, expect, it } from "vitest";
 import en from "../i18n/locales/en.json";
 import he from "../i18n/locales/he.json";
+import { routeForNotification } from "../lib/notification-route";
 import { notificationText } from "../lib/notification-text";
 
 const make = async (lng: "en" | "he") => {
@@ -54,5 +55,88 @@ describe("notification sentences", () => {
     expect(notificationText(row("listing_favourited", { title: "Coat", count: 5 }), t)).toBe(
       "Someone and 4 others favourited Coat",
     );
+  });
+
+  it("writes the order sentences from their values", async () => {
+    const t = await make("en");
+    const data = { title: "Coat", itemCount: 1, orderNumber: 12 };
+    expect(notificationText(row("order_paid", { ...data, amountMinor: 4500, currency: "ILS" }), t)).toBe(
+      "Someone bought Coat. You will earn ₪45",
+    );
+    expect(notificationText(row("order_paid", { ...data, itemCount: 3 }), t)).toBe(
+      "You sold Coat and 2 more to Someone",
+    );
+    expect(notificationText(row("order_shipped", { ...data, trackingCode: "VT123" }), t)).toBe(
+      "Your order Coat is on its way. Tracking code VT123",
+    );
+    expect(notificationText(row("order_shipped", data), t)).toBe("Your order Coat is on its way");
+    expect(notificationText(row("order_completed", { ...data, role: "seller" }), t)).toBe(
+      "The sale of Coat is complete",
+    );
+    expect(notificationText(row("order_completed", { ...data, role: "buyer" }), t)).toBe(
+      "Your order Coat is complete",
+    );
+    expect(
+      notificationText(row("balance_released", { ...data, amountMinor: 4500, currency: "ILS" }), t),
+    ).toBe("₪45 is now available in your balance");
+  });
+
+  it("tells why an order was cancelled", async () => {
+    const t = await make("en");
+    const sentence = (extra: Record<string, unknown>) =>
+      notificationText(row("order_cancelled", { title: "Coat", itemCount: 1, ...extra }), t);
+    expect(sentence({ reason: "refunded" })).toBe("Your payment for Coat was refunded");
+    expect(sentence({ reason: "buyer_cancelled", byRole: "buyer" })).toBe(
+      "The buyer cancelled the order for Coat",
+    );
+    expect(sentence({ reason: "shipping_timeout", byRole: "system" })).toBe(
+      "The order for Coat was cancelled because it was not shipped in time",
+    );
+    expect(sentence({})).toBe("The order for Coat was cancelled");
+  });
+
+  it("writes offer, review and reminder sentences in both languages", async () => {
+    const en = await make("en");
+    const he = await make("he");
+    const accepted = row("offer_accepted", { title: "Coat", amountMinor: 3000, currency: "ILS" });
+    expect(notificationText(accepted, en)).toBe("Your offer of ₪30 on Coat was accepted");
+    expect(notificationText(accepted, he)).toContain("₪30");
+    const review = row("review_received", { rating: 1 });
+    expect(notificationText(review, en)).toBe("Someone gave you 1 star");
+    expect(notificationText(row("review_received", { rating: 4 }), en)).toBe("Someone gave you 4 stars");
+    expect(notificationText(row("review_received", { rating: 2 }), he)).toContain("שני כוכבים");
+    expect(notificationText(row("review_reminder", { title: "Coat" }), en)).toBe(
+      "How was Coat? Leave feedback",
+    );
+    expect(notificationText(row("favourite_sold", { title: "Coat" }), en)).toBe("Coat has been sold");
+    expect(notificationText(row("order_paid", { title: "Coat", itemCount: 3 }), he)).toContain("שני פריטים");
+  });
+});
+
+describe("where a notification leads", () => {
+  it("opens the order for order news, the chat for offers, the profile for a review", () => {
+    expect(routeForNotification({ type: "order_shipped", orderId: "o1", conversationId: "c1" })).toEqual({
+      pathname: "/(app)/(tabs)/(inbox)/order/[id]",
+      params: { id: "o1" },
+    });
+    expect(routeForNotification({ type: "review_reminder", orderId: "o1", conversationId: "c1" })).toEqual({
+      pathname: "/(app)/(tabs)/(inbox)/order/[id]",
+      params: { id: "o1" },
+    });
+    expect(routeForNotification({ type: "balance_released", orderId: "o1" })).toEqual({
+      pathname: "/(app)/(tabs)/(inbox)/order/[id]",
+      params: { id: "o1" },
+    });
+    expect(routeForNotification({ type: "new_offer", conversationId: "c1", listingId: "l1" })).toEqual({
+      pathname: "/conversation/[id]",
+      params: { id: "c1" },
+    });
+    expect(routeForNotification({ type: "review_received", orderId: "o1", conversationId: "c1" })).toBe(
+      "/profile",
+    );
+    expect(routeForNotification({ type: "favourite_sold", listingId: "l1" })).toEqual({
+      pathname: "/(app)/(tabs)/(inbox)/listing/[id]",
+      params: { id: "l1" },
+    });
   });
 });
