@@ -23,6 +23,7 @@ When a bug went unnoticed for days, look for what hid the signal. Usual suspects
 - Server secrets (database URL, Better Auth secret, R2 keys, OAuth client secrets) are read only by `apps/server` through the Zod env check. They never go into the mobile app.
 - Anything in the mobile app bundle is public. `EXPO_PUBLIC_*` values are public by design. Restrict keys that live there by bundle id instead of hiding them.
 - Production secrets live in Vercel project settings, never in the repo.
+- Eden pastes every secret into Vercel, Google Cloud or Apple himself. Agents fill in the names and stop before the value, and never type passwords or sign in to Apple, Google or Expo for him. Values pasted into Vercel can carry an invisible line break, so the server trims optional settings (`apps/server/src/env.ts`).
 - A user data export must redact tokens. Keep an explicit redaction list and add every new token field to it.
 
 ## Auth and sessions (Better Auth, from Milestone 1)
