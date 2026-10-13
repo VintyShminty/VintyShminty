@@ -146,13 +146,16 @@ export async function publishTestListing(
   ctx: TestContext,
   owner: { token: string; id: string },
   title: string,
+  /** `last` takes a category from the far end of the tree, so these listings do not crowd the ones other tests look for. */
+  where: "first" | "last" = "first",
 ) {
   const reference = (await ctx.app.inject({ method: "GET", url: "/v1/reference" })).json() as ReferenceData;
   const leaves = (nodes: CategoryNode[]): CategoryNode[] =>
     nodes.flatMap((n) => (n.isLeaf ? [n] : leaves(n.children)));
-  const category = leaves(reference.categories).find(
+  const fits = leaves(reference.categories).filter(
     (c) => c.rules.size === "required" && c.rules.brand !== "hidden" && c.sizeGroupIds.length > 0,
-  ) as CategoryNode;
+  );
+  const category = (where === "last" ? fits.at(-1) : fits[0]) as CategoryNode;
   const brandId = (await ctx.app.inject({ method: "GET", url: "/v1/brands?limit=1" })).json().items[0].id;
   const group = reference.sizeGroups.find((g) => category.sizeGroupIds.includes(g.id));
   photoCounter += 1;
@@ -201,3 +204,7 @@ export function apiCaller(ctx: TestContext) {
       ...(payload ? { payload } : {}),
     });
 }
+
+/** A listing in a quiet corner of the category tree. Use it in tests that publish many listings. */
+export const publishQuietListing = (ctx: TestContext, owner: { token: string; id: string }, title: string) =>
+  publishTestListing(ctx, owner, title, "last");

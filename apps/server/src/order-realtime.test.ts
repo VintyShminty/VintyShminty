@@ -6,7 +6,7 @@ import {
   buildTestApp,
   cleanupTestUsers,
   databaseUrl,
-  publishTestListing,
+  publishQuietListing,
   signUpTestUser,
   type TestContext,
   type TestPerson,
@@ -58,7 +58,7 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
   });
 
   it("tells both people about an offer and its answer, and nobody else", async () => {
-    const listingId = await publishTestListing(ctx, seller, `Events ${stamp} offer`);
+    const listingId = await publishQuietListing(ctx, seller, `Events ${stamp} offer`);
     const chat = (await call("POST", "/v1/conversations", buyer.token, { listingId })).json();
     const s = await listen(seller.token);
     const b = await listen(buyer.token);
@@ -111,7 +111,7 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
   });
 
   it("tells both people about every step of an order, and nobody else", async () => {
-    const listingId = await publishTestListing(ctx, seller, `Events ${stamp} order`);
+    const listingId = await publishQuietListing(ctx, seller, `Events ${stamp} order`);
     const s = await listen(seller.token);
     const b = await listen(buyer.token);
     const x = await listen(stranger.token);
@@ -159,7 +159,7 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
   });
 
   it("lets people who hearted an item hear it was sold", async () => {
-    const listingId = await publishTestListing(ctx, seller, `Events ${stamp} heart`);
+    const listingId = await publishQuietListing(ctx, seller, `Events ${stamp} heart`);
     await call("PUT", `/v1/listings/${listingId}/favourite`, stranger.token);
     const x = await listen(stranger.token);
     await pause(100);

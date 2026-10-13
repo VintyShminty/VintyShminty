@@ -7,7 +7,7 @@ import {
   buildTestApp,
   cleanupTestUsers,
   databaseUrl,
-  publishTestListing,
+  publishQuietListing,
   signUpTestUser,
   type TestContext,
   type TestPerson,
@@ -25,7 +25,7 @@ describe.skipIf(!databaseUrl)("offers", () => {
 
   /** A fresh listing and a chat between the buyer and the seller about it. */
   const chatAbout = async (title: string, who: TestPerson = buyer) => {
-    const listingId = await publishTestListing(ctx, seller, `Offer ${stamp} ${title}`);
+    const listingId = await publishQuietListing(ctx, seller, `Offer ${stamp} ${title}`);
     const res = await call("POST", "/v1/conversations", who.token, { listingId });
     return { listingId, conversationId: res.json().id as string };
   };

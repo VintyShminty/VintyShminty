@@ -6,7 +6,7 @@ import {
   buildTestApp,
   cleanupTestUsers,
   databaseUrl,
-  publishTestListing,
+  publishQuietListing,
   signUpTestUser,
   type TestContext,
   type TestPerson,
@@ -25,7 +25,7 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
 
   /** A finished sale: bought, paid, shipped and received. */
   const completedSale = async (title: string) => {
-    const listingId = await publishTestListing(ctx, seller, `Review ${stamp} ${title}`);
+    const listingId = await publishQuietListing(ctx, seller, `Review ${stamp} ${title}`);
     const order = (
       await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
     ).json();
@@ -54,7 +54,7 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
 
   describe("reviews", () => {
     it("is closed until the order is complete", async () => {
-      const listingId = await publishTestListing(ctx, seller, `Review ${stamp} early`);
+      const listingId = await publishQuietListing(ctx, seller, `Review ${stamp} early`);
       const order = (
         await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
       ).json();
@@ -199,7 +199,7 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
       expect(empty).toEqual({ pending: 0, available: 0, currency: "ILS" });
 
       const sale = async (title: string, finish: boolean) => {
-        const listingId = await publishTestListing(ctx, person, `Balance ${stamp} ${title}`);
+        const listingId = await publishQuietListing(ctx, person, `Balance ${stamp} ${title}`);
         const order = (
           await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
         ).json();
@@ -245,7 +245,7 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
 
     it("withdraws pretend money: a negative available row, never more than there is", async () => {
       const person = await signUpTestUser(ctx, "rwithdraw", createdIds);
-      const listingId = await publishTestListing(ctx, person, `Withdraw ${stamp}`);
+      const listingId = await publishQuietListing(ctx, person, `Withdraw ${stamp}`);
       const order = (
         await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
       ).json();

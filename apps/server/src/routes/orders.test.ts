@@ -20,7 +20,7 @@ import {
   buildTestApp,
   cleanupTestUsers,
   databaseUrl,
-  publishTestListing,
+  publishQuietListing,
   signUpTestUser,
   type TestContext,
   type TestPerson,
@@ -39,7 +39,7 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
   let postage = 0;
   const db = () => ctx.database.db;
 
-  const newListing = (title: string) => publishTestListing(ctx, seller, `Order ${stamp} ${title}`);
+  const newListing = (title: string) => publishQuietListing(ctx, seller, `Order ${stamp} ${title}`);
   const buy = (target: object, token = buyer.token, key?: string) =>
     call(
       "POST",
@@ -691,7 +691,7 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
     it("filters bought and sold orders by status chip and pages through them", async () => {
       const lister = await signUpTestUser(ctx, "slist", createdIds);
       const mk = async (title: string, finish: "pending" | "paid" | "completed" | "cancelled") => {
-        const listingId = await publishTestListing(ctx, seller, `List ${stamp} ${title}`);
+        const listingId = await publishQuietListing(ctx, seller, `List ${stamp} ${title}`);
         const res = await call("POST", "/v1/orders", lister.token, {
           listingId,
           deliveryMethod: "pickup_point",
@@ -792,7 +792,7 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect((await call("PUT", `/v1/bundles/${bundle.id}/items/${b}`, buyer.token)).json().itemCount).toBe(
         2,
       );
-      const foreign = await publishTestListing(ctx, other, `Foreign ${stamp}`);
+      const foreign = await publishQuietListing(ctx, other, `Foreign ${stamp}`);
       expect((await call("PUT", `/v1/bundles/${bundle.id}/items/${foreign}`, buyer.token)).statusCode).toBe(
         409,
       );
