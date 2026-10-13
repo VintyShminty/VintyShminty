@@ -1,27 +1,24 @@
-import { feeRules, listingPhotos, listings, profiles, reviews, users } from "@vinty/db";
+import { listings, profiles, reviews, users } from "@vinty/db";
 import {
-  calculateBuyerProtectionFee,
   errorResponseSchema,
+  feedPageSchema,
   idSchema,
-  type ListingCard,
-  listingCardSchema,
-  pageSchema,
-  paginationQuerySchema,
   publicProfileSchema,
   type ReviewItem,
   reviewsPageSchema,
   reviewsQuerySchema,
+  userListingsQuerySchema,
 } from "@vinty/shared";
-import { fromNodeHeaders } from "better-auth/node";
 import { and, desc, eq, inArray, lt, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { decodeCursor, encodeCursor } from "../lib/cursor.js";
+import { filterConditions, queryCardRows, sortSpec, toCards } from "../lib/discovery.js";
 import { ApiError } from "../lib/errors.js";
 import { loadPublicProfile } from "../lib/profiles.js";
+import { optionalViewerId } from "../lib/viewer.js";
 
 const idParams = z.object({ id: idSchema });
-const listingsQuery = paginationQuerySchema.extend({ status: z.enum(["active", "sold"]).default("active") });
 
 /**
  * Read only profile endpoints. They belong to Milestone 3 in docs/blueprint/api.md and arrive early
@@ -30,15 +27,7 @@ const listingsQuery = paginationQuerySchema.extend({ status: z.enum(["active", "
 const userRoutes: FastifyPluginAsyncZod = async (app) => {
   const { db, storage } = app;
 
-  /** Optional auth: a bad or missing session is just "not signed in". */
-  const viewerId = async (headers: Parameters<typeof fromNodeHeaders>[0]) => {
-    try {
-      const session = await app.auth.api.getSession({ headers: fromNodeHeaders(headers) });
-      return session?.user.id;
-    } catch {
-      return undefined;
-    }
-  };
+  const viewerIdOf = (request: Parameters<typeof optionalViewerId>[1]) => optionalViewerId(app, request);
 
   app.get(
     "/v1/users/:id",
@@ -46,7 +35,7 @@ const userRoutes: FastifyPluginAsyncZod = async (app) => {
       schema: { params: idParams, response: { 200: publicProfileSchema, 404: errorResponseSchema } },
     },
     async (request) => {
-      const profile = await loadPublicProfile(app, request.params.id, await viewerId(request.headers));
+      const profile = await loadPublicProfile(app, request.params.id, await viewerIdOf(request));
       if (!profile) throw ApiError.notFound();
       return profile;
     },
@@ -57,13 +46,13 @@ const userRoutes: FastifyPluginAsyncZod = async (app) => {
     {
       schema: {
         params: idParams,
-        querystring: listingsQuery,
-        response: { 200: pageSchema(listingCardSchema), 404: errorResponseSchema },
+        querystring: userListingsQuerySchema,
+        response: { 200: feedPageSchema, 404: errorResponseSchema },
       },
     },
     async (request) => {
       const { id } = request.params;
-      const { status, limit } = request.query;
+      const { status, cursor, limit, sort, ...filters } = request.query;
       const [owner] = await db
         .select({ deletedAt: profiles.deletedAt })
         .from(profiles)
@@ -71,77 +60,17 @@ const userRoutes: FastifyPluginAsyncZod = async (app) => {
         .limit(1);
       if (!owner || owner.deletedAt) throw ApiError.notFound();
 
-      const cursor = decodeCursor<{ b: string; i: string }>(request.query.cursor);
+      const viewerId = await viewerIdOf(request);
+      const reference = await app.reference.get();
+      // The Active chip holds reserved items too. A seller on holiday still shows their own page.
       const statuses = status === "sold" ? (["sold"] as const) : (["active", "reserved"] as const);
-      const rows = await db
-        .select({
-          listing: listings,
-          coverKey: listingPhotos.objectKey,
-          coverWidth: listingPhotos.width,
-          coverHeight: listingPhotos.height,
-          coverPlaceholder: listingPhotos.placeholder,
-        })
-        .from(listings)
-        .leftJoin(listingPhotos, and(eq(listingPhotos.listingId, listings.id), eq(listingPhotos.position, 0)))
-        .where(
-          and(
-            eq(listings.sellerId, id),
-            inArray(listings.status, [...statuses]),
-            cursor
-              ? or(
-                  lt(listings.bumpedAt, new Date(cursor.b)),
-                  and(eq(listings.bumpedAt, new Date(cursor.b)), lt(listings.id, cursor.i)),
-                )
-              : undefined,
-          ),
-        )
-        .orderBy(desc(listings.bumpedAt), desc(listings.id))
-        .limit(limit + 1);
-
-      const feeRows = await db
-        .select()
-        .from(feeRules)
-        .where(eq(feeRules.isActive, true))
-        .orderBy(desc(feeRules.activeFrom));
-      const feeFor = (currency: string) => feeRows.find((f) => f.currency === currency);
-
-      const page = rows.slice(0, limit);
-      const items: ListingCard[] = page.map(
-        ({ listing: l, coverKey, coverWidth, coverHeight, coverPlaceholder }) => {
-          const price = l.priceMinor ?? 0;
-          const fee = feeFor(l.currency);
-          return {
-            id: l.id,
-            status: l.status,
-            title: l.title,
-            brandName: l.brandName,
-            sizeLabel: null,
-            conditionSlug: null,
-            priceMinor: price,
-            buyerPriceMinor: price + (fee ? calculateBuyerProtectionFee(price, fee) : 0),
-            previousPriceMinor: l.previousPriceMinor,
-            currency: l.currency,
-            cover:
-              coverKey && coverWidth && coverHeight
-                ? {
-                    key: coverKey,
-                    url: storage.publicUrl(coverKey),
-                    width: coverWidth,
-                    height: coverHeight,
-                    placeholder: coverPlaceholder,
-                  }
-                : null,
-            favouriteCount: l.favouriteCount,
-            isBumped: Boolean(l.bumpedUntil && l.bumpedUntil > new Date()),
-          };
-        },
-      );
-      const last = page.at(-1)?.listing;
-      return {
-        items,
-        nextCursor:
-          rows.length > limit && last ? encodeCursor({ b: last.bumpedAt.toISOString(), i: last.id }) : null,
-      };
+      const where = [
+        eq(listings.sellerId, id),
+        inArray(listings.status, [...statuses]),
+        ...filterConditions(filters, reference),
+      ];
+      const page = await queryCardRows(db, { where, sort: sortSpec(sort, filters.q), cursor, limit });
+      return { items: await toCards(app, reference, page.rows, { viewerId }), nextCursor: page.nextCursor };
     },
   );
 

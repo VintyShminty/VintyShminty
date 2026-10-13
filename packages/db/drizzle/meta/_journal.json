@@ -15,6 +15,13 @@
       "when": 1791838936274,
       "tag": "0001_brand_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791842297604,
+      "tag": "0002_useful_korg",
+      "breakpoints": true
     }
   ]
 }

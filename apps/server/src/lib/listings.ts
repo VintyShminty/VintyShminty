@@ -1,4 +1,12 @@
-import { type Database, listingColours, listingPhotos, listings, orderItems, profiles } from "@vinty/db";
+import {
+  type Database,
+  favourites,
+  listingColours,
+  listingPhotos,
+  listings,
+  orderItems,
+  profiles,
+} from "@vinty/db";
 import {
   buyerPriceMinor,
   categoryTrail,
@@ -79,9 +87,9 @@ export async function loadListingDetail(
   { db, storage }: Pick<FastifyInstance, "db" | "storage">,
   reference: ReferenceData,
   row: ListingRow,
-  viewerId: string,
+  viewerId?: string,
 ): Promise<ListingDetail> {
-  const [photoRows, colourRows, seller] = await Promise.all([
+  const [photoRows, colourRows, seller, hearted] = await Promise.all([
     db
       .select()
       .from(listingPhotos)
@@ -93,7 +101,18 @@ export async function loadListingDetail(
       .where(eq(listingColours.listingId, row.id))
       .orderBy(asc(listingColours.position)),
     loadPublicProfile({ db, storage }, row.sellerId, viewerId),
+    viewerId
+      ? db
+          .select({ id: favourites.listingId })
+          .from(favourites)
+          .where(and(eq(favourites.userId, viewerId), eq(favourites.listingId, row.id)))
+          .limit(1)
+      : Promise.resolve([]),
   ]);
+  const isOwner = row.sellerId === viewerId;
+  // The sticky bar buttons. Buying and offers are built in Milestones 4 and 5, these say who may see the buttons.
+  const heldForViewer = row.status === "reserved" && Boolean(viewerId) && row.reservedForUserId === viewerId;
+  const open = !isOwner && !seller?.holidayMode && (row.status === "active" || heldForViewer);
 
   const trail = row.categoryId ? categoryTrail(reference.categories, row.categoryId) : [];
   const leaf = trail.at(-1);
@@ -158,11 +177,13 @@ export async function loadListingDetail(
       ratingAverage: seller.ratingAverage,
       reviewCount: seller.reviewCount,
     },
+    sellerOnHoliday: seller.holidayMode,
+    ...(viewerId ? { isFavourited: hearted.length > 0 } : {}),
     viewer: {
-      isOwner: row.sellerId === viewerId,
-      isFavourited: false,
-      canBuy: false,
-      canOffer: false,
+      isOwner,
+      isFavourited: hearted.length > 0,
+      canBuy: open,
+      canOffer: open && row.status === "active",
       conversationId: null,
     },
   };

@@ -9,6 +9,8 @@ import dbPlugin, { type DatabaseHandle } from "./plugins/db.js";
 import errorsPlugin from "./plugins/errors.js";
 import referencePlugin from "./plugins/reference.js";
 import securityPlugin from "./plugins/security.js";
+import discoveryRoutes from "./routes/discovery.js";
+import engagementRoutes from "./routes/engagement.js";
 import healthRoutes from "./routes/health.js";
 import listingRoutes from "./routes/listings.js";
 import meRoutes from "./routes/me.js";
@@ -52,6 +54,8 @@ export async function buildApp({ env, database, mailer, storage }: BuildAppOptio
     await app.register(listingRoutes);
     await app.register(uploadRoutes);
     await app.register(userRoutes);
+    await app.register(discoveryRoutes);
+    await app.register(engagementRoutes);
   }
 
   return app;

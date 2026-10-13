@@ -4,6 +4,7 @@ import {
   boolean,
   char,
   check,
+  date,
   index,
   integer,
   jsonb,
@@ -178,6 +179,26 @@ export const favourites = pgTable(
     // "Favourite items" page, newest first.
     index("favourites_user_idx").on(t.userId, t.createdAt.desc()),
     index("favourites_listing_idx").on(t.listingId),
+  ],
+);
+
+/**
+ * One row per viewer per listing per day. Inserting it (and only when it was new) is what bumps
+ * `listings.view_count`, so refreshing the page never counts twice.
+ */
+export const listingViews = pgTable(
+  "listing_views",
+  {
+    listingId: uuid("listing_id")
+      .notNull()
+      .references(() => listings.id, { onDelete: "cascade" }),
+    /** `u:<user id>` for a signed in viewer, `a:<hash of the address>` for a visitor. */
+    viewerKey: text("viewer_key").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.listingId, t.viewerKey, t.day] }),
+    index("listing_views_day_idx").on(t.day),
   ],
 );
 

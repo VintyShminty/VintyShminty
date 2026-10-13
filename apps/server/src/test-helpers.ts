@@ -94,3 +94,27 @@ export async function latestCode(mailer: MemoryMailer, to: string, afterCount = 
   if (!match?.[1]) throw new Error(`No code in email: ${mail.text}`);
   return match[1];
 }
+
+export const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
+
+/** Signs up a fresh person and returns the session token. The id goes into `createdIds` for cleanup. */
+export async function signUpTestUser(ctx: TestContext, label: string, createdIds: string[]) {
+  const person = newPerson(label);
+  const res = await ctx.app.inject({
+    method: "POST",
+    url: "/api/auth/sign-up/email",
+    payload: {
+      email: person.email,
+      password: person.password,
+      name: person.username,
+      username: person.username,
+    },
+  });
+  const body = res.json();
+  createdIds.push(body.user.id);
+  return {
+    token: res.headers["set-auth-token"] as string,
+    id: body.user.id as string,
+    username: person.username,
+  };
+}

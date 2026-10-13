@@ -11,7 +11,9 @@ import { useRouter } from "expo-router";
 import {
   Award,
   BadgeCheck,
+  Bookmark,
   Check,
+  Heart,
   Leaf,
   type LucideIcon,
   MapPin,
@@ -22,6 +24,7 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, ScrollView, View } from "react-native";
+import { MoreMenu } from "@/components/item/more-menu";
 import { ListingCard } from "@/components/listing-card";
 import { OwnListingCard } from "@/components/own-listing-card";
 import { Avatar } from "@/components/ui/avatar";
@@ -30,6 +33,7 @@ import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Icon } from "@/components/ui/icon";
+import { Row as SettingsRow } from "@/components/ui/row";
 import { Screen } from "@/components/ui/screen";
 import { Spinner } from "@/components/ui/spinner";
 import { StarRating } from "@/components/ui/star-rating";
@@ -129,6 +133,22 @@ function ProfileHeader({
           <Button variant="outline" onPress={() => router.push("/edit-profile")}>
             <Text>{t("profile.edit")}</Text>
           </Button>
+        </View>
+      ) : null}
+
+      {isSelf ? (
+        <View className="mt-sm">
+          <SettingsRow
+            icon={Heart}
+            label={t("favourites.title")}
+            onPress={() => router.push("/favourites")}
+          />
+          <SettingsRow
+            icon={Bookmark}
+            label={t("savedSearches.title")}
+            onPress={() => router.push("/saved-searches")}
+            last
+          />
         </View>
       ) : null}
 
@@ -348,7 +368,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   if (profileQ.isPending) {
     return (
       <Screen bottomInset={false}>
-        <TopBar leading="none" title={isSelf ? t("tabs.profile") : undefined} />
+        <TopBar leading={isSelf ? "none" : "back"} title={isSelf ? t("tabs.profile") : undefined} />
         <Spinner size="large" />
       </Screen>
     );
@@ -356,7 +376,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   if (profileQ.isError || !profileQ.data) {
     return (
       <Screen bottomInset={false}>
-        <TopBar leading="none" title={isSelf ? t("tabs.profile") : undefined} />
+        <TopBar leading={isSelf ? "none" : "back"} title={isSelf ? t("tabs.profile") : undefined} />
         <View className="px-lg pt-lg">
           <Banner variant="error">{t("errors.loadFailed")}</Banner>
           <Button variant="outline" className="mt-lg" onPress={() => profileQ.refetch()}>
@@ -380,10 +400,12 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   return (
     <Screen bottomInset={false}>
       <TopBar
-        leading="none"
+        leading={isSelf ? "none" : "back"}
         title={isSelf ? t("tabs.profile") : undefined}
         trailing={
-          isSelf ? (
+          !isSelf ? (
+            <MoreMenu targetType="user" targetId={userId} reportLabel={t("seller.report")} />
+          ) : (
             <Pressable
               onPress={() => router.push("/settings")}
               hitSlop={8}
@@ -393,7 +415,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
             >
               <Icon as={SettingsIcon} size={22} />
             </Pressable>
-          ) : undefined
+          )
         }
       />
       <FlatList

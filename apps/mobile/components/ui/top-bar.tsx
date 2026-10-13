@@ -29,17 +29,19 @@ type TopBarProps = {
   leading?: "back" | "close" | "none";
   onBack?: () => void;
   trailing?: ReactNode;
+  /** Gives both sides room for a text action such as "Clear all", so the title stays centred. */
+  wideSides?: boolean;
   className?: string;
 };
 
 /** Top bar for pushed screens: back arrow, centred title, optional action at the end (docs/design.md, Navigation). */
-function TopBar({ title, leading = "back", onBack, trailing, className }: TopBarProps) {
+function TopBar({ title, leading = "back", onBack, trailing, wideSides, className }: TopBarProps) {
   const router = useRouter();
   const { t } = useTranslation();
   const goBack = onBack ?? (() => (router.canGoBack() ? router.back() : router.replace("/")));
   return (
     <View className={cn("h-14 flex-row items-center px-sm", className)}>
-      <View className="w-12 items-start">
+      <View className={cn("items-start", wideSides ? "w-24" : "w-12")}>
         {leading === "none" ? null : (
           <Pressable
             onPress={goBack}
@@ -59,7 +61,7 @@ function TopBar({ title, leading = "back", onBack, trailing, className }: TopBar
           </Text>
         ) : null}
       </View>
-      <View className="w-12 items-end">{trailing}</View>
+      <View className={cn("items-end", wideSides ? "w-24 pe-sm" : "w-12")}>{trailing}</View>
     </View>
   );
 }
