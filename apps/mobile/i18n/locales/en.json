@@ -619,16 +619,77 @@
     "favourite": "Add to favourites",
     "unfavourite": "Remove from favourites",
     "search": "Search",
-    "all": "All"
-  },
-  "home": {
-    "chips": {
-      "all": "All",
+    "all": "All",
+    "more": "More",
+    "moreTitle": "More to explore",
+    "allCategories": "All categories",
+    "groups": {
       "women": "Women",
       "men": "Men",
-      "trending": "Trending",
-      "designer": "Designer",
       "kids": "Kids"
+    },
+    "tiles": {
+      "dresses": "Dresses",
+      "tops": "Tops",
+      "jeans": "Jeans",
+      "trousers": "Trousers",
+      "skirts": "Skirts",
+      "coats": "Coats and jackets",
+      "knitwear": "Knitwear",
+      "sneakers": "Sneakers",
+      "shoes": "Shoes",
+      "bags": "Bags",
+      "accessories": "Accessories",
+      "kids": "Kids",
+      "sportswear": "Sportswear",
+      "designer": "Designer",
+      "home": "Home",
+      "electronics": "Electronics",
+      "media": "Books and media",
+      "hobbies": "Hobbies"
+    }
+  },
+  "home": {
+    "greeting": {
+      "morning": "Good morning,",
+      "afternoon": "Good afternoon,",
+      "evening": "Good evening,"
+    },
+    "greetingGuest": "Welcome in",
+    "moods": {
+      "for_you": "For you",
+      "new_today": "New today",
+      "under_50": "Under {{amount}}",
+      "your_sizes": "Your sizes",
+      "near_you": "Near you"
+    },
+    "empty": {
+      "newToday": {
+        "title": "Nothing new yet today",
+        "note": "Check back soon, closets fill up through the day"
+      },
+      "under50": {
+        "title": "Nothing under {{amount}} right now",
+        "note": "Small finds go fast, so look again later"
+      },
+      "sizes": {
+        "title": "Nothing in your sizes yet",
+        "note": "New pieces in your sizes will show up here"
+      },
+      "sizesUnset": {
+        "title": "Tell us your sizes",
+        "note": "Add them once and this tab shows only what fits",
+        "action": "Add my sizes"
+      },
+      "near": {
+        "title": "Nothing near {{city}} yet",
+        "note": "Pieces from sellers in your city will show up here"
+      },
+      "cityUnset": {
+        "title": "Where are you based?",
+        "note": "Add your city and this tab shows pieces from sellers close to you",
+        "action": "Add my city"
+      }
     },
     "emptyTitle": "Nothing here yet",
     "emptyMessage": "New items show up as soon as they are listed"

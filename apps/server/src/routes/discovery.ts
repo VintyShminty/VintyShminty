@@ -30,6 +30,7 @@ import {
   feedBoost,
   filterConditions,
   likeEscape,
+  moodConditions,
   personalSort,
   queryCardRows,
   searchConditions,
@@ -58,11 +59,12 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request) => {
       const viewerId = await optionalViewerId(app, request);
       const reference = await app.reference.get();
-      const { categoryId, trending, limit, cursor } = request.query;
+      const { categoryId, trending, mood, limit, cursor } = request.query;
       const where = [
         inArray(listings.status, [...BROWSABLE_STATUSES]),
         ...visibilityConditions(viewerId),
         ...filterConditions(categoryId ? { categoryId } : {}, reference),
+        ...(await moodConditions(db, mood, viewerId)),
       ];
       // Your own items are not recommended back to you.
       if (viewerId) where.push(sql`${listings.sellerId} <> ${viewerId}`);

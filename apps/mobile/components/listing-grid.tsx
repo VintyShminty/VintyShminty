@@ -19,11 +19,13 @@ type ListingGridProps = {
   header?: React.ReactElement | null;
   emptyTitle: string;
   emptyMessage?: string;
+  /** A button or link under the empty message (Home: add your sizes, add your city). */
+  emptyAction?: React.ReactElement | null;
   /** Hides the heart on every card (a list known to be the viewer's own items). */
   hideHearts?: boolean;
   /** Favourites: sold items keep their heart so they can be removed. */
   heartOnSold?: boolean;
-  /** Extra space under the last row. The tab bar is handled by the screen, so this defaults to the safe area. */
+  /** Extra space under the last row, on top of the safe area (inside a tab, that includes the floating bar). */
   bottomPadding?: number;
   onScrollBeginDrag?: () => void;
 };
@@ -54,6 +56,7 @@ function ListingGrid({
   header,
   emptyTitle,
   emptyMessage,
+  emptyAction,
   hideHearts,
   heartOnSold,
   bottomPadding,
@@ -119,6 +122,7 @@ function ListingGrid({
             {emptyMessage}
           </Text>
         ) : null}
+        {emptyAction}
       </View>
     );
   }
@@ -149,7 +153,7 @@ function ListingGrid({
         <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.accent} />
       }
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ paddingBottom: bottomPadding ?? insets.bottom + 8 }}
+      contentContainerStyle={{ paddingBottom: insets.bottom + (bottomPadding ?? 8) }}
       showsVerticalScrollIndicator={false}
       initialNumToRender={6}
       windowSize={7}

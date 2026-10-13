@@ -7,6 +7,7 @@ import { MessageCircle, Star } from "lucide-react-native";
 import { type ReactNode, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NoteSheet } from "@/components/orders/note-sheet";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { OrderTimeline } from "@/components/orders/order-timeline";
@@ -99,6 +100,7 @@ function ReviewCard({ title, review, onReply }: { title: string; review: ReviewI
 
 /** One order: what is in it, who with, where it stands, the money, and the buttons that make sense right now. */
 export default function OrderScreen() {
+  const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -172,7 +174,7 @@ export default function OrderScreen() {
       <TopBar title={t("orders.orderNumber", { number: order.orderNumber })} />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="pb-2xl"
+        contentContainerStyle={{ paddingBottom: hasFooter ? 40 : insets.bottom + 40 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -416,7 +418,10 @@ export default function OrderScreen() {
       </ScrollView>
 
       {hasFooter ? (
-        <View className="gap-sm border-t border-border-subtle bg-background px-lg py-md">
+        <View
+          className="gap-sm border-t border-border-subtle bg-background px-lg pt-md"
+          style={{ paddingBottom: insets.bottom }}
+        >
           {has("pay") ? (
             <Button size="lg" onPress={checkout}>
               <Text>{t("orders.pay")}</Text>

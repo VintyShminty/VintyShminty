@@ -28,7 +28,14 @@ export default function FilterPanel() {
   const { setFilters, reset } = useSearchStore.getState();
 
   const open = (kind: string) => router.push({ pathname: "/filters/[kind]", params: { kind, scope } });
-  const clearAll = () => reset(scope, { q: state.q });
+  // A Browse tile's own categories stay when everything else is cleared.
+  const clearAll = () =>
+    reset(scope, {
+      q: state.q,
+      ...(state.filters.categoryIds
+        ? { filters: { sort: "relevance", categoryIds: state.filters.categoryIds } }
+        : {}),
+    });
 
   return (
     <Screen bottomInset={false}>

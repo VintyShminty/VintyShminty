@@ -28,6 +28,7 @@ import {
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, ScrollView, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MoreMenu } from "@/components/item/more-menu";
 import { ListingCard } from "@/components/listing-card";
 import { ReplySheet } from "@/components/orders/reply-sheet";
@@ -353,6 +354,7 @@ function AboutSection({ profile }: { profile: PublicProfile }) {
  * Own profile adds Edit profile and the Settings button. Listings and Reviews load from the server.
  */
 function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const router = useRouter();
   const [tab, setTab] = useState<TabKey>("listings");
@@ -486,7 +488,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
         onEndReached={fetchMore}
         onEndReachedThreshold={0.6}
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="pb-2xl"
+        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
         ListHeaderComponent={
           <View>
             <ProfileHeader profile={profile} isSelf={isSelf} tab={tab} onTab={setTab} />

@@ -2,6 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, RefreshControl, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { OrderRow } from "@/components/orders/order-row";
 import { EmptyState, ListSkeleton, LoadError } from "@/components/orders/states";
 import { Chip } from "@/components/ui/chip";
@@ -16,6 +17,7 @@ const FILTERS: OrdersFilter[] = ["all", "in_progress", "completed", "cancelled"]
 
 /** My orders: what I bought and what I sold, filtered by how far along they are. */
 export default function MyOrders() {
+  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const [role, setRole] = useState<OrdersRole>("bought");
   const [filter, setFilter] = useState<OrdersFilter>("all");
@@ -58,6 +60,7 @@ export default function MyOrders() {
       <FlatList
         data={rows}
         keyExtractor={(o) => o.id}
+        contentContainerStyle={{ paddingBottom: insets.bottom }}
         renderItem={({ item }) => <OrderRow order={item} />}
         ListHeaderComponent={
           <ScrollView
