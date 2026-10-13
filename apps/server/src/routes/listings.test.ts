@@ -385,6 +385,7 @@ describe.skipIf(!databaseUrl)("selling", () => {
     });
   });
 
+  // Sixty requests in a row can take more than the default 5 seconds on a busy machine.
   it("rate limits writes at 60 a minute", async () => {
     const limited = await buildTestApp();
     try {
@@ -403,5 +404,5 @@ describe.skipIf(!databaseUrl)("selling", () => {
     } finally {
       await limited.close();
     }
-  });
+  }, 30_000);
 });
