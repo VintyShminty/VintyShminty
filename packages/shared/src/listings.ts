@@ -94,6 +94,8 @@ export const listingCardSchema = z.object({
   favouriteCount: z.number().int(),
   isFavourited: z.boolean().optional(),
   isBumped: z.boolean(),
+  /** When the buzz ends. Only sent on the owner's own views, and only while the item is buzzing. */
+  bumpedUntil: isoDateTimeSchema.nullable().optional(),
   /** Seller is only included on endpoints where the card is not already inside a seller page. */
   seller: userSummarySchema.optional(),
 });

@@ -1,4 +1,5 @@
 import fp from "fastify-plugin";
+import { endFinishedBuzzes } from "../lib/bumps.js";
 import { cleanupFeedData, refreshPopularity } from "../lib/feed-jobs.js";
 import { runOrderJobs } from "../lib/order-jobs.js";
 
@@ -58,6 +59,23 @@ export default fp(
         cleanupFeedData(app, now)
           .then((result) => app.log.info({ result }, "feed cleanup ran"))
           .catch((err) => app.log.error({ err }, "feed cleanup failed"));
+      }, CLEANUP_CHECK_EVERY_MS),
+    );
+
+    // Buzzes that ran out: checked every hour, so "Buzzing" never stays long past its end.
+    let endingBuzz = false;
+    timers.push(
+      setInterval(() => {
+        if (endingBuzz) return;
+        endingBuzz = true;
+        endFinishedBuzzes(app)
+          .then((result) => {
+            if (result.buzzesEnded > 0) app.log.info({ result }, "buzzes ended");
+          })
+          .catch((err) => app.log.error({ err }, "ending buzzes failed"))
+          .finally(() => {
+            endingBuzz = false;
+          });
       }, CLEANUP_CHECK_EVERY_MS),
     );
 

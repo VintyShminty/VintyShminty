@@ -130,6 +130,11 @@ export function pushCopy(
         title: "Vinty",
         body: he ? `פריט שאהבת נמכר: ${title}` : `An item you liked was sold: ${title}`,
       };
+    case "bump_ended":
+      return {
+        title: "Vinty",
+        body: he ? `הבאז על ${title} הסתיים` : `The buzz on ${title} has ended`,
+      };
     default:
       return null;
   }

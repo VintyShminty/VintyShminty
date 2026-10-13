@@ -1,4 +1,5 @@
 export * from "./auth.js";
+export * from "./bumps.js";
 export * from "./common.js";
 export * from "./discovery.js";
 export * from "./enums.js";
