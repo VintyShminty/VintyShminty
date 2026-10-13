@@ -78,7 +78,7 @@ Photo uploads go straight from the phone to the bucket with a one time link made
 
 The server checks all of this when it starts. If something is missing or still points at your Mac, it refuses to start and the deploy log says which setting is wrong in plain words.
 
-Not needed yet: Google and Apple sign in, real push alerts (they wait for the app ID). Push stays on its online default, which tries to send through Expo.
+Google and Apple sign in are switched on in Part J. Real push alerts come later. Push stays on its online default, which tries to send through Expo.
 
 `apps/server/vercel.json` holds the Hobby list (one entry, `/v1/jobs/all` daily). When moving to Pro, replace it with `/v1/jobs/orders` every minute (`* * * * *`), `/v1/jobs/feed-popularity` every 15 minutes (`*/15 * * * *`) and `/v1/jobs/feed-cleanup` daily (`0 3 * * *`).
 
@@ -118,6 +118,56 @@ The coordinator can add all of these with `vercel env add` if you read the value
 Live chat on Vercel: connections are closed by Vercel when a function reaches its maximum duration (5 minutes by default, up to about 13 minutes on Pro). The app already reconnects by itself and reloads what it missed, so people only see a blink ([how it works](https://vercel.com/docs/functions/websockets)). Vercel's WebSocket support is in beta.
 
 To go back to your Mac: put the old two lines back in `apps/mobile/.env` and restart Expo with `-c`.
+
+## Part J: Sign in with Apple and Google
+
+The app already has the two buttons. They stay hidden until the server has the keys below, so you can do this whenever you like. You will make a few values on Apple's and Google's websites and paste them into Vercel. Never paste them in a chat. The app ID is `com.secondhand.marketplace` and your Apple Team ID is `DTT66N8N3D`.
+
+### J1: Apple (about 10 minutes)
+
+The app ID is already registered with Sign In with Apple on, so the phone side is done. Vinty only needs the server to know the app ID.
+
+1. In Vercel, open the project, **Settings**, **Environment Variables**. Add `APPLE_APP_BUNDLE_IDENTIFIER` with the value `com.secondhand.marketplace`, for **Production**. That alone turns Apple on. Redeploy (**Deployments**, the latest one, **Redeploy**).
+
+Later, before the App Store, Apple wants a key so that when someone deletes their Vinty account the link with Apple is removed too. Make it now if you like, it takes two minutes:
+
+2. Open [developer.apple.com/account](https://developer.apple.com/account), then **Certificates, Identifiers & Profiles**, then **Keys** in the left list. Click the **+** next to **Keys**.
+3. Name it `Vinty sign in`. Tick **Sign in with Apple** and click **Configure** beside it. Under **Primary App ID** choose `com.secondhand.marketplace`, click **Save**, then **Continue**, then **Register**.
+4. Click **Download**. You get a file ending in `.p8`. Apple lets you download it only once, so keep it safe (a password manager is best). On the same page copy the **Key ID** (10 letters and numbers).
+5. In Vercel add three more variables for **Production**: `APPLE_TEAM_ID` = `DTT66N8N3D`, `APPLE_KEY_ID` = the Key ID, and `APPLE_PRIVATE_KEY` = the whole text of the `.p8` file (open it with TextEdit, copy everything including the BEGIN and END lines). Vercel keeps the line breaks. The server makes Apple's temporary secret from these by itself every time it starts, you never have to renew anything by hand.
+
+You do **not** need a Services ID or a return address for Apple, those are only for websites.
+
+### J2: Google (about 20 minutes)
+
+You need one thing from Google: a **Web** client. (We use the browser sheet, so no iOS client is needed. If we ever switch to the Google account picker we will add an iOS client then.)
+
+1. Open [console.cloud.google.com](https://console.cloud.google.com) and pick your project in the top bar.
+2. In the left menu click **APIs & Services**, then **OAuth consent screen** (it may now be called **Google Auth Platform**, then **Branding**). Click **Get started**.
+3. App name `Vinty`. User support email: your email. Click **Next**. Audience: choose **External**, **Next**. Contact email: your email, **Next**. Tick the agreement, **Continue**, **Create**.
+4. Still in the same area, open **Audience**. Leave **Publishing status** as **Testing** while you try it. Under **Test users** click **Add users** and add your own Gmail (only test users can log in while it is in Testing). When you are ready for real people, click **Publish app**. Google may ask to verify the app, because we only use basic information (email and name) this is usually quick.
+5. Open **Clients** (or **Credentials**, then **Create credentials**, **OAuth client ID**). Click **Create client**. **Application type**: **Web application**. Name: `Vinty server`.
+6. Under **Authorized redirect URIs** click **Add URI** and paste `https://vinty-shminty.vercel.app/api/auth/callback/google` (your server address, then `/api/auth/callback/google`). Leave **Authorized JavaScript origins** empty. Click **Create**.
+7. A box shows the **Client ID** and **Client secret**. Copy both now into Vercel (**Settings**, **Environment Variables**, Production): `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Redeploy.
+
+### J3: Check it
+
+1. Open `https://vinty-shminty.vercel.app/v1/auth/providers` in a browser. It should show `{"apple":true,"google":true}` (or only the ones you did). If it says false, the Vercel value is missing or you did not redeploy.
+2. Open the app (it must be the new development build, because the app ID changed). The welcome, log in and sign up screens now show the buttons. Apple's button only shows on a real iPhone or a simulator that is signed in to an Apple ID.
+3. Tap one. A new account lands on the two short questions. A returning one lands on Home.
+
+### What goes where
+
+| Value | Where it is made | Where it goes |
+|---|---|---|
+| `com.secondhand.marketplace` | already decided | Vercel `APPLE_APP_BUNDLE_IDENTIFIER` (already inside the app) |
+| Apple Team ID `DTT66N8N3D` | Apple Developer, Membership | Vercel `APPLE_TEAM_ID` (optional now) |
+| Apple Key ID and `.p8` file | Apple Developer, Keys | Vercel `APPLE_KEY_ID` and `APPLE_PRIVATE_KEY` (optional now) |
+| Google Client ID and secret | Google Cloud, web client | Vercel `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` |
+
+Nothing goes into `apps/mobile/.env` for sign in: the app asks the server which buttons to show. For a server on your own Mac, put the same values in `apps/server/.env`, and in Google's client add `http://localhost:3000/api/auth/callback/google` as a second redirect address. Apple sign in works against a local server too, because it only checks the token.
+
+Apple's "hide my email": some people will hide their email. Apple then gives Vinty a random address ending in `privaterelay.appleid.com`. It works as their login email. Emails we send to it (codes, order news) only arrive once the sending domain is registered with Apple (Apple Developer, **Services**, **Sign in with Apple for Email Communication**). Do this when you add your own email domain.
 
 ## If something goes wrong
 
