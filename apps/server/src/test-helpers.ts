@@ -15,6 +15,8 @@ export function testEnv(overrides: Record<string, string> = {}): Env {
     DATABASE_URL: databaseUrl ?? "postgres://test:test@localhost:5432/test",
     MAIL_TRANSPORT: "memory",
     AUTH_RATE_LIMIT_MAX: "1000",
+    JOBS_INTERVAL_SECONDS: "0",
+    SIMULATED_DELIVERY_SECONDS: "0",
     ...overrides,
   });
 }

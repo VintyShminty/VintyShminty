@@ -294,7 +294,13 @@ export async function loadConversationDetail(
         currency: orders.currency,
       })
       .from(orders)
-      .where(eq(orders.conversationId, conversationId))
+      // The seller sees an order once it is paid.
+      .where(
+        and(
+          eq(orders.conversationId, conversationId),
+          userId === row.c.buyerId ? undefined : sql`${orders.paidAt} is not null`,
+        ),
+      )
       .orderBy(desc(orders.createdAt))
       .limit(1),
     isBlockedBetween(app, userId, otherId),

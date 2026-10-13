@@ -8,9 +8,11 @@ import { createStorage, type Storage } from "./lib/storage.js";
 import authPlugin from "./plugins/auth.js";
 import dbPlugin, { type DatabaseHandle } from "./plugins/db.js";
 import errorsPlugin from "./plugins/errors.js";
+import jobsPlugin from "./plugins/jobs.js";
 import messagingPlugin from "./plugins/messaging.js";
 import referencePlugin from "./plugins/reference.js";
 import securityPlugin from "./plugins/security.js";
+import bundleRoutes from "./routes/bundles.js";
 import discoveryRoutes from "./routes/discovery.js";
 import engagementRoutes from "./routes/engagement.js";
 import healthRoutes from "./routes/health.js";
@@ -19,7 +21,9 @@ import meRoutes from "./routes/me.js";
 import messageRoutes from "./routes/messages.js";
 import notificationRoutes from "./routes/notifications.js";
 import offerRoutes from "./routes/offers.js";
+import orderRoutes from "./routes/orders.js";
 import referenceRoutes from "./routes/reference.js";
+import reviewRoutes from "./routes/reviews.js";
 import uploadRoutes from "./routes/uploads.js";
 import userRoutes from "./routes/users.js";
 
@@ -67,6 +71,10 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
     await app.register(messageRoutes);
     await app.register(notificationRoutes);
     await app.register(offerRoutes);
+    await app.register(bundleRoutes);
+    await app.register(orderRoutes);
+    await app.register(reviewRoutes);
+    await app.register(jobsPlugin);
   }
 
   return app;

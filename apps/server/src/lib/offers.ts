@@ -2,16 +2,16 @@ import { conversations, listings, offers, orders } from "@vinty/db";
 import {
   canOfferActorTransition,
   canOfferTransition,
+  nextOfferStatus,
   type Offer,
   type OfferEvent,
   type OfferQuota,
   type OfferStatus,
-  nextOfferStatus,
 } from "@vinty/shared";
 import { and, count, eq, gt, ne, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
-import { notifyEvent } from "./event-notify.js";
 import { ApiError } from "./errors.js";
+import { notifyEvent } from "./event-notify.js";
 import { isBlockedBetween, requireParty } from "./messaging.js";
 import { DAY_MS, HOUR_MS, loadOrderSettings } from "./settings.js";
 import {
@@ -57,7 +57,11 @@ export function presentOffer(row: OfferRecord): Offer {
 // ---- Quota ----
 
 /** Offers a buyer sent in the last 24 hours. Counter offers from a seller do not count, a buyer's own counter does. */
-export async function offerQuota(app: Pick<App, "db">, buyerId: string, now = new Date()): Promise<OfferQuota> {
+export async function offerQuota(
+  app: Pick<App, "db">,
+  buyerId: string,
+  now = new Date(),
+): Promise<OfferQuota> {
   const settings = await loadOrderSettings(app.db);
   const rows = await app.db
     .select({ createdAt: offers.createdAt })
@@ -115,7 +119,8 @@ async function assertQuota(tx: Tx, buyerId: string, limit: number, now: Date) {
 const TOO_HIGH = { amountMinor: "validation.offer.belowPrice" };
 
 function checkAmount(amountMinor: number, listingPriceMinor: number | null) {
-  if (amountMinor <= 0) throw ApiError.invalid("Offer more than zero", { amountMinor: "validation.offer.positive" });
+  if (amountMinor <= 0)
+    throw ApiError.invalid("Offer more than zero", { amountMinor: "validation.offer.positive" });
   if (listingPriceMinor === null || amountMinor >= listingPriceMinor) {
     throw ApiError.invalid("An offer must be lower than the price", TOO_HIGH);
   }
@@ -123,7 +128,7 @@ function checkAmount(amountMinor: number, listingPriceMinor: number | null) {
 
 async function requireOpenListing(db: App["db"], listingId: string) {
   const [listing] = await db.select().from(listings).where(eq(listings.id, listingId)).limit(1);
-  if (!listing || listing.status !== "active") {
+  if (listing?.status !== "active") {
     throw new ApiError(409, "listing_unavailable", "This item is not available");
   }
   return listing;
@@ -173,7 +178,12 @@ export async function createOffer(
         })
         .returning();
       if (!offer) throw new Error("Offer was not saved");
-      const message = await insertOfferMessage(tx, { conversationId, senderId: userId, offerId: offer.id, at: now });
+      const message = await insertOfferMessage(tx, {
+        conversationId,
+        senderId: userId,
+        offerId: offer.id,
+        at: now,
+      });
       return { offer, message };
     });
   } catch (err) {
@@ -259,11 +269,16 @@ export async function answerOffer(
   const side = offer.offeredById === userId ? "offerer" : "recipient";
   if (!canOfferActorTransition(offer.status, answer.event, side)) {
     throw ApiError.forbidden(
-      side === "offerer" ? "You cannot answer your own offer" : "Only the person who made the offer can take it back",
+      side === "offerer"
+        ? "You cannot answer your own offer"
+        : "Only the person who made the offer can take it back",
     );
   }
   const otherId = offer.buyerId === userId ? offer.sellerId : offer.buyerId;
-  if ((answer.event === "accept" || answer.event === "counter") && (await isBlockedBetween(app, userId, otherId))) {
+  if (
+    (answer.event === "accept" || answer.event === "counter") &&
+    (await isBlockedBetween(app, userId, otherId))
+  ) {
     throw new ApiError(403, "blocked", "You cannot answer this person");
   }
   const conversation = await requireParty(app, offer.conversationId, userId);
@@ -273,7 +288,8 @@ export async function answerOffer(
   if (!listing) throw ApiError.notFound();
   if (answer.event === "counter") {
     checkAmount(answer.amountMinor ?? 0, listing.priceMinor);
-    if (listing.status !== "active") throw new ApiError(409, "listing_unavailable", "This item is not available");
+    if (listing.status !== "active")
+      throw new ApiError(409, "listing_unavailable", "This item is not available");
   }
 
   const nextStatus = nextOfferStatus(offer.status, answer.event) as OfferStatus;
@@ -291,7 +307,12 @@ export async function answerOffer(
       const patch: Partial<typeof offers.$inferInsert> = { status: nextStatus, respondedAt: now };
 
       if (answer.event === "accept") {
-        const [row] = await tx.select().from(listings).where(eq(listings.id, offer.listingId)).for("update").limit(1);
+        const [row] = await tx
+          .select()
+          .from(listings)
+          .where(eq(listings.id, offer.listingId))
+          .for("update")
+          .limit(1);
         const heldForBuyer = row?.status === "reserved" && row.reservedForUserId === offer.buyerId;
         if (!row || (row.status !== "active" && !heldForBuyer)) {
           throw new ApiError(409, "listing_unavailable", "This item is not available");
@@ -419,9 +440,18 @@ export async function expireOffer(app: App, offerId: string, now = new Date()): 
       .where(eq(offers.id, row.id))
       .returning();
     offer = updated;
-    const [chat] = await tx.select().from(conversations).where(eq(conversations.id, row.conversationId)).limit(1);
+    const [chat] = await tx
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, row.conversationId))
+      .limit(1);
     conversation = chat;
-    const [item] = await tx.select().from(listings).where(eq(listings.id, row.listingId)).for("update").limit(1);
+    const [item] = await tx
+      .select()
+      .from(listings)
+      .where(eq(listings.id, row.listingId))
+      .for("update")
+      .limit(1);
     title = item?.title ?? "";
     if (row.status === "accepted" && item?.status === "reserved" && item.reservedForUserId === row.buyerId) {
       await tx

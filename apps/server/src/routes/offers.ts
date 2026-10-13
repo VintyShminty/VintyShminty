@@ -1,4 +1,10 @@
-import { errorResponseSchema, idSchema, offerInputSchema, offerQuotaSchema, offerSchema } from "@vinty/shared";
+import {
+  errorResponseSchema,
+  idSchema,
+  offerInputSchema,
+  offerQuotaSchema,
+  offerSchema,
+} from "@vinty/shared";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { ApiError } from "../lib/errors.js";

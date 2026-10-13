@@ -226,11 +226,7 @@ export type ServerToClientEvents = {
   /** An offer bubble changed status. Also goes to both people's rooms, so a closed thread stays right. */
   "message:updated": (payload: { conversationId: string; messageId: string; offer?: MessageOffer }) => void;
   /** An order moved. Goes to the buyer and the seller only. The app refetches the order. */
-  "order:updated": (payload: {
-    orderId: string;
-    status: OrderStatus;
-    conversationId: string | null;
-  }) => void;
+  "order:updated": (payload: { orderId: string; status: OrderStatus; conversationId: string | null }) => void;
   /** A listing was reserved, sold, released or repriced. Goes to people who favourited it or chat about it. */
   "listing:updated": (payload: {
     listingId: string;

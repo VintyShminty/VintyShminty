@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  buyerPriceMinor,
   bundleDiscountPercentFor,
+  buyerPriceMinor,
   calculateBuyerProtectionFee,
   calculateOrderTotals,
   nextBundleTier,

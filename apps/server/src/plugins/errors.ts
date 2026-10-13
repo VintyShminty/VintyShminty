@@ -3,7 +3,9 @@ import fp from "fastify-plugin";
 import { hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { ApiError } from "../lib/errors.js";
 
-type ErrorBody = { error: { code: ErrorCode; message: string; fields?: Record<string, string>; resetsAt?: string } };
+type ErrorBody = {
+  error: { code: ErrorCode; message: string; fields?: Record<string, string>; resetsAt?: string };
+};
 
 /** One error shape for every failure (docs/blueprint/api.md, Errors). */
 export default fp(

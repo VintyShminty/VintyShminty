@@ -147,7 +147,12 @@ export async function listingAudience(db: Db, listingId: string, extra: string[]
       .limit(1000),
   ]);
   return [
-    ...new Set([...(row ? [row.sellerId] : []), ...hearted.map((h) => h.id), ...chatting.map((c) => c.id), ...extra]),
+    ...new Set([
+      ...(row ? [row.sellerId] : []),
+      ...hearted.map((h) => h.id),
+      ...chatting.map((c) => c.id),
+      ...extra,
+    ]),
   ];
 }
 
