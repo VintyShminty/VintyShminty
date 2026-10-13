@@ -45,8 +45,9 @@ const envSchema = z
     APPLE_APP_BUNDLE_IDENTIFIER: optionalText,
 
     // Email. "smtp" sends to SMTP_HOST (Mailpit in development). "memory" keeps mail in a list (tests).
-    // "resend" sends through Resend's web API (needs RESEND_API_KEY), used online.
-    MAIL_TRANSPORT: z.enum(["smtp", "resend", "memory"]).default("smtp"),
+    // "resend" sends through Resend's web API (needs RESEND_API_KEY), used online. "log" writes each email to the
+    // server log instead (a private online test without an email provider, codes are read in the logs).
+    MAIL_TRANSPORT: z.enum(["smtp", "resend", "memory", "log"]).default("smtp"),
     RESEND_API_KEY: optionalText,
     SMTP_HOST: z.string().default("localhost"),
     SMTP_PORT: z.coerce.number().int().default(1025),
@@ -135,6 +136,8 @@ const envSchema = z
     }
     if (env.MAIL_TRANSPORT === "memory") {
       problem("MAIL_TRANSPORT", "In production use resend or smtp, memory throws every email away");
+    } else if (env.MAIL_TRANSPORT === "log") {
+      // Allowed on purpose for a private test: nothing is sent, codes appear in the server log.
     } else if (env.MAIL_TRANSPORT === "resend") {
       if (!env.RESEND_API_KEY) problem("RESEND_API_KEY", "MAIL_TRANSPORT=resend needs RESEND_API_KEY");
     } else if (env.SMTP_HOST === "localhost" || env.SMTP_HOST === "127.0.0.1") {

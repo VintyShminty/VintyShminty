@@ -71,6 +71,15 @@ describe("parseEnv in production", () => {
     expect(() => parseEnv({ ...good, ...change } as Record<string, string>)).toThrow(new RegExp(name));
   });
 
+  it("accepts the log mail transport for a private online test, without a Resend key", () => {
+    expect(
+      parseEnv({ ...good, MAIL_TRANSPORT: "log", RESEND_API_KEY: undefined } as unknown as Record<
+        string,
+        string
+      >).MAIL_TRANSPORT,
+    ).toBe("log");
+  });
+
   it("does not ask for any of that on a laptop", () => {
     expect(() => parseEnv({ DATABASE_URL: "postgres://vinty:vinty@localhost:5432/x" })).not.toThrow();
   });

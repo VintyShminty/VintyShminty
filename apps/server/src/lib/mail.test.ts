@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resendMailer } from "./mail.js";
+import { logMailer, resendMailer } from "./mail.js";
 
 const message = { to: "me@example.com", subject: "Your code", text: "123456", html: "<p>123456</p>" };
 const env = { RESEND_API_KEY: "re_secret", MAIL_FROM: "Vinty <onboarding@resend.dev>" };
@@ -43,5 +43,14 @@ describe("resendMailer", () => {
 
   it("needs a key", () => {
     expect(() => resendMailer({ RESEND_API_KEY: undefined, MAIL_FROM: "x" })).toThrow(/RESEND_API_KEY/);
+  });
+});
+
+describe("logMailer", () => {
+  it("writes the email to the log instead of sending it", async () => {
+    const lines: string[] = [];
+    await logMailer((line) => lines.push(line)).send(message);
+    const entry = JSON.parse(lines[0] as string);
+    expect(entry.mail).toEqual({ to: message.to, subject: message.subject, text: message.text });
   });
 });

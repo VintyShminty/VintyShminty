@@ -76,8 +76,30 @@ export function memoryMailer(): MemoryMailer {
   };
 }
 
+/**
+ * Writes each email to the server log instead of sending it. For a private online test without an email
+ * provider (Eden, 2026-10-13): codes can be read in the Vercel logs. Switch to resend for real people.
+ */
+export function logMailer(
+  write: (line: string) => void = (line) => process.stdout.write(`${line}\n`),
+): Mailer {
+  return {
+    async send(message) {
+      write(
+        JSON.stringify({
+          level: 30,
+          time: Date.now(),
+          msg: "Email not sent (MAIL_TRANSPORT=log)",
+          mail: { to: message.to, subject: message.subject, text: message.text },
+        }),
+      );
+    },
+  };
+}
+
 export function createMailer(env: Env): Mailer {
   if (env.MAIL_TRANSPORT === "memory") return memoryMailer();
+  if (env.MAIL_TRANSPORT === "log") return logMailer();
   if (env.MAIL_TRANSPORT === "resend") return resendMailer(env);
   return smtpMailer(env);
 }
