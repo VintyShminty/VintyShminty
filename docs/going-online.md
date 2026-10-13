@@ -169,6 +169,16 @@ Nothing goes into `apps/mobile/.env` for sign in: the app asks the server which 
 
 Apple's "hide my email": some people will hide their email. Apple then gives Vinty a random address ending in `privaterelay.appleid.com`. It works as their login email. Emails we send to it (codes, order news) only arrive once the sending domain is registered with Apple (Apple Developer, **Services**, **Sign in with Apple for Email Communication**). Do this when you add your own email domain.
 
+## Putting a change online
+
+Vercel is connected to GitHub. Every push to a branch builds a private preview copy, and a merge into `main` goes live by itself. To try a branch on the live address before Eden merges, deploy it by hand from a clean copy (the main folder holds too many local build files for Vercel's upload limit):
+
+1. `git -C VintyShminty-copies/deploy fetch origin && git -C VintyShminty-copies/deploy checkout --detach origin/<branch>`
+2. In that folder: `vercel deploy --prod --yes --scope vinty1` (the copy is linked to the project once with `vercel link`).
+3. Check `https://vinty-shminty.vercel.app/health/db`. Only deploy after `pnpm typecheck`, `pnpm lint` and `pnpm test` passed, chained with `&&`.
+
+The upload only includes files git tracks, so git-ignored `.env` files never leave the Mac. The next merge into `main` replaces a hand deploy, so merge soon after.
+
 ## If something goes wrong
 
 - Deploy fails with "Invalid environment": read the list, it names the exact setting.

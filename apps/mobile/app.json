@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Vinty",
+    "name": "Shminty",
     "slug": "vinty",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,8 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "infoPlist": {
-        "CFBundleLocalizations": ["en"]
+        "CFBundleLocalizations": ["en"],
+        "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.secondhand.marketplace",
       "usesAppleSignIn": true

@@ -18,7 +18,7 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Simulated checkout.** In version 1 Pay always succeeds and no money moves.
 - **Minor units.** Money as whole agorot (cents), stored as an integer to avoid rounding errors.
 - **Better Auth.** The sign in library used from Milestone 1.
-- **Cloudflare R2.** Online storage for photos, planned for when the app goes online.
+- **Cloudflare R2.** Online storage for photos. The bucket is `vinty-photos`.
 - **Expo.** The tool that builds the phone app and lets Eden preview it.
 - **Development build.** A version of the app built for the Mac and simulator that can do Face ID and real right to left, unlike Expo Go.
 - **Expo Go.** The quick preview app. Good for fast looks, but no Face ID and no forced right to left.
@@ -26,3 +26,16 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Trailing and leading edge.** The end and start of a line. Right and left in English, left and right in Hebrew.
 - **Push panel.** A full-screen page that slides in from the trailing edge and shoves the current screen aside. Used for categories and filters.
 - **Product spec.** The Vinted UX deconstruction. Where we have not decided something ourselves, we follow it for how things work, never for names, wording or looks (`docs/originality.md`).
+- **Vercel.** The company that runs the server online. Project `vinty-shminty`, address `https://vinty-shminty.vercel.app`.
+- **Deploy.** Putting a version of the server online. A merge into `main` deploys by itself.
+- **Environment variable (setting).** A named value the server reads when it starts, like the database address. Secret ones live only in Vercel.
+- **Neon.** The online Postgres database (`vinty-db`, Frankfurt).
+- **Redis (Upstash).** A fast shared memory that lets the server copies pass chat messages to each other.
+- **Cron job.** A scheduled alarm. Vercel calls `/v1/jobs/all` once a day on the free plan.
+- **App ID (bundle id).** The app's permanent identity with Apple and Google, `com.secondhand.marketplace`. Users never see it.
+- **App Store Connect.** Apple's website for apps. Our entry is "Shminty".
+- **TestFlight.** Apple's app for installing test versions before the App Store.
+- **EAS.** Expo's build service. It builds the iPhone app on Expo's computers and uploads it to Apple.
+- **OAuth client (login key).** The pair of values Google gives so our server may offer "Continue with Google".
+- **Test user.** A Google account allowed to use Google login while it is in testing mode.
+- **Account linking.** Connecting a Google or Apple login to an existing Vinty account with the same email.

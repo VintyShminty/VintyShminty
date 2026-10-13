@@ -22,3 +22,9 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Accepted risks get a name, a reason and a recheck date.** A vulnerability with no fix is accepted explicitly, never silenced. Source: `pnpm-workspace.yaml`, commit `4c4e85f`.
 - **Right to left means start and end, never left and right.** Source: log 2026-10-12 evening, commit `4abebb7`.
 - **A helper that restarts mid-task is safe if finished work is already pushed.** Source: log 2026-10-12 evening.
+- **Check a claim before writing it down.** "Vercel cannot run live chat" and "Vercel is not connected to GitHub" were both wrong and caught only by checking. Source: log 2026-10-13 afternoon, compile 2026-10-13.
+- **Chain checks before a deploy.** One change went live before its type check passed because commands were joined with `;`. Use `&&`. Source: log 2026-10-13 night.
+- **The first deploy of a new host fails several times.** Budget for it and read the log each time, the fixes were all small. Source: log 2026-10-13 late evening.
+- **Ask what accounts exist before asking Eden to open one.** The roadmap said "not started" for an account he had. Source: log 2026-10-13 evening, memory `accounts-eden-has`.
+- **Read the safety refusal, do not route around it.** A blocked command went back to Eden as a small manual step. Source: log 2026-10-13 late evening.
+- **Brief helpers fully and stack their branches on open PRs.** Sonnet built sign in and the error page from one message each, and was told when the base PR merged. Source: PRs #23, #25.
