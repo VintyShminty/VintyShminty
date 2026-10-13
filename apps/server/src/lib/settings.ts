@@ -11,6 +11,8 @@ export type OrderSettings = {
   shipByDays: number;
   autoCompleteHoursAfterDelivery: number;
   autoReviewRating: number;
+  referralRewardMinor: number;
+  referralMinOrderMinor: number;
 };
 
 const DEFAULTS: OrderSettings = {
@@ -21,6 +23,8 @@ const DEFAULTS: OrderSettings = {
   shipByDays: 5,
   autoCompleteHoursAfterDelivery: 48,
   autoReviewRating: 5,
+  referralRewardMinor: 5000,
+  referralMinOrderMinor: 5000,
 };
 
 const KEYS: Record<keyof OrderSettings, string> = {
@@ -31,6 +35,8 @@ const KEYS: Record<keyof OrderSettings, string> = {
   shipByDays: "ship_by_days",
   autoCompleteHoursAfterDelivery: "auto_complete_hours_after_delivery",
   autoReviewRating: "auto_review_rating",
+  referralRewardMinor: "referral_reward_minor",
+  referralMinOrderMinor: "referral_min_order_minor",
 };
 
 export async function loadOrderSettings(db: Db): Promise<OrderSettings> {

@@ -81,7 +81,7 @@ const MESSAGES = new Map<string, Pair>([
 /** The known error codes, for tests. */
 export const KNOWN_AUTH_ERROR_CODES = [...MESSAGES.keys()];
 
-const STYLE = `
+export const PAGE_STYLE = `
 *{box-sizing:border-box}
 body{margin:0;background:#FBF8F2;color:#241811;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
 main{max-width:480px;margin:0 auto;padding:32px 16px}
@@ -91,10 +91,11 @@ h1{font-size:22px;line-height:1.25;margin:0 0 8px;font-weight:700}
 p{margin:0 0 20px;color:#54443A;font-size:16px}
 a.btn{display:block;text-align:center;background:#4B2E22;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:16px;padding:14px 16px;border-radius:12px}
 a.btn:active{opacity:.85}
+.code{font-size:32px;font-weight:700;letter-spacing:4px;text-align:center;background:#F1E9DA;border-radius:12px;padding:16px;margin:0 0 20px;color:#4B2E22;direction:ltr}
 `.trim();
 
 /** Hash of the inline style, so the page's policy allows exactly this style and nothing else. */
-export const AUTH_ERROR_STYLE_HASH = `sha256-${createHash("sha256").update(STYLE).digest("base64")}`;
+export const AUTH_ERROR_STYLE_HASH = `sha256-${createHash("sha256").update(PAGE_STYLE).digest("base64")}`;
 
 /** The policy for this one route: nothing loads from anywhere, only the page's own style block applies. */
 export const AUTH_ERROR_CSP = [
@@ -126,7 +127,7 @@ export function authErrorPage(code: unknown, appScheme: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Vinty</title>
-<style>${STYLE}</style>
+<style>${PAGE_STYLE}</style>
 </head>
 <body>
 <main>

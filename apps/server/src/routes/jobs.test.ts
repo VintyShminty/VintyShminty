@@ -2,7 +2,13 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildTestApp, databaseUrl, type TestContext } from "../test-helpers.js";
 
 const SECRET = "test-cron-secret-0123456789";
-const URLS = ["/v1/jobs/orders", "/v1/jobs/feed-popularity", "/v1/jobs/feed-cleanup", "/v1/jobs/all"];
+const URLS = [
+  "/v1/jobs/orders",
+  "/v1/jobs/feed-popularity",
+  "/v1/jobs/feed-cleanup",
+  "/v1/jobs/buzz-end",
+  "/v1/jobs/all",
+];
 
 // Runs only when DATABASE_URL points at a migrated local database.
 describe.skipIf(!databaseUrl)("scheduler endpoints", () => {

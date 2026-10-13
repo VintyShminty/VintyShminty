@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
+import { endFinishedBuzzes } from "../lib/bumps.js";
 import { cleanupFeedData, refreshPopularity } from "../lib/feed-jobs.js";
 import { runOrderJobs } from "../lib/order-jobs.js";
 
@@ -53,6 +54,14 @@ const jobRoutes: FastifyPluginAsync = async (app) => {
     handler: async () => ({ ok: true, ...(await cleanupFeedData(app)) }),
   });
 
+  app.route({
+    method: ["GET", "POST"],
+    url: "/v1/jobs/buzz-end",
+    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
+    preHandler: guard,
+    handler: async () => ({ ok: true, ...(await endFinishedBuzzes(app)) }),
+  });
+
   // Everything in one call, for a scheduler that may only run once a day (Vercel Hobby).
   app.route({
     method: ["GET", "POST"],
@@ -63,7 +72,8 @@ const jobRoutes: FastifyPluginAsync = async (app) => {
       const orders = await runOrderJobs(app);
       await refreshPopularity(app);
       const cleanup = await cleanupFeedData(app);
-      return { ok: true, orders, cleanup };
+      const buzz = await endFinishedBuzzes(app);
+      return { ok: true, orders, cleanup, buzz };
     },
   });
 };

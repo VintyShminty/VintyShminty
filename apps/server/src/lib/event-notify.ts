@@ -113,10 +113,27 @@ export function pushCopy(
         title: "Vinty",
         body: he ? `איך היה? אפשר להשאיר משוב על ${title}` : `How did it go? Leave feedback for ${title}`,
       };
+    case "referral_rewarded":
+      return {
+        title: he ? "קיבלתם שובר" : "You earned a voucher",
+        body:
+          text(data, "role") === "invitee"
+            ? he
+              ? `ההזמנה הראשונה שלכם הושלמה. ${amount} מחכים לכם`
+              : `Your first order is done. ${amount} is waiting for you`
+            : he
+              ? `החבר/ה שהזמנתם סיימו הזמנה ראשונה. ${amount} מחכים לכם`
+              : `Your friend finished a first order. ${amount} is waiting for you`,
+      };
     case "favourite_sold":
       return {
         title: "Vinty",
         body: he ? `פריט שאהבת נמכר: ${title}` : `An item you liked was sold: ${title}`,
+      };
+    case "bump_ended":
+      return {
+        title: "Vinty",
+        body: he ? `הבאז על ${title} הסתיים` : `The buzz on ${title} has ended`,
       };
     default:
       return null;

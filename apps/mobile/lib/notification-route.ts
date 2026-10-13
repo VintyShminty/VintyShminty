@@ -16,6 +16,7 @@ type Target = {
  */
 export function routeForNotification(target: Target): Href | null {
   if (target.type === "review_received") return "/profile";
+  if (target.type === "referral_rewarded") return "/(app)/(tabs)/(inbox)/invite";
   if (target.orderId) {
     return { pathname: "/(app)/(tabs)/(inbox)/order/[id]", params: { id: target.orderId } };
   }

@@ -33,6 +33,7 @@ import { loadSellerSummaries } from "./discovery.js";
 import { ApiError } from "./errors.js";
 import { notifyEvent } from "./event-notify.js";
 import { refreshSellerCounts } from "./listings.js";
+import { notifyReferralRewarded, rewardReferralOnCompletion } from "./referrals.js";
 import { leaveAutomaticReview, presentReviews, reviewsOfOrder } from "./reviews.js";
 import { DAY_MS, HOUR_MS, loadOrderSettings, type OrderSettings } from "./settings.js";
 import {
@@ -292,6 +293,8 @@ async function applyStep(
           }),
         );
       }
+      // A friend's first big enough order pays out the invite for both sides (Invite friends).
+      const reward = await rewardReferralOnCompletion(tx, order, settings, now);
       run.after.push(async () => {
         const common = {
           orderId: order.id,
@@ -318,6 +321,9 @@ async function applyStep(
           ...common,
           data: orderData(run, { role: "buyer" }),
         });
+        if (reward) {
+          await notifyReferralRewarded(run.app, reward, settings.referralRewardMinor, order.currency);
+        }
       });
       break;
     }

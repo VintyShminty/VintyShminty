@@ -40,6 +40,11 @@ export function buyerPrice(
   return rule ? buyerPriceMinor(priceMinor, rule) : priceMinor;
 }
 
+/** When the buzz on this item ends, or null when it is not buzzing now. */
+export function activeBuzzEnd(row: Pick<ListingRow, "bumpedUntil">, now = new Date()): string | null {
+  return row.bumpedUntil && row.bumpedUntil > now ? row.bumpedUntil.toISOString() : null;
+}
+
 export function toPhoto(
   storage: FastifyInstance["storage"],
   row: Pick<PhotoRow, "objectKey" | "width" | "height" | "placeholder">,
@@ -157,6 +162,7 @@ export async function loadListingDetail(
     cover: photos[0] ?? null,
     favouriteCount: row.favouriteCount,
     isBumped: Boolean(row.bumpedUntil && row.bumpedUntil > new Date()),
+    ...(isOwner ? { bumpedUntil: activeBuzzEnd(row) } : {}),
     description: row.description,
     category: leaf
       ? {
@@ -224,6 +230,7 @@ export function toMyCard(
     cover: extra.cover ? toPhoto(storage, extra.cover) : null,
     favouriteCount: row.favouriteCount,
     isBumped: Boolean(row.bumpedUntil && row.bumpedUntil > new Date()),
+    bumpedUntil: activeBuzzEnd(row),
     viewCount: row.viewCount,
     publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
