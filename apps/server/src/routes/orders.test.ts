@@ -231,6 +231,14 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(res.json().error.code).toBe("listing_unavailable");
     });
 
+    it("lets only one of two buyers reach the same item at the same time", async () => {
+      const listingId = await newListing("race");
+      const both = await Promise.all([buy({ listingId }, buyer.token), buy({ listingId }, other.token)]);
+      expect(both.map((r) => r.statusCode).sort()).toEqual([201, 409]);
+      const loser = both.find((r) => r.statusCode === 409);
+      expect(loser?.json().error.code).toBe("listing_unavailable");
+    });
+
     it("needs an address for home delivery and keeps a copy of it", async () => {
       const listingId = await newListing("home");
       const noAddress = await buy({ listingId, deliveryMethod: "home" });
@@ -374,6 +382,17 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const again = await call("POST", `/v1/orders/${id}/pay`, buyer.token);
       expect(again.statusCode).toBe(200);
       expect(again.json().status).toBe("paid");
+      expect(await db().select().from(payments).where(eq(payments.orderId, id))).toHaveLength(1);
+      expect(await db().select().from(walletEntries).where(eq(walletEntries.orderId, id))).toHaveLength(1);
+    });
+
+    it("treats two taps at once as one payment", async () => {
+      const { id } = await placed("pay race");
+      const both = await Promise.all([
+        call("POST", `/v1/orders/${id}/pay`, buyer.token),
+        call("POST", `/v1/orders/${id}/pay`, buyer.token),
+      ]);
+      expect(both.map((r) => r.statusCode)).toEqual([200, 200]);
       expect(await db().select().from(payments).where(eq(payments.orderId, id))).toHaveLength(1);
       expect(await db().select().from(walletEntries).where(eq(walletEntries.orderId, id))).toHaveLength(1);
     });

@@ -177,11 +177,15 @@ const orderRoutes: FastifyPluginAsyncZod = async (app) => {
         await transitionOrder(app, order.id, "cancel", SYSTEM_ACTOR, { cancelReason: "payment_expired" });
         throw new ApiError(409, "invalid_transition", "This checkout has expired");
       }
-      return presentOrderDetail(
-        app,
-        await transitionOrder(app, order.id, "pay", { role: "buyer", userId }),
-        userId,
-      );
+      try {
+        const paidOrder = await transitionOrder(app, order.id, "pay", { role: "buyer", userId });
+        return await presentOrderDetail(app, paidOrder, userId);
+      } catch (err) {
+        // Two taps at once: the second finds the order already paid and gets the same answer as the first.
+        const current = await requireOrderParty(db, order.id, userId);
+        if (current.paidAt && current.status !== "cancelled") return presentOrderDetail(app, current, userId);
+        throw err;
+      }
     },
   );
 
