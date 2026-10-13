@@ -1465,8 +1465,40 @@
       "kids": "Kids"
     },
     "sizes": {
-      "title": "What are your sizes?",
-      "subtitle": "Pieces in your sizes show up first on Home. You can change this any time in Settings"
+      "whoTitle": "Whose sizes?",
+      "whoSubtitle": "Pick one for now. You can add the others any time in Settings",
+      "upper": {
+        "title": "Upper body",
+        "hint": "Tops, T-shirts and jackets"
+      },
+      "full": {
+        "title": "Dresses and more",
+        "hint": "Your number size, from shoulders to ankles"
+      },
+      "lower": {
+        "title": "Lower body",
+        "hint": "Trousers and jeans, by waist size"
+      },
+      "waist": {
+        "title": "Waist",
+        "hint": "Belts, in centimetres"
+      },
+      "feet": {
+        "title": "Feet",
+        "hint": "Shoes, in EU sizes"
+      },
+      "kidsAge": {
+        "title": "Clothes",
+        "hint": "Pick the ages you shop for"
+      },
+      "kidsFeet": {
+        "title": "Little feet",
+        "hint": "Shoes, in EU sizes"
+      },
+      "next": "Next",
+      "skipPart": "Skip this one",
+      "back": "Back",
+      "progress": "Step {{current}} of {{total}}"
     }
   },
   "away": {
