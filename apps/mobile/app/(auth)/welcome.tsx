@@ -1,9 +1,8 @@
 import { useRouter } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { WelcomePhoto } from "@/components/auth-photo";
+import { WelcomeContent } from "@/components/auth-motion";
 import { SocialButtons } from "@/components/social-buttons";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -14,9 +13,7 @@ export default function Welcome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   return (
-    <View className="flex-1 bg-pressed">
-      <StatusBar style="light" />
-      <WelcomePhoto />
+    <WelcomeContent>
       <View
         className="flex-1 px-lg"
         style={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 12 }}
@@ -64,6 +61,6 @@ export default function Welcome() {
           <SocialButtons onPhoto className="mt-lg" />
         </View>
       </View>
-    </View>
+    </WelcomeContent>
   );
 }
