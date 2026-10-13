@@ -1,9 +1,4 @@
-import {
-  AFFINITY_FEATURES,
-  FEED_HIDE_SCOPES,
-  FEED_SURFACES,
-  USER_EVENT_TYPES,
-} from "@vinty/shared";
+import { AFFINITY_FEATURES, FEED_HIDE_SCOPES, FEED_SURFACES, USER_EVENT_TYPES } from "@vinty/shared";
 import { sql } from "drizzle-orm";
 import {
   customType,
@@ -61,9 +56,7 @@ export const userEvents = pgTable(
     position: smallint("position"),
     feedId: uuid("feed_id"),
     /** Search text, time on an item. */
-    data: jsonb("data")
-      .notNull()
-      .default(sql`'{}'::jsonb`),
+    data: jsonb("data").notNull().default(sql`'{}'::jsonb`),
     occurredAt: ts("occurred_at").notNull().defaultNow(),
   },
   (t) => [

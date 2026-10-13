@@ -61,6 +61,12 @@ const envSchema = z
     // 45 in development and off everywhere else, 0 switches it off. The buyer's "I received it" always works.
     SIMULATED_DELIVERY_SECONDS: z.coerce.number().int().min(0).optional(),
 
+    // Protects the scheduler endpoints (GET or POST /v1/jobs/...). A scheduler such as Vercel Cron sends it as
+    // "Authorization: Bearer <value>". Empty switches the endpoints off.
+    CRON_SECRET: optionalText.refine((v) => v === undefined || v.length >= 16, {
+      message: "CRON_SECRET must be at least 16 characters",
+    }),
+
     // Object storage (MinIO in development, Cloudflare R2 online)
     S3_ENDPOINT: z.string().url().default("http://localhost:9000"),
     S3_REGION: z.string().default("us-east-1"),

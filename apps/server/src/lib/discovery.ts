@@ -2,13 +2,10 @@ import {
   blocks,
   type Database,
   favourites,
-  follows,
   listingColours,
   listingPhotos,
   listings,
   profiles,
-  userBrands,
-  userSettings,
   userSizes,
   users,
 } from "@vinty/db";
@@ -317,28 +314,6 @@ export async function toCards(
 }
 
 /**
- * The feed's "looks newer by" points for a signed in person who keeps personalisation on. Each point shifts a
- * listing 6 hours towards the top: +4 a seller they follow, +3 a category they favourited, +2 a brand they favourited
- * or follow, +2 a size from their personalisation list. Not signed in or switched off: 0 for everything.
- */
-export async function feedBoost(db: Db, viewerId: string | undefined): Promise<SQL> {
-  if (!viewerId) return sql`0`;
-  const [settings] = await db
-    .select({ on: userSettings.personaliseFeed })
-    .from(userSettings)
-    .where(eq(userSettings.userId, viewerId))
-    .limit(1);
-  if (settings && !settings.on) return sql`0`;
-  const hearted = sql`select l2.category_id, l2.brand_id from ${favourites} f join ${listings} l2 on l2.id = f.listing_id where f.user_id = ${viewerId}`;
-  return sql`(
-    (case when exists (select 1 from ${follows} where ${follows.followerId} = ${viewerId} and ${follows.followeeId} = ${listings.sellerId}) then 4 else 0 end)
-    + (case when ${listings.categoryId} in (select category_id from (${hearted}) h where category_id is not null) then 3 else 0 end)
-    + (case when ${listings.brandId} in (select brand_id from (${hearted}) h where brand_id is not null union select ${userBrands.brandId} from ${userBrands} where ${userBrands.userId} = ${viewerId}) then 2 else 0 end)
-    + (case when ${listings.sizeId} in (select ${userSizes.sizeId} from ${userSizes} where ${userSizes.userId} = ${viewerId}) then 2 else 0 end)
-  )`;
-}
-
-/**
  * The extra WHERE of a mood chip on Home. `viewer` is what the chip needs to know about the person: their sizes and
  * city. A chip that needs something the person has not set (no sizes, no city, not signed in) matches nothing.
  */
@@ -369,12 +344,6 @@ export async function moodConditions(
   if (!city) return [sql`false`];
   return [sql`lower(trim(${listings.city})) = ${city}`];
 }
-
-/** Feed order: bump time plus the personal boost. */
-export const personalSort = (boost: SQL): SortSpec => ({
-  key: sql`(${bumpedMs} + ${boost} * ${FEED_BOOST_MS}::bigint)`,
-  dir: "desc",
-});
 
 /** Trending: hearts count 5, views count 1, then newest first. */
 export const trendingSort = (): SortSpec => ({

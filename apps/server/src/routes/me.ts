@@ -38,6 +38,7 @@ import { and, eq, inArray, ne, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { ApiError } from "../lib/errors.js";
+import { deleteAllFeedData, resetLearnedTaste } from "../lib/events.js";
 import { loadMe } from "../lib/profiles.js";
 import { keyBelongsToUser, MAX_UPLOAD_BYTES } from "../lib/storage.js";
 
@@ -168,6 +169,8 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
       if (Object.keys(request.body).length > 0) {
         await db.update(userSettings).set(request.body).where(eq(userSettings.userId, userId));
       }
+      // Turning the personalised feed off also forgets what it learned.
+      if (request.body.personaliseFeed === false) await resetLearnedTaste(db, userId);
       return loadSettings(userId);
     },
   );
@@ -307,6 +310,7 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
           tx.delete(notificationPreferences).where(eq(notificationPreferences.userId, userId)),
           tx.delete(userSizes).where(eq(userSizes.userId, userId)),
           tx.delete(userBrands).where(eq(userBrands.userId, userId)),
+          deleteAllFeedData(tx, userId),
           tx.delete(verifications).where(sql`${verifications.identifier} like ${`%${before.email}%`}`),
           tx.delete(sessions).where(eq(sessions.userId, userId)),
           tx.delete(accounts).where(eq(accounts.userId, userId)),

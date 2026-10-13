@@ -366,11 +366,14 @@ describe.skipIf(!databaseUrl)("discovery", () => {
   });
 
   describe("feed", () => {
-    it("is newest first for visitors and carries the chips", async () => {
+    it("puts new arrivals near the top for visitors and carries the chips", async () => {
       const fresh = await publish(alice, { title: `${word} fresh arrival` });
-      const feed = await get("/v1/feed?limit=5");
+      // Not strictly newest first any more: a page holds at most 2 items of one seller and the order has a small shuffle.
+      const feed = await get("/v1/feed?limit=50");
       expect(feed.statusCode).toBe(200);
-      expect(ids(feed)).toContain(fresh.id);
+      expect(ids(feed).slice(0, 30)).toContain(fresh.id);
+      expect(feed.json().feedId).toBeTruthy();
+      expect(feed.json().items[0].reason === null || typeof feed.json().items[0].reason.kind === "string").toBe(true);
       expect(feed.json().items[0].isFavourited).toBeUndefined();
       expect(ids(feed)).not.toContain(bobItem.id);
 
@@ -475,10 +478,8 @@ describe.skipIf(!databaseUrl)("discovery", () => {
         .update(listings)
         .set({ bumpedAt: new Date(Date.now() - 3 * 3_600_000) })
         .where(eq(listings.id, older.id));
-      const newer = await publish(alice, { title: `${word} newer other item` });
-
-      const anon = ids(await get("/v1/feed?limit=50"));
-      expect(anon.indexOf(newer.id)).toBeLessThan(anon.indexOf(older.id));
+      const other = await signUpTestUser(ctx, "unfollowed", createdIds);
+      const newer = await publish(other, { title: `${word} newer other item` });
 
       await ctx.database.db.insert(follows).values({ followerId: carol.id, followeeId: seller.id });
       const mine = ids(await get("/v1/feed?limit=50", carol.token));
