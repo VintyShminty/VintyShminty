@@ -81,7 +81,7 @@ export function buildSocialProviders(env: Env) {
             clientId: env.GOOGLE_CLIENT_ID as string,
             clientSecret: env.GOOGLE_CLIENT_SECRET as string,
             // The browser sheet remembers the last Google account, so always show the chooser.
-            prompt: "select_account",
+            prompt: "select_account" as const,
           },
         }
       : {}),
