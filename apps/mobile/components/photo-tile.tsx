@@ -22,7 +22,15 @@ function PhotoTile({ label, photoUrl, onPress, className }: PhotoTileProps) {
       accessibilityLabel={label}
       className={cn("overflow-hidden rounded-control bg-pressed active:opacity-90", className)}
     >
-      {photoUrl ? <Image source={{ uri: photoUrl }} contentFit="cover" className="absolute inset-0" /> : null}
+      {photoUrl ? (
+        <Image
+          source={{ uri: photoUrl }}
+          contentFit="cover"
+          transition={200}
+          style={{ position: "absolute", top: 0, bottom: 0, start: 0, end: 0 }}
+          accessibilityIgnoresInvertColors
+        />
+      ) : null}
       <View className="absolute inset-x-0 bottom-0 h-3/5" pointerEvents="none">
         {/* The gradient reads its colour from the tokens (text-1, the dark brown), so no hex lives here. */}
         <Svg width="100%" height="100%" preserveAspectRatio="none">
