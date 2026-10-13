@@ -43,7 +43,7 @@ A thin outline icon from one set (Lucide) that always takes the colour of its su
 
 ### Screen
 
-The page container. It handles the safe area, 16px side padding and clearance above the tab bar.
+The page container. It handles the safe area and 16px side padding. Inside a tab the safe area includes the room under the floating tab bar (`TabStack`, `lib/tab-bar.ts`), so a list or scroll view that adds `insets.bottom` under its last row never ends up behind the bar.
 
 - **Variants and states:** With tab bar clearance, without tab bar (task pages), fixed header, scrolling or static body.
 - **Screens:** Every screen
@@ -325,7 +325,7 @@ Shows the seller price and what the buyer pays, with the buyer protection shield
 
 ### SearchBar
 
-The big rounded search box at the top of Home and Browse, with a camera for photo search.
+The big rounded search box at the top of Browse (Home uses a round search button beside the greeting since D-019), with a camera for photo search.
 
 - **Variants and states:** States: idle (tap opens search), focused, filled with clear, busy (Searching...). Camera icon on the right. 32px radius.
 - **Screens:** Home feed, Browse, Search and results
@@ -343,16 +343,25 @@ The scrolling row of filter chips above search results, with the Filter button f
 
 ### CategoryTile
 
-A light tinted tile on the Browse grid: label top-left, picture bottom-right. Opens one main category (D-009).
+Superseded in part by D-019: Browse now uses PhotoTile. Kept for reference. A light tinted tile on the Browse grid: label top-left, picture bottom-right. Opens one main category (D-009).
 
 - **Variants and states:** Variants: icon tile (a Lucide line icon is a placeholder, illustration style to decide). States: default, pressed (scale 0.98). Long labels wrap. Fill accent-tint, 12px radius.
 - **Screens:** Browse
 - **Source:** Custom (Composed from Pressable, Icon and Text)
 - **Phase:** First flows
 
+### PhotoTile
+
+A Browse tile (D-019, row 5): a photo with the name at the bottom start over a dark gradient (an SVG gradient drawn from the text-1 token, no hex). 12px radius, portrait 4:5, in a 2 column grid. Built with `components/photo-tile.tsx`. The tiles and their order live in `lib/browse-tiles.ts`, photos are the `browse/` files in object storage (`pnpm storage:seed` in development).
+
+- **Variants and states:** With photo, plain tint (the More tile). States: default, pressed (opacity). The More tile is a full width accent-tint bar with an arrow that turns in Hebrew.
+- **Screens:** Browse, Browse More
+- **Source:** Custom (Pressable, expo-image, react-native-svg)
+- **Phase:** Milestone 6
+
 ### CategoryGrid
 
-The body of the Browse tab: the search bar on top, then the main categories as a 2 column grid of CategoryTiles (Women, Men, Designer, Kids, Home, Electronics, Books and media, Hobbies and collectables, Sports).
+Superseded in part by D-019 (the Browse root is now PhotoTiles, the category tree sits behind the More tile). Was: the body of the Browse tab: the search bar on top, then the main categories as a 2 column grid of CategoryTiles (Women, Men, Designer, Kids, Home, Electronics, Books and media, Hobbies and collectables, Sports).
 
 - **Variants and states:** 2 columns, 12px gaps, scrolls. States: default, loading (skeleton tiles).
 - **Screens:** Browse
@@ -389,9 +398,9 @@ The two-column feed of item cards with infinite scroll and a loading spinner at 
 
 ### BottomTabBar
 
-The five tabs at the bottom: Home, Browse, Sell, Inbox, Profile. The default navigation, no side drawer (D-009).
+The five tabs: Home, Browse, Sell, Inbox, Profile. The default navigation, no side drawer (D-009). Since D-019 it is a floating bar (`components/navigation/floating-tab-bar.tsx`): 64px tall, 32px radius, 95 percent white with a hairline border and a soft shadow, 16px from each side and above the home indicator, over the content. Icons only, each tab keeps its name for screen readers. The active tab sits on an accent-tint pill. Sell is a raised 56px round espresso button with a camera that opens the sell form. It hides while the keyboard is open.
 
-- **Variants and states:** States per tab: idle (outline icon, muted label), active (accent icon and label), pressed. Inbox unread count pill. Hidden on task pages only: the sell form, the Filter panel, the conversation screen. Stays visible on every page opened from a tab (item page, member profile, Search, Favourites, Saved searches, Settings), because each tab has its own stack (D-017). Tapping the active tab goes back to its first screen. Keeps its order in Hebrew (D-016). Sits above the home indicator.
+- **Variants and states:** States per tab: idle (muted icon), active (accent icon on an accent-tint pill), pressed. Inbox unread count pill. Hidden on task pages only: the sell form, the Filter panel, the conversation screen. Stays visible on every page opened from a tab (item page, member profile, Search, Favourites, Saved searches, Settings), because each tab has its own stack (D-017). Tapping the active tab goes back to its first screen. Keeps its order in Hebrew (D-016). Sits above the home indicator.
 - **Screens:** Home feed, Browse, Search and results, Inbox, Profile menu, Favourites, My orders
 - **Source:** Custom (Built on the Expo Router tab bar)
 - **Phase:** First flows

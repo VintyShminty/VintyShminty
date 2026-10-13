@@ -16,7 +16,7 @@ The Vinted UX breakdown that `docs/design.md` refers to guides how things work. 
 
 ## Chosen directions
 
-Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `docs/mockups/originality-round-2.html` (open them to see each option). Recorded as D-019 in `docs/design.md`. Phase A (wording) is built, see the checklist. The visual parts are not built yet.
+Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `docs/mockups/originality-round-2.html` (open them to see each option). Recorded as D-019 in `docs/design.md`. Phase A (wording) is built, see the checklist. Built since: the tab bar (row 14), the Home top (row 4) and Browse tiles (row 5). The other visual parts are not built yet.
 
 | # | Area | Choice | Still open |
 |---|---|---|---|
@@ -81,7 +81,7 @@ Tick an item when it is changed in both English and Hebrew.
 ### Should change (the combination)
 
 - [ ] **Item card.** Change at least two details: the order of brand, description and price, where the heart count sits, or the badge look
-- [ ] **Home screen top.** Make the search bar and category chips feel like ours (a greeting, a different chip style or order)
+- [x] **Home screen top.** Make the search bar and category chips feel like ours (a greeting, a different chip style or order). Greeting, round search button and mood chips built, Home no longer has category chips
 - [x] **Condition names.** Replace "Satisfactory" at least, reword the rest in our voice
 - [x] **"Bundle discounts".** Rename
 
@@ -96,7 +96,7 @@ Tick an item when it is changed in both English and Hebrew.
 
 ### Already fine, no action
 
-Espresso and cream colours, Aileron and Heebo fonts, outline pill badges, espresso star ratings, the tab bar, and the order of steps in the sell form and filters.
+Espresso and cream colours, Aileron and Heebo fonts, outline pill badges, espresso star ratings, and the order of steps in the sell form and filters. The tab bar is now our own floating bar (row 14).
 
 ## Proposals for Eden
 
@@ -137,7 +137,7 @@ The other four (First sale, 10 sales, Complete profile, Eco hero) are not Vinted
 
 ### 3. Browse tiles (photo tiles by item type)
 
-Proposed order, most browsed first, with a photo per tile and the name over a dark gradient: Dresses, Tops, Jeans, Trousers, Skirts, Coats and jackets, Knitwear, Sneakers, Shoes, Bags, Accessories, Kids, Sportswear, Vintage finds. Fourteen is a lot for one screen, so a first version could stop at ten (up to Bags) and put the rest behind a "More" tile. Women, Men and Kids stay as filters inside each tile, not as the first level.
+Applied in part (m6-nav): the first ten tiles plus a More tile, in `apps/mobile/lib/browse-tiles.ts` (reorder there). More holds Accessories, Kids, Sportswear, Designer, Home, Electronics, Books and media, Hobbies and then the whole category tree as rows. Vintage finds is not a category, so it has no tile. Proposed order, most browsed first, with a photo per tile and the name over a dark gradient: Dresses, Tops, Jeans, Trousers, Skirts, Coats and jackets, Knitwear, Sneakers, Shoes, Bags, Accessories, Kids, Sportswear, Vintage finds. Fourteen is a lot for one screen, so a first version could stop at ten (up to Bags) and put the rest behind a "More" tile. Women, Men and Kids stay as filters inside each tile, not as the first level.
 
 ### 4. Voice guide draft: Friends' closets
 
