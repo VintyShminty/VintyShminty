@@ -8,6 +8,18 @@ describe("parseEnv", () => {
     expect(env.NODE_ENV).toBe("development");
   });
 
+  it("trims pasted sign in keys and treats blank ones as missing", () => {
+    const env = parseEnv({
+      DATABASE_URL: "postgres://x",
+      GOOGLE_CLIENT_ID: "abc.apps.googleusercontent.com\n",
+      GOOGLE_CLIENT_SECRET: "  secret ",
+      APPLE_APP_BUNDLE_IDENTIFIER: " \n",
+    });
+    expect(env.GOOGLE_CLIENT_ID).toBe("abc.apps.googleusercontent.com");
+    expect(env.GOOGLE_CLIENT_SECRET).toBe("secret");
+    expect(env.APPLE_APP_BUNDLE_IDENTIFIER).toBeUndefined();
+  });
+
   it("fails fast when DATABASE_URL is missing", () => {
     expect(() => parseEnv({})).toThrow(/DATABASE_URL/);
   });

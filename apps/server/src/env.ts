@@ -3,10 +3,12 @@ import { z } from "zod";
 /** Placeholder secret that .env.example ships with. Fine on a laptop, refused in production. */
 export const DEV_AUTH_SECRET = "dev-only-secret-change-me-0123456789abcdef";
 
+// Trimmed because values pasted into Vercel often carry an invisible line break at the end, and Google then
+// rejects the client ID as unknown.
 const optionalText = z
   .string()
   .optional()
-  .transform((v) => (v && v.trim() !== "" ? v : undefined));
+  .transform((v) => v?.trim() || undefined);
 
 /** True for an address on this machine (localhost, 127.0.0.1, ::1) or one that cannot be read. */
 function isLocalAddress(value: string): boolean {

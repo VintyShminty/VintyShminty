@@ -74,7 +74,10 @@ export function SocialButtons({ onPhoto = false, className }: { onPhoto?: boolea
           onPress={() => run("google", signInWithGoogle)}
         >
           {busy === "google" ? null : <GoogleMark />}
-          <Text className="text-text-1">{t("social.google")}</Text>
+          {/* Heading size so the label matches the size Apple draws on its own button next to it. */}
+          <Text variant="heading" weight={600} className="text-text-1">
+            {t("social.google")}
+          </Text>
         </Button>
       ) : null}
     </View>
