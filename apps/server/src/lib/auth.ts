@@ -114,8 +114,9 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
       // The app sends no name at sign up. The sign up route insists on one, so give it an empty one and let
       // the user hook above fill it with the username.
       before: createAuthMiddleware(async (ctx) => {
-        if (ctx.path === "/sign-up/email" && ctx.body && typeof ctx.body.name !== "string") {
-          ctx.body.name = "";
+        const body = ctx.body as { name?: unknown } | undefined;
+        if (ctx.path === "/sign-up/email" && body && typeof body.name !== "string") {
+          body.name = "";
         }
       }),
     },

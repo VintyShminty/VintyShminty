@@ -1,6 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  // strict is repeated here because Vercel's build check reads this file without the base one.
-  "compilerOptions": { "strict": true, "types": ["node"] },
+  "compilerOptions": { "types": ["node"] },
   "include": ["src"]
 }
