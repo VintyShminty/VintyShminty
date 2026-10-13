@@ -20,3 +20,4 @@ apps/server/.dev-credentials.local
 
 # The product spec is an outside reference with another company's material. Never commit it.
 docs/vinted-ux-spec.html
+.vercel
