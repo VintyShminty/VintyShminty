@@ -8,7 +8,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { AppState, View } from "react-native";
+import { AppState, LogBox, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppLock } from "@/components/app-lock";
@@ -21,6 +21,9 @@ import { ensureNativeLtr, layoutDirection } from "@/lib/rtl";
 import { colors } from "@/theme";
 
 void SplashScreen.preventAutoHideAsync();
+
+// A known harmless React Native warning. In development its banner covers the bottom of the screen (tab bar, buttons).
+LogBox.ignoreLogs(["Sending `onAnimatedValueUpdate` with no listeners registered"]);
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useAppFonts();

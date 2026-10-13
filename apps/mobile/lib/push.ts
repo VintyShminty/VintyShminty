@@ -1,4 +1,5 @@
 import Constants from "expo-constants";
+import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Alert, Platform } from "react-native";
 import i18n from "@/i18n";
@@ -33,6 +34,8 @@ Notifications.setNotificationHandler({
 
 /** Gets this phone's Expo push token and gives it to the server. Returns false when it could not (no error shown). */
 async function registerToken(): Promise<boolean> {
+  // A simulator never gets a token, and asking prints a developer warning that covers the bottom of the screen.
+  if (!Device.isDevice) return false;
   try {
     const projectId = Constants.expoConfig?.extra?.eas?.projectId as string | undefined;
     const { data: token } = await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined);
