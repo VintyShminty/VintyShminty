@@ -1475,35 +1475,34 @@
     "sizes": {
       "whoTitle": "Whose sizes?",
       "whoSubtitle": "Pick one for now. You can add the others any time in Settings",
-      "upper": {
-        "title": "Upper body",
-        "hint": "Tops, T-shirts and jackets"
+      "tops": {
+        "title": "Tops",
+        "hint": "T-shirts, shirts, knitwear and jackets"
       },
-      "full": {
-        "title": "Dresses and more",
-        "hint": "Your number size, from shoulders to ankles"
+      "bottoms": {
+        "title": "Bottoms",
+        "hint": "Trousers, jeans and shorts, by waist"
       },
-      "lower": {
-        "title": "Lower body",
-        "hint": "Trousers and jeans, by waist size"
+      "belts": {
+        "title": "Belts",
+        "hint": "In centimetres"
       },
-      "waist": {
-        "title": "Waist",
-        "hint": "Belts, in centimetres"
+      "shoes": {
+        "title": "Shoes",
+        "hint": "In EU sizes"
       },
-      "feet": {
-        "title": "Feet",
-        "hint": "Shoes, in EU sizes"
-      },
-      "kidsAge": {
+      "kidsClothes": {
         "title": "Clothes",
         "hint": "Pick the ages you shop for"
       },
-      "kidsFeet": {
-        "title": "Little feet",
-        "hint": "Shoes, in EU sizes"
+      "kidsShoes": {
+        "title": "Shoes",
+        "hint": "In EU sizes"
       },
-      "next": "Next",
+      "letters": "Letters",
+      "euNumbers": "EU numbers",
+      "waistLabel": "Waist",
+      "nextTo": "Next: {{step}}",
       "skipPart": "Skip this one",
       "back": "Back",
       "progress": "Step {{current}} of {{total}}"
