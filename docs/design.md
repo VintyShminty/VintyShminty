@@ -462,6 +462,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Rationale:** Sign up asks only for email and password (D-020) and Apple and Google sign in skip that screen, so one place for the code works for every way of joining.
 - **Implementation:** `app/(app)/(tabs)/(home,browse,inbox,profile)/invite.tsx`, `apps/server/src/lib/referrals.ts`.
 
+### D-025 : Away mode screen, return date chips and the banner on your profile
+
+- **Date:** 2026-10-13
+- **Area:** Settings, Profile, Help
+- **Status:** Built on branch m9-away-help, waiting for Eden's review
+- **Decision:** Settings has an "Away mode" row with a moon icon (it shows "On" while it is on). It opens a screen with one switch. Once on, a moon line says "Away until 20 Oct" or "Away until you switch it off", and a row of chips picks the return date: In 1 week, In 2 weeks, In 1 month, In 2 months, No date. While you are away, your own profile starts with a soft info coloured strip with a moon, one sentence and a small "I'm back" button. Settings also gets a "Help" row with a question mark icon (bundled articles in five groups: Buying, Selling, Shipping and orders, Your account, Safety, each article a short title and a few paragraphs, then a "Still stuck?" card that opens an email to us).
+- **Rationale:** Chips need no native date picker (a new native module would need a new TestFlight build) and cover how people really use a break. The banner puts the way back where people see their own items, so nobody stays hidden by accident.
+- **Trade-off:** You cannot pick an exact day, only these choices (the server accepts any day up to 90 days, so a date picker can come later).
+- **Implementation:** `apps/mobile/app/(app)/(tabs)/(profile)/settings/away-mode.tsx`, `settings/help/index.tsx` and `[id].tsx`, `components/profile-view.tsx` (`AwayBanner`), `lib/help-topics.ts`, locale keys `away.*` and `help.*`
+- **References:** D-019, `docs/originality.md`
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 

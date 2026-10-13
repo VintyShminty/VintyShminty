@@ -6,6 +6,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import {
+  type AwayMode,
+  awayModeSchema,
   type Brand,
   brandSchema,
   favouriteResultSchema,
@@ -86,6 +88,16 @@ export const userReviewsQuery = (userId: string, source: "all" | "member" | "aut
       ),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
+
+/** Away mode on or off, with an optional return date (ISO). Refreshes everything that shows the seller. */
+export function useSetAwayMode(userId?: string) {
+  const refresh = useInvalidateProfile();
+  return useMutation({
+    mutationFn: (input: { enabled: boolean; endsAt?: string | null }) =>
+      api<AwayMode>("/v1/me/away-mode", { method: "PUT", body: input, schema: awayModeSchema }),
+    onSuccess: () => refresh(userId),
+  });
+}
 
 /** After a profile change, everything that shows the person is refreshed. */
 function useInvalidateProfile() {
