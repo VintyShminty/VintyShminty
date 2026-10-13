@@ -31,6 +31,11 @@ updates:
       - dependency-name: react
       - dependency-name: react-dom
       - dependency-name: "@types/react"
+      # Big version jumps (Tailwind 4, TypeScript 7, newer Node types) can break the toolchain
+      # and must follow Expo and Node 22. They are upgraded by hand, never through Dependabot.
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
 
   # Keeps the full commit SHA pins in .github/workflows up to date, with the version comment.
   - package-ecosystem: github-actions
