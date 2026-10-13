@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 
 /** Swipeable full-width photos at 3:4 with a "2 / 5" counter (docs/components.md, PhotoCarousel). */
-function PhotoCarousel({ photos }: { photos: Photo[] }) {
+function PhotoCarousel({ photos, onSwipe }: { photos: Photo[]; onSwipe?: () => void }) {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const height = Math.round((width * 4) / 3);
@@ -35,7 +35,11 @@ function PhotoCarousel({ photos }: { photos: Photo[] }) {
         style={{ direction: "ltr" }}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(p) => p.key}
-        onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
+        onMomentumScrollEnd={(e) => {
+          const next = Math.round(e.nativeEvent.contentOffset.x / width);
+          if (next !== index) onSwipe?.();
+          setIndex(next);
+        }}
         renderItem={({ item, index: i }) => (
           <Image
             source={{ uri: item.url }}

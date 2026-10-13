@@ -70,6 +70,38 @@ export const feedQuerySchema = paginationQuerySchema.extend({
 });
 export type FeedQuery = z.infer<typeof feedQuerySchema>;
 
+/** Why a card is in the home feed. The app turns `kind` plus `name` into a sentence in the person's language. */
+export const FEED_REASON_KINDS = [
+  "follows_seller",
+  "like_seller",
+  "like_brand",
+  "like_category",
+  "matches_size",
+  "new_in_category",
+  "new",
+  "popular",
+  "price_drop",
+  "explore",
+] as const;
+export type FeedReasonKind = (typeof FEED_REASON_KINDS)[number];
+export const feedReasonSchema = z.object({
+  kind: z.enum(FEED_REASON_KINDS),
+  /** The seller's username, the brand name or the category name. Null when the sentence has no name. */
+  name: localisedNameSchema.nullable(),
+});
+export type FeedReason = z.infer<typeof feedReasonSchema>;
+
+/** A card on the home feed. `reason` is null when nothing in particular put it there. */
+export const feedCardSchema = listingCardSchema.extend({ reason: feedReasonSchema.nullable() });
+export type FeedCard = z.infer<typeof feedCardSchema>;
+
+/**
+ * GET /v1/feed. `feedId` names the saved list the page came from (null for Trending). The app sends it back with each
+ * card seen, so the server knows what was shown.
+ */
+export const homeFeedPageSchema = pageSchema(feedCardSchema).extend({ feedId: idSchema.nullable() });
+export type HomeFeedPage = z.infer<typeof homeFeedPageSchema>;
+
 /** Cards in the feed, search, similar and favourites carry `seller` (see `listingCardSchema`). */
 export const feedPageSchema = pageSchema(listingCardSchema);
 

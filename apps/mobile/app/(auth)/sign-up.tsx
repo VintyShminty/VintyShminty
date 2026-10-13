@@ -15,6 +15,7 @@ import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 import { describeAuthError } from "@/lib/auth-errors";
 import { useLockStore } from "@/lib/lock-store";
+import { markOnboardingPending } from "@/lib/onboarding";
 
 export default function SignUp() {
   const { t } = useTranslation();
@@ -29,7 +30,7 @@ export default function SignUp() {
 
   const onSubmit = handleSubmit(async (values) => {
     setBanner(null);
-    const { error } = await authClient.signUp.email({
+    const { data, error } = await authClient.signUp.email({
       email: values.email,
       password: values.password,
       // No name or username here (D-020). The server makes the username from the email, and the name starts as it.
@@ -44,6 +45,8 @@ export default function SignUp() {
       }
       return;
     }
+    // A new account gets the two short questions once, before Home (lib/onboarding.ts).
+    if (data?.user.id) markOnboardingPending(data.user.id);
     // Logged in. The app switches to the tabs by itself.
     useLockStore.getState().unlock();
   });

@@ -12,6 +12,7 @@ import { and, count, eq, gt, ne, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { ApiError } from "./errors.js";
 import { notifyEvent } from "./event-notify.js";
+import { recordEvents } from "./events.js";
 import { isBlockedBetween, requireParty } from "./messaging.js";
 import { DAY_MS, HOUR_MS, loadOrderSettings } from "./settings.js";
 import {
@@ -202,6 +203,7 @@ export async function createOffer(
       data: offerData(created.offer, listing.title),
     });
   });
+  await recordEvents(app, userId, [{ type: "offer", listingId: listing.id }]);
   return presentOffer(created.offer);
 }
 

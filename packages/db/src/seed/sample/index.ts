@@ -40,6 +40,7 @@ import {
 } from "../../schema/index.js";
 import type { SeedDb } from "../connection.js";
 import { type Archetype, archetypes, photoGroups } from "./archetypes.js";
+import { seedBehaviour } from "./behaviour.js";
 import { loadRefContext } from "./context.js";
 import { samplePeople, streets } from "./people.js";
 import { assertAssetsExist, photoSizes } from "./photos.js";
@@ -239,6 +240,25 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
   for (const item of rng.sample(live(), 2)) {
     item.row.status = "removed";
     item.row.statusReason = "Removed by a moderator after a report";
+  }
+
+  // Nine live dresses become Zara, so the person with a clear taste (below) has enough of them to lean towards.
+  // No random numbers are used here, so the rest of the sample data stays the same.
+  const zaraId = brandOf("Zara");
+  const zaraDresses = items.filter(
+    (i) =>
+      i.categorySlug.startsWith("women-clothing-dresses") &&
+      i.row.status === "active" &&
+      i.row.sellerId !== person("noa_levi").id,
+  );
+  for (const item of zaraDresses.slice(0, 9)) {
+    const was = item.row.brandName;
+    if (was && was !== "Zara") {
+      item.row.title = item.row.title.replace(was, "Zara");
+      item.row.description = item.row.description?.replace(was, "Zara");
+    }
+    item.row.brandId = zaraId;
+    item.row.brandName = "Zara";
   }
 
   // Price drops: 14% of live listings were cheaper after a drop
@@ -1102,6 +1122,23 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
   // Favourites: about 700, only on live or sold listings and never on your own
   const favouritable = items.filter((i) => ["active", "sold", "reserved"].includes(i.row.status as string));
   const favRows: Insert<typeof favourites>[] = [];
+  // Noa hearts six Zara dresses on purpose (her taste, see seedBehaviour below)
+  const noaPerson = person("noa_levi");
+  const zaraNoaLikes = items.filter(
+    (i) =>
+      i.row.brandName === "Zara" &&
+      i.categorySlug.startsWith("women-clothing-dresses") &&
+      i.row.status === "active" &&
+      i.row.sellerId !== noaPerson.id,
+  );
+  zaraNoaLikes.slice(0, 6).forEach((item, i) => {
+    item.favouritedBy.add(noaPerson.id);
+    favRows.push({
+      userId: noaPerson.id,
+      listingId: item.row.id,
+      createdAt: ago(Math.min(5, i % 6), 1 + (i % 3)),
+    });
+  });
   for (let n = 0; n < 900 && favRows.length < 700; n++) {
     const item = rng.pick(favouritable);
     const user = rng.pick(people);
@@ -1529,6 +1566,44 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
   await db.insert(profiles).values(profileRows);
   await insertChunks((rows) => db.insert(userBadges).values(rows), badgeRows);
 
+  // One person with clear taste: Noa keeps coming back to Zara dresses
+  const asBehaviour = (item: Item) => ({
+    id: item.row.id,
+    sellerId: item.row.sellerId,
+    categoryId: item.row.categoryId ?? null,
+    brandId: item.row.brandId ?? null,
+    sizeId: item.row.sizeId ?? null,
+    conditionId: item.row.conditionId ?? null,
+    priceMinor: item.row.priceMinor ?? null,
+    colourIds: item.colourIds,
+  });
+  const noaLikes = zaraNoaLikes.concat(
+    items.filter(
+      (i) =>
+        i.row.brandName === "Zara" &&
+        i.categorySlug.startsWith("women-clothing-dresses") &&
+        i.row.status === "active" &&
+        i.row.sellerId !== noaPerson.id &&
+        !zaraNoaLikes.includes(i),
+    ),
+  );
+  const behaviour = await seedBehaviour(db, {
+    userId: noaPerson.id,
+    now,
+    favourite: noaLikes.slice(0, 9).map(asBehaviour),
+    glanced: items
+      .filter(
+        (i) =>
+          i.row.status === "active" &&
+          !i.categorySlug.startsWith("women-clothing-dresses") &&
+          i.row.sellerId !== noaPerson.id,
+      )
+      .slice(0, 3)
+      .map(asBehaviour),
+    searchBrandId: zaraId,
+    searchCategoryId: noaLikes[0]?.row.categoryId ?? null,
+  });
+
   return {
     users: people.length,
     listings: listingRows.length,
@@ -1543,5 +1618,7 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
     reviews: reviewRows.length,
     notifications: notificationRows.length,
     wallet_entries: walletRows.length,
+    user_events: behaviour.events,
+    user_affinities: behaviour.affinities,
   };
 }

@@ -432,6 +432,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/mobile/app/(auth)/welcome.tsx`, `log-in.tsx`, `sign-up.tsx`, `forgot-password.tsx`, `apps/mobile/components/auth-photo.tsx` (photo, token-coloured fade, band), `apps/mobile/assets/images/welcome-photo.jpg` (credit in `assets/images/CREDITS.md`), strings under `welcome` in both locale files.
 - **References:** `docs/mockups/welcome-options.html`
 
+### D-022 : The home feed explains itself and asks two questions after sign up
+
+- **Date:** 2026-10-13
+- **Area:** Home, Settings (Shopping preferences, Your privacy), sign up
+- **Status:** Approved (Eden, plan decisions in `docs/plans/home-feed.md` section 9), Implemented on branch milestone-7
+- **Decision:** A long press on a Home card opens the "Why you see this" sheet: one plain sentence for the reason (for example "You like Zara", "New in Dresses", "Popular this week", "Something new for you"), then Not interested with this item, everything from this seller, show less of this brand, show less of this category (only those that apply). The card leaves the list at once. A screen reader gets the same through a "Why you see this" action on the card. After a new account is created (never on log in) two skippable screens follow, once: "What do you shop for?" (Women, Men, Kids, several allowed, big tick rows) and "What are your sizes?" (the My sizes picker). Both end on Home. Settings, Shopping preferences lists what was hidden with Undo, and has "Reset my recommendations" with a confirmation that says Home forgets what it learned and that hearts, sizes, follows and hidden items stay. Your privacy has the "Tailor Home to what I do" switch, whose note says turning it off also clears what Home learned.
+- **Rationale:** People should see why a card is there and be able to say no, which builds trust in a feed that learns. Two short questions give a new person a useful Home on day one, and Skip keeps them optional.
+- **Trade-off:** A long press is hidden, so the reason is not visible on the card. Showing it on every card would add noise to the grid.
+- **Implementation:** `apps/mobile/components/feed-reason-sheet.tsx`, `apps/mobile/app/(app)/onboarding.tsx`, `apps/mobile/lib/onboarding.ts`, `lib/feed-queries.ts`, `settings/personalisation.tsx`, `settings/privacy.tsx`. The onboarding uses a plain white screen with the step count and Skip at the top, big option rows and one primary button (the welcome photo is not reused, the questions need room).
+- **References:** `docs/plans/home-feed.md`
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 

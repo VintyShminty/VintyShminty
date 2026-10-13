@@ -16,7 +16,9 @@ import addressRoutes from "./routes/addresses.js";
 import bundleRoutes from "./routes/bundles.js";
 import discoveryRoutes from "./routes/discovery.js";
 import engagementRoutes from "./routes/engagement.js";
+import eventRoutes from "./routes/events.js";
 import healthRoutes from "./routes/health.js";
+import jobRoutes from "./routes/jobs.js";
 import listingRoutes from "./routes/listings.js";
 import meRoutes from "./routes/me.js";
 import messageRoutes from "./routes/messages.js";
@@ -69,6 +71,7 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
     await app.register(userRoutes);
     await app.register(discoveryRoutes);
     await app.register(engagementRoutes);
+    await app.register(eventRoutes);
     await app.register(messageRoutes);
     await app.register(notificationRoutes);
     await app.register(addressRoutes);
@@ -77,6 +80,7 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
     await app.register(orderRoutes);
     await app.register(reviewRoutes);
     await app.register(jobsPlugin);
+    await app.register(jobRoutes);
   }
 
   return app;
