@@ -65,7 +65,8 @@ const addressRoutes: FastifyPluginAsyncZod = async (app) => {
           .select({ n: sql<number>`count(*)::int` })
           .from(addresses)
           .where(eq(addresses.userId, userId));
-        if ((count?.n ?? 0) >= MAX_ADDRESSES) throw ApiError.conflict("You have saved the most addresses allowed");
+        if ((count?.n ?? 0) >= MAX_ADDRESSES)
+          throw ApiError.conflict("You have saved the most addresses allowed");
         // The first address becomes the default. Choosing a new default unsets the old one.
         const makeDefault = request.body.isDefault || (count?.n ?? 0) === 0;
         if (makeDefault) {
@@ -134,7 +135,10 @@ const addressRoutes: FastifyPluginAsyncZod = async (app) => {
     {
       preHandler,
       config: WRITE_LIMIT,
-      schema: { params: idParams, response: { 204: z.null(), 401: errorResponseSchema, 404: errorResponseSchema } },
+      schema: {
+        params: idParams,
+        response: { 204: z.null(), 401: errorResponseSchema, 404: errorResponseSchema },
+      },
     },
     async (request, reply) => {
       const userId = userIdOf(request);

@@ -65,26 +65,46 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
     const x = await listen(stranger.token);
     await pause(100);
 
-    const offer = (await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })).json();
+    const offer = (
+      await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })
+    ).json();
     await pause();
     for (const side of [s, b]) {
-      const bubbles = named(side.seen, "message:new").filter((p) => (p.message as { kind: string }).kind === "offer");
+      const bubbles = named(side.seen, "message:new").filter(
+        (p) => (p.message as { kind: string }).kind === "offer",
+      );
       expect(bubbles).toHaveLength(1);
-      expect((bubbles[0]?.message as { offer: { id: string; status: string } }).offer).toMatchObject({ id: offer.id, status: "pending" });
+      expect((bubbles[0]?.message as { offer: { id: string; status: string } }).offer).toMatchObject({
+        id: offer.id,
+        status: "pending",
+      });
     }
-    expect(named(s.seen, "notification:new").map((p) => (p.notification as { type: string }).type)).toContain("new_offer");
+    expect(named(s.seen, "notification:new").map((p) => (p.notification as { type: string }).type)).toContain(
+      "new_offer",
+    );
 
     await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
     await pause();
     for (const side of [s, b]) {
       const updated = named(side.seen, "message:updated");
       expect(updated).toHaveLength(1);
-      expect(updated[0]).toMatchObject({ conversationId: chat.id, offer: { id: offer.id, status: "accepted" } });
-      const dividers = named(side.seen, "message:new").filter((p) => (p.message as { kind: string }).kind === "system");
-      expect(dividers.map((p) => (p.message as { systemEvent: string }).systemEvent)).toEqual(["offer_accepted"]);
-      expect(named(side.seen, "listing:updated")).toEqual([{ listingId, status: "reserved", priceMinor: 9000 }]);
+      expect(updated[0]).toMatchObject({
+        conversationId: chat.id,
+        offer: { id: offer.id, status: "accepted" },
+      });
+      const dividers = named(side.seen, "message:new").filter(
+        (p) => (p.message as { kind: string }).kind === "system",
+      );
+      expect(dividers.map((p) => (p.message as { systemEvent: string }).systemEvent)).toEqual([
+        "offer_accepted",
+      ]);
+      expect(named(side.seen, "listing:updated")).toEqual([
+        { listingId, status: "reserved", priceMinor: 9000 },
+      ]);
     }
-    expect(named(b.seen, "notification:new").map((p) => (p.notification as { type: string }).type)).toContain("offer_accepted");
+    expect(named(b.seen, "notification:new").map((p) => (p.notification as { type: string }).type)).toContain(
+      "offer_accepted",
+    );
     expect(x.seen.filter((e) => e.event !== "unread:count")).toEqual([]);
   });
 
@@ -95,11 +115,15 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
     const x = await listen(stranger.token);
     await pause(100);
 
-    const order = (await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })).json();
+    const order = (
+      await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
+    ).json();
     await pause();
     // The seller hears nothing about a checkout that is not paid.
     expect(named(s.seen, "order:updated")).toEqual([]);
-    expect(named(b.seen, "order:updated")).toEqual([{ orderId: order.id, status: "pending_payment", conversationId: order.conversationId }]);
+    expect(named(b.seen, "order:updated")).toEqual([
+      { orderId: order.id, status: "pending_payment", conversationId: order.conversationId },
+    ]);
 
     await call("POST", `/v1/orders/${order.id}/pay`, buyer.token);
     await call("POST", `/v1/orders/${order.id}/ship`, seller.token);
@@ -114,12 +138,18 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
         .map((p) => p.message as { kind: string; systemEvent: string })
         .filter((m) => m.kind === "system")
         .map((m) => m.systemEvent);
-      expect(dividers).toEqual(expect.arrayContaining(["order_paid", "order_shipped", "order_completed", "review_auto_left"]));
+      expect(dividers).toEqual(
+        expect.arrayContaining(["order_paid", "order_shipped", "order_completed", "review_auto_left"]),
+      );
       const sold = named(side.seen, "listing:updated").map((p) => p.status);
       expect(sold).toContain("sold");
     }
-    const sellerNotes = named(s.seen, "notification:new").map((p) => (p.notification as { type: string }).type);
-    expect(sellerNotes).toEqual(expect.arrayContaining(["order_paid", "order_completed", "balance_released"]));
+    const sellerNotes = named(s.seen, "notification:new").map(
+      (p) => (p.notification as { type: string }).type,
+    );
+    expect(sellerNotes).toEqual(
+      expect.arrayContaining(["order_paid", "order_completed", "balance_released"]),
+    );
     expect(named(b.seen, "notification:new").map((p) => (p.notification as { type: string }).type)).toEqual(
       expect.arrayContaining(["order_shipped", "order_completed"]),
     );
@@ -131,11 +161,15 @@ describe.skipIf(!databaseUrl)("offer and order events over the socket", () => {
     await call("PUT", `/v1/listings/${listingId}/favourite`, stranger.token);
     const x = await listen(stranger.token);
     await pause(100);
-    const order = (await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })).json();
+    const order = (
+      await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
+    ).json();
     await call("POST", `/v1/orders/${order.id}/pay`, buyer.token);
     await pause(400);
     expect(named(x.seen, "listing:updated").map((p) => p.status)).toEqual(["reserved", "sold"]);
-    expect(named(x.seen, "notification:new").map((p) => (p.notification as { type: string }).type)).toEqual(["favourite_sold"]);
+    expect(named(x.seen, "notification:new").map((p) => (p.notification as { type: string }).type)).toEqual([
+      "favourite_sold",
+    ]);
     // Still no order events for someone who is not in the order.
     expect(named(x.seen, "order:updated")).toEqual([]);
   });

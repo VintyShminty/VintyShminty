@@ -21,6 +21,8 @@ export type JobResult = {
 };
 
 const BATCH = 100;
+/** The pretend delivery only picks up parcels shipped within this long ago. */
+const PRETEND_DELIVERY_WINDOW_MS = 60 * 60 * 1000;
 /** A review reminder goes out two days after completion, and not for sales older than a week. */
 const REMINDER_AFTER_MS = 2 * DAY_MS;
 const REMINDER_UNTIL_MS = 7 * DAY_MS;
@@ -138,7 +140,14 @@ export async function runOrderJobs(app: App, now = new Date()): Promise<JobResul
     const shipped = await db
       .select({ id: orders.id })
       .from(orders)
-      .where(and(eq(orders.status, "shipped"), lte(orders.shippedAt, new Date(now.getTime() - delay * 1000))))
+      .where(
+        and(
+          eq(orders.status, "shipped"),
+          lte(orders.shippedAt, new Date(now.getTime() - delay * 1000)),
+          // Only parcels that were just sent. Older ones (the sample data) stay in transit for hand testing.
+          gt(orders.shippedAt, new Date(now.getTime() - PRETEND_DELIVERY_WINDOW_MS)),
+        ),
+      )
       .limit(BATCH);
     result.pretendDelivered = await each(app, shipped, "pretend delivery", async (o) => {
       await transitionOrder(app, o.id, "deliver", SYSTEM_ACTOR, { now });

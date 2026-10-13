@@ -26,7 +26,9 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
   /** A finished sale: bought, paid, shipped and received. */
   const completedSale = async (title: string) => {
     const listingId = await publishTestListing(ctx, seller, `Review ${stamp} ${title}`);
-    const order = (await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })).json();
+    const order = (
+      await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
+    ).json();
     await call("POST", `/v1/orders/${order.id}/pay`, buyer.token);
     await call("POST", `/v1/orders/${order.id}/ship`, seller.token);
     await call("POST", `/v1/orders/${order.id}/confirm-received`, buyer.token);
@@ -53,7 +55,9 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
   describe("reviews", () => {
     it("is closed until the order is complete", async () => {
       const listingId = await publishTestListing(ctx, seller, `Review ${stamp} early`);
-      const order = (await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })).json();
+      const order = (
+        await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
+      ).json();
       const res = await call("POST", `/v1/orders/${order.id}/reviews`, buyer.token, { rating: 5 });
       expect(res.statusCode).toBe(409);
       expect(res.json().error.code).toBe("invalid_transition");
@@ -61,11 +65,18 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
 
     it("lets a stranger see nothing, and validates the stars and the length", async () => {
       const id = await completedSale("validation");
-      expect((await call("POST", `/v1/orders/${id}/reviews`, other.token, { rating: 5 })).statusCode).toBe(404);
+      expect((await call("POST", `/v1/orders/${id}/reviews`, other.token, { rating: 5 })).statusCode).toBe(
+        404,
+      );
       for (const rating of [0, 6, 2.5]) {
-        expect((await call("POST", `/v1/orders/${id}/reviews`, buyer.token, { rating })).statusCode).toBe(400);
+        expect((await call("POST", `/v1/orders/${id}/reviews`, buyer.token, { rating })).statusCode).toBe(
+          400,
+        );
       }
-      const long = await call("POST", `/v1/orders/${id}/reviews`, buyer.token, { rating: 4, comment: "x".repeat(401) });
+      const long = await call("POST", `/v1/orders/${id}/reviews`, buyer.token, {
+        rating: 4,
+        comment: "x".repeat(401),
+      });
       expect(long.statusCode).toBe(400);
     });
 
@@ -75,7 +86,10 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
       const auto = (await call("GET", `/v1/orders/${id}`, buyer.token)).json().reviews.mine;
       expect(auto).toMatchObject({ isAutomatic: true, rating: 5 });
 
-      const res = await call("POST", `/v1/orders/${id}/reviews`, buyer.token, { rating: 3, comment: "  Fits small  " });
+      const res = await call("POST", `/v1/orders/${id}/reviews`, buyer.token, {
+        rating: 3,
+        comment: "  Fits small  ",
+      });
       expect(res.statusCode, res.body).toBe(201);
       const review = res.json();
       expect(review).toMatchObject({
@@ -98,22 +112,37 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, seller.id), eq(notifications.type, "review_received"), eq(notifications.orderId, id)));
+        .where(
+          and(
+            eq(notifications.userId, seller.id),
+            eq(notifications.type, "review_received"),
+            eq(notifications.orderId, id),
+          ),
+        );
       expect(note?.data).toMatchObject({ rating: 3, role: "buyer" });
 
       // Once per order per side.
       const twice = await call("POST", `/v1/orders/${id}/reviews`, buyer.token, { rating: 5 });
       expect(twice.statusCode).toBe(409);
       expect(twice.json().error.code).toBe("conflict");
-      expect((await db().select().from(reviews).where(eq(reviews.orderId, id))).filter((r) => r.reviewerId === buyer.id)).toHaveLength(1);
+      expect(
+        (await db().select().from(reviews).where(eq(reviews.orderId, id))).filter(
+          (r) => r.reviewerId === buyer.id,
+        ),
+      ).toHaveLength(1);
     });
 
     it("lets the seller review the buyer once", async () => {
       const id = await completedSale("seller review");
-      const res = await call("POST", `/v1/orders/${id}/reviews`, seller.token, { rating: 5, comment: "Fast payer" });
+      const res = await call("POST", `/v1/orders/${id}/reviews`, seller.token, {
+        rating: 5,
+        comment: "Fast payer",
+      });
       expect(res.statusCode, res.body).toBe(201);
       expect(res.json()).toMatchObject({ reviewerRole: "seller", isAutomatic: false });
-      expect((await call("POST", `/v1/orders/${id}/reviews`, seller.token, { rating: 4 })).statusCode).toBe(409);
+      expect((await call("POST", `/v1/orders/${id}/reviews`, seller.token, { rating: 4 })).statusCode).toBe(
+        409,
+      );
       const detail = (await call("GET", `/v1/orders/${id}`, buyer.token)).json();
       expect(detail.reviews.theirs).toMatchObject({ rating: 5, comment: "Fast payer" });
       expect(detail.canReview).toBe(true);
@@ -135,11 +164,21 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
 
     it("lets the reviewed person reply, and nobody else", async () => {
       const id = await completedSale("reply");
-      const review = (await call("POST", `/v1/orders/${id}/reviews`, buyer.token, { rating: 2, comment: "Slow" })).json();
-      expect((await call("PUT", `/v1/reviews/${review.id}/reply`, buyer.token, { body: "Self" })).statusCode).toBe(404);
-      expect((await call("PUT", `/v1/reviews/${review.id}/reply`, other.token, { body: "Hi" })).statusCode).toBe(404);
-      expect((await call("PUT", `/v1/reviews/${review.id}/reply`, seller.token, { body: "" })).statusCode).toBe(400);
-      const res = await call("PUT", `/v1/reviews/${review.id}/reply`, seller.token, { body: "  Sorry about that  " });
+      const review = (
+        await call("POST", `/v1/orders/${id}/reviews`, buyer.token, { rating: 2, comment: "Slow" })
+      ).json();
+      expect(
+        (await call("PUT", `/v1/reviews/${review.id}/reply`, buyer.token, { body: "Self" })).statusCode,
+      ).toBe(404);
+      expect(
+        (await call("PUT", `/v1/reviews/${review.id}/reply`, other.token, { body: "Hi" })).statusCode,
+      ).toBe(404);
+      expect(
+        (await call("PUT", `/v1/reviews/${review.id}/reply`, seller.token, { body: "" })).statusCode,
+      ).toBe(400);
+      const res = await call("PUT", `/v1/reviews/${review.id}/reply`, seller.token, {
+        body: "  Sorry about that  ",
+      });
       expect(res.statusCode, res.body).toBe(200);
       expect(res.json()).toMatchObject({ replyBody: "Sorry about that" });
       expect(res.json().repliedAt).not.toBeNull();
@@ -161,7 +200,9 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
 
       const sale = async (title: string, finish: boolean) => {
         const listingId = await publishTestListing(ctx, person, `Balance ${stamp} ${title}`);
-        const order = (await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })).json();
+        const order = (
+          await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
+        ).json();
         await call("POST", `/v1/orders/${order.id}/pay`, buyer.token);
         if (finish) {
           await call("POST", `/v1/orders/${order.id}/ship`, person.token);
@@ -180,15 +221,24 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
 
       const entries = (await call("GET", "/v1/me/balance/entries", person.token)).json();
       expect(entries.items).toHaveLength(4);
-      expect(entries.items.map((e: { status: string }) => e.status).sort()).toEqual(["available", "available", "pending", "void"]);
+      expect(entries.items.map((e: { status: string }) => e.status).sort()).toEqual([
+        "available",
+        "available",
+        "pending",
+        "void",
+      ]);
       const first = entries.items[0];
       expect(first.month).toMatch(/^\d{4}-\d{2}$/);
       expect(first.month).toBe(first.createdAt.slice(0, 7));
-      expect(entries.items.find((e: { orderId: string }) => e.orderId === waiting).orderNumber).toBeGreaterThanOrEqual(1000);
+      expect(
+        entries.items.find((e: { orderId: string }) => e.orderId === waiting).orderNumber,
+      ).toBeGreaterThanOrEqual(1000);
 
       const page = (await call("GET", "/v1/me/balance/entries?limit=3", person.token)).json();
       expect(page.items).toHaveLength(3);
-      const rest = (await call("GET", `/v1/me/balance/entries?limit=3&cursor=${page.nextCursor}`, person.token)).json();
+      const rest = (
+        await call("GET", `/v1/me/balance/entries?limit=3&cursor=${page.nextCursor}`, person.token)
+      ).json();
       expect(rest.items).toHaveLength(1);
       expect(rest.nextCursor).toBeNull();
     });
@@ -196,23 +246,43 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
     it("withdraws pretend money: a negative available row, never more than there is", async () => {
       const person = await signUpTestUser(ctx, "rwithdraw", createdIds);
       const listingId = await publishTestListing(ctx, person, `Withdraw ${stamp}`);
-      const order = (await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })).json();
+      const order = (
+        await call("POST", "/v1/orders", buyer.token, { listingId, deliveryMethod: "pickup_point" })
+      ).json();
       await call("POST", `/v1/orders/${order.id}/pay`, buyer.token);
       await call("POST", `/v1/orders/${order.id}/ship`, person.token);
       await call("POST", `/v1/orders/${order.id}/confirm-received`, buyer.token);
 
-      expect((await call("POST", "/v1/me/balance/withdrawals", person.token, { amountMinor: 0 })).statusCode).toBe(400);
+      expect(
+        (await call("POST", "/v1/me/balance/withdrawals", person.token, { amountMinor: 0 })).statusCode,
+      ).toBe(400);
       const tooMuch = await call("POST", "/v1/me/balance/withdrawals", person.token, { amountMinor: 9001 });
       expect(tooMuch.statusCode).toBe(400);
       expect(tooMuch.json().error.fields.amountMinor).toBe("validation.withdrawal.tooMuch");
 
-      const res = await call("POST", "/v1/me/balance/withdrawals", person.token, { amountMinor: 3500 }, { "idempotency-key": "withdraw-key-1" });
+      const res = await call(
+        "POST",
+        "/v1/me/balance/withdrawals",
+        person.token,
+        { amountMinor: 3500 },
+        { "idempotency-key": "withdraw-key-1" },
+      );
       expect(res.statusCode, res.body).toBe(201);
       expect(res.json()).toMatchObject({ type: "withdrawal", status: "available", amountMinor: -3500 });
-      const again = await call("POST", "/v1/me/balance/withdrawals", person.token, { amountMinor: 3500 }, { "idempotency-key": "withdraw-key-1" });
+      const again = await call(
+        "POST",
+        "/v1/me/balance/withdrawals",
+        person.token,
+        { amountMinor: 3500 },
+        { "idempotency-key": "withdraw-key-1" },
+      );
       expect(again.statusCode).toBe(200);
       expect(again.json().id).toBe(res.json().id);
-      expect((await call("GET", "/v1/me/balance", person.token)).json()).toEqual({ pending: 0, available: 5500, currency: "ILS" });
+      expect((await call("GET", "/v1/me/balance", person.token)).json()).toEqual({
+        pending: 0,
+        available: 5500,
+        currency: "ILS",
+      });
 
       // Two at once cannot overdraw.
       const racing = await Promise.all([
@@ -221,7 +291,10 @@ describe.skipIf(!databaseUrl)("reviews and balance", () => {
       ]);
       expect(racing.map((r) => r.statusCode).sort()).toEqual([201, 400]);
       expect((await call("GET", "/v1/me/balance", person.token)).json().available).toBe(1500);
-      const rows = await db().select().from(walletEntries).where(and(eq(walletEntries.userId, person.id), eq(walletEntries.type, "withdrawal")));
+      const rows = await db()
+        .select()
+        .from(walletEntries)
+        .where(and(eq(walletEntries.userId, person.id), eq(walletEntries.type, "withdrawal")));
       expect(rows).toHaveLength(2);
     });
   });

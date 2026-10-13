@@ -82,7 +82,12 @@ export async function cleanupTestUsers(database: Database, ids: string[], { only
   if (ids.length > 0) conditions.push(inArray(users.id, ids));
   if (conditions.length === 0) return;
   // Orders and money rows keep their people (on delete restrict), so they go first.
-  const doomed = (await db.select({ id: users.id }).from(users).where(or(...conditions))).map((u) => u.id);
+  const doomed = (
+    await db
+      .select({ id: users.id })
+      .from(users)
+      .where(or(...conditions))
+  ).map((u) => u.id);
   if (doomed.length > 0) {
     await db.delete(orders).where(or(inArray(orders.buyerId, doomed), inArray(orders.sellerId, doomed)));
     await db.delete(walletEntries).where(inArray(walletEntries.userId, doomed));

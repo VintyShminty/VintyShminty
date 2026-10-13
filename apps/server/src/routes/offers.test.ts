@@ -49,11 +49,15 @@ describe.skipIf(!databaseUrl)("offers", () => {
   it("needs a session for everything", async () => {
     expect((await call("GET", "/v1/offers/quota")).statusCode).toBe(401);
     const id = crypto.randomUUID();
-    expect((await call("POST", `/v1/conversations/${id}/offers`, undefined, { amountMinor: 100 })).statusCode).toBe(401);
+    expect(
+      (await call("POST", `/v1/conversations/${id}/offers`, undefined, { amountMinor: 100 })).statusCode,
+    ).toBe(401);
     for (const action of ["accept", "decline", "withdraw"]) {
       expect((await call("POST", `/v1/offers/${id}/${action}`)).statusCode).toBe(401);
     }
-    expect((await call("POST", `/v1/offers/${id}/counter`, undefined, { amountMinor: 100 })).statusCode).toBe(401);
+    expect((await call("POST", `/v1/offers/${id}/counter`, undefined, { amountMinor: 100 })).statusCode).toBe(
+      401,
+    );
   });
 
   describe("sending", () => {
@@ -84,13 +88,24 @@ describe.skipIf(!databaseUrl)("offers", () => {
 
       const thread = (await call("GET", `/v1/conversations/${conversationId}/messages`, seller.token)).json();
       const bubble = thread.items.find((m: { kind: string }) => m.kind === "offer");
-      expect(bubble.offer).toMatchObject({ id: offer.id, amountMinor: 7000, status: "pending", offeredById: buyer.id });
+      expect(bubble.offer).toMatchObject({
+        id: offer.id,
+        amountMinor: 7000,
+        status: "pending",
+        offeredById: buyer.id,
+      });
       expect(bubble.senderId).toBe(buyer.id);
 
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, seller.id), eq(notifications.type, "new_offer"), eq(notifications.conversationId, conversationId)));
+        .where(
+          and(
+            eq(notifications.userId, seller.id),
+            eq(notifications.type, "new_offer"),
+            eq(notifications.conversationId, conversationId),
+          ),
+        );
       expect(note?.data).toMatchObject({ offerId: offer.id, amountMinor: 7000, listingPriceMinor: 9000 });
 
       expect((await call("GET", "/v1/offers/quota", buyer.token)).json().remaining).toBe(14);
@@ -126,7 +141,10 @@ describe.skipIf(!databaseUrl)("offers", () => {
 
     it("refuses an item that is sold or held for someone else", async () => {
       const { listingId, conversationId } = await chatAbout("held");
-      await db().update(listings).set({ status: "reserved", reservedForUserId: other.id }).where(eq(listings.id, listingId));
+      await db()
+        .update(listings)
+        .set({ status: "reserved", reservedForUserId: other.id })
+        .where(eq(listings.id, listingId));
       const res = await offerOn(conversationId, 5000);
       expect(res.statusCode).toBe(409);
       expect(res.json().error.code).toBe("listing_unavailable");
@@ -186,14 +204,21 @@ describe.skipIf(!databaseUrl)("offers", () => {
       const [listing] = await db().select().from(listings).where(eq(listings.id, listingId));
       expect(listing).toMatchObject({ status: "reserved", reservedForUserId: buyer.id });
 
-      const thread = (await call("GET", `/v1/conversations/${conversationId}/messages`, buyer.token)).json().items;
+      const thread = (await call("GET", `/v1/conversations/${conversationId}/messages`, buyer.token)).json()
+        .items;
       expect(thread.find((m: { kind: string }) => m.kind === "offer").offer.status).toBe("accepted");
       expect(thread.some((m: { systemEvent: string }) => m.systemEvent === "offer_accepted")).toBe(true);
 
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, buyer.id), eq(notifications.type, "offer_accepted"), eq(notifications.listingId, listingId)));
+        .where(
+          and(
+            eq(notifications.userId, buyer.id),
+            eq(notifications.type, "offer_accepted"),
+            eq(notifications.listingId, listingId),
+          ),
+        );
       expect(note?.data).toMatchObject({ offerId: offer.id, amountMinor: 7000 });
 
       const again = await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
@@ -218,7 +243,13 @@ describe.skipIf(!databaseUrl)("offers", () => {
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, buyer.id), eq(notifications.type, "offer_declined"), eq(notifications.conversationId, conversationId)));
+        .where(
+          and(
+            eq(notifications.userId, buyer.id),
+            eq(notifications.type, "offer_declined"),
+            eq(notifications.conversationId, conversationId),
+          ),
+        );
       expect(note).toBeDefined();
       expect((await offerOn(conversationId, 5000)).statusCode).toBe(201);
     });
@@ -228,8 +259,13 @@ describe.skipIf(!databaseUrl)("offers", () => {
       const offer = (await offerOn(conversationId, 5000)).json();
       const before = (await call("GET", "/v1/offers/quota", buyer.token)).json().remaining;
 
-      expect((await call("POST", `/v1/offers/${offer.id}/counter`, buyer.token, { amountMinor: 6000 })).statusCode).toBe(403);
-      expect((await call("POST", `/v1/offers/${offer.id}/counter`, seller.token, { amountMinor: 9000 })).statusCode).toBe(400);
+      expect(
+        (await call("POST", `/v1/offers/${offer.id}/counter`, buyer.token, { amountMinor: 6000 })).statusCode,
+      ).toBe(403);
+      expect(
+        (await call("POST", `/v1/offers/${offer.id}/counter`, seller.token, { amountMinor: 9000 }))
+          .statusCode,
+      ).toBe(400);
 
       const res = await call("POST", `/v1/offers/${offer.id}/counter`, seller.token, { amountMinor: 8000 });
       expect(res.statusCode, res.body).toBe(201);
@@ -257,14 +293,22 @@ describe.skipIf(!databaseUrl)("offers", () => {
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, buyer.id), eq(notifications.type, "offer_countered"), eq(notifications.conversationId, conversationId)));
+        .where(
+          and(
+            eq(notifications.userId, buyer.id),
+            eq(notifications.type, "offer_countered"),
+            eq(notifications.conversationId, conversationId),
+          ),
+        );
       expect(note?.data).toMatchObject({ amountMinor: 8000 });
     });
 
     it("a buyer who counters a counter spends one of their offers", async () => {
       const { conversationId } = await chatAbout("counter back");
       const offer = (await offerOn(conversationId, 5000)).json();
-      const counter = (await call("POST", `/v1/offers/${offer.id}/counter`, seller.token, { amountMinor: 8000 })).json();
+      const counter = (
+        await call("POST", `/v1/offers/${offer.id}/counter`, seller.token, { amountMinor: 8000 })
+      ).json();
       const before = (await call("GET", "/v1/offers/quota", buyer.token)).json().remaining;
       const back = await call("POST", `/v1/offers/${counter.id}/counter`, buyer.token, { amountMinor: 6500 });
       expect(back.statusCode, back.body).toBe(201);
@@ -287,7 +331,10 @@ describe.skipIf(!databaseUrl)("offers", () => {
     it("a pending offer past its time cannot be answered and is marked expired", async () => {
       const { conversationId } = await chatAbout("late");
       const offer = (await offerOn(conversationId, 5000)).json();
-      await db().update(offers).set({ expiresAt: new Date(Date.now() - 1000) }).where(eq(offers.id, offer.id));
+      await db()
+        .update(offers)
+        .set({ expiresAt: new Date(Date.now() - 1000) })
+        .where(eq(offers.id, offer.id));
       const res = await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
       expect(res.statusCode).toBe(409);
       expect(res.json().error.code).toBe("invalid_transition");
@@ -301,7 +348,13 @@ describe.skipIf(!databaseUrl)("offers", () => {
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, buyer.id), eq(notifications.type, "offer_expired"), eq(notifications.conversationId, conversationId)));
+        .where(
+          and(
+            eq(notifications.userId, buyer.id),
+            eq(notifications.type, "offer_expired"),
+            eq(notifications.conversationId, conversationId),
+          ),
+        );
       expect(note).toBeDefined();
     });
 
@@ -309,7 +362,10 @@ describe.skipIf(!databaseUrl)("offers", () => {
       const { listingId, conversationId } = await chatAbout("hold ran out");
       const offer = (await offerOn(conversationId, 5000)).json();
       await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
-      await db().update(offers).set({ expiresAt: new Date(Date.now() - 1000) }).where(eq(offers.id, offer.id));
+      await db()
+        .update(offers)
+        .set({ expiresAt: new Date(Date.now() - 1000) })
+        .where(eq(offers.id, offer.id));
       expect(await expireOffer(ctx.app, offer.id)).toBe(true);
       const [row] = await db().select().from(offers).where(eq(offers.id, offer.id));
       expect(row?.status).toBe("expired");

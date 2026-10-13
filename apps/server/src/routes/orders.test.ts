@@ -67,7 +67,8 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
     expect(res.statusCode, res.body).toBe(200);
     return made;
   };
-  const statusOf = async (id: string) => (await db().select().from(orders).where(eq(orders.id, id)))[0]?.status;
+  const statusOf = async (id: string) =>
+    (await db().select().from(orders).where(eq(orders.id, id)))[0]?.status;
 
   beforeAll(async () => {
     ctx = await buildTestApp();
@@ -130,7 +131,10 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       });
       expect(quote.items).toHaveLength(1);
       expect(quote.items[0]).toMatchObject({ listingId, priceMinor: 9000 });
-      expect(quote.deliveryOptions.map((o: { method: string }) => o.method).sort()).toEqual(["home", "pickup_point"]);
+      expect(quote.deliveryOptions.map((o: { method: string }) => o.method).sort()).toEqual([
+        "home",
+        "pickup_point",
+      ]);
       const [row] = await db().select().from(listings).where(eq(listings.id, listingId));
       expect(row?.status).toBe("active");
     });
@@ -139,23 +143,31 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const listingId = await newListing("quote errors");
       expect((await call("POST", "/v1/checkout/quote", buyer.token, {})).statusCode).toBe(400);
       expect(
-        (await call("POST", "/v1/checkout/quote", buyer.token, { listingId, bundleId: crypto.randomUUID() })).statusCode,
+        (await call("POST", "/v1/checkout/quote", buyer.token, { listingId, bundleId: crypto.randomUUID() }))
+          .statusCode,
       ).toBe(400);
       expect((await call("POST", "/v1/checkout/quote", seller.token, { listingId })).statusCode).toBe(403);
-      expect((await call("POST", "/v1/checkout/quote", buyer.token, { listingId: crypto.randomUUID() })).statusCode).toBe(404);
+      expect(
+        (await call("POST", "/v1/checkout/quote", buyer.token, { listingId: crypto.randomUUID() }))
+          .statusCode,
+      ).toBe(404);
     });
 
     it("uses the agreed price when the quote comes from an accepted offer", async () => {
       const listingId = await newListing("quote offer");
       const chat = (await call("POST", "/v1/conversations", buyer.token, { listingId })).json();
-      const offer = (await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })).json();
+      const offer = (
+        await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })
+      ).json();
       await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
       const quote = (await call("POST", "/v1/checkout/quote", buyer.token, { offerId: offer.id })).json();
       expect(quote.itemsSubtotalMinor).toBe(6000);
       expect(quote.buyerProtectionFeeMinor).toBe(300);
       expect(quote.offerId).toBe(offer.id);
       // Only the buyer of that offer can use it.
-      expect((await call("POST", "/v1/checkout/quote", other.token, { offerId: offer.id })).statusCode).toBe(404);
+      expect((await call("POST", "/v1/checkout/quote", other.token, { offerId: offer.id })).statusCode).toBe(
+        404,
+      );
     });
   });
 
@@ -187,7 +199,11 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const [row] = await db().select().from(listings).where(eq(listings.id, listingId));
       expect(row).toMatchObject({ status: "reserved", reservedForUserId: buyer.id });
       const [stored] = await db().select().from(orders).where(eq(orders.id, order.id));
-      expect(stored).toMatchObject({ paymentProvider: "simulated", shippingProvider: "simulated", feeBasisPoints: 500 });
+      expect(stored).toMatchObject({
+        paymentProvider: "simulated",
+        shippingProvider: "simulated",
+        feeBasisPoints: 500,
+      });
     });
 
     it("gives the same order back for the same key, and for the same item", async () => {
@@ -201,7 +217,10 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const reopened = await buy({ listingId, deliveryMethod: "pickup_point" });
       expect(reopened.statusCode).toBe(200);
       expect(reopened.json().id).toBe(first.json().id);
-      const mine = await db().select().from(orders).where(and(eq(orders.buyerId, buyer.id), eq(orders.idempotencyKey, "key-repeat-0001")));
+      const mine = await db()
+        .select()
+        .from(orders)
+        .where(and(eq(orders.buyerId, buyer.id), eq(orders.idempotencyKey, "key-repeat-0001")));
       expect(mine).toHaveLength(1);
     });
 
@@ -237,7 +256,11 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       ).json();
       const res = await buy({ listingId, deliveryMethod: "home", addressId: address.id });
       expect(res.statusCode, res.body).toBe(201);
-      expect(res.json().shippingAddress).toMatchObject({ fullName: "Buyer Name", city: "Tel Aviv", line1: "12 Dizengoff" });
+      expect(res.json().shippingAddress).toMatchObject({
+        fullName: "Buyer Name",
+        city: "Tel Aviv",
+        line1: "12 Dizengoff",
+      });
       // Changing the saved address later does not rewrite the order.
       await call("PATCH", `/v1/me/addresses/${address.id}`, buyer.token, { city: "Eilat" });
       const again = (await call("GET", `/v1/orders/${res.json().id}`, buyer.token)).json();
@@ -256,21 +279,32 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
     it("builds an order from an accepted offer at the agreed price", async () => {
       const listingId = await newListing("from offer");
       const chat = (await call("POST", "/v1/conversations", buyer.token, { listingId })).json();
-      const offer = (await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })).json();
+      const offer = (
+        await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })
+      ).json();
       await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
       const res = await buy({ offerId: offer.id });
       expect(res.statusCode, res.body).toBe(201);
-      expect(res.json()).toMatchObject({ offerId: offer.id, itemsSubtotalMinor: 6000, conversationId: chat.id });
+      expect(res.json()).toMatchObject({
+        offerId: offer.id,
+        itemsSubtotalMinor: 6000,
+        conversationId: chat.id,
+      });
       expect(res.json().items[0].priceMinor).toBe(6000);
     });
 
     it("refuses an offer that ran out", async () => {
       const listingId = await newListing("late offer");
       const chat = (await call("POST", "/v1/conversations", buyer.token, { listingId })).json();
-      const offer = (await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })).json();
+      const offer = (
+        await call("POST", `/v1/conversations/${chat.id}/offers`, buyer.token, { amountMinor: 6000 })
+      ).json();
       await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
       const { offers } = await import("@vinty/db");
-      await db().update(offers).set({ expiresAt: new Date(Date.now() - 1000) }).where(eq(offers.id, offer.id));
+      await db()
+        .update(offers)
+        .set({ expiresAt: new Date(Date.now() - 1000) })
+        .where(eq(offers.id, offer.id));
       const res = await buy({ offerId: offer.id });
       expect(res.statusCode).toBe(409);
       expect(res.json().error.code).toBe("invalid_transition");
@@ -281,11 +315,18 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
     it("is only for the buyer, marks the item sold and credits the seller as pending", async () => {
       const { id, listingId } = await placed("pay");
       expect((await call("POST", `/v1/orders/${id}/pay`, other.token)).statusCode).toBe(404);
-      const res = await call("POST", `/v1/orders/${id}/pay`, buyer.token, undefined, { "idempotency-key": "pay-key-0001" });
+      const res = await call("POST", `/v1/orders/${id}/pay`, buyer.token, undefined, {
+        "idempotency-key": "pay-key-0001",
+      });
       expect(res.statusCode, res.body).toBe(200);
       const order = res.json();
       expect(order.status).toBe("paid");
-      expect(order.payment).toMatchObject({ provider: "simulated", simulated: true, status: "succeeded", amountMinor: order.totalMinor });
+      expect(order.payment).toMatchObject({
+        provider: "simulated",
+        simulated: true,
+        status: "succeeded",
+        amountMinor: order.totalMinor,
+      });
       expect(order.payByAt).toBeNull();
       expect(new Date(order.shipByAt).getTime() - Date.now()).toBeGreaterThan(4.9 * 86_400_000);
       expect(order.actions).toEqual(["cancel"]);
@@ -296,12 +337,23 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(listing?.soldAt).not.toBeNull();
 
       const [credit] = await db().select().from(walletEntries).where(eq(walletEntries.orderId, id));
-      expect(credit).toMatchObject({ userId: seller.id, type: "sale_credit", status: "pending", amountMinor: 9000 });
+      expect(credit).toMatchObject({
+        userId: seller.id,
+        type: "sale_credit",
+        status: "pending",
+        amountMinor: 9000,
+      });
 
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, seller.id), eq(notifications.type, "order_paid"), eq(notifications.orderId, id)));
+        .where(
+          and(
+            eq(notifications.userId, seller.id),
+            eq(notifications.type, "order_paid"),
+            eq(notifications.orderId, id),
+          ),
+        );
       expect(note?.data).toMatchObject({ amountMinor: 9000, currency: "ILS" });
 
       const thread = await db().select().from(messages).where(eq(messages.orderId, id));
@@ -309,7 +361,11 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
 
       // The seller can now see it, with what they earn.
       const asSeller = (await call("GET", `/v1/orders/${id}`, seller.token)).json();
-      expect(asSeller).toMatchObject({ role: "seller", sellerEarningsMinor: 9000, actions: ["ship", "cancel"] });
+      expect(asSeller).toMatchObject({
+        role: "seller",
+        sellerEarningsMinor: 9000,
+        actions: ["ship", "cancel"],
+      });
     });
 
     it("answers a repeat with the paid order and charges nothing twice", async () => {
@@ -324,7 +380,10 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
 
     it("cancels a checkout whose hold ran out", async () => {
       const { id, listingId } = await placed("too slow");
-      await db().update(orders).set({ payByAt: new Date(Date.now() - 1000) }).where(eq(orders.id, id));
+      await db()
+        .update(orders)
+        .set({ payByAt: new Date(Date.now() - 1000) })
+        .where(eq(orders.id, id));
       const res = await call("POST", `/v1/orders/${id}/pay`, buyer.token);
       expect(res.statusCode).toBe(409);
       expect(res.json().error.code).toBe("invalid_transition");
@@ -345,7 +404,12 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(res.statusCode, res.body).toBe(200);
       const order = res.json();
       expect(order.status).toBe("shipped");
-      expect(order.shipment).toMatchObject({ provider: "simulated", simulated: true, status: "in_transit", carrier: "Simulated Post" });
+      expect(order.shipment).toMatchObject({
+        provider: "simulated",
+        simulated: true,
+        status: "in_transit",
+        carrier: "Simulated Post",
+      });
       expect(order.shipment.trackingCode).toMatch(/^SIM\d{10}$/);
       expect(order.shipByAt).toBeNull();
       const [row] = await db().select().from(shipments).where(eq(shipments.orderId, id));
@@ -353,7 +417,13 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, buyer.id), eq(notifications.type, "order_shipped"), eq(notifications.orderId, id)));
+        .where(
+          and(
+            eq(notifications.userId, buyer.id),
+            eq(notifications.type, "order_shipped"),
+            eq(notifications.orderId, id),
+          ),
+        );
       expect(note?.data).toMatchObject({ trackingCode: order.shipment.trackingCode });
     });
 
@@ -376,7 +446,13 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(res.statusCode, res.body).toBe(200);
       const order = res.json();
       expect(order.status).toBe("completed");
-      expect(order.timeline.map((e: { event: string }) => e.event)).toEqual(["create", "pay", "ship", "deliver", "confirm_received"]);
+      expect(order.timeline.map((e: { event: string }) => e.event)).toEqual([
+        "create",
+        "pay",
+        "ship",
+        "deliver",
+        "confirm_received",
+      ]);
       expect(order.deliveredAt).not.toBeNull();
       expect(order.completedAt).not.toBeNull();
       expect(order.shipment.status).toBe("delivered");
@@ -389,13 +465,28 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(credit?.availableAt).not.toBeNull();
 
       const types = (
-        await db().select({ type: notifications.type, userId: notifications.userId }).from(notifications).where(eq(notifications.orderId, id))
+        await db()
+          .select({ type: notifications.type, userId: notifications.userId })
+          .from(notifications)
+          .where(eq(notifications.orderId, id))
       ).map((n) => `${n.userId === seller.id ? "seller" : "buyer"}:${n.type}`);
-      expect(types).toEqual(expect.arrayContaining(["seller:order_paid", "buyer:order_shipped", "seller:order_completed", "seller:balance_released", "buyer:order_completed"]));
+      expect(types).toEqual(
+        expect.arrayContaining([
+          "seller:order_paid",
+          "buyer:order_shipped",
+          "seller:order_completed",
+          "seller:balance_released",
+          "buyer:order_completed",
+        ]),
+      );
       expect(types).not.toContain("buyer:order_delivered");
 
-      const thread = (await db().select().from(messages).where(eq(messages.orderId, id))).map((m) => m.systemEvent);
-      expect(thread).toEqual(expect.arrayContaining(["order_paid", "order_shipped", "order_completed", "review_auto_left"]));
+      const thread = (await db().select().from(messages).where(eq(messages.orderId, id))).map(
+        (m) => m.systemEvent,
+      );
+      expect(thread).toEqual(
+        expect.arrayContaining(["order_paid", "order_shipped", "order_completed", "review_auto_left"]),
+      );
       expect(thread).not.toContain("order_delivered");
 
       // Confirming again is not a move the order can make.
@@ -408,15 +499,29 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const delivered = await call("POST", `/v1/dev/orders/${id}/deliver`, buyer.token);
       expect(delivered.statusCode, delivered.body).toBe(200);
       expect(delivered.json().status).toBe("delivered");
-      expect(new Date(delivered.json().autoCompleteAt).getTime() - Date.now()).toBeGreaterThan(47 * 3_600_000);
+      expect(new Date(delivered.json().autoCompleteAt).getTime() - Date.now()).toBeGreaterThan(
+        47 * 3_600_000,
+      );
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, buyer.id), eq(notifications.type, "order_delivered"), eq(notifications.orderId, id)));
+        .where(
+          and(
+            eq(notifications.userId, buyer.id),
+            eq(notifications.type, "order_delivered"),
+            eq(notifications.orderId, id),
+          ),
+        );
       expect(note).toBeDefined();
       const done = await call("POST", `/v1/orders/${id}/confirm-received`, buyer.token);
       expect(done.json().status).toBe("completed");
-      expect(done.json().timeline.map((e: { event: string }) => e.event)).toEqual(["create", "pay", "ship", "deliver", "confirm_received"]);
+      expect(done.json().timeline.map((e: { event: string }) => e.event)).toEqual([
+        "create",
+        "pay",
+        "ship",
+        "deliver",
+        "confirm_received",
+      ]);
     });
   });
 
@@ -429,7 +534,10 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const [listing] = await db().select().from(listings).where(eq(listings.id, listingId));
       expect(listing).toMatchObject({ status: "active", reservedForUserId: null });
       // The seller never heard of it.
-      const sellerNotes = await db().select().from(notifications).where(and(eq(notifications.userId, seller.id), eq(notifications.orderId, id)));
+      const sellerNotes = await db()
+        .select()
+        .from(notifications)
+        .where(and(eq(notifications.userId, seller.id), eq(notifications.orderId, id)));
       expect(sellerNotes).toHaveLength(0);
     });
 
@@ -446,7 +554,13 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, seller.id), eq(notifications.type, "order_cancelled"), eq(notifications.orderId, id)));
+        .where(
+          and(
+            eq(notifications.userId, seller.id),
+            eq(notifications.type, "order_cancelled"),
+            eq(notifications.orderId, id),
+          ),
+        );
       expect(note?.data).toMatchObject({ reason: "buyer_cancelled" });
       expect((await call("POST", `/v1/orders/${id}/cancel`, buyer.token, {})).statusCode).toBe(409);
     });
@@ -459,7 +573,13 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const [note] = await db()
         .select()
         .from(notifications)
-        .where(and(eq(notifications.userId, buyer.id), eq(notifications.type, "order_cancelled"), eq(notifications.orderId, id)));
+        .where(
+          and(
+            eq(notifications.userId, buyer.id),
+            eq(notifications.type, "order_cancelled"),
+            eq(notifications.orderId, id),
+          ),
+        );
       expect(note).toBeDefined();
     });
 
@@ -476,20 +596,31 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
   describe("problems", () => {
     it("lets the buyer report one after shipping, and only the buyer", async () => {
       const { id } = await shipped("dispute");
-      expect((await call("POST", `/v1/orders/${id}/dispute`, seller.token, { details: "No" })).statusCode).toBe(403);
-      expect((await call("POST", `/v1/orders/${id}/dispute`, buyer.token, { details: "" })).statusCode).toBe(400);
-      const res = await call("POST", `/v1/orders/${id}/dispute`, buyer.token, { details: "The zip is broken" });
+      expect(
+        (await call("POST", `/v1/orders/${id}/dispute`, seller.token, { details: "No" })).statusCode,
+      ).toBe(403);
+      expect((await call("POST", `/v1/orders/${id}/dispute`, buyer.token, { details: "" })).statusCode).toBe(
+        400,
+      );
+      const res = await call("POST", `/v1/orders/${id}/dispute`, buyer.token, {
+        details: "The zip is broken",
+      });
       expect(res.statusCode, res.body).toBe(200);
       expect(res.json().status).toBe("disputed");
       expect(res.json().timeline.at(-1)).toMatchObject({ event: "open_dispute", note: "The zip is broken" });
-      const thread = (await db().select().from(messages).where(eq(messages.orderId, id))).map((m) => m.systemEvent);
+      const thread = (await db().select().from(messages).where(eq(messages.orderId, id))).map(
+        (m) => m.systemEvent,
+      );
       expect(thread).toContain("order_disputed");
     });
 
     it("closes two days after delivery", async () => {
       const { id } = await shipped("dispute late");
       await call("POST", `/v1/dev/orders/${id}/deliver`, buyer.token);
-      await db().update(orders).set({ deliveredAt: new Date(Date.now() - 3 * 86_400_000) }).where(eq(orders.id, id));
+      await db()
+        .update(orders)
+        .set({ deliveredAt: new Date(Date.now() - 3 * 86_400_000) })
+        .where(eq(orders.id, id));
       const res = await call("POST", `/v1/orders/${id}/dispute`, buyer.token, { details: "Late" });
       expect(res.statusCode).toBe(409);
       expect(res.json().error.code).toBe("invalid_transition");
@@ -498,8 +629,12 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
     it("lets support refund the buyer or release the money to the seller, and nobody else", async () => {
       const refunded = await shipped("admin refund");
       await call("POST", `/v1/orders/${refunded.id}/dispute`, buyer.token, { details: "Broken" });
-      expect((await call("POST", `/v1/admin/orders/${refunded.id}/refund`, buyer.token, {})).statusCode).toBe(403);
-      const res = await call("POST", `/v1/admin/orders/${refunded.id}/refund`, moderator.token, { note: "Photos agree" });
+      expect((await call("POST", `/v1/admin/orders/${refunded.id}/refund`, buyer.token, {})).statusCode).toBe(
+        403,
+      );
+      const res = await call("POST", `/v1/admin/orders/${refunded.id}/refund`, moderator.token, {
+        note: "Photos agree",
+      });
       expect(res.statusCode, res.body).toBe(200);
       expect(res.json().status).toBe("refunded");
       const [credit] = await db().select().from(walletEntries).where(eq(walletEntries.orderId, refunded.id));
@@ -516,7 +651,9 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(paidOut?.status).toBe("available");
       // An order that is not disputed cannot be resolved.
       const live = await paid("admin wrong state");
-      expect((await call("POST", `/v1/admin/orders/${live.id}/refund`, moderator.token, {})).statusCode).toBe(409);
+      expect((await call("POST", `/v1/admin/orders/${live.id}/refund`, moderator.token, {})).statusCode).toBe(
+        409,
+      );
     });
   });
 
@@ -537,7 +674,12 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(offerPush?.priority).toBe("high");
 
       await call("PATCH", "/v1/me/settings", seller.token, { language: "en" });
-      const order = (await call("POST", "/v1/orders", buyer.token, { listingId: await newListing("push 2"), deliveryMethod: "pickup_point" })).json();
+      const order = (
+        await call("POST", "/v1/orders", buyer.token, {
+          listingId: await newListing("push 2"),
+          deliveryMethod: "pickup_point",
+        })
+      ).json();
       await call("POST", `/v1/orders/${order.id}/pay`, buyer.token);
       const paidPush = mine().at(-1);
       expect(paidPush?.data).toMatchObject({ type: "order_paid", orderId: order.id });
@@ -550,9 +692,13 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const lister = await signUpTestUser(ctx, "slist", createdIds);
       const mk = async (title: string, finish: "pending" | "paid" | "completed" | "cancelled") => {
         const listingId = await publishTestListing(ctx, seller, `List ${stamp} ${title}`);
-        const res = await call("POST", "/v1/orders", lister.token, { listingId, deliveryMethod: "pickup_point" });
+        const res = await call("POST", "/v1/orders", lister.token, {
+          listingId,
+          deliveryMethod: "pickup_point",
+        });
         const id = res.json().id as string;
-        if (finish !== "pending" && finish !== "cancelled") await call("POST", `/v1/orders/${id}/pay`, lister.token);
+        if (finish !== "pending" && finish !== "cancelled")
+          await call("POST", `/v1/orders/${id}/pay`, lister.token);
         if (finish === "completed") {
           await call("POST", `/v1/orders/${id}/ship`, seller.token);
           await call("POST", `/v1/orders/${id}/confirm-received`, lister.token);
@@ -576,8 +722,15 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const first = (await call("GET", "/v1/orders?role=bought&limit=2", lister.token)).json();
       expect(first.items).toHaveLength(2);
       expect(first.nextCursor).not.toBeNull();
-      const second = (await call("GET", `/v1/orders?role=bought&limit=2&cursor=${first.nextCursor}`, lister.token)).json();
-      expect([...first.items, ...second.items].map((o: { id: string }) => o.id)).toEqual([gone, done, inFlight, pending]);
+      const second = (
+        await call("GET", `/v1/orders?role=bought&limit=2&cursor=${first.nextCursor}`, lister.token)
+      ).json();
+      expect([...first.items, ...second.items].map((o: { id: string }) => o.id)).toEqual([
+        gone,
+        done,
+        inFlight,
+        pending,
+      ]);
       expect(second.nextCursor).toBeNull();
 
       // The seller's Sold tab holds paid orders only, never the unpaid or cancelled-before-payment ones.
@@ -586,8 +739,14 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(sold).not.toContain(pending);
       expect(sold).not.toContain(gone);
 
-      const row = (await call("GET", "/v1/orders?role=bought&status=completed", lister.token)).json().items[0];
-      expect(row).toMatchObject({ role: "buyer", status: "completed", itemCount: 1, sellerEarningsMinor: null });
+      const row = (await call("GET", "/v1/orders?role=bought&status=completed", lister.token)).json()
+        .items[0];
+      expect(row).toMatchObject({
+        role: "buyer",
+        status: "completed",
+        itemCount: 1,
+        sellerEarningsMinor: null,
+      });
       expect(row.otherUser.id).toBe(seller.id);
       expect(row.title).toContain("List");
     });
@@ -595,10 +754,13 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
 
   describe("bundles", () => {
     it("builds a bundle, shows the ladder and checks out at the discount", async () => {
-      await db().insert(bundleDiscountTiers).values([
-        { sellerId: seller.id, minItems: 2, percentOff: 5 },
-        { sellerId: seller.id, minItems: 3, percentOff: 10 },
-      ]).onConflictDoNothing();
+      await db()
+        .insert(bundleDiscountTiers)
+        .values([
+          { sellerId: seller.id, minItems: 2, percentOff: 5 },
+          { sellerId: seller.id, minItems: 3, percentOff: 10 },
+        ])
+        .onConflictDoNothing();
       const a = await newListing("bundle a");
       const b = await newListing("bundle b");
       const c = await newListing("bundle c");
@@ -618,15 +780,30 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
 
       await call("PUT", `/v1/bundles/${bundle.id}/items/${a}`, buyer.token);
       const two = await call("PUT", `/v1/bundles/${bundle.id}/items/${b}`, buyer.token);
-      expect(two.json()).toMatchObject({ itemCount: 2, subtotalMinor: 18000, discountPercent: 5, discountMinor: 900, netMinor: 17100 });
+      expect(two.json()).toMatchObject({
+        itemCount: 2,
+        subtotalMinor: 18000,
+        discountPercent: 5,
+        discountMinor: 900,
+        netMinor: 17100,
+      });
       expect(two.json().nextTier).toEqual({ addItems: 1, percentOff: 10 });
       // Adding again changes nothing, and an item from another seller is refused.
-      expect((await call("PUT", `/v1/bundles/${bundle.id}/items/${b}`, buyer.token)).json().itemCount).toBe(2);
+      expect((await call("PUT", `/v1/bundles/${bundle.id}/items/${b}`, buyer.token)).json().itemCount).toBe(
+        2,
+      );
       const foreign = await publishTestListing(ctx, other, `Foreign ${stamp}`);
-      expect((await call("PUT", `/v1/bundles/${bundle.id}/items/${foreign}`, buyer.token)).statusCode).toBe(409);
+      expect((await call("PUT", `/v1/bundles/${bundle.id}/items/${foreign}`, buyer.token)).statusCode).toBe(
+        409,
+      );
 
       const three = await call("PUT", `/v1/bundles/${bundle.id}/items/${c}`, buyer.token);
-      expect(three.json()).toMatchObject({ itemCount: 3, discountPercent: 10, discountMinor: 2700, nextTier: null });
+      expect(three.json()).toMatchObject({
+        itemCount: 3,
+        discountPercent: 10,
+        discountMinor: 2700,
+        nextTier: null,
+      });
       const removed = await call("DELETE", `/v1/bundles/${bundle.id}/items/${c}`, buyer.token);
       expect(removed.json().itemCount).toBe(2);
       await call("PUT", `/v1/bundles/${bundle.id}/items/${c}`, buyer.token);
@@ -656,7 +833,10 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       }
       const [stored] = await db().select().from(bundles).where(eq(bundles.id, bundle.id));
       expect(stored?.status).toBe("ordered");
-      const [credit] = await db().select().from(walletEntries).where(eq(walletEntries.orderId, order.json().id));
+      const [credit] = await db()
+        .select()
+        .from(walletEntries)
+        .where(eq(walletEntries.orderId, order.json().id));
       expect(credit?.amountMinor).toBe(24300);
       // A closed bundle takes no more items.
       expect((await call("PUT", `/v1/bundles/${bundle.id}/items/${a}`, buyer.token)).statusCode).toBe(409);
@@ -669,14 +849,18 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const base = { fullName: "A B", line1: "1 Street", city: "Haifa", postcode: "123" };
       const first = (await call("POST", "/v1/me/addresses", person.token, base)).json();
       expect(first.isDefault).toBe(true);
-      const second = (await call("POST", "/v1/me/addresses", person.token, { ...base, line1: "2 Street" })).json();
+      const second = (
+        await call("POST", "/v1/me/addresses", person.token, { ...base, line1: "2 Street" })
+      ).json();
       expect(second.isDefault).toBe(false);
       const moved = await call("PATCH", `/v1/me/addresses/${second.id}`, person.token, { isDefault: true });
       expect(moved.json().isDefault).toBe(true);
       const list = (await call("GET", "/v1/me/addresses", person.token)).json();
       expect(list.map((a: { id: string }) => a.id)).toEqual([second.id, first.id]);
       expect(list.filter((a: { isDefault: boolean }) => a.isDefault)).toHaveLength(1);
-      expect((await call("PATCH", `/v1/me/addresses/${first.id}`, buyer.token, { city: "X" })).statusCode).toBe(404);
+      expect(
+        (await call("PATCH", `/v1/me/addresses/${first.id}`, buyer.token, { city: "X" })).statusCode,
+      ).toBe(404);
       expect((await call("DELETE", `/v1/me/addresses/${second.id}`, person.token)).statusCode).toBe(204);
       expect((await call("GET", "/v1/me/addresses", person.token)).json()[0].isDefault).toBe(true);
     });
@@ -685,12 +869,21 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
   describe("background jobs", () => {
     it("cancels unpaid checkouts and unshipped sales, and completes delivered orders", async () => {
       const unpaid = await placed("job unpaid");
-      await db().update(orders).set({ payByAt: new Date(Date.now() - 1000) }).where(eq(orders.id, unpaid.id));
+      await db()
+        .update(orders)
+        .set({ payByAt: new Date(Date.now() - 1000) })
+        .where(eq(orders.id, unpaid.id));
       const unshipped = await paid("job unshipped");
-      await db().update(orders).set({ shipByAt: new Date(Date.now() - 1000) }).where(eq(orders.id, unshipped.id));
+      await db()
+        .update(orders)
+        .set({ shipByAt: new Date(Date.now() - 1000) })
+        .where(eq(orders.id, unshipped.id));
       const delivered = await shipped("job delivered");
       await call("POST", `/v1/dev/orders/${delivered.id}/deliver`, buyer.token);
-      await db().update(orders).set({ autoCompleteAt: new Date(Date.now() - 1000) }).where(eq(orders.id, delivered.id));
+      await db()
+        .update(orders)
+        .set({ autoCompleteAt: new Date(Date.now() - 1000) })
+        .where(eq(orders.id, delivered.id));
 
       const result = await runOrderJobs(ctx.app);
       expect(result.unpaidCancelled).toBeGreaterThanOrEqual(1);
@@ -716,7 +909,10 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       const env = ctx.app.env as { SIMULATED_DELIVERY_SECONDS?: number };
       env.SIMULATED_DELIVERY_SECONDS = 1;
       try {
-        await db().update(orders).set({ shippedAt: new Date(Date.now() - 5000) }).where(eq(orders.id, made.id));
+        await db()
+          .update(orders)
+          .set({ shippedAt: new Date(Date.now() - 5000) })
+          .where(eq(orders.id, made.id));
         const result = await runOrderJobs(ctx.app);
         expect(result.pretendDelivered).toBeGreaterThanOrEqual(1);
         expect(await statusOf(made.id)).toBe("delivered");
@@ -728,7 +924,10 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
     it("sends one review reminder two days after completion to each side without feedback", async () => {
       const made = await shipped("job reminder");
       await call("POST", `/v1/orders/${made.id}/confirm-received`, buyer.token);
-      await db().update(orders).set({ completedAt: new Date(Date.now() - 3 * 86_400_000) }).where(eq(orders.id, made.id));
+      await db()
+        .update(orders)
+        .set({ completedAt: new Date(Date.now() - 3 * 86_400_000) })
+        .where(eq(orders.id, made.id));
       await runOrderJobs(ctx.app);
       await runOrderJobs(ctx.app);
       const notes = await db()
