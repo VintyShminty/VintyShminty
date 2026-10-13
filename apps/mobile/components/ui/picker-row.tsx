@@ -1,5 +1,6 @@
 import { Pencil, Plus } from "lucide-react-native";
 import { Pressable, View } from "react-native";
+import { SuggestedTag } from "@/components/sell/suggested-tag";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
@@ -11,10 +12,12 @@ type PickerRowProps = {
   onPress: () => void;
   error?: string;
   disabled?: boolean;
+  /** Filled in by the photo helper and not yet touched: shows a small "Suggested" mark. */
+  suggested?: boolean;
 };
 
 /** An outlined sell form row that opens a picker (docs/components.md, PickerRow). */
-function PickerRow({ label, value, onPress, error, disabled }: PickerRowProps) {
+function PickerRow({ label, value, onPress, error, disabled, suggested }: PickerRowProps) {
   const filled = Boolean(value);
   return (
     <View className="gap-xs">
@@ -32,9 +35,12 @@ function PickerRow({ label, value, onPress, error, disabled }: PickerRowProps) {
       >
         {filled ? (
           <View className="flex-1">
-            <Text variant="smallLabel" weight={600}>
-              {label}
-            </Text>
+            <View className="flex-row items-center justify-between gap-sm">
+              <Text variant="smallLabel" weight={600}>
+                {label}
+              </Text>
+              {suggested ? <SuggestedTag /> : null}
+            </View>
             <Text weight={600} numberOfLines={1}>
               {value}
             </Text>

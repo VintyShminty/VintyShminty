@@ -12,6 +12,7 @@ export * from "./messaging.js";
 export * from "./money.js";
 export * from "./notification-settings.js";
 export * from "./orders.js";
+export * from "./photo-assist.js";
 export * from "./recommendations.js";
 export * from "./reference-data.js";
 export * from "./referrals.js";

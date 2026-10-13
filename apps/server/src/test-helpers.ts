@@ -4,6 +4,7 @@ import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
 import { type Env, parseEnv } from "./env.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
+import type { PhotoReader } from "./lib/photo-reader.js";
 import { type MemoryPusher, memoryPusher } from "./lib/push.js";
 import type { Storage } from "./lib/storage.js";
 
@@ -37,6 +38,9 @@ export const fakeStorage: Storage = {
   async size() {
     return 2048;
   },
+  async read() {
+    return null;
+  },
   async remove() {},
 };
 
@@ -49,12 +53,22 @@ export type TestContext = {
 };
 
 /** Builds the real app against the local database with email kept in memory. */
-export async function buildTestApp(envOverrides: Record<string, string> = {}): Promise<TestContext> {
+export async function buildTestApp(
+  envOverrides: Record<string, string> = {},
+  extras: { photoReader?: PhotoReader; storage?: Storage } = {},
+): Promise<TestContext> {
   const env = testEnv(envOverrides);
   const database = createDb(env.DATABASE_URL);
   const mailer = memoryMailer();
   const pusher = memoryPusher();
-  const app = await buildApp({ env, database, mailer, storage: fakeStorage, pusher });
+  const app = await buildApp({
+    env,
+    database,
+    mailer,
+    storage: extras.storage ?? fakeStorage,
+    pusher,
+    ...(extras.photoReader ? { photoReader: extras.photoReader } : {}),
+  });
   await app.ready();
   return { app, mailer, pusher, database, close: () => app.close() };
 }

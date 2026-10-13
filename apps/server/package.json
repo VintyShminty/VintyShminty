@@ -13,6 +13,7 @@
     "storage-seed": "tsx --env-file-if-exists=.env src/scripts/storage-seed.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "@aws-sdk/client-s3": "^3.1146.0",
     "@aws-sdk/s3-request-presigner": "^3.1146.0",
     "@better-auth/drizzle-adapter": "^1.7.7",
