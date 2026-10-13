@@ -13,7 +13,9 @@ pnpm workspace (pnpm 11, Node 22 via `.nvmrc`), TypeScript 6 everywhere.
 
 The data model is designed (Milestone 0, `docs/blueprint/`). Milestone 1 added Better Auth (email and password, username, 6 digit email codes, sessions), profile, settings, avatar uploads, Face ID unlock and the Hebrew and English switch. Milestone 2 added selling: the sell form with category panels and pickers, photo uploads, drafts, own listings and the selling API.
 
-Not added yet (they need decisions or credentials): payments, Socket.IO, Cloudflare R2 (MinIO stands in for it), a real email provider (Mailpit catches mail in development), push notifications, Google and Apple sign in (prepared, off until credentials exist).
+Milestone 4 (in progress) added messaging on the server: conversations, messages, notifications, Socket.IO and a push pipeline (log only until Apple credentials exist).
+
+Not added yet (they need decisions or credentials): payments, Cloudflare R2 (MinIO stands in for it), a real email provider (Mailpit catches mail in development), push notifications, Google and Apple sign in (prepared, off until credentials exist).
 
 ## Repo map
 

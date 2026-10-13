@@ -1337,16 +1337,10 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
   }
 
   // conversation summaries
-  const lastByConv = new Map<string, { at: Date; preview: string }>();
+  const lastByConv = new Map<string, { at: Date; preview: string | null }>();
   for (const m of msgRows.sort((a, b) => (a.createdAt as Date).getTime() - (b.createdAt as Date).getTime())) {
-    const preview =
-      m.kind === "text"
-        ? (m.body as string).slice(0, 80)
-        : m.kind === "photo"
-          ? "Photo"
-          : m.kind === "offer"
-            ? "Offer"
-            : (m.systemEvent as string);
+    // Only text has a preview. The app draws photos, offers and dividers from the message kind.
+    const preview = m.kind === "text" ? (m.body as string).slice(0, 80) : null;
     lastByConv.set(m.conversationId, { at: m.createdAt as Date, preview });
   }
   for (const conv of convs.values()) {
@@ -1358,6 +1352,39 @@ export async function seedSample(db: SeedDb): Promise<Record<string, number>> {
     const unread = rng.chance(0.35);
     conv.buyerLastReadAt = unread ? plus(last.at, -120) : last.at;
     conv.sellerLastReadAt = rng.chance(0.3) ? plus(last.at, -90) : last.at;
+  }
+
+  // The three people the dev accounts sign in as get a predictable inbox so the app can be tested by hand:
+  // their newest chats are unread, their fourth is archived and their fifth is muted.
+  const lastFromOther = new Map<string, Date>();
+  for (const m of msgRows) {
+    lastFromOther.set(`${m.conversationId}:${m.senderId}`, m.createdAt as Date);
+  }
+  for (const username of ["oliver.smith", "tamar.avraham", "noa_levi"]) {
+    const me = people.find((p) => p.username === username);
+    if (!me) continue;
+    const mine = [...convs.values()]
+      .filter((c) => c.buyerId === me.id || c.sellerId === me.id)
+      .sort((a, b) => (b.lastMessageAt as Date).getTime() - (a.lastMessageAt as Date).getTime());
+    mine.forEach((conv, index) => {
+      const asBuyer = conv.buyerId === me.id;
+      const otherId = asBuyer ? conv.sellerId : conv.buyerId;
+      const theirLast = lastFromOther.get(`${conv.id}:${otherId}`);
+      if (index < 2 && theirLast) {
+        // Unread: the read marker sits just before the other person's latest message.
+        const marker = plus(theirLast, -1);
+        if (asBuyer) conv.buyerLastReadAt = marker;
+        else conv.sellerLastReadAt = marker;
+      }
+      if (index === 3) {
+        if (asBuyer) conv.buyerArchivedAt = plus(conv.lastMessageAt as Date, 5);
+        else conv.sellerArchivedAt = plus(conv.lastMessageAt as Date, 5);
+      }
+      if (index === 4) {
+        if (asBuyer) conv.buyerMutedAt = plus(conv.lastMessageAt as Date, 5);
+        else conv.sellerMutedAt = plus(conv.lastMessageAt as Date, 5);
+      }
+    });
   }
 
   // ---------------------------------------------------------- write it all

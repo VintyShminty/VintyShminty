@@ -102,5 +102,6 @@ export function expoPusher(env: Env, log: Logger): Pusher {
 }
 
 export function createPusher(env: Env, log: Logger): Pusher {
-  return env.PUSH_TRANSPORT === "expo" ? expoPusher(env, log) : logPusher(log);
+  const transport = env.PUSH_TRANSPORT ?? (env.NODE_ENV === "production" ? "expo" : "log");
+  return transport === "expo" ? expoPusher(env, log) : logPusher(log);
 }

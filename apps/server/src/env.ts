@@ -48,7 +48,8 @@ const envSchema = z
 
     // Push notifications. "log" writes the push to the server log instead of sending it (development, tests).
     // "expo" sends through the Expo push service (needs Apple and Google credentials set up in EAS).
-    PUSH_TRANSPORT: z.enum(["log", "expo"]).default("log"),
+    // Left empty it means "log" everywhere except production, which means "expo" (a push is never only logged online).
+    PUSH_TRANSPORT: z.enum(["log", "expo"]).optional(),
     EXPO_PUSH_URL: z.string().url().default("https://exp.host/--/api/v2/push/send"),
     /** Optional Expo access token. Only needed when "enhanced security" is switched on for the project. */
     EXPO_ACCESS_TOKEN: optionalText,

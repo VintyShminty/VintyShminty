@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { HeadBucketCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { createDb, listingPhotos } from "@vinty/db";
+import { createDb, listingPhotos, messages } from "@vinty/db";
+import { isNotNull } from "drizzle-orm";
 import { parseEnv } from "../env.js";
 
 /**
@@ -29,7 +30,14 @@ try {
     throw new Error(`Bucket "${env.S3_BUCKET}" not found at ${env.S3_ENDPOINT}. Run pnpm db:up first.`);
   });
   const rows = await database.db.select({ key: listingPhotos.objectKey }).from(listingPhotos);
-  const keys = [...new Set(rows.map((r) => r.key))];
+  // Sample photo messages (seed/messages/<n>/<file>.jpg) use the same files.
+  const messageRows = await database.db
+    .select({ key: messages.attachmentKey })
+    .from(messages)
+    .where(isNotNull(messages.attachmentKey));
+  const keys = [
+    ...new Set([...rows.map((r) => r.key), ...messageRows.flatMap((r) => (r.key ? [r.key] : []))]),
+  ];
   const cache = new Map<string, Buffer>();
   let uploaded = 0;
   for (const key of keys) {
@@ -50,7 +58,7 @@ try {
     );
     uploaded++;
   }
-  console.log(`Uploaded ${uploaded} sample photos to ${env.S3_PUBLIC_URL}`);
+  console.log(`Uploaded ${uploaded} sample photos (listings and chats) to ${env.S3_PUBLIC_URL}`);
 } finally {
   await database.close();
 }
