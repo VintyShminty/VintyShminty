@@ -537,7 +537,11 @@
     },
     "conditionStop": "{{name}}, {{n}} of {{total}}",
     "conditionAdjustHint": "Swipe up or down to change the condition",
-    "conditionPick": "Slide to choose"
+    "conditionPick": "Slide to choose",
+    "assist": {
+      "reading": "Reading your photos",
+      "suggested": "Suggested"
+    }
   },
   "item": {
     "more": "More options",

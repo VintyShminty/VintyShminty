@@ -20,6 +20,8 @@ type InputProps = Omit<React.ComponentProps<typeof TextInput>, "placeholderTextC
   /** Adds a show/hide button. */
   secureToggle?: { show: string; hide: string };
   containerClassName?: string;
+  /** Something small at the end of the label line, for example the "Suggested" mark. */
+  labelEnd?: React.ReactNode;
 };
 
 /**
@@ -34,6 +36,7 @@ function Input({
   prefix,
   secureToggle,
   containerClassName,
+  labelEnd,
   className,
   editable = true,
   multiline,
@@ -49,9 +52,18 @@ function Input({
 
   return (
     <View className={cn("gap-xs", containerClassName)}>
-      <Text variant="bodySmall" weight={500} className="text-text-2">
-        {label}
-      </Text>
+      {labelEnd ? (
+        <View className="flex-row items-center justify-between gap-sm">
+          <Text variant="bodySmall" weight={500} className="text-text-2">
+            {label}
+          </Text>
+          {labelEnd}
+        </View>
+      ) : (
+        <Text variant="bodySmall" weight={500} className="text-text-2">
+          {label}
+        </Text>
+      )}
       <View
         className={cn(
           "flex-row items-center rounded-control border bg-background px-md",

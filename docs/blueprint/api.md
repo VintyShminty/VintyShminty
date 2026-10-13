@@ -147,6 +147,15 @@ Rules: title 3 to 80 characters (a draft may be empty), description up to 2,000,
 | PATCH | `/v1/listings/:id/status` | Owner | `updateListingStatusInputSchema` (`active`, `hidden`, `reserved`, `sold`) | `listingDetailSchema` | By hand: active to hidden, reserved or sold. Hidden to active. Reserved to active or sold. Anything else is 409 `invalid_transition`. A hand reservation holds the item for nobody in particular |
 | DELETE | `/v1/listings/:id` | Owner | none | 204 | Deletes the listing, its photos and its storage files. A listing that is part of an order cannot be deleted (409), hide it instead |
 
+### AI photo helper (D-028)
+
+| Method | Path | Auth | Request | Response | Notes |
+|---|---|---|---|---|---|
+| GET | `/v1/sell/assist` | Public | none | `photoAssistStatusSchema` (`{ photoAssist }`) | Whether the server has `ANTHROPIC_API_KEY` set. The app only reads photos when it is true, so the helper switches on and off without a new app build. `Cache-Control: public, max-age=60` |
+| POST | `/v1/listings/suggest` | Required | `suggestRequestSchema` (`{ photoKeys: 1 to 4 keys, language: en or he }`) | `photoSuggestionSchema` | Reads photos the seller already uploaded (keys under `listings/<their id>/`, anything else is 400) with Claude Haiku (`PHOTO_READER_MODEL`, default `claude-haiku-5-5`) and suggests `categoryId` (a real leaf), `brand` (`{ id, name }`, `id` null when the tag text matches no brand we know), up to 2 `colourIds`, `materialId`, `title`, `description` (in `language`) and a `confidence` from 0 to 1 per field. Every id is checked against our lists and anything unknown is dropped. Always 200: with no key, no readable photo, a timeout (15 seconds) or any model error the body is the empty suggestion. 20 reads an hour per person (429 with `Retry-After`). Usage tokens are logged, never photos or the key |
+
+The model is shown our leaf categories, colours and materials as text with short codes (C12, K3, M2) in a cached system block, and answers in a JSON schema. Brand matching ignores case, accents and punctuation and also tries the first words of a longer tag ("ZARA BASIC" finds Zara). The app fills only empty fields with fields it is at least 0.6 sure of (`PHOTO_ASSIST_MIN_CONFIDENCE`).
+
 Owner routes answer 404 for someone else's listing, so they cannot tell it exists. Writes are limited to 60 a minute.
 
 Moved out of Milestone 2 (built in Milestone 9 as `PUT /v1/me/away-mode`): `PUT /v1/me/holiday-mode` goes to Milestone 6 (holiday mode is in Settings, not the sell flow). `GET /v1/me/listing-defaults` waits for shipping addresses (Milestone 5), until then the form starts with the Small parcel and the category's recommended size.

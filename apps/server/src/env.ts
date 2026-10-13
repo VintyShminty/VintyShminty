@@ -104,6 +104,10 @@ const envSchema = z
     /** Connections one server copy keeps open. */
     DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),
 
+    // AI photo helper on the sell form. Empty key means the helper is off (nothing else changes, also in production).
+    ANTHROPIC_API_KEY: optionalText,
+    PHOTO_READER_MODEL: optionalText,
+
     // Object storage (MinIO in development, Cloudflare R2 online)
     S3_ENDPOINT: z.string().url().default("http://localhost:9000"),
     S3_REGION: z.string().default("us-east-1"),
@@ -195,6 +199,7 @@ const envSchema = z
   })
   .transform((env) => ({
     ...env,
+    PHOTO_READER_MODEL: env.PHOTO_READER_MODEL ?? "claude-haiku-5-5",
     MAIL_FROM:
       env.MAIL_FROM ??
       (env.MAIL_TRANSPORT === "resend" ? "Vinty <onboarding@resend.dev>" : "Vinty <no-reply@vinty.local>"),

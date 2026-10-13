@@ -3,6 +3,7 @@ import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fas
 import type { Env } from "./env.js";
 import { loggerOptions } from "./lib/logger.js";
 import { createMailer, type Mailer } from "./lib/mail.js";
+import { createPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
 import type { Pusher } from "./lib/push.js";
 import { createStorage, type Storage } from "./lib/storage.js";
 import authPlugin from "./plugins/auth.js";
@@ -28,6 +29,7 @@ import messageRoutes from "./routes/messages.js";
 import notificationRoutes from "./routes/notifications.js";
 import offerRoutes from "./routes/offers.js";
 import orderRoutes from "./routes/orders.js";
+import photoAssistRoutes from "./routes/photo-assist.js";
 import referenceRoutes from "./routes/reference.js";
 import referralRoutes from "./routes/referrals.js";
 import reviewRoutes from "./routes/reviews.js";
@@ -41,11 +43,13 @@ export type BuildAppOptions = {
   mailer?: Mailer;
   /** Defaults to the S3 compatible bucket from the environment. */
   storage?: Storage;
+  /** Defaults to Claude Haiku when ANTHROPIC_API_KEY is set, otherwise the photo helper is off. Tests pass a fake. */
+  photoReader?: PhotoReader;
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
 };
 
-export async function buildApp({ env, database, mailer, storage, pusher }: BuildAppOptions) {
+export async function buildApp({ env, database, mailer, storage, pusher, photoReader }: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
   }).withTypeProvider<ZodTypeProvider>();
@@ -74,6 +78,7 @@ export async function buildApp({ env, database, mailer, storage, pusher }: Build
     await app.register(referenceRoutes);
     await app.register(listingRoutes);
     await app.register(uploadRoutes);
+    await app.register(photoAssistRoutes, { reader: photoReader ?? createPhotoReader(env) });
     await app.register(userRoutes);
     await app.register(discoveryRoutes);
     await app.register(engagementRoutes);

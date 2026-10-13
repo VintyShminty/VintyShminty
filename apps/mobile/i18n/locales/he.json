@@ -544,7 +544,11 @@
     },
     "conditionStop": "{{name}}, {{n}} מתוך {{total}}",
     "conditionAdjustHint": "החליקו למעלה או למטה כדי לשנות את המצב",
-    "conditionPick": "החליקו כדי לבחור"
+    "conditionPick": "החליקו כדי לבחור",
+    "assist": {
+      "reading": "קוראים את התמונות שלך",
+      "suggested": "הצעה"
+    }
   },
   "item": {
     "more": "עוד אפשרויות",

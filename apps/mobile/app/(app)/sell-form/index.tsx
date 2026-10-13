@@ -13,6 +13,7 @@ import {
   validateListing,
 } from "@vinty/shared";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Sparkles } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
@@ -23,9 +24,11 @@ import { ConditionSlider } from "@/components/sell/condition-slider";
 import { type Option, OptionListSheet } from "@/components/sell/option-list-sheet";
 import { ParcelSizes } from "@/components/sell/parcel-sizes";
 import { PhotoUploader } from "@/components/sell/photo-uploader";
+import { SuggestedTag } from "@/components/sell/suggested-tag";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { PickerRow } from "@/components/ui/picker-row";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
@@ -37,6 +40,7 @@ import { describeApiError } from "@/lib/auth-errors";
 import { formatMoney, priceTextToMinor } from "@/lib/money";
 import { ownListingQuery, pricePreviewQuery, useSaveListing } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
+import { usePhotoAssist } from "@/lib/sell-assist";
 import { toListingInput, useSellStore } from "@/lib/sell-store";
 
 function useDebounced<T>(value: T, ms = 300): T {
@@ -85,7 +89,7 @@ function BuyerPricePreview({ priceMinor }: { priceMinor: number | null }) {
  * the buyer price, parcel size, then Save draft and Upload. The same screen edits a listing or resumes a draft.
  */
 export default function SellForm() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const name = useLocalName();
@@ -98,6 +102,8 @@ export default function SellForm() {
   const errors = useSellStore((s) => s.errors);
   const status = useSellStore((s) => s.status);
   const listingId = useSellStore((s) => s.listingId);
+  const assist = useSellStore((s) => s.assist);
+  const suggested = useSellStore((s) => s.suggested);
   const { set, setErrors, clearError, start } = useSellStore.getState();
   const [banner, setBanner] = useState<string | null>(null);
   const [ready, setReady] = useState(!id);
@@ -124,6 +130,9 @@ export default function SellForm() {
       s.values.parcelSizeId ? s : { values: { ...s.values, parcelSizeId: firstParcel } },
     );
   }, [id, firstParcel]);
+
+  // Reads the first photos in the background (new listings only) and fills empty fields with suggestions.
+  usePhotoAssist({ enabled: !id, language: i18n.language === "he" ? "he" : "en", reference: reference.data });
 
   const brandRef = useRef<BottomSheetModal>(null);
   const sizeRef = useRef<BottomSheetModal>(null);
@@ -245,6 +254,14 @@ export default function SellForm() {
       <ScreenScroll contentContainerClassName="pb-lg">
         <Section title={t("sell.photos.title")}>
           <PhotoUploader maxPhotos={limits.maxPhotos} error={err("photos")} />
+          {assist === "reading" ? (
+            <View className="flex-row items-center gap-sm" accessibilityLiveRegion="polite">
+              <Icon as={Sparkles} size={14} className="text-primary" />
+              <Text variant="cardDesc" className="text-text-3">
+                {t("sell.assist.reading")}
+              </Text>
+            </View>
+          ) : null}
           <Pressable
             onPress={() => set({ usedAiPhotos: !values.usedAiPhotos })}
             role="checkbox"
@@ -271,6 +288,7 @@ export default function SellForm() {
             maxLength={LISTING_TITLE_MAX}
             footerEnd={`${values.title.length}/${LISTING_TITLE_MAX}`}
             error={err("title")}
+            labelEnd={suggested.includes("title") ? <SuggestedTag /> : undefined}
             returnKeyType="next"
           />
           <Input
@@ -285,6 +303,7 @@ export default function SellForm() {
             maxLength={LISTING_DESCRIPTION_MAX}
             footerEnd={`${values.description.length}/${LISTING_DESCRIPTION_MAX}`}
             error={err("description")}
+            labelEnd={suggested.includes("description") ? <SuggestedTag /> : undefined}
           />
         </Section>
 
@@ -294,6 +313,7 @@ export default function SellForm() {
             value={trail.length ? name(trail.at(-1)?.name) : null}
             onPress={() => router.push({ pathname: "/sell-form/category", params: { depth: "1" } })}
             error={err("categoryId")}
+            suggested={suggested.includes("category")}
           />
           {category && mode("brand") !== "hidden" ? (
             <PickerRow
@@ -301,6 +321,7 @@ export default function SellForm() {
               value={values.brand?.name}
               onPress={() => openSheet(brandRef)}
               error={err("brandId")}
+              suggested={suggested.includes("brand")}
             />
           ) : null}
           {category && mode("size") !== "hidden" ? (
@@ -337,6 +358,7 @@ export default function SellForm() {
               value={colourNames}
               onPress={() => openSheet(colourRef)}
               error={err("colourIds")}
+              suggested={suggested.includes("colours")}
             />
           ) : null}
           {category && mode("material") !== "hidden" ? (
@@ -345,6 +367,7 @@ export default function SellForm() {
               value={name(material?.name)}
               onPress={() => openSheet(materialRef)}
               error={err("materialId")}
+              suggested={suggested.includes("material")}
             />
           ) : null}
           {category && mode("pattern") !== "hidden" ? (

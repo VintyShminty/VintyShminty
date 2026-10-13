@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "../env.js";
 
@@ -39,6 +45,8 @@ export interface Storage {
   publicUrl(key: string): string;
   /** Size in bytes of a stored file, or null when it is not there. */
   size(key: string): Promise<number | null>;
+  /** The stored file's bytes, or null when it is not there or is bigger than `maxBytes`. */
+  read(key: string, maxBytes: number): Promise<Buffer | null>;
   /** Best effort. A failure is logged by the caller, never shown to the user. */
   remove(key: string): Promise<void>;
 }
@@ -93,6 +101,15 @@ export function createStorage(env: Env): Storage {
       try {
         const head = await client.send(new HeadObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
         return head.ContentLength ?? null;
+      } catch {
+        return null;
+      }
+    },
+    async read(key, maxBytes) {
+      try {
+        const object = await client.send(new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: key }));
+        if ((object.ContentLength ?? 0) > maxBytes || !object.Body) return null;
+        return Buffer.from(await object.Body.transformToByteArray());
       } catch {
         return null;
       }

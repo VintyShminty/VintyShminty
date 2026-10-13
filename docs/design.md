@@ -503,3 +503,12 @@ Proposals, not rules, until explicitly promoted above.
 - **Decision:** Tapping Log in or Sign up on the welcome screen slides the full screen up from the bottom over the welcome photo, and closing slides it back down (swipe down works too). The button over the photo band is a close X on these two screens. Forgot password still pushes in sideways from Log in and keeps its back arrow. The two links between Log in and Sign up swap the screen in place.
 - **Rationale:** The welcome photo is the front door and these two screens are forms opened from it, so they rise up like a drawer instead of pushing a new page.
 - **Implementation:** `apps/mobile/app/(auth)/_layout.tsx`, `components/auth-photo.tsx` (`close` option).
+
+### D-028 : The photo helper suggests, the seller decides
+
+- **Date:** 2026-10-13
+- **Area:** Sell form
+- **Status:** Built on branch ai-photo-helper, waiting for Eden's review. (Took D-028 because D-027 may be used by a change in flight.)
+- **Decision:** After the first photos finish uploading on a new listing, a quiet line with a small sparkle, "Reading your photos", shows under the photo tiles while the server looks at them. When it answers, empty fields are filled in: title, description, category, brand, colours and material, whatever the photos can show and the helper is sure of. Each filled field carries a small sparkle and "Suggested" at the end of its label line, in the quiet grey text colour. The mark goes away as soon as the seller changes that field. Nothing the seller already chose is ever replaced, and if the helper finds nothing, or fails, the form looks exactly as before. It runs once per new listing, not when editing. Size, condition, price and parcel are never suggested (a photo cannot show them).
+- **Rationale:** Long lists are the slowest part of selling. A marked, editable prefill saves the digging without taking choices away, and a mark that disappears on touch stays out of the way.
+- **Implementation:** `components/sell/suggested-tag.tsx`, `lib/sell-assist.ts`, `lib/sell-assist-plan.ts`, `lib/sell-store.ts` (`suggested`, `assist`), `PickerRow` (`suggested`) and `Input` (`labelEnd`).

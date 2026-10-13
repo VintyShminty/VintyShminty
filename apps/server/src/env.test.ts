@@ -83,6 +83,19 @@ describe("parseEnv in production", () => {
     expect(() => parseEnv({ ...good, ...change } as Record<string, string>)).toThrow(new RegExp(name));
   });
 
+  it("starts without the AI photo key, the helper just stays off", () => {
+    const env = parseEnv(good);
+    expect(env.ANTHROPIC_API_KEY).toBeUndefined();
+    expect(env.PHOTO_READER_MODEL).toBe("claude-haiku-5-5");
+  });
+
+  it("trims a pasted AI photo key and lets the model be changed", () => {
+    const env = parseEnv({ ...good, ANTHROPIC_API_KEY: " sk-test\n", PHOTO_READER_MODEL: "claude-x" });
+    expect(env.ANTHROPIC_API_KEY).toBe("sk-test");
+    expect(env.PHOTO_READER_MODEL).toBe("claude-x");
+    expect(parseEnv({ ...good, ANTHROPIC_API_KEY: "  " }).ANTHROPIC_API_KEY).toBeUndefined();
+  });
+
   it("accepts the log mail transport for a private online test, without a Resend key", () => {
     expect(
       parseEnv({ ...good, MAIL_TRANSPORT: "log", RESEND_API_KEY: undefined } as unknown as Record<
