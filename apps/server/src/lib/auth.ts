@@ -1,5 +1,6 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { expo } from "@better-auth/expo";
+import { waitUntil } from "@vercel/functions";
 import { accounts, type Database, profiles, sessions, userSettings, users, verifications } from "@vinty/db";
 import {
   LOCALES,
@@ -114,8 +115,9 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
       // The app sends no name at sign up. The sign up route insists on one, so give it an empty one and let
       // the user hook above fill it with the username.
       before: createAuthMiddleware(async (ctx) => {
-        if (ctx.path === "/sign-up/email" && ctx.body && typeof ctx.body.name !== "string") {
-          ctx.body.name = "";
+        const body = ctx.body as { name?: unknown } | undefined;
+        if (ctx.path === "/sign-up/email" && body && typeof body.name !== "string") {
+          body.name = "";
         }
       }),
     },
@@ -167,9 +169,12 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
           const language =
             ctx?.request?.headers.get("accept-language") ?? ctx?.headers?.get("accept-language");
           // Not awaited on purpose: waiting would let timing reveal whether an email has an account.
-          void sendCode(email, type, otp, language).catch((err) => {
-            ctx?.context.logger.error("Could not send a code email", err);
-          });
+          // waitUntil keeps Vercel running until the email is handed over, after the response has gone.
+          waitUntil(
+            sendCode(email, type, otp, language).catch((err) => {
+              ctx?.context.logger.error("Could not send a code email", err);
+            }),
+          );
         },
       }),
       expo(),

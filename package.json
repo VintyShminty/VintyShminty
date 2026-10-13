@@ -17,9 +17,11 @@
     "db:down": "docker compose down",
     "db:generate": "pnpm --filter @vinty/db generate",
     "db:migrate": "pnpm --filter @vinty/db migrate",
+    "db:migrate:online": "pnpm --filter @vinty/db migrate:online",
     "db:seed": "pnpm --filter @vinty/db seed",
     "db:seed:reference": "pnpm --filter @vinty/db seed:reference",
     "db:reset": "pnpm --filter @vinty/db reset",
+    "db:seed:reference:online": "pnpm --filter @vinty/db seed:reference:online",
     "db:dev-users": "pnpm --filter @vinty/server dev-users",
     "storage:seed": "pnpm --filter @vinty/server storage-seed"
   },

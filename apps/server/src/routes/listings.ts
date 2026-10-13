@@ -1,3 +1,4 @@
+import { waitUntil } from "@vercel/functions";
 import { brands, listingColours, listingPhotos, listingPriceHistory, listings, profiles } from "@vinty/db";
 import {
   createListingInputSchema,
@@ -275,7 +276,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
   function removeFiles(userId: string, keys: string[], log: { warn: (o: object, m: string) => void }) {
     for (const key of keys) {
       if (!keyBelongsToUser(key, "listing_photo", userId)) continue;
-      void storage.remove(key).catch((err) => log.warn({ err }, "could not delete a listing photo"));
+      waitUntil(storage.remove(key).catch((err) => log.warn({ err }, "could not delete a listing photo")));
     }
   }
 

@@ -2,27 +2,29 @@ import { z } from "zod";
 import { idSchema, localisedNameSchema } from "./common.js";
 import { ATTRIBUTE_MODES, SIZE_KINDS } from "./enums.js";
 
-export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
-  z.object({
-    id: idSchema,
-    slug: z.string(),
-    path: z.string(),
-    name: localisedNameSchema,
-    icon: z.string().nullable(),
-    isLeaf: z.boolean(),
-    rules: z.object({
-      brand: z.enum(ATTRIBUTE_MODES),
-      size: z.enum(ATTRIBUTE_MODES),
-      condition: z.enum(ATTRIBUTE_MODES),
-      colour: z.enum(ATTRIBUTE_MODES),
-      material: z.enum(ATTRIBUTE_MODES),
-      pattern: z.enum(ATTRIBUTE_MODES),
+export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
+  () =>
+    z.object({
+      id: idSchema,
+      slug: z.string(),
+      path: z.string(),
+      name: localisedNameSchema,
+      icon: z.string().nullable(),
+      isLeaf: z.boolean(),
+      rules: z.object({
+        brand: z.enum(ATTRIBUTE_MODES),
+        size: z.enum(ATTRIBUTE_MODES),
+        condition: z.enum(ATTRIBUTE_MODES),
+        colour: z.enum(ATTRIBUTE_MODES),
+        material: z.enum(ATTRIBUTE_MODES),
+        pattern: z.enum(ATTRIBUTE_MODES),
+      }),
+      sizeGroupIds: z.array(idSchema),
+      defaultParcelSizeId: idSchema.nullable(),
+      children: z.array(categoryNodeSchema),
     }),
-    sizeGroupIds: z.array(idSchema),
-    defaultParcelSizeId: idSchema.nullable(),
-    children: z.array(categoryNodeSchema),
-  }),
-);
+  // The cast keeps Vercel's build check happy, it runs without strict and then reads nullable as optional.
+) as z.ZodType<CategoryNode>;
 export interface CategoryNode {
   id: string;
   slug: string;

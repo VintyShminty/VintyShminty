@@ -15,7 +15,8 @@ const CLEANUP_HOUR_UTC = 3;
 export default fp(
   async (app) => {
     const seconds = app.env.JOBS_INTERVAL_SECONDS;
-    if (seconds <= 0) return;
+    // Off on Vercel (IN_PROCESS_JOBS): the crons in vercel.json call /v1/jobs/... instead.
+    if (seconds <= 0 || !app.env.IN_PROCESS_JOBS) return;
     const timers: NodeJS.Timeout[] = [];
 
     let running = false;

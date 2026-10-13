@@ -190,7 +190,7 @@ export async function deliverPush(
   }
   const dead = tokens.filter((_, i) => {
     const r = results[i];
-    return r && !r.ok && r.deviceGone;
+    return r && "deviceGone" in r && r.deviceGone;
   });
   if (dead.length > 0) {
     await app.db
