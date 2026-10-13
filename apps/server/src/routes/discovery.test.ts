@@ -373,7 +373,9 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(feed.statusCode).toBe(200);
       expect(ids(feed).slice(0, 30)).toContain(fresh.id);
       expect(feed.json().feedId).toBeTruthy();
-      expect(feed.json().items[0].reason === null || typeof feed.json().items[0].reason.kind === "string").toBe(true);
+      expect(
+        feed.json().items[0].reason === null || typeof feed.json().items[0].reason.kind === "string",
+      ).toBe(true);
       expect(feed.json().items[0].isFavourited).toBeUndefined();
       expect(ids(feed)).not.toContain(bobItem.id);
 
