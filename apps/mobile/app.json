@@ -10,7 +10,8 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "infoPlist": {
-        "CFBundleLocalizations": ["en"]
+        "CFBundleLocalizations": ["en"],
+        "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.secondhand.marketplace",
       "usesAppleSignIn": true
