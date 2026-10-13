@@ -78,6 +78,7 @@ Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateI
 | POST | `/api/auth/sign-in/email` | Public | Sign in with email and password. Returns the session token |
 | POST | `/api/auth/sign-in/social` | Public | Sign in with Google or Apple using the provider's ID token |
 | POST | `/api/auth/sign-out` | Required | End this session |
+| GET | `/v1/auth/error` | Public | Friendly page (English and Hebrew, button back to the app) shown in the browser sheet when a Google or Apple login is refused. Better Auth redirects here through `onAPIError.errorURL` with `?error=<code>`. Known codes get a fixed message, anything else the generic one, the query is never printed. Its own tight Content Security Policy (style hash only), `Cache-Control: no-store` |
 | GET | `/api/auth/get-session` | Optional | Current session and user |
 | POST | `/api/auth/email-otp/send-verification-otp` | Public | Send the email confirmation code (also sent at sign up) |
 | POST | `/api/auth/email-otp/verify-email` | Public | Confirm the email with the code |
