@@ -1,11 +1,13 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import type { ListingDetail } from "@vinty/shared";
 import { useRouter } from "expo-router";
-import { Check, Clock, Eye, EyeOff, Heart, Pencil, Trash2 } from "lucide-react-native";
-import { useState } from "react";
+import { Check, Clock, Eye, EyeOff, Heart, Pencil, Trash2, Zap } from "lucide-react-native";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BuzzSheet } from "@/components/item/buzz-sheet";
 import { DetailRow } from "@/components/item/detail-row";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { PricePill } from "@/components/price-pill";
@@ -21,7 +23,7 @@ import { describeApiError } from "@/lib/auth-errors";
 import { formatMoney } from "@/lib/money";
 import { ownListingQuery, useDeleteListing, useListingStatus } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
-import { timeAgo } from "@/lib/time";
+import { formatDateTime, timeAgo } from "@/lib/time";
 
 function StatusNote({ listing }: { listing: ListingDetail }) {
   const { t } = useTranslation();
@@ -53,8 +55,9 @@ function StatusNote({ listing }: { listing: ListingDetail }) {
  * Buying, offers and messages are for buyers and arrive in later milestones.
  */
 export function OwnListingView({ id, placeholder }: { id: string; placeholder?: ListingDetail }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
+  const buzzSheet = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
   const name = useLocalName();
   const query = useQuery({ ...ownListingQuery(id), placeholderData: placeholder });
@@ -129,6 +132,14 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
         <PhotoCarousel photos={listing.photos} />
         <View className="gap-lg px-lg pt-lg">
           <StatusNote listing={listing} />
+          {listing.isBumped && listing.bumpedUntil ? (
+            <View className="flex-row items-center gap-sm">
+              <Badge variant="accent" icon={Zap} label={t("buzz.buzzing")} />
+              <Text variant="bodySmall" className="flex-1 text-text-3">
+                {t("buzz.endsOn", { date: formatDateTime(listing.bumpedUntil, i18n.language) })}
+              </Text>
+            </View>
+          ) : null}
           <View className="gap-xs">
             <Text variant="itemName" className="text-[24px] leading-[28px]">
               {listing.title || t("listing.untitled")}
@@ -188,6 +199,17 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
                 <Text>{listing.status === "draft" ? t("listing.continueEditing") : t("listing.edit")}</Text>
               </Button>
             )}
+            {listing.status === "active" && !listing.isBumped ? (
+              <Button
+                variant="outline"
+                size="lg"
+                onPress={() => buzzSheet.current?.present()}
+                disabled={busy}
+              >
+                <Icon as={Zap} size={18} className="text-primary" />
+                <Text>{t("buzz.action")}</Text>
+              </Button>
+            ) : null}
             {listing.status === "active" ? (
               <Button variant="outline" size="lg" onPress={() => move("reserved")} disabled={busy}>
                 <Text>{t("listing.markReserved")}</Text>
@@ -257,6 +279,7 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
           ) : null}
         </View>
       </ScrollView>
+      {listing.status === "active" ? <BuzzSheet ref={buzzSheet} listingId={listing.id} /> : null}
     </Screen>
   );
 }

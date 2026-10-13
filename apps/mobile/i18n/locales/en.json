@@ -577,6 +577,25 @@
     "emptyNote": "Tap the heart on an item to keep it here",
     "noMatches": "Nothing in your favourites matches that search"
   },
+  "buzz": {
+    "action": "Give it buzz",
+    "title": "Give it buzz",
+    "intro": "Your item moves to the top of the feed and wears a Buzzing badge while it lasts.",
+    "free": "Free for now",
+    "confirm": "Give it buzz",
+    "buzzing": "Buzzing",
+    "endsOn": "Ends {{date}}",
+    "endedOn": "Ended {{date}}",
+    "yourBuzzes": "Your buzzes",
+    "empty": "No buzzes yet",
+    "emptyNote": "Give an item buzz and it climbs the feed for a few days",
+    "ended": "Ended",
+    "plansFailed": "We could not load the plans. Close this and try again.",
+    "errors": {
+      "already": "This item is already buzzing",
+      "unavailable": "Only items that are for sale can get buzz"
+    }
+  },
   "savedSearches": {
     "title": "Saved searches",
     "empty": "No saved searches yet",
