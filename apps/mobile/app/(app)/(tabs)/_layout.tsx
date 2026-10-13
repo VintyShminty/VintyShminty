@@ -26,6 +26,8 @@ export default function TabsLayout() {
           backgroundColor: colors.background,
           borderTopColor: colors.borderSubtle,
           borderTopWidth: 1,
+          // The tabs keep the same order in Hebrew as in English, Home at the left and Profile at the right (D-016).
+          direction: "ltr",
         },
         tabBarLabelStyle: {
           fontFamily: labelFamily,
