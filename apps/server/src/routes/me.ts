@@ -1,3 +1,4 @@
+import { waitUntil } from "@vercel/functions";
 import {
   accounts,
   addresses,
@@ -94,7 +95,7 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
         if (size === null)
           throw ApiError.invalid("That photo was not uploaded", { avatarKey: "validation.avatar.invalid" });
         if (size > MAX_UPLOAD_BYTES.avatar) {
-          void app.storage.remove(input.avatarKey).catch(() => {});
+          waitUntil(app.storage.remove(input.avatarKey).catch(() => {}));
           throw ApiError.invalid("That photo is too big", { avatarKey: "validation.upload.tooBig" });
         }
       }
