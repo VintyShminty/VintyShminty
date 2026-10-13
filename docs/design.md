@@ -473,6 +473,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/mobile/app/(app)/(tabs)/(profile)/settings/away-mode.tsx`, `settings/help/index.tsx` and `[id].tsx`, `components/profile-view.tsx` (`AwayBanner`), `lib/help-topics.ts`, locale keys `away.*` and `help.*`
 - **References:** D-019, `docs/originality.md`
 
+### D-026 : The sizes question is a body figure that lights up one part at a time
+
+- **Date:** 2026-10-13
+- **Area:** Sign up questions (D-022)
+- **Status:** Built on branch size-body-map, waiting for Eden's review (not seen on a simulator yet)
+- **Decision:** The second sign up question no longer shows one long list of tick boxes. It shows one faceless line drawing of a body (woman, man or child) in a quiet line colour, with the part you are choosing for glowing in espresso with a soft fill. Under it: the part's name and one short line ("Upper body", "Tops, T-shirts and jackets"), the sizes as outline chips you can tick several of (D-008), a row of progress dots, then Back and Next. When nothing is ticked the main button says "Skip this one" and is an outline button. The glow fades between parts (260ms ease out, no movement, instant when the phone asks for less motion). If "What do you shop for?" had exactly one pick, that body is shown. With two or three picks (or none) a small "Whose sizes?" step comes first with Women, Men and Kids chips, and one body is shown for the choice. Sizes are saved after each part exactly like Settings, My sizes. The top Skip still skips the whole question.
+- **Mapping:** only size groups that exist in the reference data. Women: upper body is the letter sizes, the whole body (shoulders to ankles) is the EU number sizes (dresses), lower body is the jeans waist sizes, the waist band is belt sizes, feet are women's shoe sizes. Men: upper body letters, lower body men's waist sizes, waist belts, feet men's shoes. Kids: the whole body is the age sizes, feet are kids' shoe sizes. "One size" is left out on purpose.
+- **Rationale:** A long list of codes (XXS, EU 32, W28) means nothing until you see where on the body it goes. One part at a time keeps each choice short and makes the question feel like a fitting, not a form.
+- **Trade-off:** More taps than one list (up to five short steps for women). Every step can be skipped in one tap, and the figure is drawn in code (no image files), so it stays crisp and uses the tokens.
+- **Implementation:** `apps/mobile/components/onboarding/` (`body-paths.ts` the outlines, `body-figure.tsx` the drawing and the glow, `size-steps.ts` the part to size group mapping, `sizes-step.tsx` the screen), used by `app/(app)/onboarding.tsx`. Locale keys `onboarding.sizes.*`. The figure does not mirror in Hebrew, the rest of the layout does.
+
 <!-- Template for new entries:
 ### D-### : Short decision name
 
