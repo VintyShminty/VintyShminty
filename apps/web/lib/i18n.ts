@@ -18,6 +18,7 @@ const locales = { en, he } as const;
 /** The parts of the wording that browser components may need. The page sends only these to the browser. */
 const CLIENT_SECTIONS = [
   "web",
+  "admin",
   "search",
   "filters",
   "welcome",

@@ -60,7 +60,8 @@ export async function buildTestApp(
   extras: { photoReader?: PhotoReader; storage?: Storage } = {},
 ): Promise<TestContext> {
   const env = testEnv(envOverrides);
-  const database = createDb(env.DATABASE_URL);
+  // A small pool: some test files keep a dozen apps open at once, and the local database allows 100 connections.
+  const database = createDb(env.DATABASE_URL, { max: 5 });
   const mailer = memoryMailer();
   const pusher = memoryPusher();
   const app = await buildApp({

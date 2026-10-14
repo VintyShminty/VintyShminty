@@ -9,6 +9,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { Env } from "../env.js";
+import { ApiError } from "./errors.js";
 
 export const UPLOAD_PURPOSES = ["listing_photo", "avatar", "message_photo"] as const;
 export type UploadPurpose = (typeof UPLOAD_PURPOSES)[number];
@@ -71,6 +72,27 @@ const FOLDER: Record<UploadPurpose, string> = {
 /** Folder rule: avatars/<userId>/<random>.jpg. Only the owner's folder is accepted back as an avatar key. */
 export function keyBelongsToUser(key: string, purpose: UploadPurpose, userId: string): boolean {
   return key.startsWith(`${FOLDER[purpose]}/${userId}/`) && !key.includes("..");
+}
+
+/**
+ * The answer to "I want to upload a photo": a signed address in the person's own folder (the folder rule above). Used
+ * by POST /v1/uploads and by the admin upload for a stand-in seller, so both follow the same size limit and folders.
+ */
+export async function presignUploadResponse(
+  storage: Storage,
+  input: { userId: string; purpose: UploadPurpose; contentType: string; byteSize: number },
+) {
+  if (input.byteSize > MAX_UPLOAD_BYTES[input.purpose]) {
+    throw ApiError.invalid("That file is too big", { byteSize: "validation.upload.tooBig" });
+  }
+  const upload = await storage.presignUpload(input);
+  return {
+    key: upload.key,
+    uploadUrl: upload.uploadUrl,
+    headers: upload.headers,
+    expiresAt: upload.expiresAt.toISOString(),
+    publicUrl: storage.publicUrl(upload.key),
+  };
 }
 
 export function createStorage(env: Env): Storage {

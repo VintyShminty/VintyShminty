@@ -15,6 +15,7 @@ export const VALIDATION_MESSAGES = [
   "validation.username.tooLong",
   "validation.username.characters",
   "validation.username.taken",
+  "validation.username.reserved",
   "validation.password.required",
   "validation.password.tooShort",
   "validation.password.tooLong",
