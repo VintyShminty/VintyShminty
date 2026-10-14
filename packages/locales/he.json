@@ -1835,5 +1835,170 @@
       "summary": "סיכום",
       "itemsTotal": "סך הפריטים"
     }
+  },
+  "admin": {
+    "title": "ניהול",
+    "menu": "תפריט",
+    "backToSite": "חזרה ל-Vinty",
+    "loading": "טוען",
+    "nav": {
+      "dashboard": "לוח בקרה",
+      "users": "משתמשים",
+      "analytics": "ניתוח נתונים",
+      "expenses": "הוצאות",
+      "security": "אבטחה"
+    },
+    "adminsOnly": {
+      "title": "למנהלים בלבד",
+      "message": "האזור הזה מיועד לצוות Vinty. אם אמורה להיות לך גישה, בקשו ממנהל להפעיל אותה"
+    },
+    "checkFailed": {
+      "title": "לא הצלחנו לבדוק את ההרשאה שלך",
+      "message": "נסו שוב בעוד רגע"
+    },
+    "errors": {
+      "notAllowed": "אין לך הרשאה לעשות את זה"
+    },
+    "actions": {
+      "madeAdmin": "הפך אדם למנהל",
+      "removedAdmin": "הסיר הרשאת מנהל מאדם",
+      "aPerson": "אדם",
+      "userDeleted": "מחק את {{name}}",
+      "adminGranted": "נתן לאדם הרשאת מנהל",
+      "expensesConfigSaved": "שמר את עלויות ברירת המחדל",
+      "expensesMonthSaved": "שמר את העלויות של {{month}}",
+      "expensesMonthCleared": "חזר לעלויות ברירת המחדל של {{month}}",
+      "switchedOn": "הפעיל את {{name}}",
+      "switchedOff": "כיבה את {{name}}",
+      "aiAutoDisabled": "ה-AI כבה את עצמו: {{reason}}"
+    },
+    "aiActions": {
+      "photo_check": "עוזר התמונות (טופס המכירה)"
+    },
+    "dashboard": {
+      "totalUsers": "משתמשים",
+      "newUsers": "משתמשים חדשים",
+      "last7Days": "7 הימים האחרונים",
+      "activeListings": "מודעות פעילות",
+      "orders": "הזמנות",
+      "last30Days": "30 הימים האחרונים",
+      "aiSpend": "הוצאות AI",
+      "thisMonth": "החודש",
+      "aiCalls": "קריאות AI",
+      "today": "היום",
+      "recentActivity": "פעילות אחרונה",
+      "noActivity": "עוד לא קרה כלום",
+      "by": "על ידי {{name}}",
+      "bySystem": "על ידי המערכת"
+    },
+    "users": {
+      "filters": "סינון אנשים",
+      "filter": {
+        "all": "הכול",
+        "admins": "מנהלים",
+        "sellers": "מוכרים",
+        "buyers": "קונים בלבד",
+        "banned": "חסומים"
+      },
+      "search": "חיפוש לפי שם, שם משתמש או אימייל",
+      "empty": "אף אחד לא מתאים",
+      "loadMore": "טען עוד",
+      "adminTag": "מנהל",
+      "moderatorTag": "מנחה",
+      "bannedTag": "חסום",
+      "standIn": "חשבון מחליף",
+      "you": "זה אתם",
+      "joined": "הצטרף ב-{{date}}",
+      "lastSignIn": "נראה לאחרונה {{when}}",
+      "neverSignedIn": "אף פעם לא התחבר",
+      "listings_one": "מודעה אחת",
+      "listings_two": "{{count}} מודעות",
+      "listings_other": "{{count}} מודעות",
+      "makeAdmin": "הפוך למנהל",
+      "removeAdmin": "הסר הרשאת מנהל",
+      "delete": "מחיקה",
+      "madeAdmin": "{{name}} הוא עכשיו מנהל",
+      "removedAdmin": "{{name}} כבר לא מנהל",
+      "deleted": "{{name}} נמחק",
+      "deleteTitle": "למחוק את {{name}}?",
+      "deleteBody": "זה מוחק את האדם ואת כל מה שיש לו, לצמיתות. אם יש לו הזמנות או כסף, חסמו אותו במקום"
+    },
+    "analytics": {
+      "weekNote": "8 השבועות האחרונים, השבוע מתחיל ביום שני",
+      "signups": "הרשמות",
+      "newListings": "מודעות חדשות",
+      "orders": "הזמנות",
+      "aiByFeature": "שימוש ב-AI לפי יכולת",
+      "noAi": "עוד אין קריאות AI החודש",
+      "callsAndCost": "{{calls}} קריאות, {{cost}}"
+    },
+    "expenses": {
+      "previousMonth": "החודש הקודם",
+      "nextMonth": "החודש הבא",
+      "total": "סך הכול לחודש",
+      "rateUsed": "דולר נספר לפי {{rate}} שקלים",
+      "costs": "עלויות",
+      "noCosts": "אין עלויות לחודש הזה",
+      "aiProvider": "AI: {{provider}}",
+      "autoDetails": "{{calls}} קריאות, {{input}} טוקנים נכנסים, {{output}} טוקנים יוצאים",
+      "kind": {
+        "subscription": "מנוי",
+        "auto": "אוטומטי",
+        "configured": "מוגדר"
+      },
+      "byAction": "עלות AI לפי פעולה",
+      "byModel": "לפי מודל",
+      "noAi": "אין קריאות AI החודש",
+      "action": "פעולה",
+      "model": "מודל",
+      "calls": "קריאות",
+      "tokensIn": "טוקנים נכנסים",
+      "tokensOut": "טוקנים יוצאים",
+      "totalCost": "סך העלות",
+      "avgPerCall": "ממוצע לקריאה",
+      "editTitle": "עלויות קבועות",
+      "usesOwn": "לחודש הזה יש רשימה משלו",
+      "usesDefaults": "החודש הזה משתמש ברשימת ברירת המחדל",
+      "name": "שם",
+      "amount": "סכום",
+      "currency": "מטבע",
+      "kindLabel": "סוג",
+      "removeRow": "הסר עלות",
+      "addRow": "הוסף עלות",
+      "rate": "שקלים לדולר",
+      "rateNote": "נשמר יחד עם ברירת המחדל",
+      "fixRows": "לכל עלות צריך שם וסכום של אפס ומעלה",
+      "fixRate": "השער חייב להיות בין 0.1 ל-100",
+      "saveMonth": "שמור את החודש הזה",
+      "useDefaults": "השתמש בברירת המחדל",
+      "saveDefaults": "שמור כברירת מחדל",
+      "savedMonth": "העלויות של החודש נשמרו",
+      "clearedMonth": "החודש הזה משתמש עכשיו בברירת המחדל",
+      "savedDefaults": "נשמר כברירת מחדל"
+    },
+    "security": {
+      "spendTitle": "הוצאות AI",
+      "thisHour": "הוצאות AI בשעה האחרונה",
+      "today": "הוצאות AI היום",
+      "ofCap": "{{used}} מתוך {{cap}}",
+      "capNote": "אם עוברים מגבלה, ה-AI כבה את עצמו עד שמנהל מפעיל אותו מחדש. השעה היא 60 הדקות האחרונות, והיום מתחיל בחצות UTC",
+      "switchesTitle": "מתגי חירום",
+      "switches": {
+        "ai": {
+          "name": "יכולות AI",
+          "what": "מכבה כל קריאה לספק AI, כמו עוזר התמונות בטופס המכירה"
+        }
+      },
+      "on": "פועל",
+      "off": "כבוי",
+      "changed": "שונה {{when}}",
+      "neverChanged": "מעולם לא שונה",
+      "reason": "{{reason}}",
+      "switchedOn": "{{name}} פועל",
+      "switchedOff": "{{name}} כבוי",
+      "confirmOffTitle": "לכבות את {{name}}?",
+      "confirmOffBody": "כל מה שמשתמש בו יפסיק לעבוד עד שתפעילו אותו מחדש",
+      "turnOff": "כבה"
+    }
   }
 }
