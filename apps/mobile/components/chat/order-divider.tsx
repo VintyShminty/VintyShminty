@@ -84,7 +84,7 @@ function OrderDivider({
         disabled={!orderId}
         role="button"
         accessibilityLabel={`${t(`chat.system.${event}`)}. ${t("chat.order.view")}`}
-        className="flex-row items-center gap-md rounded-control border border-border-subtle bg-surface px-md py-md active:bg-pressed"
+        className="flex-row items-center gap-md rounded-control bg-surface px-[14px] py-md active:bg-pressed"
       >
         <View className="h-9 w-9 items-center justify-center rounded-full bg-background">
           <Icon as={style.icon} size={20} className={style.tone} />

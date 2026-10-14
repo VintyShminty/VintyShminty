@@ -51,8 +51,7 @@ export type ThreadItem =
       groupEnd: boolean;
     }
   | { type: "pending"; key: string; pending: PendingMessage; tight: boolean }
-  | { type: "day"; key: string; iso: string }
-  | { type: "intro"; key: string };
+  | { type: "day"; key: string; iso: string };
 
 type Input = {
   /** Newest first, as the server sends them. */
@@ -68,8 +67,7 @@ const TIGHT_MS = 5 * 60 * 1000;
 
 /**
  * The list the chat draws, newest first (the list is inverted, so index 0 is the bottom). Pending messages sit at the
- * bottom, a day divider follows the last message of each day, and the intro card closes the list once everything older
- * is loaded.
+ * bottom, and a day divider follows the last message of each day.
  */
 export function buildThreadItems({ messages, pending, me, hasMore, otherTyping }: Input): ThreadItem[] {
   const confirmed = new Set(messages.map((m) => m.clientMessageId).filter(Boolean));
@@ -131,6 +129,5 @@ export function buildThreadItems({ messages, pending, me, hasMore, otherTyping }
       items.push({ type: "day", key: `d-${entry.at.slice(0, 10)}-${index}`, iso: entry.at });
     }
   });
-  if (!hasMore) items.push({ type: "intro", key: "intro" });
   return items;
 }

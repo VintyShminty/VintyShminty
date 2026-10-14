@@ -9,7 +9,6 @@ import { KeyboardAvoidingView, KeyboardProvider } from "react-native-keyboard-co
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChatMenu } from "@/components/chat/chat-menu";
 import { Composer } from "@/components/chat/composer";
-import { IntroCard } from "@/components/chat/intro-card";
 import { ItemStrip } from "@/components/chat/item-strip";
 import { MessageBubble, PendingBubble } from "@/components/chat/message-bubble";
 import { OrderTracker } from "@/components/chat/order-tracker";
@@ -147,8 +146,6 @@ function ConversationScreen() {
             {dayLabel(item.iso, i18n.language, { today: t("chat.today"), yesterday: t("chat.yesterday") })}
           </Text>
         );
-      case "intro":
-        return conversation ? <IntroCard person={conversation.otherUser} /> : null;
       case "pending":
         return (
           <PendingBubble

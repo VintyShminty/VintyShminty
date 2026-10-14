@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
 
 /** Round corners of a bubble. The corner that points at the sender is tighter (a small tail). */
-const TAIL = 6;
+const TAIL = 3;
 
 type Side = "mine" | "theirs";
 
@@ -23,8 +23,8 @@ function tailStyle(side: Side) {
 
 function bubbleClass(side: Side) {
   return cn(
-    "max-w-[80%] rounded-window px-md py-sm",
-    side === "mine" ? "self-end bg-primary" : "self-start border border-border-subtle bg-background",
+    "max-w-[76%] rounded-control px-md py-[9px]",
+    side === "mine" ? "self-end bg-primary" : "self-start border border-border bg-background",
   );
 }
 
@@ -32,7 +32,13 @@ function bubbleClass(side: Side) {
 function TextBubble({ body, side }: { body: string; side: Side }) {
   return (
     <View className={bubbleClass(side)} style={tailStyle(side)}>
-      <Text className={side === "mine" ? "text-primary-foreground" : "text-text-1"} selectable>
+      <Text
+        className={cn(
+          "text-[15px] leading-[21px]",
+          side === "mine" ? "text-primary-foreground" : "text-text-1",
+        )}
+        selectable
+      >
         {body}
       </Text>
     </View>
@@ -74,9 +80,9 @@ function PhotoBubble({
       role="button"
       accessibilityLabel={label}
       className={cn(
-        "overflow-hidden rounded-window border bg-pressed",
+        "overflow-hidden rounded-control border bg-pressed",
         side === "mine" ? "self-end" : "self-start",
-        failed ? "border-error" : "border-border-subtle",
+        failed ? "border-error" : "border-border",
       )}
       style={{ ...size, ...tailStyle(side) }}
     >
@@ -146,12 +152,10 @@ function MessageBubble({
       );
     }
     return (
-      <View className="items-center px-xl py-sm">
-        <View className="rounded-full bg-surface px-md py-xs">
-          <Text variant="cardDesc" className="text-center text-text-2">
-            {systemText(message, t)}
-          </Text>
-        </View>
+      <View className="items-center px-xl pb-xs pt-lg">
+        <Text variant="cardDesc" className="text-center text-text-3">
+          {systemText(message, t)}
+        </Text>
       </View>
     );
   }
@@ -231,7 +235,7 @@ function PendingBubble({
           className={cn(bubbleClass("mine"), failed && "border border-error", !failed && "opacity-70")}
           style={tailStyle("mine")}
         >
-          <Text className="text-primary-foreground">{pending.body}</Text>
+          <Text className="text-[15px] leading-[21px] text-primary-foreground">{pending.body}</Text>
         </View>
       )}
       {failed ? (

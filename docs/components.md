@@ -538,18 +538,18 @@ A thin row with an item thumbnail, its title and price, used to pin the item in 
 
 One chat message.
 
-- **Variants and states:** Variants: theirs (white, thin border, left), yours (filled, right), intro card, photo message. States: sending, sent, failed.
+- **Variants and states:** Variants: theirs (white, thin border, start side), yours (filled, end side), photo message. Small 12px corners and 15px text (D-034). States: sending, sent, failed.
 - **Screens:** Conversation thread
 - **Source:** Custom (Composed from Text)
 - **Phase:** First flows
 
 ### OfferBubble
 
-A chat bubble that shows an offer: the new price, the old price struck through, and its status.
+A full width ledger line in the chat (D-034): a side bar (espresso when yours), the label and status as plain text, the new price at the end with the old price struck through, and a thin action bar along the bottom.
 
-- **Variants and states:** Statuses: sent, accepted, declined, countered, expired. Buyer view: waiting. Seller view: Accept and Decline buttons.
+- **Variants and states:** Statuses: pending, accepted, declined, countered, withdrawn, expired. Receiver of a pending offer: Decline, Counter, Accept cells. Sender: Withdraw. Buyer of an accepted offer: Buy for.
 - **Screens:** Conversation thread
-- **Source:** Custom (Composed from MessageBubble, PriceBlock and Badge)
+- **Source:** Custom (Composed from Text and Pressable)
 - **Phase:** First flows
 
 ### OrderTracker

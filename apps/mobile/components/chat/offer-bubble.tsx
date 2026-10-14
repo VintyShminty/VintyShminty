@@ -1,15 +1,13 @@
 import type { MessageOffer } from "@vinty/shared";
-import { Check, Clock, CornerUpLeft, Hourglass, Undo2, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ActivityIndicator, Alert, Pressable, View } from "react-native";
 import { Text } from "@/components/ui/text";
 import { ApiClientError } from "@/lib/api";
 import { formatClock, sameDay } from "@/lib/chat-format";
 import { formatMoney } from "@/lib/money";
 import { type OfferAnswer, useAnswerOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
+import { colors } from "@/theme";
 
 type Props = {
   offer: MessageOffer;
@@ -24,27 +22,10 @@ type Props = {
   onBuy: (offer: MessageOffer) => void;
 };
 
-const STATUS_ICON = {
-  pending: Hourglass,
-  accepted: Check,
-  declined: X,
-  countered: CornerUpLeft,
-  withdrawn: Undo2,
-  expired: Clock,
-} as const;
-
-const STATUS_VARIANT = {
-  pending: "accent",
-  accepted: "success",
-  declined: "error",
-  countered: "neutral",
-  withdrawn: "neutral",
-  expired: "neutral",
-} as const;
-
 /**
- * An offer in the chat (docs/components.md, OfferBubble): the price, the listed price struck through, the state, and
- * the buttons that make sense for me right now. The other person's waiting offer can be accepted, declined or
+ * An offer in the chat (docs/components.md, OfferBubble, D-034): a full width ledger line with who and the state on
+ * one side, the price and the listed price struck through on the other, and a thin bar of the actions that make sense
+ * for me right now. The other person's waiting offer can be accepted, declined or
  * countered. My own waiting offer can be withdrawn. An accepted offer lets the buyer buy at that price until the hold
  * runs out.
  */
@@ -76,6 +57,7 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
     ]);
 
   const busy = answer.isPending;
+  const tapped = answer.variables?.answer;
   const canAnswer = status === "pending" && !closed;
   // A hold that runs into tomorrow shows its day too, a bare clock time would read as already over.
   const until = sameDay(new Date(offer.expiresAt), new Date())
@@ -87,88 +69,107 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
         minute: "2-digit",
       });
 
+  const cells: { key: string; label: string; strong?: boolean; spin?: boolean; onPress: () => void }[] = [];
+  if (canAnswer && !mine) {
+    cells.push(
+      {
+        key: "decline",
+        label: t("offer.decline"),
+        spin: tapped === "decline",
+        onPress: () => confirm("decline"),
+      },
+      { key: "counter", label: t("offer.counter"), onPress: () => onCounter(offer) },
+      {
+        key: "accept",
+        label: t("offer.accept"),
+        strong: true,
+        spin: tapped === "accept",
+        onPress: () => run("accept"),
+      },
+    );
+  } else if (canAnswer && mine) {
+    cells.push({
+      key: "withdraw",
+      label: t("offer.withdraw"),
+      spin: tapped === "withdraw",
+      onPress: () => confirm("withdraw"),
+    });
+  } else if (status === "accepted" && role === "buyer" && !closed) {
+    cells.push({
+      key: "buy",
+      label: t("offer.buyNow", { amount: formatMoney(offer.amountMinor, offer.currency) }),
+      strong: true,
+      onPress: () => onBuy(offer),
+    });
+  }
+
   return (
     <View
-      className={cn(
-        "w-[78%] gap-sm rounded-window border border-border bg-surface px-md py-md",
-        mine ? "self-end" : "self-start",
-      )}
+      className="self-stretch overflow-hidden rounded-control border border-border bg-background"
       data-conversation={conversationId}
     >
-      <Text variant="sectionLabel">{mine ? t("offer.bubble.yours") : t("offer.bubble.theirs")}</Text>
-      <View className="flex-row items-baseline gap-sm">
-        <Text variant="title" className="text-primary">
-          {formatMoney(offer.amountMinor, offer.currency)}
-        </Text>
-        {lower ? (
-          <Text variant="cardDesc" className="text-text-3 line-through">
-            {formatMoney(offer.listingPriceMinor, offer.currency)}
+      <View className="flex-row items-center gap-md px-[14px] py-md">
+        <View className={cn("w-[3px] self-stretch rounded-full", mine ? "bg-primary" : "bg-border")} />
+        <View className="flex-1 gap-px">
+          <Text variant="sectionLabel">{mine ? t("offer.bubble.yours") : t("offer.bubble.theirs")}</Text>
+          <Text
+            className={cn(
+              "text-[13px] leading-[18px]",
+              status === "accepted" ? "text-success" : "text-text-2",
+            )}
+          >
+            {status === "pending"
+              ? t(`offer.bubble.pending_${mine ? "mine" : "theirs"}`)
+              : t(`chat.offerStatus.${status}`)}
           </Text>
-        ) : null}
+        </View>
+        <View className="items-end">
+          <Text variant="heading" className="text-end text-text-1">
+            {formatMoney(offer.amountMinor, offer.currency)}
+          </Text>
+          {lower ? (
+            <Text variant="cardDesc" className="text-end text-text-3 line-through">
+              {formatMoney(offer.listingPriceMinor, offer.currency)}
+            </Text>
+          ) : null}
+        </View>
       </View>
-      <Badge
-        className="self-start"
-        variant={STATUS_VARIANT[status]}
-        icon={STATUS_ICON[status]}
-        label={
-          status === "pending"
-            ? t(`offer.bubble.pending_${mine ? "mine" : "theirs"}`)
-            : t(`chat.offerStatus.${status}`)
-        }
-      />
 
       {status === "accepted" ? (
-        <Text variant="cardDesc" className="text-text-2">
+        <Text variant="cardDesc" className="ps-[29px] pe-[14px] pb-md text-text-3">
           {role === "buyer"
             ? t("offer.bubble.reservedForYou", { time: until })
             : t("offer.bubble.reservedForThem", { time: until })}
         </Text>
       ) : null}
 
-      {canAnswer && !mine ? (
-        <View className="gap-sm pt-xs">
-          <Button size="sm" loading={busy} onPress={() => run("accept")}>
-            <Text>{t("offer.accept")}</Text>
-          </Button>
-          <View className="flex-row gap-sm">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
+      {cells.length > 0 ? (
+        <View className={cn("flex-row border-t border-border-subtle", busy && "opacity-60")}>
+          {cells.map((cell, index) => (
+            <Pressable
+              key={cell.key}
+              onPress={cell.onPress}
               disabled={busy}
-              onPress={() => confirm("decline")}
+              role="button"
+              accessibilityLabel={cell.label}
+              className={cn(
+                "h-11 flex-1 items-center justify-center active:bg-pressed",
+                index > 0 && "border-s border-border-subtle",
+              )}
             >
-              <Text>{t("offer.decline")}</Text>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              disabled={busy}
-              onPress={() => onCounter(offer)}
-            >
-              <Text>{t("offer.counter")}</Text>
-            </Button>
-          </View>
+              {cell.spin && busy ? (
+                <ActivityIndicator size="small" color={cell.strong ? colors.accent : colors.text2} />
+              ) : (
+                <Text
+                  className={cn("text-[14px]", cell.strong ? "text-primary" : "text-text-1")}
+                  weight={cell.strong ? 700 : 600}
+                >
+                  {cell.label}
+                </Text>
+              )}
+            </Pressable>
+          ))}
         </View>
-      ) : null}
-
-      {canAnswer && mine ? (
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-xs"
-          loading={busy}
-          onPress={() => confirm("withdraw")}
-        >
-          <Text>{t("offer.withdraw")}</Text>
-        </Button>
-      ) : null}
-
-      {status === "accepted" && role === "buyer" && !closed ? (
-        <Button size="sm" className="mt-xs" onPress={() => onBuy(offer)}>
-          <Text>{t("offer.buyNow", { amount: formatMoney(offer.amountMinor, offer.currency) })}</Text>
-        </Button>
       ) : null}
     </View>
   );
