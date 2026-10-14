@@ -11,7 +11,15 @@ import {
 import {
   type AddressInput,
   addressSchema,
+  type Balance,
+  type BalanceEntry,
+  type Bundle,
+  balanceEntryPageSchema,
+  balanceEntrySchema,
+  balanceSchema,
+  bundleSchema,
   type CheckoutQuote,
+  type CreateReportInput,
   checkoutQuoteSchema,
   type DeliveryMethod,
   type Offer,
@@ -21,6 +29,8 @@ import {
   offerSchema,
   orderDetailSchema,
   orderPageSchema,
+  type ReviewItem,
+  reviewItemSchema,
 } from "@vinty/shared";
 import { z } from "zod";
 import { clientApi } from "@/lib/api-client";
@@ -257,7 +267,10 @@ export const ordersQuery = (role: OrdersRole, status: OrdersFilter) =>
 export function refreshAfterOrderChange(queryClient: QueryClient, order?: OrderDetail) {
   if (order) queryClient.setQueryData(["order", order.id], order);
   void queryClient.invalidateQueries({ queryKey: ["orders"] });
+  void queryClient.invalidateQueries({ queryKey: ["balance"] });
+  void queryClient.invalidateQueries({ queryKey: ["balance-entries"] });
   void queryClient.invalidateQueries({ queryKey: ["conversations"] });
+  void queryClient.invalidateQueries({ queryKey: ["reviews"] });
   if (order?.conversationId) {
     void queryClient.invalidateQueries({ queryKey: ["conversation", order.conversationId] });
     void queryClient.invalidateQueries({ queryKey: ["messages", order.conversationId] });
@@ -305,4 +318,121 @@ export function orderErrorKey(err: unknown): string {
 /** A fresh Idempotency-Key for one checkout. */
 export function newIdempotencyKey(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+// ---- Reviews ----
+
+/** Leave a review on a completed order. A buyer's review replaces the automatic one. */
+export function useLeaveReview(orderId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { rating: number; comment?: string }) =>
+      clientApi<ReviewItem>(`/v1/orders/${orderId}/reviews`, {
+        method: "POST",
+        body: input,
+        schema: reviewItemSchema,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+      void queryClient.invalidateQueries({ queryKey: ["reviews"] });
+    },
+  });
+}
+
+/** Answer a review you received. A second reply replaces the first. */
+export function useReplyToReview() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ reviewId, body }: { reviewId: string; body: string }) =>
+      clientApi<ReviewItem>(`/v1/reviews/${reviewId}/reply`, {
+        method: "PUT",
+        body: { body },
+        schema: reviewItemSchema,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["reviews"] });
+      void queryClient.invalidateQueries({ queryKey: ["order"] });
+    },
+  });
+}
+
+// ---- Balance ----
+
+export const balanceQuery = () =>
+  queryOptions({
+    queryKey: ["balance"],
+    queryFn: () => clientApi<Balance>("/v1/me/balance", { schema: balanceSchema }),
+  });
+
+export const balanceEntriesQuery = () =>
+  infiniteQueryOptions({
+    queryKey: ["balance-entries"],
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      clientApi(
+        `/v1/me/balance/entries?limit=30${pageParam ? `&cursor=${encodeURIComponent(pageParam)}` : ""}`,
+        {
+          schema: balanceEntryPageSchema,
+        },
+      ),
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+
+/** A pretend withdrawal. The same key sent twice makes one row, so a double click is safe. */
+export function useWithdraw() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ amountMinor, key }: { amountMinor: number; key: string }) =>
+      clientApi<BalanceEntry>("/v1/me/balance/withdrawals", {
+        method: "POST",
+        body: { amountMinor },
+        headers: { "Idempotency-Key": key },
+        schema: balanceEntrySchema,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["balance"] });
+      void queryClient.invalidateQueries({ queryKey: ["balance-entries"] });
+    },
+  });
+}
+
+// ---- Bundles (Closet deal) ----
+
+export const bundleQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["bundle", id],
+    queryFn: () => clientApi<Bundle>(`/v1/bundles/${id}`, { schema: bundleSchema }),
+  });
+
+/** Opens the buyer's bundle with this seller (or the one already open). */
+export function useOpenBundle() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sellerId: string) =>
+      clientApi<Bundle>("/v1/bundles", { method: "POST", body: { sellerId }, schema: bundleSchema }),
+    onSuccess: (bundle) => queryClient.setQueryData(["bundle", bundle.id], bundle),
+  });
+}
+
+/** Adds or removes one item. The bundle in the cache is replaced by the server's new totals. */
+export function useToggleBundleItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ bundleId, listingId, add }: { bundleId: string; listingId: string; add: boolean }) =>
+      clientApi<Bundle>(`/v1/bundles/${bundleId}/items/${listingId}`, {
+        method: add ? "PUT" : "DELETE",
+        schema: bundleSchema,
+      }),
+    onSuccess: (bundle) => queryClient.setQueryData(["bundle", bundle.id], bundle),
+    onError: (_err, { bundleId }) => void queryClient.invalidateQueries({ queryKey: ["bundle", bundleId] }),
+  });
+}
+
+// ---- Reports ----
+
+/** POST /v1/reports. Sending the same report twice is fine on the server. */
+export function useReport() {
+  return useMutation({
+    mutationFn: (input: CreateReportInput) => clientApi("/v1/reports", { method: "POST", body: input }),
+  });
 }

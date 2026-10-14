@@ -1729,10 +1729,6 @@
       "similar": "Similar items",
       "report": "Report this item",
       "metaFallback": "{{details}} for sale on Vinty",
-      "appOnly": {
-        "title": "This works in the app for now",
-        "body": "Reports and reviews are coming to the website soon. Open the app to do it today."
-      },
       "loadFailed": "We could not load this item",
       "breakdownLabel": "Price breakdown"
     },
@@ -1804,6 +1800,13 @@
       "startFailed": "Something went wrong. Try again in a moment.",
       "startUnavailable": "This item is not available any more, so a new chat cannot start.",
       "startOwn": "This is your own item."
+    },
+    "bundle": {
+      "add": "Add {{title}} to your closet deal",
+      "remove": "Remove {{title}} from your closet deal",
+      "backTo": "Back to {{name}}",
+      "summary": "Summary",
+      "itemsTotal": "Items total"
     }
   }
 }

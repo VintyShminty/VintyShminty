@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { formatPrice, type OrderDetail, type ReviewItem } from "@vinty/shared";
 import { ChevronLeft, Loader2, MessageCircle, Star } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppOnlyNotice } from "@/components/app-only-notice";
 import { EmptyState } from "@/components/empty-state";
 import { AddressLines, ItemThumb, OrderStatusBadge } from "@/components/orders/order-parts";
 import { useOrderSteps } from "@/components/orders/order-steps";
 import { OrderTimeline } from "@/components/orders/order-timeline";
+import { ReplyDialog, ReviewDialog } from "@/components/review/review-dialogs";
 import { SellerAvatar } from "@/components/seller-avatar";
 import { StarRating } from "@/components/star-rating";
 import { ApiClientError } from "@/lib/api-error";
@@ -44,8 +45,8 @@ function MoneyRow({
   );
 }
 
-/** A review shown on the order: stars, the words, and the reply if there is one. Writing one comes in a later step. */
-function ReviewCard({ title, review }: { title: string; review: ReviewItem }) {
+/** A review shown on the order: stars, the words, and the reply if there is one. `onReply` adds the Reply button. */
+function ReviewCard({ title, review, onReply }: { title: string; review: ReviewItem; onReply?: () => void }) {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-sm rounded-control border border-border-subtle p-md">
@@ -63,6 +64,15 @@ function ReviewCard({ title, review }: { title: string; review: ReviewItem }) {
           <p className="text-body-sm text-text-1">{review.replyBody}</p>
         </div>
       ) : null}
+      {onReply && !review.isAutomatic ? (
+        <button
+          type="button"
+          onClick={onReply}
+          className="inline-flex h-10 items-center self-start rounded-control border border-border px-md text-body-sm font-semibold text-text-1 hover:bg-pressed"
+        >
+          {review.replyBody ? t("review.editReply") : t("review.reply")}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -76,7 +86,8 @@ export function OrderView({ lang, id, placed }: { lang: string; id: string; plac
   const query = useQuery(orderQuery(id));
   const order = query.data;
   const steps = useOrderSteps({ id, role: order?.role ?? "buyer" });
-  const [showReviewNotice, reviewNotice] = useAppOnlyNotice();
+  const [reviewing, setReviewing] = useState(false);
+  const [replyTarget, setReplyTarget] = useState<ReviewItem | null>(null);
 
   if (!order) {
     const notFound = query.error instanceof ApiClientError && query.error.status === 404;
@@ -299,7 +310,7 @@ export function OrderView({ lang, id, placed }: { lang: string; id: string; plac
                   </p>
                   <button
                     type="button"
-                    onClick={showReviewNotice}
+                    onClick={() => setReviewing(true)}
                     className={cn(button, "gap-sm bg-primary text-on-accent hover:opacity-90")}
                   >
                     <Star size={18} aria-hidden />
@@ -311,7 +322,11 @@ export function OrderView({ lang, id, placed }: { lang: string; id: string; plac
                 <ReviewCard title={t("review.yours")} review={order.reviews.mine} />
               ) : null}
               {order.reviews.theirs ? (
-                <ReviewCard title={t("review.theirs", { name: otherName })} review={order.reviews.theirs} />
+                <ReviewCard
+                  title={t("review.theirs", { name: otherName })}
+                  review={order.reviews.theirs}
+                  onReply={() => setReplyTarget(order.reviews.theirs)}
+                />
               ) : null}
             </section>
           ) : null}
@@ -420,7 +435,13 @@ export function OrderView({ lang, id, placed }: { lang: string; id: string; plac
         </aside>
       </div>
       {steps.dialog}
-      {reviewNotice}
+      <ReviewDialog
+        open={reviewing}
+        orderId={order.id}
+        otherName={otherName}
+        onClose={() => setReviewing(false)}
+      />
+      <ReplyDialog review={replyTarget} onClose={() => setReplyTarget(null)} />
     </main>
   );
 }

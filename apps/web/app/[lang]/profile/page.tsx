@@ -135,7 +135,7 @@ export default async function ProfilePage({
             />
           </>
         ) : (
-          <ReviewsList userId={me.id} firstPage={reviewsFirst} />
+          <ReviewsList userId={me.id} firstPage={reviewsFirst} ownLang={lang} />
         )}
       </div>
     </main>

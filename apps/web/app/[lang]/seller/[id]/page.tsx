@@ -1,12 +1,14 @@
 import { feedPageSchema, type PublicProfile } from "@vinty/shared";
+import { Layers } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Chip } from "@/components/chip";
 import { EmptyState } from "@/components/empty-state";
 import { FollowButton } from "@/components/follow-button";
 import { InfiniteItemGrid } from "@/components/infinite-item-grid";
-import { ReportButton } from "@/components/item-actions";
 import { ProfileHeader } from "@/components/profile-header";
+import { ReportButton } from "@/components/report-dialog";
 import { ReviewsList } from "@/components/reviews-list";
 import { ApiClientError, getViewer, serverApi } from "@/lib/api";
 import { pagePath } from "@/lib/feed-url";
@@ -121,7 +123,18 @@ export default async function SellerPage({
               {t("web.seller.you")}
             </p>
           ) : (
-            <FollowButton userId={profile.id} name={name} initial={profile.viewer?.isFollowing ?? false} />
+            <>
+              <FollowButton userId={profile.id} name={name} initial={profile.viewer?.isFollowing ?? false} />
+              {profile.activeListingCount >= 2 ? (
+                <Link
+                  href={`/${lang}/bundle/${profile.id}`}
+                  className="inline-flex h-11 items-center justify-center gap-sm rounded-control border border-primary px-lg text-body-sm font-semibold text-primary hover:bg-accent-tint"
+                >
+                  <Layers size={18} aria-hidden />
+                  {t("bundle.shop")}
+                </Link>
+              ) : null}
+            </>
           )
         }
       />
@@ -184,7 +197,7 @@ export default async function SellerPage({
 
       {isSelf ? null : (
         <div className="mt-2xl">
-          <ReportButton label={t("seller.report")} />
+          <ReportButton label={t("seller.report")} targetType="user" targetId={profile.id} />
         </div>
       )}
     </main>

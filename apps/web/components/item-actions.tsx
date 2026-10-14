@@ -1,11 +1,10 @@
 "use client";
 
 import { formatPrice, messagePageSchema } from "@vinty/shared";
-import { Flag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppOnlyNotice } from "@/components/app-only-notice";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useLoginPrompt } from "@/components/login-prompt";
 import { OfferDialog } from "@/components/offer/offer-dialog";
 import { useViewer } from "@/components/site-context";
@@ -28,14 +27,6 @@ type BuyProps = {
   /** The chat the viewer already has about this item, if any. */
   conversationId: string | null;
 };
-
-/** Logged out, the buttons that need an account open the login prompt. Reports still say they work in the app. */
-function useGate() {
-  const viewer = useViewer();
-  const { ask } = useLoginPrompt();
-  const [showNotice, notice] = useAppOnlyNotice();
-  return { gate: () => (viewer ? showNotice() : ask()), notice };
-}
 
 /**
  * Buy and "Or make your price" (D-019, row 8). Logged out they open the login prompt. Buying goes to checkout (an item
@@ -169,8 +160,7 @@ export function MessageChip({
   const { ask } = useLoginPrompt();
   const router = useRouter();
   const start = useStartConversation();
-  const [failure, setFailure] = useState({ title: "", body: "" });
-  const [showFailure, failureNotice] = useAppOnlyNotice(failure);
+  const [failure, setFailure] = useState<{ title: string; body: string } | null>(null);
 
   const onClick = () => {
     if (!viewer) return ask();
@@ -190,7 +180,6 @@ export function MessageChip({
                   ? t("web.inbox.startOwn")
                   : t("web.inbox.startFailed"),
         });
-        showFailure();
       },
     });
   };
@@ -206,25 +195,15 @@ export function MessageChip({
       >
         {t("item.message")}
       </button>
-      {failureNotice}
-    </>
-  );
-}
-
-/** "Report this item" or "Report this seller": a small link at the foot of the page. */
-export function ReportButton({ label }: { label: string }) {
-  const { gate, notice } = useGate();
-  return (
-    <>
-      <button
-        type="button"
-        onClick={gate}
-        className="inline-flex items-center gap-xs rounded-control py-xs text-body-sm text-text-3 underline-offset-4 hover:text-text-1 hover:underline"
-      >
-        <Flag size={14} aria-hidden />
-        {label}
-      </button>
-      {notice}
+      <ConfirmDialog
+        open={failure !== null}
+        title={failure?.title ?? ""}
+        body={failure?.body}
+        confirmLabel={t("common.close")}
+        hideCancel
+        onConfirm={() => setFailure(null)}
+        onCancel={() => setFailure(null)}
+      />
     </>
   );
 }

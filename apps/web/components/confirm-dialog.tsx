@@ -16,6 +16,7 @@ export function ConfirmDialog({
   destructive = false,
   busy = false,
   disabled = false,
+  hideCancel = false,
   onConfirm,
   onCancel,
   children,
@@ -28,6 +29,8 @@ export function ConfirmDialog({
   busy?: boolean;
   /** The confirm button stays off (for example until a form inside is filled in). */
   disabled?: boolean;
+  /** For a "Done" box that only has one button. */
+  hideCancel?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
@@ -70,13 +73,15 @@ export function ConfirmDialog({
         >
           {confirmLabel}
         </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex h-12 items-center justify-center rounded-control px-lg text-body font-semibold text-text-2 hover:bg-pressed"
-        >
-          {t("common.cancel")}
-        </button>
+        {hideCancel ? null : (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex h-12 items-center justify-center rounded-control px-lg text-body font-semibold text-text-2 hover:bg-pressed"
+          >
+            {t("common.cancel")}
+          </button>
+        )}
       </div>
     </dialog>
   );
