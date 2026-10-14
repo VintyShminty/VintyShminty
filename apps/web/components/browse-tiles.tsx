@@ -38,7 +38,13 @@ export function BrowseTiles({
         />
       ))}
       {withMore ? (
-        <PhotoTile href={`/${lang}/browse`} label={t("browse.more")} plain className={tileClassName} />
+        <PhotoTile
+          href={`/${lang}/browse`}
+          label={t("browse.more")}
+          accessibleName={t("browse.moreTitle")}
+          plain
+          className={tileClassName}
+        />
       ) : null}
     </div>
   );

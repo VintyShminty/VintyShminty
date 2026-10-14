@@ -20,8 +20,11 @@ export function PhotoTile({
   selected = false,
   replace = false,
   scroll,
+  accessibleName,
 }: {
   href: string;
+  /** A fuller name for screen readers when the visible label alone is unclear (the "More" tile). */
+  accessibleName?: string;
   label: string;
   /** The file name from the shared tile list (`tile.photo`). */
   photo?: string;
@@ -44,6 +47,7 @@ export function PhotoTile({
       href={href}
       replace={replace}
       scroll={scroll}
+      aria-label={accessibleName}
       aria-current={selected ? "true" : undefined}
       className={cn(
         "group relative block overflow-hidden rounded-control",

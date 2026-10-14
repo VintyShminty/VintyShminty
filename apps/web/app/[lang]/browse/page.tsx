@@ -10,7 +10,12 @@ const TILE_SIZE = "aspect-[4/5]";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) return { title: "Vinty" };
-  return { title: `${getT(lang)("tabs.browse")} | Vinty`, alternates: alternatesFor(lang, "/browse") };
+  const t = getT(lang);
+  return {
+    title: `${t("tabs.browse")} | Vinty`,
+    description: t("web.browse.metaDescription"),
+    alternates: alternatesFor(lang, "/browse"),
+  };
 }
 
 /** Browse: every photo tile (the first ten, then "More to explore"), each opening its results page. */

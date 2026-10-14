@@ -1667,6 +1667,7 @@
       "otherLanguage": "עב",
       "switchLanguage": "Switch to Hebrew",
       "mainNavigation": "Main",
+      "feedNavigation": "Home feed",
       "menu": "Menu",
       "favourites": "Favourites",
       "account": "Your account",
@@ -1720,7 +1721,9 @@
     },
     "browse": {
       "breadcrumb": "You are here",
-      "typesLabel": "Item types"
+      "typesLabel": "Item types",
+      "metaDescription": "Browse second hand pieces on Vinty by type: dresses, tops, jeans, coats, shoes and more.",
+      "tileMetaDescription": "{{name}} on Vinty: second hand pieces from sellers in Israel. Make an offer or buy in a few taps."
     },
     "filters": {
       "sort": "Sort",

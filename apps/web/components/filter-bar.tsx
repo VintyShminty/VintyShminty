@@ -694,9 +694,9 @@ function PriceBody({
   useEffect(commit, [settled]);
 
   const field = (value: string, set: (v: string) => void, label: string) => (
-    <label className="flex flex-1 flex-col gap-xs text-small-label text-text-3">
+    <label className="flex min-w-0 flex-1 flex-col gap-xs text-small-label text-text-3">
       {label}
-      <span className="flex h-10 items-center gap-xs rounded-control border border-border bg-surface px-md focus-within:border-primary">
+      <span className="flex h-10 min-w-0 items-center gap-xs rounded-control border border-border bg-surface px-md focus-within:border-primary">
         <span aria-hidden className="text-body-sm text-text-3">
           ₪
         </span>

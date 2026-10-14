@@ -32,6 +32,7 @@ export function ItemGrid({
           hideSave={hideSaves}
           saveOnSold={saveOnSold}
           feedPosition={feed ? index : undefined}
+          priority={index < 4}
         />
       ))}
       {children}

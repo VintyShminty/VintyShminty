@@ -30,8 +30,11 @@ export function ItemCard({
   saveOnSold = false,
   feedPosition,
   preview = false,
+  priority = false,
 }: {
   listing: ListingCard;
+  /** The first cards of a grid are in view when the page opens, so their photos load at once instead of lazily. */
+  priority?: boolean;
   /** The sell form's live preview: the same card, but not a link and with no bookmark. */
   preview?: boolean;
   /** Set where the cards are known to be the viewer's own (for example their own profile). */
@@ -98,7 +101,8 @@ export function ItemCard({
             width={listing.cover.width}
             height={listing.cover.height}
             alt={listing.title}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
             decoding="async"
             className="h-full w-full object-cover"
           />

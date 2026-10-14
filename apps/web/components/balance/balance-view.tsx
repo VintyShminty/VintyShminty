@@ -63,6 +63,8 @@ function EntryRow({ entry, lang }: { entry: BalanceEntry; lang: string }) {
         ) : null}
       </span>
       <span
+        // The sign and the amount read left to right in Hebrew too, so the sign stays in front of the money.
+        dir="ltr"
         className={cn(
           "text-body font-bold",
           void_ ? "text-text-4 line-through" : entry.amountMinor < 0 ? "text-text-1" : "text-success",

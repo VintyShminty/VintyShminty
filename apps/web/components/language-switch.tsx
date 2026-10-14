@@ -13,7 +13,7 @@ export function LanguageSwitch({ lang, label, title }: { lang: Lang; label: stri
     <Link
       href={switchPath(pathname, to)}
       hrefLang={to}
-      aria-label={title}
+      aria-label={`${label}, ${title}`}
       title={title}
       onClick={() => {
         // biome-ignore lint/suspicious/noDocumentCookie: a plain one-line cookie, the Cookie Store API is not in every browser yet

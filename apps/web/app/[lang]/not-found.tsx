@@ -10,6 +10,7 @@ export default function NotFound() {
   return (
     <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
       <EmptyState
+        heading
         title={t("web.notFound.title")}
         message={t("web.notFound.body")}
         action={

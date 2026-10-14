@@ -10,7 +10,7 @@ export function MoodChips({ lang, active, signedIn }: { lang: string; active: Fe
   const { t } = useTranslation();
   return (
     <nav
-      aria-label={t("web.nav.mainNavigation")}
+      aria-label={t("web.nav.feedNavigation")}
       className="-mx-lg flex gap-sm overflow-x-auto px-lg pb-xs md:mx-0 md:flex-wrap md:px-0"
     >
       {MOODS.filter((m) => signedIn || !m.needsAccount).map((m) => (
