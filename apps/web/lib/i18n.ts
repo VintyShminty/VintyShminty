@@ -19,6 +19,7 @@ const locales = { en, he } as const;
 const CLIENT_SECTIONS = [
   "web",
   "search",
+  "filters",
   "welcome",
   "home",
   "tabs",

@@ -15,6 +15,10 @@ type ChipProps = {
   href?: string;
   onClick?: () => void;
   disabled?: boolean;
+  /** Spoken name when the visible words are not enough (for example "Remove Zara" on an applied chip). */
+  ariaLabel?: string;
+  /** A link chip changes the address without adding a history entry. */
+  replace?: boolean;
   /** Leaves the scroll position alone when the chip is a link. */
   scroll?: boolean;
   children?: ReactNode;
@@ -33,6 +37,8 @@ export function Chip({
   href,
   onClick,
   disabled,
+  ariaLabel,
+  replace,
   scroll,
   className,
 }: ChipProps) {
@@ -55,13 +61,27 @@ export function Chip({
   );
   if (href && !disabled) {
     return (
-      <Link href={href} scroll={scroll} aria-current={selected ? "true" : undefined} className={classes}>
+      <Link
+        href={href}
+        scroll={scroll}
+        replace={replace}
+        aria-label={ariaLabel}
+        aria-current={selected ? "true" : undefined}
+        className={classes}
+      >
         {content}
       </Link>
     );
   }
   return (
-    <button type="button" aria-pressed={selected} disabled={disabled} onClick={onClick} className={classes}>
+    <button
+      type="button"
+      aria-pressed={selected}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={onClick}
+      className={classes}
+    >
       {content}
     </button>
   );

@@ -16,6 +16,10 @@ export function PhotoTile({
   sizes = "160px",
   className,
   plain = false,
+  imageUrl,
+  selected = false,
+  replace = false,
+  scroll,
 }: {
   href: string;
   label: string;
@@ -25,11 +29,22 @@ export function PhotoTile({
   className?: string;
   /** A tint instead of a photo, with dark text. */
   plain?: boolean;
+  /** A photo from the web (a listing cover) instead of a file from the shared tile list. */
+  imageUrl?: string;
+  /** The chosen tile of a strip: outlined in espresso. */
+  selected?: boolean;
+  /** Changes the address without adding a history entry (the strip on a results page). */
+  replace?: boolean;
+  scroll?: boolean;
 }) {
   const image = photo ? tilePhoto(photo) : undefined;
+  const hasPhoto = Boolean(image ?? imageUrl);
   return (
     <Link
       href={href}
+      replace={replace}
+      scroll={scroll}
+      aria-current={selected ? "true" : undefined}
       className={cn(
         "group relative block overflow-hidden rounded-control",
         plain ? "bg-accent-tint" : "bg-pressed",
@@ -46,7 +61,16 @@ export function PhotoTile({
           className="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
         />
       ) : null}
-      {image ? (
+      {imageUrl ? (
+        // biome-ignore lint/performance/noImgElement: a listing cover that comes ready sized, no image optimisation on purpose
+        <img
+          src={imageUrl}
+          alt=""
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+        />
+      ) : null}
+      {hasPhoto ? (
         <span
           aria-hidden
           className="absolute inset-x-0 bottom-0 h-3/5 bg-text-1 opacity-[0.78] [mask-image:linear-gradient(to_bottom,transparent,black)]"
@@ -55,11 +79,17 @@ export function PhotoTile({
       <span
         className={cn(
           "absolute inset-x-0 bottom-0 p-md text-body-sm font-bold",
-          plain ? "text-text-1" : "text-primary-foreground",
+          plain || !hasPhoto ? "text-text-1" : "text-primary-foreground",
         )}
       >
         {label}
       </span>
+      {selected ? (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-control border-[3px] border-primary"
+        />
+      ) : null}
     </Link>
   );
 }

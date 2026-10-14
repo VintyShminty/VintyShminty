@@ -1697,14 +1697,27 @@
     "soon": "This page is coming soon.",
     "search": {
       "resultsFor": "Results for {{q}}",
-      "soon": "Search results are coming soon."
-    },
-    "tile": {
-      "soon": "Results for this type are coming soon."
+      "allItems": "All items",
+      "tabsLabel": "Search results",
+      "suggestions": "Search suggestions",
+      "reviews_one": "{{count}} review",
+      "reviews_other": "{{count}} reviews"
     },
     "feed": {
       "loading": "Loading items",
       "loadingMore": "Loading more"
+    },
+    "browse": {
+      "breadcrumb": "You are here",
+      "typesLabel": "Item types"
+    },
+    "filters": {
+      "sort": "Sort",
+      "clear": "Clear",
+      "mySizes": "My sizes",
+      "pieces_one": "{{count}} piece",
+      "pieces_other": "{{count}} pieces",
+      "piecesCapped": "{{count}}+ pieces"
     }
   }
 }

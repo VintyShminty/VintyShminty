@@ -1,9 +1,10 @@
-import { Heart, Inbox, Search } from "lucide-react";
+import { Heart, Inbox } from "lucide-react";
 import Link from "next/link";
 import { BrowsePanel } from "@/components/browse-panel";
 import { BrowseTiles } from "@/components/browse-tiles";
 import { LanguageSwitch } from "@/components/language-switch";
 import { MobileDrawer } from "@/components/mobile-drawer";
+import { SearchField } from "@/components/search-field";
 import { SellButton } from "@/components/sell-button";
 import { getT, type Lang } from "@/lib/i18n";
 import { loginHref, signUpHref } from "@/lib/login-links";
@@ -44,17 +45,8 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
             />
           </BrowsePanel>
         </div>
-        <search className="order-last flex h-10 w-full items-center gap-sm rounded-bar border border-border bg-surface px-lg focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">
-          <form action={`/${lang}/search`} className="flex h-full w-full items-center gap-sm px-lg">
-            <Search size={17} className="shrink-0 text-text-3" aria-hidden />
-            <input
-              type="search"
-              name="q"
-              placeholder={t("search.placeholder")}
-              aria-label={t("search.placeholder")}
-              className="min-w-0 flex-1 bg-transparent text-body-sm text-text-1 outline-none placeholder:text-text-3"
-            />
-          </form>
+        <search className="relative order-last flex h-10 w-full items-center gap-sm rounded-bar border border-border bg-surface px-lg focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">
+          <SearchField lang={lang} />
         </search>
         <div className="ms-auto hidden items-center gap-sm md:flex">
           <LanguageSwitch

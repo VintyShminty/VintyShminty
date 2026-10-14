@@ -1716,14 +1716,27 @@
     "soon": "הדף הזה בדרך.",
     "search": {
       "resultsFor": "תוצאות עבור {{q}}",
-      "soon": "תוצאות החיפוש בדרך."
-    },
-    "tile": {
-      "soon": "התוצאות לסוג הזה בדרך."
+      "allItems": "כל הפריטים",
+      "tabsLabel": "תוצאות חיפוש",
+      "suggestions": "הצעות חיפוש",
+      "reviews_one": "חוות דעת אחת",
+      "reviews_other": "{{count}} חוות דעת"
     },
     "feed": {
       "loading": "טוענים פריטים",
       "loadingMore": "טוענים עוד"
+    },
+    "browse": {
+      "breadcrumb": "אתם כאן",
+      "typesLabel": "סוגי פריטים"
+    },
+    "filters": {
+      "sort": "מיון",
+      "clear": "ניקוי",
+      "mySizes": "המידות שלי",
+      "pieces_one": "פריט אחד",
+      "pieces_other": "{{count}} פריטים",
+      "piecesCapped": "{{count}}+ פריטים"
     }
   }
 }
