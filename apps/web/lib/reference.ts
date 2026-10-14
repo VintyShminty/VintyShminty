@@ -7,6 +7,11 @@ export function getReference(lang: Lang): Promise<ReferenceData> {
   return serverApi("/v1/reference", { lang, schema: referenceDataSchema, anonymous: true, revalidate: 3600 });
 }
 
+/** The reference data asked fresh every time. The sell form sends category and size ids back to the server, so an hour old copy could hold ids that changed. */
+export function getFreshReference(lang: Lang): Promise<ReferenceData> {
+  return serverApi("/v1/reference", { lang, schema: referenceDataSchema, anonymous: true });
+}
+
 /** Condition slug to its name in the page language, for the card's BRAND · SIZE · CONDITION line. */
 export async function getConditionNames(lang: Lang): Promise<Record<string, string>> {
   try {

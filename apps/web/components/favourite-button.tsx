@@ -1,15 +1,16 @@
 "use client";
 
 import { favouriteResultSchema } from "@vinty/shared";
-import { Heart } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLoginPrompt } from "@/components/login-prompt";
 import { useViewer } from "@/components/site-context";
 import { clientApi } from "@/lib/api-client";
+import { cn } from "@/lib/utils";
 
 /**
- * The heart with the number of hearts, on the item page. Logged out it opens the login prompt. Logged in it calls
+ * The bookmark with the number of people who saved the item (D-032), on the item page. Logged out it opens the login prompt. Logged in it calls
  * PUT/DELETE /v1/listings/:id/favourite, changes at once and goes back if the server says no.
  */
 export function FavouriteButton({
@@ -52,9 +53,12 @@ export function FavouriteButton({
       onClick={onClick}
       aria-pressed={favourited}
       aria-label={favourited ? t("item.removeFavourite") : t("item.addFavourite")}
-      className="inline-flex h-10 shrink-0 items-center gap-xs rounded-full border border-text-4 px-md text-pill text-text-1 hover:bg-pressed"
+      className={cn(
+        "inline-flex h-10 shrink-0 items-center gap-xs rounded-full border px-md text-pill hover:bg-pressed",
+        favourited ? "border-error bg-error-tint text-error" : "border-text-4 text-text-1",
+      )}
     >
-      <Heart
+      <Bookmark
         size={18}
         aria-hidden
         className={favourited ? "text-error" : "text-text-1"}

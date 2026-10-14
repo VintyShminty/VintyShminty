@@ -1,12 +1,12 @@
 "use client";
 
 import { formatPrice } from "@vinty/shared";
-import { Check } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 /**
- * The buyer price as a soft pill (D-019, row 2): a check and "₪189 with Covered" on the accent tint.
+ * The buyer price as a soft pill (D-019, row 2): a BadgeCheck and "₪189 with Covered" on the accent tint.
  * `muted` is for sold items, the pill goes quiet. Same look as the app's price pill.
  */
 export function PricePill({
@@ -29,7 +29,35 @@ export function PricePill({
         className,
       )}
     >
-      <Check size={11} className="shrink-0" aria-hidden />
+      <BadgeCheck size={12} className="shrink-0" aria-hidden />
+      <span className="truncate">
+        {t("listing.buyerPays", { price: formatPrice(amountMinor, currency) })}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * The Covered buyer price as a tiny muted line under the title on item cards (D-032): a BadgeCheck and
+ * "{price} with {protectionName}". No pill, no background.
+ */
+export function CoveredLine({
+  amountMinor,
+  currency,
+  muted = false,
+  className,
+}: {
+  amountMinor: number;
+  currency: string;
+  muted?: boolean;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <span
+      className={cn("flex items-center gap-xs text-card-meta text-text-3", muted && "opacity-60", className)}
+    >
+      <BadgeCheck size={13} className="shrink-0" aria-hidden />
       <span className="truncate">
         {t("listing.buyerPays", { price: formatPrice(amountMinor, currency) })}
       </span>

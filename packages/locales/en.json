@@ -1689,7 +1689,7 @@
     },
     "loginPrompt": {
       "title": "Log in to keep going",
-      "body": "Hearts, messages, buying and selling need an account. It only takes a minute."
+      "body": "Saving items, messages, buying and selling need an account. It only takes a minute."
     },
     "accountSoon": "Logging in on the website is coming soon. For now, the app has everything.",
     "footer": {
@@ -1730,8 +1730,8 @@
       "closeViewer": "Close photos",
       "previousPhoto": "Previous photo",
       "nextPhoto": "Next photo",
-      "yours": "This is your item",
-      "yoursNote": "You can edit it from the app.",
+      "buzzLoading": "Loading the plans",
+      "loadMore": "Show more",
       "moreFromSeller": "More from {{name}}",
       "seeAll": "See all",
       "similar": "Similar items",
@@ -1795,7 +1795,7 @@
       "phoneAlertsNote": "Alerts on your phone are set in the Vinty app. Here you choose which ones reach you by email."
     },
     "lists": {
-      "favouritesEmptyNote": "Tap the heart on an item to keep it here"
+      "favouritesEmptyNote": "Tap the bookmark on an item to keep it here"
     },
     "inbox": {
       "iconUnread_one": "Inbox, {{count}} unread",
@@ -1815,6 +1815,30 @@
       "backTo": "Back to {{name}}",
       "summary": "Summary",
       "itemsTotal": "Items total"
+    },
+    "sell": {
+      "photos": {
+        "dropHint": "or drop pictures here",
+        "count": "{{count}} of {{max}} photos. The first is the cover. Drag to reorder, click to view",
+        "failed": "A photo did not upload. Click it to try again",
+        "uploading": "Uploading",
+        "moveEarlier": "Move photo {{n}} earlier",
+        "moveLater": "Move photo {{n}} later",
+        "moved": "Moved to place {{n}} of {{total}}",
+        "previous": "Previous photo",
+        "next": "Next photo",
+        "viewerLabel": "Photo viewer"
+      },
+      "saving": "Saving",
+      "posting": "Posting",
+      "leaveTitle": "Keep your changes?",
+      "preview": {
+        "title": "How buyers see it",
+        "untitled": "Your title",
+        "note": "This is the card buyers scroll past. It updates as you type."
+      },
+      "posted": "Your listing is up. Buyers can find it now",
+      "saved": "Changes saved"
     }
   }
 }
