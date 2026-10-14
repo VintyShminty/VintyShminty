@@ -2,6 +2,7 @@ import {
   LISTING_SORTS,
   type ListingSort,
   type ReferenceData,
+  type SearchFilters,
   TILE_GROUPS,
   type TileGroup,
 } from "@vinty/shared";
@@ -28,6 +29,7 @@ type Source = URLSearchParams | Record<string, string | string[] | undefined>;
 
 /** Keys this module owns in the address. Everything else (q, group, type, view) is left alone. */
 const MANAGED = ["sort", "size", "brand", "condition", "colour", "min", "max"] as const;
+// (`category` is not managed here: the filter pills leave it alone, the search page shows it as its own chip.)
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_SHEKELS = 1_000_000;
@@ -148,4 +150,47 @@ export function buildFilterOptions(
       .map((c) => ({ id: c.id, name: c.name[lang] })),
     colours: reference.colours.map((c) => ({ id: c.id, name: c.name[lang], swatch: c.swatchHex })),
   };
+}
+
+/** A category the search is limited to. In the address as `?category=<id>~Name`, so the chip can show the name. */
+export type CategoryChoice = { id: string; name: string };
+
+/** The categories in the address (a saved search can carry one). */
+export function parseCategories(src: Source): CategoryChoice[] {
+  const found: CategoryChoice[] = [];
+  for (const raw of paramValues(src, "category")) {
+    const [id, ...name] = raw.split("~");
+    if (id && UUID.test(id) && !found.some((c) => c.id === id))
+      found.push({ id, name: name.join("~") || id });
+  }
+  return found.slice(0, 10);
+}
+
+/** The filters of a saved search as the website's search address: `/en/search?q=...&brand=...`. */
+export function savedSearchHref(
+  lang: string,
+  saved: { queryText: string | null; filters: SearchFilters },
+  names: { brands: Record<string, string>; categories: Record<string, string>; brandFallback: string },
+): string {
+  const { filters } = saved;
+  const p = new URLSearchParams();
+  const q = (saved.queryText ?? filters.q ?? "").trim();
+  if (q) p.set("q", q);
+  if (filters.sort && filters.sort !== "relevance") p.set("sort", filters.sort);
+  for (const id of filters.sizeIds ?? []) p.append("size", id);
+  for (const id of filters.brandIds ?? [])
+    p.append("brand", `${id}~${names.brands[id] ?? names.brandFallback}`);
+  for (const id of filters.conditionIds ?? []) p.append("condition", id);
+  for (const id of filters.colourIds ?? []) p.append("colour", id);
+  if (filters.priceMinMinor !== undefined) p.set("min", String(Math.floor(filters.priceMinMinor / 100)));
+  if (filters.priceMaxMinor !== undefined) p.set("max", String(Math.ceil(filters.priceMaxMinor / 100)));
+  const categoryIds = [
+    ...new Set([...(filters.categoryId ? [filters.categoryId] : []), ...(filters.categoryIds ?? [])]),
+  ];
+  for (const id of categoryIds) {
+    const name = names.categories[id];
+    if (name) p.append("category", `${id}~${name}`);
+  }
+  const qs = p.toString();
+  return `/${lang}/search${qs ? `?${qs}` : ""}`;
 }

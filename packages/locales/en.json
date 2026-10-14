@@ -1779,6 +1779,20 @@
       "confirmSubtitle": "Enter the code to confirm your email.",
       "confirmButton": "Confirm email",
       "confirmLater": "Later"
+    },
+    "profile": {
+      "shortcuts": "Your shortcuts"
+    },
+    "settings": {
+      "saved": "Saved",
+      "pickSection": "Choose a section from the list",
+      "deviceOn": "{{browser}} on {{system}}",
+      "onlyThisBrowser": "You are only logged in on this browser.",
+      "logOutOthersBody": "You stay logged in here.",
+      "phoneAlertsNote": "Alerts on your phone are set in the Vinty app. Here you choose which ones reach you by email."
+    },
+    "lists": {
+      "favouritesEmptyNote": "Tap the heart on an item to keep it here"
     }
   }
 }

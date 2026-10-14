@@ -212,6 +212,31 @@ The website (`apps/web`) is a second Vercel project in the same GitHub repositor
 
 After this, every merge into `main` deploys the website by itself, the same as the server.
 
+### Let the website upload photos (Cloudflare R2 rule)
+
+The website sends a profile photo straight from the browser to your Cloudflare R2 bucket (and later listing photos). Browsers only allow that when the bucket says "this website may do it". The app does not need this, the website does. You add the rule once:
+
+1. Open the Cloudflare dashboard, then **R2 Object Storage**, then click your photos bucket.
+2. Click **Settings**, scroll to **CORS Policy**, click **Add CORS policy**.
+3. Choose the **JSON** tab and paste this, with your website's address (the same one as `WEB_ORIGINS`, no slash at the end) instead of the example:
+
+```json
+[
+  {
+    "AllowedOrigins": ["https://your-website.vercel.app"],
+    "AllowedMethods": ["PUT"],
+    "AllowedHeaders": ["content-type", "cache-control"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+4. Click **Save**. When the website moves to your own domain, add that address to `AllowedOrigins` as well.
+
+Check it: log in on the website, open **Settings**, **Your profile**, pick a photo and press **Update profile**. If the photo says it did not upload, the rule is missing or the address in it is not exactly the website's.
+
+Locally nothing is needed, the development storage (MinIO) already accepts the website.
+
 ## Putting a change online
 
 Vercel is connected to GitHub. Every push to a branch builds a private preview copy, and a merge into `main` goes live by itself. To try a branch on the live address before Eden merges, deploy it by hand from a clean copy (the main folder holds too many local build files for Vercel's upload limit):

@@ -4,6 +4,7 @@ import type { Photo } from "@vinty/shared";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PHOTO_SWIPE_EVENT } from "@/components/item-dwell";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,7 +22,11 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
   const total = photos.length;
   const current = photos[index];
 
-  const go = (to: number) => setIndex(((to % total) + total) % total);
+  const go = (to: number) => {
+    setIndex(((to % total) + total) % total);
+    // The feed learns from photos looked at (time on an item, see ItemDwell).
+    window.dispatchEvent(new Event(PHOTO_SWIPE_EVENT));
+  };
   const step = (direction: 1 | -1) => go(index + direction);
   const alt = (n: number) => `${title}. ${t("listing.photoLabel", { n: n + 1, total })}`;
 
@@ -114,7 +119,7 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
             <li key={photo.key} className="shrink-0">
               <button
                 type="button"
-                onClick={() => setIndex(n)}
+                onClick={() => go(n)}
                 aria-label={t("listing.photoLabel", { n: n + 1, total })}
                 aria-current={n === index ? "true" : undefined}
                 className={cn(

@@ -6,8 +6,10 @@ import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { ZodType } from "zod";
 import { ItemGrid, ItemGridSkeleton } from "@/components/item-grid";
+import { useViewer } from "@/components/site-context";
 import { clientApi } from "@/lib/api-client";
 import { FEED_PAGE_SIZE, pagePath } from "@/lib/feed-url";
+import { useImpressions } from "@/lib/use-impressions";
 
 type Page = { items: ListingCard[]; nextCursor: string | null };
 
@@ -65,6 +67,12 @@ export function InfiniteItemGrid({
     });
   }, [query.data]);
 
+  // Home counts a card as seen after a second half in view (the same signal as the app), for logged in people.
+  const viewer = useViewer();
+  const gridBox = useRef<HTMLDivElement>(null);
+  const feedId = (query.data?.pages[0] as { feedId?: string | null } | undefined)?.feedId ?? null;
+  useImpressions(gridBox, kind === "feed" && Boolean(viewer), feedId, items.length);
+
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
   const sentinel = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -105,7 +113,9 @@ export function InfiniteItemGrid({
 
   return (
     <>
-      <ItemGrid items={items} hideHearts={hideHearts} heartOnSold={heartOnSold} />
+      <div ref={gridBox}>
+        <ItemGrid items={items} hideHearts={hideHearts} heartOnSold={heartOnSold} feed={kind === "feed"} />
+      </div>
       {hasNextPage ? (
         <div ref={sentinel} className="py-xl text-center text-body-sm text-text-3" aria-live="polite">
           {isFetchingNextPage ? t("web.feed.loadingMore") : null}

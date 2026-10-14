@@ -1798,6 +1798,20 @@
       "confirmSubtitle": "הזינו את הקוד כדי לאשר את המייל.",
       "confirmButton": "אישור המייל",
       "confirmLater": "אחר כך"
+    },
+    "profile": {
+      "shortcuts": "הקיצורים שלכם"
+    },
+    "settings": {
+      "saved": "נשמר",
+      "pickSection": "בחרו נושא מהרשימה",
+      "deviceOn": "{{browser}} ב-{{system}}",
+      "onlyThisBrowser": "אתם מחוברים רק בדפדפן הזה.",
+      "logOutOthersBody": "תישארו מחוברים כאן.",
+      "phoneAlertsNote": "התראות לטלפון מוגדרות באפליקציית Vinty. כאן בוחרים אילו מהן יגיעו אליכם באימייל."
+    },
+    "lists": {
+      "favouritesEmptyNote": "לחצו על הלב בפריט כדי לשמור אותו כאן"
     }
   }
 }

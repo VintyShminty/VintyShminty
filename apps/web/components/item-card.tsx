@@ -1,11 +1,12 @@
 "use client";
 
-import { favouriteResultSchema, formatPrice, type ListingCard } from "@vinty/shared";
+import { type FeedCard, favouriteResultSchema, formatPrice, type ListingCard } from "@vinty/shared";
 import { Check, Heart, TrendingDown, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/badge";
+import { FeedMenu } from "@/components/feed-menu";
 import { useLoginPrompt } from "@/components/login-prompt";
 import { PricePill } from "@/components/price-pill";
 import { useConditionName, useViewer } from "@/components/site-context";
@@ -26,11 +27,14 @@ export function ItemCard({
   listing,
   hideHeart = false,
   heartOnSold = false,
+  feedPosition,
 }: {
   listing: ListingCard;
   /** Set where the cards are known to be the viewer's own (for example their own profile). */
   hideHeart?: boolean;
   heartOnSold?: boolean;
+  /** Set on the Home feed: the card's place in the list. It then counts as seen after a second, and logged in people get the "..." menu (Why you see this, Not interested). */
+  feedPosition?: number;
 }) {
   const { t, i18n } = useTranslation();
   const viewer = useViewer();
@@ -65,7 +69,11 @@ export function ItemCard({
   };
 
   return (
-    <article className="group relative min-w-0">
+    <article
+      className="group relative min-w-0"
+      data-card-id={feedPosition === undefined ? undefined : listing.id}
+      data-position={feedPosition}
+    >
       {/* The link covers the whole card. The heart sits above it, so it stays its own button. */}
       <Link
         href={`/${i18n.language}/item/${listing.id}`}
@@ -98,6 +106,7 @@ export function ItemCard({
           ) : null}
         </div>
       </div>
+      {feedPosition !== undefined && viewer && !isOwn ? <FeedMenu card={listing as FeedCard} /> : null}
       <div className="flex flex-col gap-px pt-sm">
         <div className="flex min-h-7 items-center gap-xs">
           <span
