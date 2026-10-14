@@ -30,6 +30,7 @@ const CLIENT_SECTIONS = [
   "onboarding",
   "home",
   "tabs",
+  "sell",
   "inbox",
   "chat",
   "offer",

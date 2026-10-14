@@ -28,8 +28,11 @@ export function ItemCard({
   hideHeart = false,
   heartOnSold = false,
   feedPosition,
+  preview = false,
 }: {
   listing: ListingCard;
+  /** The sell form's live preview: the same card, but not a link and with no heart. */
+  preview?: boolean;
   /** Set where the cards are known to be the viewer's own (for example their own profile). */
   hideHeart?: boolean;
   heartOnSold?: boolean;
@@ -49,7 +52,7 @@ export function ItemCard({
     ? Math.round((1 - listing.priceMinor / (listing.previousPriceMinor as number)) * 100)
     : 0;
   const isOwn = Boolean(viewer) && listing.seller?.id === viewer?.id;
-  const showHeart = !isOwn && !hideHeart && (!sold || heartOnSold);
+  const showHeart = !preview && !isOwn && !hideHeart && (!sold || heartOnSold);
 
   const meta = [listing.brandName ?? listing.title, listing.sizeLabel, conditionName(listing.conditionSlug)]
     .filter(Boolean)
@@ -75,13 +78,15 @@ export function ItemCard({
       data-position={feedPosition}
     >
       {/* The link covers the whole card. The heart sits above it, so it stays its own button. */}
-      <Link
-        href={`/${i18n.language}/item/${listing.id}`}
-        // Opening an item page counts a view on the server, so a card scrolling past must not prefetch it.
-        prefetch={false}
-        aria-label={listing.title}
-        className="absolute inset-0 z-0 rounded-control focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      />
+      {preview ? null : (
+        <Link
+          href={`/${i18n.language}/item/${listing.id}`}
+          // Opening an item page counts a view on the server, so a card scrolling past must not prefetch it.
+          prefetch={false}
+          aria-label={listing.title}
+          className="absolute inset-0 z-0 rounded-control focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        />
+      )}
       <div className="relative aspect-[3/4] overflow-hidden rounded-control bg-pressed">
         {listing.cover ? (
           // biome-ignore lint/performance/noImgElement: no Vercel image optimisation on purpose, the card cover comes ready sized

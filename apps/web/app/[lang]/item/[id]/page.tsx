@@ -103,8 +103,17 @@ function BreakdownLine({ label, value, strong = false }: { label: string; value:
   );
 }
 
-export default async function ItemPage({ params }: { params: Params }) {
+export default async function ItemPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { lang, id } = await params;
+  const sp = await searchParams;
+  const justPosted = sp.posted === "1";
+  const justSaved = sp.saved === "1";
   if (!isLang(lang)) notFound();
   const t = getT(lang);
 
@@ -283,9 +292,25 @@ export default async function ItemPage({ params }: { params: Params }) {
             )}
 
             {isOwner ? (
-              <div className="rounded-control border border-border-subtle bg-surface p-md">
-                <p className="text-body-sm font-semibold text-text-1">{t("web.item.yours")}</p>
-                <p className="mt-xs text-body-sm text-text-3">{t("web.item.yoursNote")}</p>
+              <div className="flex flex-col gap-sm">
+                {justPosted || justSaved ? (
+                  <p
+                    role="status"
+                    className="rounded-control bg-success-tint px-md py-md text-body-sm text-success"
+                  >
+                    {justPosted ? t("web.sell.posted") : t("web.sell.saved")}
+                  </p>
+                ) : null}
+                <div className="rounded-control border border-border-subtle bg-surface p-md">
+                  <p className="text-body-sm font-semibold text-text-1">{t("web.item.yours")}</p>
+                  <p className="mt-xs text-body-sm text-text-3">{t("web.item.yoursNote")}</p>
+                </div>
+                <Link
+                  href={`/${lang}/sell/${listing.id}`}
+                  className="inline-flex h-10 items-center justify-center rounded-control border border-primary px-lg text-body-sm font-semibold text-primary hover:bg-accent-tint"
+                >
+                  {listing.status === "draft" ? t("listing.continueEditing") : t("listing.edit")}
+                </Link>
               </div>
             ) : showBar ? (
               <div className="max-lg:hidden">

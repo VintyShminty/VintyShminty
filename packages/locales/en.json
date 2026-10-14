@@ -1731,7 +1731,7 @@
       "previousPhoto": "Previous photo",
       "nextPhoto": "Next photo",
       "yours": "This is your item",
-      "yoursNote": "You can edit it from the app.",
+      "yoursNote": "You can edit it here or in the app.",
       "moreFromSeller": "More from {{name}}",
       "seeAll": "See all",
       "similar": "Similar items",
@@ -1815,6 +1815,30 @@
       "backTo": "Back to {{name}}",
       "summary": "Summary",
       "itemsTotal": "Items total"
+    },
+    "sell": {
+      "photos": {
+        "dropHint": "or drop pictures here",
+        "count": "{{count}} of {{max}} photos. The first is the cover. Drag to reorder, click to view",
+        "failed": "A photo did not upload. Click it to try again",
+        "uploading": "Uploading",
+        "moveEarlier": "Move photo {{n}} earlier",
+        "moveLater": "Move photo {{n}} later",
+        "moved": "Moved to place {{n}} of {{total}}",
+        "previous": "Previous photo",
+        "next": "Next photo",
+        "viewerLabel": "Photo viewer"
+      },
+      "saving": "Saving",
+      "posting": "Posting",
+      "leaveTitle": "Keep your changes?",
+      "preview": {
+        "title": "How buyers see it",
+        "untitled": "Your title",
+        "note": "This is the card buyers scroll past. It updates as you type."
+      },
+      "posted": "Your listing is up. Buyers can find it now",
+      "saved": "Changes saved"
     }
   }
 }
