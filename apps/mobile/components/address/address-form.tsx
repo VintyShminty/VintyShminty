@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { type AddressFormValues, addressFormSchema } from "@vinty/shared";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { type TextInput, View } from "react-native";
-import { z } from "zod";
 import { FormInput } from "@/components/form-input";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
@@ -13,18 +13,6 @@ import { Text } from "@/components/ui/text";
 import { ApiClientError } from "@/lib/api";
 import { describeApiError } from "@/lib/auth-errors";
 import { type Address, useAddAddress, useUpdateAddress } from "@/lib/orders-queries";
-
-// Messages are translation keys, FormInput translates them.
-const addressFormSchema = z.object({
-  fullName: z.string().trim().min(1, "validation.address.fullName").max(100, "validation.address.tooLong"),
-  line1: z.string().trim().min(1, "validation.address.line1").max(150, "validation.address.tooLong"),
-  line2: z.string().trim().max(150, "validation.address.tooLong"),
-  city: z.string().trim().min(1, "validation.address.city").max(80, "validation.address.tooLong"),
-  postcode: z.string().trim().min(1, "validation.address.postcode").max(20, "validation.address.tooLong"),
-  phone: z.string().trim().max(30, "validation.address.tooLong"),
-  label: z.string().trim().max(40, "validation.address.tooLong"),
-});
-type AddressFormValues = z.infer<typeof addressFormSchema>;
 
 type AddressFormProps = {
   /** Fill the form with this address and save changes to it. Leave out to add a new one. */

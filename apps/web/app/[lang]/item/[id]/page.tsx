@@ -6,12 +6,13 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/badge";
 import { EmptyState } from "@/components/empty-state";
 import { FavouriteButton } from "@/components/favourite-button";
-import { BuyBar, BuyButtons, MessageChip, ReportButton } from "@/components/item-actions";
+import { BuyBar, BuyButtons, MessageChip } from "@/components/item-actions";
 import { ItemCard } from "@/components/item-card";
 import { ItemDwell } from "@/components/item-dwell";
 import { ItemGrid } from "@/components/item-grid";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { PricePill } from "@/components/price-pill";
+import { ReportButton } from "@/components/report-dialog";
 import { SellerAvatar } from "@/components/seller-avatar";
 import { SellerStamp } from "@/components/seller-stamp";
 import { StarRating } from "@/components/star-rating";
@@ -151,6 +152,10 @@ export default async function ItemPage({ params }: { params: Params }) {
   const cover = listing.photos[0] ?? listing.cover;
 
   const buyProps = {
+    listingId: listing.id,
+    lang,
+    conversationId: listing.viewer.conversationId,
+    priceMinor: price,
     reserved,
     canBuy: listing.viewer.canBuy,
     canOffer: listing.viewer.canOffer,
@@ -381,7 +386,9 @@ export default async function ItemPage({ params }: { params: Params }) {
             </dl>
           </section>
 
-          {isOwner ? null : <ReportButton label={t("item.reportItem")} />}
+          {isOwner ? null : (
+            <ReportButton label={t("item.reportItem")} targetType="listing" targetId={listing.id} />
+          )}
         </div>
       </div>
 

@@ -9,6 +9,8 @@ type Options<T> = {
   schema?: z.ZodType<T>;
   /** The page language, sent as Accept-Language. */
   lang?: string;
+  /** Extra headers, for example Idempotency-Key. */
+  headers?: Record<string, string>;
 };
 
 /**
@@ -17,9 +19,9 @@ type Options<T> = {
  */
 export async function clientApi<T = void>(
   path: string,
-  { method = "GET", body, schema, lang }: Options<T> = {},
+  { method = "GET", body, schema, lang, headers: extra }: Options<T> = {},
 ): Promise<T> {
-  const headers: Record<string, string> = { Accept: "application/json" };
+  const headers: Record<string, string> = { Accept: "application/json", ...extra };
   if (lang) headers["Accept-Language"] = lang;
   if (body !== undefined) headers["Content-Type"] = "application/json";
   let res: Response;

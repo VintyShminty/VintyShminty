@@ -3,8 +3,11 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { type ReviewItem, type ReviewsPage, reviewsPageSchema } from "@vinty/shared";
 import { Check } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/empty-state";
+import { ReplyDialog } from "@/components/review/review-dialogs";
 import { StarRating } from "@/components/star-rating";
 import { clientApi } from "@/lib/api-client";
 import { formatDate } from "@/lib/time";
@@ -25,7 +28,14 @@ function Avatar({ url, name, size }: { url: string | null; name: string; size: n
   );
 }
 
-function ReviewRow({ review }: { review: ReviewItem }) {
+function ReviewRow({
+  review,
+  own,
+}: {
+  review: ReviewItem;
+  /** On your own page: you can answer the review and open its order. */
+  own?: { lang: string; onReply: (review: ReviewItem) => void };
+}) {
   const { t, i18n } = useTranslation();
   const name = review.reviewer.username ?? t("profile.closedAccount");
   return (
@@ -60,6 +70,23 @@ function ReviewRow({ review }: { review: ReviewItem }) {
           <p className="whitespace-pre-line text-body-sm text-text-1">{review.replyBody}</p>
         </div>
       ) : null}
+      {own ? (
+        <div className="flex flex-wrap gap-sm">
+          <button
+            type="button"
+            onClick={() => own.onReply(review)}
+            className="inline-flex h-10 items-center rounded-control border border-border px-md text-body-sm font-semibold text-text-1 hover:bg-pressed"
+          >
+            {review.replyBody ? t("review.editReply") : t("review.reply")}
+          </button>
+          <Link
+            href={`/${own.lang}/orders/${review.orderId}`}
+            className="inline-flex h-10 items-center rounded-control px-md text-body-sm font-semibold text-primary hover:underline"
+          >
+            {t("review.viewOrder")}
+          </Link>
+        </div>
+      ) : null}
     </li>
   );
 }
@@ -68,8 +95,18 @@ function ReviewRow({ review }: { review: ReviewItem }) {
  * The Reviews tab (D-019, row 13): one list of written reviews, with the average on top and the automatic "smooth
  * sales" line. The first page comes from the server, "Show more reviews" loads the next one.
  */
-export function ReviewsList({ userId, firstPage }: { userId: string; firstPage: ReviewsPage | null }) {
+export function ReviewsList({
+  userId,
+  firstPage,
+  ownLang,
+}: {
+  userId: string;
+  firstPage: ReviewsPage | null;
+  /** Set on your own profile (the page language): shows Reply and View order under each review. */
+  ownLang?: string;
+}) {
   const { t } = useTranslation();
+  const [replyTarget, setReplyTarget] = useState<ReviewItem | null>(null);
   const query = useInfiniteQuery({
     queryKey: ["reviews", userId],
     initialPageParam: undefined as string | undefined,
@@ -136,7 +173,11 @@ export function ReviewsList({ userId, firstPage }: { userId: string; firstPage: 
       ) : (
         <ul>
           {items.map((review) => (
-            <ReviewRow key={review.id} review={review} />
+            <ReviewRow
+              key={review.id}
+              review={review}
+              own={ownLang ? { lang: ownLang, onReply: setReplyTarget } : undefined}
+            />
           ))}
         </ul>
       )}
@@ -152,6 +193,7 @@ export function ReviewsList({ userId, firstPage }: { userId: string; firstPage: 
           </button>
         </div>
       ) : null}
+      {ownLang ? <ReplyDialog review={replyTarget} onClose={() => setReplyTarget(null)} /> : null}
     </div>
   );
 }

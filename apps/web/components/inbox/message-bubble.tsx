@@ -1,6 +1,6 @@
 "use client";
 
-import { formatPrice, isolate, type Message, type MessageOffer } from "@vinty/shared";
+import { effectiveOfferStatus, formatPrice, isolate, type Message, type MessageOffer } from "@vinty/shared";
 import {
   AlertCircle,
   AlertTriangle,
@@ -21,9 +21,14 @@ import {
   Undo2,
   X,
 } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/badge";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ApiClientError } from "@/lib/api-error";
 import type { PendingMessage } from "@/lib/chat-send";
+import { type OfferAnswer, useAnswerOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
 
 /** The corner that points at the sender is tighter (a small tail). `rounded-ee` is the end side, `rounded-es` the start. */
@@ -120,17 +125,17 @@ type DividerPayload = {
   details?: string;
 };
 
-/** A step of an order inside the chat: an icon, what happened, which order and item. A click says orders work in the app for now. */
+/** A step of an order inside the chat: an icon, what happened, which order and item. A click opens the order page. */
 function OrderDivider({
   event,
   orderId,
   payload,
-  onAppOnly,
+  lang,
 }: {
   event: string;
   orderId: string | null;
   payload: unknown;
-  onAppOnly: () => void;
+  lang: string;
 }) {
   const { t, i18n } = useTranslation();
   const style = DIVIDER_STYLES[event] ?? { icon: Package, tone: "text-primary" };
@@ -175,14 +180,13 @@ function OrderDivider({
   return (
     <div className="px-lg py-sm">
       {orderId ? (
-        <button
-          type="button"
-          onClick={onAppOnly}
+        <Link
+          href={`/${lang}/orders/${orderId}`}
           aria-label={`${t(`chat.system.${event}`)}. ${t("chat.order.view")}`}
           className={cn(classes, "hover:bg-pressed")}
         >
           {content}
-        </button>
+        </Link>
       ) : (
         <div className={classes}>{content}</div>
       )}
@@ -209,27 +213,29 @@ const OFFER_VARIANT = {
 
 /**
  * An offer in the chat: the price, the listed price struck through, the state, and the buttons that make sense for
- * this person right now. Answering offers comes to the website in a later step, so the buttons open the small
- * "works in the app for now" notice.
+ * this person right now. The other person's waiting offer can be accepted, declined or countered. My own waiting
+ * offer can be withdrawn. An accepted offer lets the buyer buy at that price until the hold runs out.
  */
 function OfferBubble({
   offer,
+  lang,
   mine,
   role,
   closed,
-  onAppOnly,
+  onCounter,
 }: {
   offer: MessageOffer;
+  lang: string;
   mine: boolean;
   role: "buyer" | "seller";
   closed: boolean;
-  onAppOnly: () => void;
+  onCounter: (offer: MessageOffer) => void;
 }) {
   const { t, i18n } = useTranslation();
-  // The server turns old offers into expired a little later. The bubble does not wait.
-  const timedOut = new Date(offer.expiresAt).getTime() <= Date.now();
-  const status =
-    (offer.status === "pending" || offer.status === "accepted") && timedOut ? "expired" : offer.status;
+  const answer = useAnswerOffer();
+  const [confirming, setConfirming] = useState<"decline" | "withdraw" | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
+  const status = effectiveOfferStatus(offer);
   const lower = offer.amountMinor < offer.listingPriceMinor;
   const canAnswer = status === "pending" && !closed;
   const until = new Date(offer.expiresAt).toLocaleString(i18n.language, {
@@ -239,7 +245,23 @@ function OfferBubble({
     minute: "2-digit",
   });
   const small =
-    "inline-flex h-9 items-center justify-center rounded-control px-md text-body-sm font-semibold";
+    "inline-flex h-9 items-center justify-center rounded-control px-md text-body-sm font-semibold disabled:opacity-60";
+  const busy = answer.isPending;
+
+  const run = (kind: OfferAnswer) => {
+    setFailed(null);
+    answer.mutate(
+      { offerId: offer.id, answer: kind },
+      {
+        onSettled: () => setConfirming(null),
+        onError: (err) =>
+          setFailed(
+            err instanceof ApiClientError && err.status === 409 ? "offer.errors.closed" : "errors.general",
+          ),
+      },
+    );
+  };
+
   return (
     <div
       className={cn(
@@ -277,11 +299,17 @@ function OfferBubble({
             : t("offer.bubble.reservedForThem", { time: until })}
         </span>
       ) : null}
+      {failed ? (
+        <span role="alert" className="text-card-desc text-error">
+          {t(failed)}
+        </span>
+      ) : null}
       {canAnswer && !mine ? (
         <div className="flex flex-col gap-sm pt-xs">
           <button
             type="button"
-            onClick={onAppOnly}
+            disabled={busy}
+            onClick={() => run("accept")}
             className={cn(small, "bg-primary text-on-accent hover:opacity-90")}
           >
             {t("offer.accept")}
@@ -289,14 +317,16 @@ function OfferBubble({
           <div className="flex gap-sm">
             <button
               type="button"
-              onClick={onAppOnly}
+              disabled={busy}
+              onClick={() => setConfirming("decline")}
               className={cn(small, "flex-1 border border-border text-text-1 hover:bg-pressed")}
             >
               {t("offer.decline")}
             </button>
             <button
               type="button"
-              onClick={onAppOnly}
+              disabled={busy}
+              onClick={() => onCounter(offer)}
               className={cn(small, "flex-1 border border-border text-text-1 hover:bg-pressed")}
             >
               {t("offer.counter")}
@@ -307,21 +337,31 @@ function OfferBubble({
       {canAnswer && mine ? (
         <button
           type="button"
-          onClick={onAppOnly}
+          disabled={busy}
+          onClick={() => setConfirming("withdraw")}
           className={cn(small, "mt-xs border border-border text-text-1 hover:bg-pressed")}
         >
           {t("offer.withdraw")}
         </button>
       ) : null}
       {status === "accepted" && role === "buyer" && !closed ? (
-        <button
-          type="button"
-          onClick={onAppOnly}
+        <Link
+          href={`/${lang}/checkout?offer=${offer.id}`}
           className={cn(small, "mt-xs bg-primary text-on-accent hover:opacity-90")}
         >
           {t("offer.buyNow", { amount: formatPrice(offer.amountMinor, offer.currency) })}
-        </button>
+        </Link>
       ) : null}
+      <ConfirmDialog
+        open={confirming !== null}
+        title={confirming ? t(`offer.confirm.${confirming}Title`) : ""}
+        body={confirming ? t(`offer.confirm.${confirming}Note`) : undefined}
+        confirmLabel={confirming ? t(`offer.${confirming}`) : ""}
+        destructive
+        busy={busy}
+        onConfirm={() => confirming && run(confirming)}
+        onCancel={() => setConfirming(null)}
+      />
     </div>
   );
 }
@@ -344,9 +384,10 @@ export function MessageBubble({
   tight,
   statusLine,
   role,
+  lang,
   offersClosed,
   onOpenPhoto,
-  onAppOnly,
+  onCounter,
 }: {
   message: Message;
   mine: boolean;
@@ -354,9 +395,10 @@ export function MessageBubble({
   /** Small line under the bubble: the time, and Sent or Seen on your newest. */
   statusLine?: string;
   role: "buyer" | "seller";
+  lang: string;
   offersClosed: boolean;
   onOpenPhoto: (url: string) => void;
-  onAppOnly: () => void;
+  onCounter: (offer: MessageOffer) => void;
 }) {
   const { t } = useTranslation();
   const side: Side = mine ? "mine" : "theirs";
@@ -368,7 +410,7 @@ export function MessageBubble({
           event={message.systemEvent}
           orderId={message.orderId}
           payload={message.payload}
-          onAppOnly={onAppOnly}
+          lang={lang}
         />
       );
     }
@@ -398,10 +440,11 @@ export function MessageBubble({
     body = message.offer ? (
       <OfferBubble
         offer={message.offer}
+        lang={lang}
         mine={mine}
         role={role}
         closed={offersClosed}
-        onAppOnly={onAppOnly}
+        onCounter={onCounter}
       />
     ) : null;
   } else if (message.body) {

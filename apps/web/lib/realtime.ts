@@ -155,6 +155,8 @@ function connect(userId: string) {
 
   // An item was reserved, sold, released or repriced: the chat strips that show it read it again.
   s.on("listing:updated", () => {
+    // Checkout reads its numbers and availability again too.
+    void queryClient.invalidateQueries({ queryKey: ["checkout-quote"] });
     void queryClient.invalidateQueries({ queryKey: ["conversation"] });
     void queryClient.invalidateQueries({ queryKey: ["conversations"] });
   });
@@ -200,6 +202,7 @@ function connect(userId: string) {
   // An order moved (paid, shipped, delivered...): the tracker card in its chat reads it again.
   s.on("order:updated", ({ orderId, conversationId }) => {
     void queryClient.invalidateQueries({ queryKey: ["order", orderId] });
+    void queryClient.invalidateQueries({ queryKey: ["orders"] });
     if (conversationId) void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
   });
   s.on("typing", ({ conversationId, userId: who, isTyping }) => {

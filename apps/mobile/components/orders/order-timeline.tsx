@@ -1,4 +1,4 @@
-import type { OrderDetail } from "@vinty/shared";
+import { type OrderDetail, UPCOMING_ORDER_STEPS } from "@vinty/shared";
 import { Check, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -14,14 +14,6 @@ type Step = {
   state: "done" | "current" | "upcoming";
   /** The order stopped here (cancelled or refunded): not a happy tick. */
   stopped?: boolean;
-};
-
-// The steps still to come on the happy path, by where the order is now.
-const UPCOMING: Record<string, string[]> = {
-  pending_payment: ["pay", "ship", "deliver", "complete"],
-  paid: ["ship", "deliver", "complete"],
-  shipped: ["deliver", "complete"],
-  delivered: ["complete"],
 };
 
 /**
@@ -54,7 +46,7 @@ export function OrderTimeline({ order }: { order: OrderDetail }) {
       stopped: e.toStatus === "cancelled" || e.toStatus === "refunded",
     };
   });
-  const ahead = (UPCOMING[order.status] ?? []).map((k, i) => ({
+  const ahead = (UPCOMING_ORDER_STEPS[order.status] ?? []).map((k, i) => ({
     key: `next-${k}`,
     label: t(`orders.ahead.${k}`),
     state: i === 0 ? ("current" as const) : ("upcoming" as const),
