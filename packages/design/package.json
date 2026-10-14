@@ -1,0 +1,17 @@
+{
+  "name": "@vinty/design",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./tokens": {
+      "types": "./tokens.d.ts",
+      "default": "./tokens.js"
+    },
+    "./fonts": {
+      "types": "./fonts.d.ts",
+      "default": "./fonts.js"
+    },
+    "./fonts/*": "./fonts/*",
+    "./tailwind": "./tailwind.js"
+  }
+}

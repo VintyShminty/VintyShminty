@@ -1,9 +1,9 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import en from "@vinty/locales/en.json";
+import he from "@vinty/locales/he.json";
 import { NOTIFICATION_SETTINGS_GROUPS, VALIDATION_MESSAGES } from "@vinty/shared";
 import { describe, expect, it } from "vitest";
-import en from "../i18n/locales/en.json";
-import he from "../i18n/locales/he.json";
 
 // Every user-facing string comes from the locale files. This test keeps English and Hebrew in step,
 // finds t("...") keys that do not exist, and checks the writing rules (docs/design.md).

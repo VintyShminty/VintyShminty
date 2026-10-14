@@ -3,11 +3,11 @@ import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import sensible from "@fastify/sensible";
 import fp from "fastify-plugin";
-import type { Env } from "../env.js";
+import { corsOrigins, type Env } from "../env.js";
 
 export default fp<{ env: Env }>(
   async (app, { env }) => {
-    const origin = env.CORS_ORIGIN === "*" ? true : env.CORS_ORIGIN.split(",").map((o) => o.trim());
+    const origin = corsOrigins(env);
     await app.register(cors, {
       origin,
       methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

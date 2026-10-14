@@ -170,6 +170,24 @@ Nothing goes into `apps/mobile/.env` for sign in: the app asks the server which 
 
 Apple's "hide my email": some people will hide their email. Apple then gives Vinty a random address ending in `privaterelay.appleid.com`. It works as their login email. Emails we send to it (codes, order news) only arrive once the sending domain is registered with Apple (Apple Developer, **Services**, **Sign in with Apple for Email Communication**). Do this when you add your own email domain.
 
+## The website on Vercel
+
+The website (`apps/web`) is a second Vercel project in the same GitHub repository. It talks to the server you already put online. Do this after the server works.
+
+1. In Vercel click **Add New**, then **Project**. Pick the same GitHub repository as the server.
+2. On the setup page click **Edit** next to **Root Directory** and choose `apps/web`. Vercel installs the whole workspace from the repository's top folder by itself (the setting **Include source files outside of the Root Directory** is on by default, leave it on). The packages shared with the app (`packages/design`, `packages/locales`, `packages/shared`) are found that way ([Monorepos](https://vercel.com/docs/monorepos)).
+3. The framework should say **Next.js**. Leave the build and install commands empty (the build command comes from the project and uses webpack on purpose).
+4. Under **Settings**, **General**, **Node.js Version**, choose 22.x, the same as the server.
+5. Open **Environment Variables** and add two for **Production**, both set to the server's address (today `https://vinty-shminty.vercel.app`, no slash at the end):
+   - `API_URL` (the website's own server uses it to forward login and data calls)
+   - `NEXT_PUBLIC_API_URL` (the browser uses it for live chat)
+6. Click **Deploy** and wait for **Ready**. Copy the website's address (`https://<name>.vercel.app`) from the top.
+7. Open the **server** project (not the website), **Settings**, **Environment Variables**, add `WEB_ORIGINS` for **Production** with the website address you just copied (no slash at the end), then **Deployments**, the latest one, **Redeploy**. Without this the server refuses the website's login.
+8. In the website project check **Settings**, **Deployment Protection**: the production address must open without a Vercel login.
+9. Open `https://<website address>/en` and `/he`. You should see the Vinty bar and "Welcome in". The hidden `/en/dev/connection` page does not exist online (that is on purpose).
+
+After this, every merge into `main` deploys the website by itself, the same as the server.
+
 ## Putting a change online
 
 Vercel is connected to GitHub. Every push to a branch builds a private preview copy, and a merge into `main` goes live by itself. To try a branch on the live address before Eden merges, deploy it by hand from a clean copy (the main folder holds too many local build files for Vercel's upload limit):

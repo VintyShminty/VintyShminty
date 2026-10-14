@@ -3,7 +3,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Design rule (docs/playbook/design-philosophy.md): every colour is a named token, defined once in
-// theme/tokens.js. This test fails if a raw colour value shows up in app code. The cap is zero, so
+// packages/design/tokens.js. This test fails if a raw colour value shows up in app code. The cap is zero, so
 // the count can only fall. Locale files are not scanned because they hold text, not styles.
 const root = join(__dirname, "..");
 const SCANNED_DIRS = ["app", "components", "lib", "i18n"];
@@ -39,7 +39,7 @@ function findings() {
 
 describe("design tokens", () => {
   it("has no hard-coded colours in app, components, lib or i18n", () => {
-    expect(findings(), "Use a token from theme/tokens.js or a Tailwind class instead").toEqual([]);
+    expect(findings(), "Use a token from packages/design/tokens.js or a Tailwind class instead").toEqual([]);
   });
 
   it("catches a hard-coded colour (self-test)", () => {

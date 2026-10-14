@@ -1,5 +1,5 @@
 // Single source of truth for design tokens (docs/design.md, D-006 Espresso and cream).
-// Plain CommonJS so tailwind.config.js can read it. App code imports it through theme/index.ts.
+// Plain CommonJS so tailwind.config.js can read it. The mobile app imports it through apps/mobile/theme/index.ts.
 // Light mode only (D-002). Tokens are named by role so a dark set can be added later.
 
 /** Hex values, named by role (design.md Colour table). */

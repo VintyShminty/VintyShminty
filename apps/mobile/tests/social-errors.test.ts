@@ -1,5 +1,5 @@
+import en from "@vinty/locales/en.json";
 import { describe, expect, it } from "vitest";
-import en from "../i18n/locales/en.json";
 import { socialErrorKey } from "../lib/social-errors";
 
 describe("socialErrorKey", () => {

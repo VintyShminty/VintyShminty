@@ -49,7 +49,7 @@ function sentences(value: unknown, path = ""): [string, string][] {
 }
 
 function load(lang: string) {
-  const file = join(__dirname, "..", "i18n", "locales", `${lang}.json`);
+  const file = join(__dirname, "..", "..", "..", "packages", "locales", `${lang}.json`);
   return sentences(JSON.parse(readFileSync(file, "utf8")));
 }
 

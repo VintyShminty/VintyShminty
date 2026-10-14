@@ -6,7 +6,7 @@ import { createHash } from "node:crypto";
  *
  * Only fixed messages are ever written into the page. The code from the address is used as a lookup key and
  * never printed, so nothing from the query can reach the HTML. Colours are copied from
- * apps/mobile/theme/tokens.js (the hard coded colour rule covers the mobile app folders only).
+ * packages/design/tokens.js (the hard coded colour rule covers the mobile app folders only).
  */
 
 type Message = { title: string; body: string };
