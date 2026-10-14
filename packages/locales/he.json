@@ -1906,7 +1906,8 @@
       "analytics": "ניתוח נתונים",
       "expenses": "הוצאות",
       "security": "אבטחה",
-      "upload": "העלאת מודעות"
+      "upload": "העלאת מודעות",
+      "review": "בדיקה"
     },
     "adminsOnly": {
       "title": "למנהלים בלבד",
@@ -1937,7 +1938,9 @@
       "admin_upload_photo_check": "עוזר התמונות (העלאת מודעות)",
       "text_suggest": "עוזר הטקסט (טופס המכירה)",
       "photo_tips": "טיפים לתמונות (טופס המכירה)",
-      "search_understand": "חיפוש במילים פשוטות"
+      "search_understand": "חיפוש במילים פשוטות",
+      "listing_check": "בדיקת פריטים",
+      "report_sort": "מיון דיווחים"
     },
     "dashboard": {
       "totalUsers": "משתמשים",
@@ -2193,6 +2196,59 @@
         }
       },
       "leaveWarning": "לצאת מהעמוד? פריטים שלא פורסמו יימחקו"
+    },
+    "review": {
+      "title": "בדיקה",
+      "intro": "דיווחים של חברים ובדיקות AI, הדחוף קודם. ה-AI רק ממיין ומסמן, ההחלטה שלך.",
+      "filters": {
+        "open": "פתוחים",
+        "handled": "טופלו"
+      },
+      "empty": {
+        "open": "אין כרגע מה לבדוק",
+        "handled": "עוד לא טופל כלום"
+      },
+      "urgency": {
+        "high": "דחוף",
+        "normal": "רגיל",
+        "low": "נמוך",
+        "none": "לא מוין"
+      },
+      "source": {
+        "member": "דיווח של חבר",
+        "ai_check": "בדיקת AI"
+      },
+      "aiReads": "לפי ה-AI: {{reason}}",
+      "reportedBy": "דווח על ידי {{name}}",
+      "seller": "מוכר: {{name}}",
+      "author": "נכתב על ידי {{name}}",
+      "otherReports_one": "עוד דיווח פתוח {{count}} על זה",
+      "otherReports_two": "עוד {{count}} דיווחים פתוחים על זה",
+      "otherReports_other": "עוד {{count}} דיווחים פתוחים על זה",
+      "gone": "זה כבר לא קיים",
+      "noteLabel": "הערה (לא חובה)",
+      "handledNote": "הערה: {{note}}",
+      "listingStatus": "מצב הפריט: {{status}}",
+      "actions": {
+        "hide_listing": "הסתרת הפריט",
+        "remove_listing": "הסרת הפריט",
+        "dismiss": "דחייה",
+        "handled": "סימון כמטופל"
+      },
+      "confirmRemove": "להסיר את הפריט לצמיתות? המוכר לא יוכל להחזיר אותו",
+      "done": {
+        "hide_listing": "הפריט הוסתר",
+        "remove_listing": "הפריט הוסר",
+        "dismiss": "נדחה",
+        "handled": "סומן כמטופל"
+      },
+      "status": {
+        "open": "פתוח",
+        "reviewing": "בבדיקה",
+        "actioned": "טופל",
+        "dismissed": "נדחה"
+      },
+      "loadMore": "להציג עוד"
     }
   }
 }

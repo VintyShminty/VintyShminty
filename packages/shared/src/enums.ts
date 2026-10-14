@@ -159,6 +159,14 @@ export type ReportReason = (typeof REPORT_REASONS)[number];
 export const REPORT_STATUSES = ["open", "reviewing", "actioned", "dismissed"] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
+/** Who raised a report: a member, or the AI listing check (D-038). The AI never acts, it only adds to Eden's list. */
+export const REPORT_SOURCES = ["member", "ai_check"] as const;
+export type ReportSource = (typeof REPORT_SOURCES)[number];
+
+/** How soon a report needs a look, set by the AI (D-038). Null when the AI was off. */
+export const REPORT_URGENCIES = ["high", "normal", "low"] as const;
+export type ReportUrgency = (typeof REPORT_URGENCIES)[number];
+
 export const WALLET_ENTRY_TYPES = [
   "sale_credit",
   "withdrawal",

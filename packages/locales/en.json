@@ -1872,7 +1872,8 @@
       "analytics": "Analytics",
       "expenses": "Expenses",
       "security": "Security",
-      "upload": "Listing upload"
+      "upload": "Listing upload",
+      "review": "Review"
     },
     "adminsOnly": {
       "title": "Admins only",
@@ -1903,7 +1904,9 @@
       "admin_upload_photo_check": "Photo helper (listing upload)",
       "text_suggest": "Text helper (sell form)",
       "photo_tips": "Photo tips (sell form)",
-      "search_understand": "Search in plain words"
+      "search_understand": "Search in plain words",
+      "listing_check": "Listing check",
+      "report_sort": "Report sorting"
     },
     "dashboard": {
       "totalUsers": "Users",
@@ -2154,6 +2157,58 @@
         }
       },
       "leaveWarning": "Leave this page? Items you have not published will be lost"
+    },
+    "review": {
+      "title": "Review",
+      "intro": "Member reports and AI checks, most urgent first. The AI only sorts and flags, you decide.",
+      "filters": {
+        "open": "Open",
+        "handled": "Handled"
+      },
+      "empty": {
+        "open": "Nothing waiting for a look",
+        "handled": "Nothing handled yet"
+      },
+      "urgency": {
+        "high": "Urgent",
+        "normal": "Normal",
+        "low": "Low",
+        "none": "Not sorted"
+      },
+      "source": {
+        "member": "Member report",
+        "ai_check": "AI check"
+      },
+      "aiReads": "AI reads it as: {{reason}}",
+      "reportedBy": "Reported by {{name}}",
+      "seller": "Seller {{name}}",
+      "author": "Written by {{name}}",
+      "otherReports_one": "{{count}} more open report about this",
+      "otherReports_other": "{{count}} more open reports about this",
+      "gone": "This no longer exists",
+      "noteLabel": "Note (optional)",
+      "handledNote": "Note: {{note}}",
+      "listingStatus": "Listing is {{status}}",
+      "actions": {
+        "hide_listing": "Hide listing",
+        "remove_listing": "Remove listing",
+        "dismiss": "Dismiss",
+        "handled": "Mark handled"
+      },
+      "confirmRemove": "Remove this listing for good? The seller cannot bring it back",
+      "done": {
+        "hide_listing": "Listing hidden",
+        "remove_listing": "Listing removed",
+        "dismiss": "Dismissed",
+        "handled": "Marked handled"
+      },
+      "status": {
+        "open": "Open",
+        "reviewing": "Reviewing",
+        "actioned": "Actioned",
+        "dismissed": "Dismissed"
+      },
+      "loadMore": "Show more"
     }
   }
 }

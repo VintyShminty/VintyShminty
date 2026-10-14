@@ -25,6 +25,7 @@ export * from "./price-format.js";
 export * from "./recommendations.js";
 export * from "./reference-data.js";
 export * from "./referrals.js";
+export * from "./review.js";
 export * from "./reviews.js";
 export * from "./search-assist.js";
 export * from "./sell-helpers.js";
