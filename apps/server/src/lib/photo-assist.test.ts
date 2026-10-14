@@ -1,6 +1,14 @@
 import type { ReferenceData } from "@vinty/shared";
 import { describe, expect, it } from "vitest";
-import { type BrandMatcher, buildCatalog, normaliseBrand, resolveSuggestion } from "./photo-assist.js";
+import { flattenCategories } from "../../../../packages/db/src/seed/reference/categories.js";
+import {
+  type BrandMatcher,
+  buildCatalog,
+  normaliseBrand,
+  PHOTO_HINTS,
+  photoHint,
+  resolveSuggestion,
+} from "./photo-assist.js";
 
 const name = (en: string) => ({ en, he: en });
 const reference = {
@@ -48,6 +56,48 @@ describe("buildCatalog", () => {
     expect(a.colours.get("K2")).toBe("col-red");
     expect(a.materials.get("M1")).toBe("mat-cotton");
     expect(buildCatalog(reference).text).toBe(a.text);
+  });
+});
+
+describe("photo hints", () => {
+  it("follow the category in the list, for Women and Men alike", () => {
+    expect(photoHint("women-clothing-tops-overshirts")).toBe(PHOTO_HINTS["clothing-tops-overshirts"]);
+    expect(photoHint("men-clothing-vests")).toBe(PHOTO_HINTS["clothing-vests"]);
+    expect(photoHint("women-shoes-heels")).toBeUndefined();
+    const withHint = {
+      ...reference,
+      categories: [
+        {
+          id: "cat-men",
+          isLeaf: false,
+          name: name("Men"),
+          children: [
+            {
+              id: "cat-over",
+              slug: "men-clothing-shirts-overshirts",
+              isLeaf: true,
+              name: name("Overshirts"),
+              children: [],
+            },
+          ],
+        },
+      ],
+    } as unknown as ReferenceData;
+    expect(buildCatalog(withHint).text).toContain(
+      "C1: Men > Overshirts (thick shirt worn open as a light jacket)",
+    );
+  });
+
+  it("only name leaf categories that exist", () => {
+    const leaves = new Set(
+      flattenCategories()
+        .filter((c) => c.isLeaf)
+        .map((c) => c.slug),
+    );
+    const unknown = Object.keys(PHOTO_HINTS).filter(
+      (key) => !leaves.has(`women-${key}`) && !leaves.has(`men-${key}`),
+    );
+    expect(unknown).toEqual([]);
   });
 });
 
