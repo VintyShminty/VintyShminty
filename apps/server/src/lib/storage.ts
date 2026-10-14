@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
@@ -26,6 +27,12 @@ const EXTENSION: Record<string, string> = {
   "image/heic": "heic",
 };
 
+/**
+ * Stored photo keys are random and never overwritten, so a file at a key never changes. That makes it safe to tell
+ * phones and the CDN to keep it for a year.
+ */
+export const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
+
 export type PresignedUpload = {
   key: string;
   uploadUrl: string;
@@ -47,6 +54,10 @@ export interface Storage {
   size(key: string): Promise<number | null>;
   /** The stored file's bytes, or null when it is not there or is bigger than `maxBytes`. */
   read(key: string, maxBytes: number): Promise<Buffer | null>;
+  /** Stores a file (used for the small card copies) with the one year cache header. */
+  put(key: string, body: Buffer, contentType: string): Promise<void>;
+  /** Adds the one year cache header to a file that is already stored. Best effort, never throws. */
+  markImmutable(key: string, contentType: string): Promise<void>;
   /** Best effort. A failure is logged by the caller, never shown to the user. */
   remove(key: string): Promise<void>;
 }
@@ -82,17 +93,19 @@ export function createStorage(env: Env): Storage {
         Bucket: env.S3_BUCKET,
         Key: key,
         ContentType: contentType,
+        CacheControl: IMMUTABLE_CACHE,
       });
       const uploadUrl = await getSignedUrl(client, command, {
         expiresIn: expiresInSeconds,
         // Only the content type is signed. Phones upload without a Content-Length (streamed), so the size
         // limit is checked afterwards with size() when the key is saved.
-        signableHeaders: new Set(["content-type"]),
+        // The cache header is signed too, the app sends back every header listed below.
+        signableHeaders: new Set(["content-type", "cache-control"]),
       });
       return {
         key,
         uploadUrl,
-        headers: { "Content-Type": contentType },
+        headers: { "Content-Type": contentType, "Cache-Control": IMMUTABLE_CACHE },
         expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
       };
     },
@@ -112,6 +125,33 @@ export function createStorage(env: Env): Storage {
         return Buffer.from(await object.Body.transformToByteArray());
       } catch {
         return null;
+      }
+    },
+    async put(key, body, contentType) {
+      await client.send(
+        new PutObjectCommand({
+          Bucket: env.S3_BUCKET,
+          Key: key,
+          Body: body,
+          ContentType: contentType,
+          CacheControl: IMMUTABLE_CACHE,
+        }),
+      );
+    },
+    async markImmutable(key, contentType) {
+      try {
+        await client.send(
+          new CopyObjectCommand({
+            Bucket: env.S3_BUCKET,
+            Key: key,
+            CopySource: `${env.S3_BUCKET}/${key.split("/").map(encodeURIComponent).join("/")}`,
+            MetadataDirective: "REPLACE",
+            ContentType: contentType,
+            CacheControl: IMMUTABLE_CACHE,
+          }),
+        );
+      } catch {
+        // Only a cache hint. The photo works without it.
       }
     },
     async remove(key) {

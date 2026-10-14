@@ -111,7 +111,7 @@ Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateI
 | DELETE | `/v1/me/addresses/:id` | Owner | none | 204 | |
 | POST | `/v1/me/push-tokens` | Required | `pushTokenInputSchema` | 204 | Registers or refreshes the phone. Idempotent on the token |
 | DELETE | `/v1/me/push-tokens/:token` | Required | none | 204 | Called on sign out |
-| POST | `/v1/uploads` | Required | `uploadRequestSchema` | `uploadResponseSchema` | Presigned PUT address. Checks type and the declared size. The signature covers the content type only (phones stream the file without a length), so the size is checked again with a HEAD request when the key is saved on the profile. Purpose `avatar`, `listing_photo` or `message_photo` decides the folder |
+| POST | `/v1/uploads` | Required | `uploadRequestSchema` | `uploadResponseSchema` | Presigned PUT address. Checks type and the declared size. The signature covers the content type only (phones stream the file without a length), so the size is checked again with a HEAD request when the key is saved on the profile. Purpose `avatar`, `listing_photo` or `message_photo` decides the folder. The response `headers` (content type and `Cache-Control: public, max-age=31536000, immutable`) must be sent with the PUT, file keys never change content |
 | GET | `/v1/users/:id` | Optional | none | `publicProfileSchema` | Seller profile header. `viewer` shows whether the caller follows or blocked them |
 | PUT | `/v1/users/:id/follow` | Required | none | 204 | Idempotent. Cannot follow yourself |
 | DELETE | `/v1/users/:id/follow` | Required | none | 204 | |
@@ -146,6 +146,8 @@ Rules: title 3 to 80 characters (a draft may be empty), description up to 2,000,
 | POST | `/v1/listings/:id/publish` | Owner | none | `listingDetailSchema` | Publishes a draft after the full rules. Anything but a draft answers 409 `invalid_transition` |
 | PATCH | `/v1/listings/:id/status` | Owner | `updateListingStatusInputSchema` (`active`, `hidden`, `reserved`, `sold`) | `listingDetailSchema` | By hand: active to hidden, reserved or sold. Hidden to active. Reserved to active or sold. Anything else is 409 `invalid_transition`. A hand reservation holds the item for nobody in particular |
 | DELETE | `/v1/listings/:id` | Owner | none | 204 | Deletes the listing, its photos and its storage files. A listing that is part of an order cannot be deleted (409), hide it instead |
+
+**Card photos.** When a listing's photos are saved the server makes a small copy of each new photo (about 480 px wide, WebP, `cards/<key>.webp`) and a blurhash for `placeholder`, both fail-soft. In feed, search, own-list and buzz responses `cover.url` points at the small copy when it exists (`cover.key` stays the original's), while `GET /v1/listings/:id` returns `photos` with full-size urls. `GET /v1/jobs/photos` (also part of `/v1/jobs/all`, so the daily cron) makes missing copies for older photos in an 8 second slice per run.
 
 ### AI photo helper (D-028)
 

@@ -3,6 +3,7 @@ import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import { endFinishedBuzzes } from "../lib/bumps.js";
 import { cleanupFeedData, refreshPopularity } from "../lib/feed-jobs.js";
 import { runOrderJobs } from "../lib/order-jobs.js";
+import { backfillPhotoVariants } from "../lib/photo-variants.js";
 
 /**
  * Entry points for a scheduler (Vercel Cron calls with GET, anything else may use POST). They do the same work as the
@@ -62,6 +63,14 @@ const jobRoutes: FastifyPluginAsync = async (app) => {
     handler: async () => ({ ok: true, ...(await endFinishedBuzzes(app)) }),
   });
 
+  app.route({
+    method: ["GET", "POST"],
+    url: "/v1/jobs/photos",
+    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
+    preHandler: guard,
+    handler: async () => ({ ok: true, ...(await backfillPhotoVariants(app)) }),
+  });
+
   // Everything in one call, for a scheduler that may only run once a day (Vercel Hobby).
   app.route({
     method: ["GET", "POST"],
@@ -73,7 +82,8 @@ const jobRoutes: FastifyPluginAsync = async (app) => {
       await refreshPopularity(app);
       const cleanup = await cleanupFeedData(app);
       const buzz = await endFinishedBuzzes(app);
-      return { ok: true, orders, cleanup, buzz };
+      const photos = await backfillPhotoVariants(app, { budgetMs: 6000 });
+      return { ok: true, orders, cleanup, buzz, photos };
     },
   });
 };

@@ -957,7 +957,8 @@ Used by: Item page (swipeable photo), photo viewer, every card, Sell form (photo
 | `height` | integer | no |  |
 | `content_type` | text | no | default 'image/jpeg' |
 | `byte_size` | integer | yes |  |
-| `placeholder` | text | yes | Tiny blurred preview shown while the photo loads |
+| `card_object_key` | text | yes | Small copy (about 480 px wide, WebP) that cards and lists load instead of the full photo. Null until made, the daily photo job fills old rows. Equal to `object_key` when the file could not be resized |
+| `placeholder` | text | yes | Tiny blurred preview (a blurhash string) shown while the photo loads |
 | `position` | smallint | no | default 0. 0 is the cover |
 | `created_at` | timestamptz | no | default now() |
 

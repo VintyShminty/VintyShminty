@@ -120,7 +120,13 @@ export const listingPhotos = pgTable(
     height: integer("height").notNull(),
     contentType: text("content_type").notNull().default("image/jpeg"),
     byteSize: integer("byte_size"),
-    /** Tiny blurred preview, base64 or blurhash, shown while the photo loads. */
+    /**
+     * Small copy (about 480 px wide, WebP) used by cards and lists so the feed does not download the full photo.
+     * Null until it is made (the daily photo job fills old rows). Equal to object_key when the file could not be
+     * resized, which tells the job not to try again. The key never changes content, so it is cached for a year.
+     */
+    cardObjectKey: text("card_object_key"),
+    /** Tiny blurred preview, a blurhash string, shown while the photo loads. */
     placeholder: text("placeholder"),
     /** 0 is the cover photo ("Main"). */
     position: smallint("position").notNull().default(0),

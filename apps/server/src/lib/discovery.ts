@@ -25,7 +25,7 @@ import { and, eq, inArray, type SQL, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { awayNowSql } from "./away.js";
 import { decodeCursor, encodeCursor } from "./cursor.js";
-import { buyerPrice, type ListingRow, toPhoto } from "./listings.js";
+import { buyerPrice, type ListingRow, toCardPhoto } from "./listings.js";
 
 type Db = NonNullable<Database["db"]>;
 
@@ -158,6 +158,7 @@ export type CardRow = {
   coverWidth: number | null;
   coverHeight: number | null;
   coverPlaceholder: string | null;
+  coverCardKey: string | null;
   sortKey: string | null;
 };
 
@@ -192,6 +193,7 @@ export async function queryCardRows(
       coverWidth: listingPhotos.width,
       coverHeight: listingPhotos.height,
       coverPlaceholder: listingPhotos.placeholder,
+      coverCardKey: listingPhotos.cardObjectKey,
       sortKey: sql<string>`(${sort.key})::text`,
     })
     .from(listings)
@@ -283,7 +285,7 @@ export async function toCards(
     opts.withSeller ? loadSellerSummaries(app, [...new Set(rows.map((r) => r.listing.sellerId))]) : null,
   ]);
   const now = new Date();
-  return rows.map(({ listing: l, coverKey, coverWidth, coverHeight, coverPlaceholder }) => {
+  return rows.map(({ listing: l, coverKey, coverWidth, coverHeight, coverPlaceholder, coverCardKey }) => {
     const price = l.priceMinor ?? 0;
     const seller = sellers?.get(l.sellerId);
     return {
@@ -301,11 +303,12 @@ export async function toCards(
       currency: l.currency,
       cover:
         coverKey && coverWidth && coverHeight
-          ? toPhoto(storage, {
+          ? toCardPhoto(storage, {
               objectKey: coverKey,
               width: coverWidth,
               height: coverHeight,
               placeholder: coverPlaceholder,
+              cardObjectKey: coverCardKey,
             })
           : null,
       favouriteCount: l.favouriteCount,

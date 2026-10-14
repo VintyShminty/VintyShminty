@@ -41,6 +41,8 @@ export const fakeStorage: Storage = {
   async read() {
     return null;
   },
+  async put() {},
+  async markImmutable() {},
   async remove() {},
 };
 
