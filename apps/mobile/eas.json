@@ -11,8 +11,7 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://vinty-shminty.vercel.app",
-        "EXPO_PUBLIC_STORAGE_URL": "https://pub-1fd1249d554d49869b70d5718ef902c0.r2.dev"
+        "EXPO_PUBLIC_API_URL": "https://vinty-shminty.vercel.app"
       }
     }
   },

@@ -10,7 +10,7 @@ import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
-import { type BrowseTile, MORE_TILES, tilePhotoUrl } from "@/lib/browse-tiles";
+import { type BrowseTile, MORE_TILES } from "@/lib/browse-tiles";
 import { categoryIcon } from "@/lib/category-icons";
 import { useLocalName, useReference } from "@/lib/reference";
 
@@ -55,7 +55,7 @@ export default function BrowseMore() {
                 <PhotoTile
                   key={tile.key}
                   label={t(`browse.tiles.${tile.key}`)}
-                  photoUrl={tilePhotoUrl(tile)}
+                  photo={tile.photo}
                   onPress={() => router.push({ pathname: "/browse/tile", params: { tile: tile.key } })}
                   className="aspect-[4/5] flex-1"
                 />

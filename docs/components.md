@@ -388,7 +388,7 @@ Superseded in part by D-019: Browse now uses PhotoTile. Kept for reference. A li
 
 ### PhotoTile
 
-A Browse tile (D-019, row 5): a photo with the name at the bottom start over a dark gradient (an SVG gradient drawn from the text-1 token, no hex). 12px radius, portrait 4:5, in a 2 column grid. Built with `components/photo-tile.tsx`. The tiles and their order live in `lib/browse-tiles.ts`, photos are the `browse/` files in object storage (`pnpm storage:seed` in development).
+A Browse tile (D-019, row 5): a photo with the name at the bottom start over a dark gradient (an SVG gradient drawn from the text-1 token, no hex). 12px radius, portrait 4:5, in a 2 column grid. Built with `components/photo-tile.tsx`. The tiles and their order live in `lib/browse-tiles.ts`, photos are small pictures shipped inside the app (`apps/mobile/assets/browse/`, shrunk copies of the sample photos, credits in `packages/db/seed-assets/CREDITS.md`).
 
 - **Variants and states:** With photo, plain tint (the More tile). States: default, pressed (opacity). The More tile is a full width accent-tint bar with an arrow that turns in Hebrew.
 - **Screens:** Browse, Browse More
