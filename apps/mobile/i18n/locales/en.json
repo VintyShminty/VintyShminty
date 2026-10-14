@@ -1411,6 +1411,8 @@
   "shopping": {
     "title": "Shopping preferences",
     "sizes": "My sizes",
+    "redo": "Answer the welcome questions again",
+    "redoNote": "Go through the questions you saw when you joined. Your saved sizes stay unless you change them",
     "sizesNote": "Pieces in your sizes show up first on Home",
     "none": "None picked yet",
     "count_one": "{{count}} size picked",
