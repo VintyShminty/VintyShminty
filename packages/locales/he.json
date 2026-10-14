@@ -336,8 +336,10 @@
     "hiddenNote": "מוסתר מקונים עד שתציגו אותו שוב.",
     "soldNote": "סומן כנמכר. הוא כבר לא מופיע לקונים.",
     "favourites_one": "מועדף אחד",
+    "favourites_two": "{{count}} מועדפים",
     "favourites_other": "{{count}} מועדפים",
     "views_one": "צפייה אחת",
+    "views_two": "{{count}} צפיות",
     "views_other": "{{count}} צפיות",
     "hide": "הסתרה",
     "unhide": "להציג שוב",
@@ -657,16 +659,22 @@
     "allItems": "כל הפריטים",
     "filtersOnly": "סינון בלבד",
     "brands_one": "מותג אחד",
+    "brands_two": "{{count}} מותגים",
     "brands_other": "{{count}} מותגים",
     "sizes_one": "מידה אחת",
+    "sizes_two": "{{count}} מידות",
     "sizes_other": "{{count}} מידות",
     "conditions_one": "מצב אחד",
+    "conditions_two": "{{count}} מצבים",
     "conditions_other": "{{count}} מצבים",
     "colours_one": "צבע אחד",
+    "colours_two": "{{count}} צבעים",
     "colours_other": "{{count}} צבעים",
     "materials_one": "חומר אחד",
+    "materials_two": "{{count}} חומרים",
     "materials_other": "{{count}} חומרים",
     "patterns_one": "הדפס אחד",
+    "patterns_two": "{{count}} הדפסים",
     "patterns_other": "{{count}} הדפסים",
     "priceRange": "{{min}} עד {{max}}",
     "priceFrom": "מ-{{min}}",
@@ -790,6 +798,7 @@
     "noRecent": "החיפושים האחרונים שלכם יופיעו כאן",
     "items": "פריטים",
     "results_one": "תוצאה אחת",
+    "results_two": "{{count}} תוצאות",
     "results_other": "{{count}} תוצאות",
     "resultsCapped": "{{count}}+ תוצאות",
     "noResults": "לא נמצאו פריטים",
@@ -820,6 +829,7 @@
     "allIn": "כל {{name}}",
     "showResults": "הצגת תוצאות",
     "showResultsCount_one": "הצגת תוצאה אחת",
+    "showResultsCount_two": "הצגת {{count}} תוצאות",
     "showResultsCount_other": "הצגת {{count}} תוצאות",
     "showResultsCapped": "הצגת {{count}}+ תוצאות",
     "searchBrands": "חיפוש מותגים",
@@ -1470,6 +1480,7 @@
     "sizesNote": "פריטים במידות שלכם יופיעו ראשונים בדף הבית",
     "none": "עדיין לא נבחרו מידות",
     "count_one": "נבחרה מידה אחת",
+    "count_two": "נבחרו {{count}} מידות",
     "count_other": "נבחרו {{count}} מידות",
     "pick": "בחרו את המידות שלכם",
     "max": "אפשר לבחור עד {{count}} מידות",
@@ -1691,9 +1702,9 @@
   },
   "web": {
     "nav": {
-      "otherLanguage": "EN",
-      "switchLanguage": "מעבר לאנגלית",
+      "languageShort": "עב",
       "mainNavigation": "ראשי",
+      "feedNavigation": "הפיד בדף הבית",
       "menu": "תפריט",
       "favourites": "מועדפים",
       "account": "החשבון שלך",
@@ -1726,6 +1737,12 @@
       "privacy": "פרטיות",
       "rights": "© {{year}} Vinty"
     },
+    "legal": {
+      "draftLine": "טיוטה, עודכן לאחרונה ב-{{date}}",
+      "draftNote": "זו טיוטה ראשונה. עורך דין יבדוק אותה לפני ההשקה האמיתית. הערות בסוגריים מרובעים מראות מה עדיין צריך לבדוק.",
+      "contents": "בעמוד הזה",
+      "updated": "14 באוקטובר 2026"
+    },
     "soon": "הדף הזה בדרך.",
     "search": {
       "resultsFor": "תוצאות עבור {{q}}",
@@ -1733,6 +1750,7 @@
       "tabsLabel": "תוצאות חיפוש",
       "suggestions": "הצעות חיפוש",
       "reviews_one": "חוות דעת אחת",
+      "reviews_two": "{{count}} חוות דעת",
       "reviews_other": "{{count}} חוות דעת"
     },
     "feed": {
@@ -1741,13 +1759,16 @@
     },
     "browse": {
       "breadcrumb": "אתם כאן",
-      "typesLabel": "סוגי פריטים"
+      "typesLabel": "סוגי פריטים",
+      "metaDescription": "עיינו בפריטי יד שנייה ב-Vinty לפי סוג: שמלות, חולצות, ג'ינסים, מעילים, נעליים ועוד.",
+      "tileMetaDescription": "{{name}} ב-Vinty: פריטי יד שנייה ממוכרים בישראל. אפשר להציע מחיר או לקנות בכמה הקשות."
     },
     "filters": {
       "sort": "מיון",
       "clear": "ניקוי",
       "mySizes": "המידות שלי",
       "pieces_one": "פריט אחד",
+      "pieces_two": "{{count}} פריטים",
       "pieces_other": "{{count}} פריטים",
       "piecesCapped": "{{count}}+ פריטים"
     },
@@ -1777,6 +1798,7 @@
       "you": "זה אתם",
       "moreReviews": "עוד ביקורות",
       "metaDescription_one": "ל{{name}} יש פריט {{count}} למכירה ב-Vinty",
+      "metaDescription_two": "ל{{name}} יש {{count}} פריטים למכירה ב-Vinty",
       "metaDescription_other": "ל{{name}} יש {{count}} פריטים למכירה ב-Vinty",
       "statusGroup": "מצב הפריטים",
       "rating": "{{rating}} מתוך 5",
@@ -1826,6 +1848,7 @@
     },
     "inbox": {
       "iconUnread_one": "תיבת הודעות, {{count}} שלא נקרא",
+      "iconUnread_two": "תיבת הודעות, {{count}} שלא נקראו",
       "iconUnread_other": "תיבת הודעות, {{count}} שלא נקראו",
       "backToInbox": "חזרה לתיבת ההודעות",
       "pickTitle": "בחרו שיחה",

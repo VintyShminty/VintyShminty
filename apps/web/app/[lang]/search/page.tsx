@@ -62,7 +62,7 @@ export default async function SearchPage({
   };
 
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <div className="flex flex-col gap-md md:flex-row md:items-start md:justify-between">
         <h1 className="text-title font-bold text-text-1">
           {q ? t("web.search.resultsFor", { q }) : t("web.search.allItems")}

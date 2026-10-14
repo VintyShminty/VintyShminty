@@ -55,7 +55,9 @@ function ReviewRow({
         </div>
       </div>
       {review.comment ? (
-        <p className="whitespace-pre-line text-body-sm text-text-1">{review.comment}</p>
+        <p dir="auto" className="whitespace-pre-line text-body-sm text-text-1">
+          {review.comment}
+        </p>
       ) : null}
       <p className="truncate text-card-meta text-text-3">
         {review.itemTitle

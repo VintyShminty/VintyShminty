@@ -10,7 +10,12 @@ const TILE_SIZE = "aspect-[4/5]";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) return { title: "Vinty" };
-  return { title: `${getT(lang)("tabs.browse")} | Vinty`, alternates: alternatesFor(lang, "/browse") };
+  const t = getT(lang);
+  return {
+    title: `${t("tabs.browse")} | Vinty`,
+    description: t("web.browse.metaDescription"),
+    alternates: alternatesFor(lang, "/browse"),
+  };
 }
 
 /** Browse: every photo tile (the first ten, then "More to explore"), each opening its results page. */
@@ -19,7 +24,7 @@ export default async function BrowsePage({ params }: { params: Promise<{ lang: s
   if (!isLang(lang)) notFound();
   const t = getT(lang);
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <h1 className="text-title font-bold text-text-1">{t("tabs.browse")}</h1>
       <div className="mt-lg">
         <BrowseTiles

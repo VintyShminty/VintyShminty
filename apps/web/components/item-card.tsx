@@ -1,12 +1,11 @@
 "use client";
 
-import { type FeedCard, favouriteResultSchema, formatPrice, type ListingCard } from "@vinty/shared";
+import { favouriteResultSchema, formatPrice, type ListingCard } from "@vinty/shared";
 import { Bookmark, Check, TrendingDown, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/badge";
-import { FeedMenu } from "@/components/feed-menu";
 import { useLoginPrompt } from "@/components/login-prompt";
 import { CoveredLine } from "@/components/price-pill";
 import { useConditionName, useViewer } from "@/components/site-context";
@@ -17,7 +16,7 @@ import { cn } from "@/lib/utils";
  * The item card, the price tag on photo card (D-032, the same as the app): a 3:4 photo with 12px corners. On the
  * photo: the status badge top-start, the save bookmark in a white circle top-end and the seller price on a small white
  * paper tag bottom-start (a price drop shows the muted struck old price inside the tag). Below: the title on one line,
- * size and condition, and the Covered buyer price as a tiny muted line. The whole card opens `/[lang]/item/[id]`.
+ * size and condition, and the Coverage buyer price as a tiny muted line. The whole card opens `/[lang]/item/[id]`.
  *
  * The bookmark: logged out it opens the login prompt. Logged in it calls PUT/DELETE /v1/listings/:id/favourite,
  * changes at once and goes back if the server says no. Never shown on your own items, and sold items have none unless
@@ -30,14 +29,17 @@ export function ItemCard({
   saveOnSold = false,
   feedPosition,
   preview = false,
+  priority = false,
 }: {
   listing: ListingCard;
+  /** The first cards of a grid are in view when the page opens, so their photos load at once instead of lazily. */
+  priority?: boolean;
   /** The sell form's live preview: the same card, but not a link and with no bookmark. */
   preview?: boolean;
   /** Set where the cards are known to be the viewer's own (for example their own profile). */
   hideSave?: boolean;
   saveOnSold?: boolean;
-  /** Set on the Home feed: the card's place in the list. It then counts as seen after a second, and logged in people get the "..." menu (Why you see this, Not interested). */
+  /** Set on the Home feed: the card's place in the list. It then counts as seen after a second,  */
   feedPosition?: number;
 }) {
   const { t, i18n } = useTranslation();
@@ -98,7 +100,8 @@ export function ItemCard({
             width={listing.cover.width}
             height={listing.cover.height}
             alt={listing.title}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
             decoding="async"
             className="h-full w-full object-cover"
           />
@@ -145,7 +148,6 @@ export function ItemCard({
           </span>
         </div>
       </div>
-      {feedPosition !== undefined && viewer && !isOwn ? <FeedMenu card={listing as FeedCard} /> : null}
       <div className="flex flex-col gap-[3px] pt-sm">
         <span className="truncate text-start text-body-sm font-semibold text-text-1">{listing.title}</span>
         {meta ? <span className="truncate text-card-meta text-text-3">{meta}</span> : null}

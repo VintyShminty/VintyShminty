@@ -85,18 +85,29 @@ export default async function SellerPage({
   const tab = first(sp.tab) === "reviews" ? "reviews" : "listings";
   const status = first(sp.status) === "sold" ? "sold" : "active";
 
+  // The profile, the first page of items or reviews and the viewer do not depend on each other, so ask all at once.
+  const endpoint = `/v1/users/${encodeURIComponent(id)}/listings?status=${status}`;
+  const profileRequest = getProfile(lang, id);
+  profileRequest.catch(() => undefined);
+  const [listingsFirst, reviewsFirst, me] = await Promise.all([
+    tab === "listings"
+      ? serverApi(pagePath(endpoint), { lang, schema: feedPageSchema }).catch(() => null)
+      : Promise.resolve(null),
+    tab === "reviews" ? getReviewsFirstPage(lang, id) : Promise.resolve(null),
+    getViewer(lang),
+  ]);
+
   let profile: PublicProfile;
   try {
-    profile = await getProfile(lang, id);
+    profile = await profileRequest;
   } catch (error) {
     if (!(error instanceof ApiClientError)) throw error;
     return (
-      <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+      <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
         <EmptyState title={t("web.seller.loadFailed")} />
       </main>
     );
   }
-  const me = await getViewer(lang);
   const isSelf = me?.id === profile.id;
   const name = profile.username ?? t("profile.closedAccount");
 
@@ -104,16 +115,8 @@ export default async function SellerPage({
   const tabHref = (key: "listings" | "reviews") => (key === "reviews" ? `${base}?tab=reviews` : base);
   const statusHref = (key: "active" | "sold") => (key === "sold" ? `${base}?status=sold` : base);
 
-  const endpoint = `/v1/users/${encodeURIComponent(id)}/listings?status=${status}`;
-  const [listingsFirst, reviewsFirst] = await Promise.all([
-    tab === "listings"
-      ? serverApi(pagePath(endpoint), { lang, schema: feedPageSchema }).catch(() => null)
-      : Promise.resolve(null),
-    tab === "reviews" ? getReviewsFirstPage(lang, id) : Promise.resolve(null),
-  ]);
-
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <ProfileHeader
         profile={profile}
         lang={lang}

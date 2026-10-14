@@ -79,7 +79,9 @@ export function ProfileHeader({
             ) : null}
           </div>
           {profile.bio ? (
-            <p className="max-w-[640px] whitespace-pre-line text-body text-text-1">{profile.bio}</p>
+            <p dir="auto" className="max-w-[640px] whitespace-pre-line text-body text-text-1">
+              {profile.bio}
+            </p>
           ) : null}
           {profile.badges.length > 0 ? (
             <ul className="flex flex-wrap gap-sm pt-xs">

@@ -52,7 +52,7 @@ export function FavouriteButton({
       type="button"
       onClick={onClick}
       aria-pressed={favourited}
-      aria-label={favourited ? t("item.removeFavourite") : t("item.addFavourite")}
+      aria-label={`${favourited ? t("item.removeFavourite") : t("item.addFavourite")}, ${total}`}
       className={cn(
         "inline-flex h-10 shrink-0 items-center gap-xs rounded-full border px-md text-pill hover:bg-pressed",
         favourited ? "border-error bg-error-tint text-error" : "border-text-4 text-text-1",

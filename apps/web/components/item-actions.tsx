@@ -191,7 +191,7 @@ export function MessageChip({
         onClick={onClick}
         disabled={start.isPending}
         aria-label={`${t("item.messageSeller")}: ${sellerName}`}
-        className="inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-text-4 bg-background px-[14px] text-pill text-text-1 hover:bg-pressed disabled:opacity-60"
+        className="inline-flex h-[29px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-text-4 bg-background px-[13px] text-body-sm text-text-1 hover:bg-pressed disabled:opacity-60"
       >
         {t("item.message")}
       </button>

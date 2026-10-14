@@ -120,7 +120,7 @@ function GuessChip({ label, onClick, sparkle }: { label: string; onClick: () => 
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 items-center gap-xs rounded-full border border-text-4 bg-background px-[14px] text-pill text-text-1 hover:bg-pressed"
+      className="inline-flex h-[29px] items-center gap-xs rounded-full border border-text-4 bg-background px-[13px] text-body-sm text-text-1 hover:bg-pressed"
     >
       {sparkle ? <Sparkles size={14} aria-hidden className="shrink-0 text-text-3" /> : null}
       {label}
