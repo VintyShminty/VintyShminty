@@ -55,6 +55,8 @@ export type ListingValues = {
   description?: string | null;
   categoryId?: string | null;
   brandId?: string | null;
+  /** A brand typed by the seller that is not on our list. Counts as a brand when `brandId` is empty. */
+  brandName?: string | null;
   sizeId?: string | null;
   conditionId?: string | null;
   materialId?: string | null;
@@ -139,6 +141,7 @@ export function stripHiddenAttributes<T extends ListingValues>(values: T, catego
   if (!category) return values;
   const next = { ...values };
   if (attributeMode(category, "brand") === "hidden" && "brandId" in next) next.brandId = null;
+  if (attributeMode(category, "brand") === "hidden" && "brandName" in next) next.brandName = null;
   if (attributeMode(category, "size") === "hidden" && "sizeId" in next) next.sizeId = null;
   if (attributeMode(category, "condition") === "hidden" && "conditionId" in next) next.conditionId = null;
   if (attributeMode(category, "colour") === "hidden" && "colourIds" in next) next.colourIds = [];
@@ -232,7 +235,12 @@ export function validateListing(
       const need = (field: AttributeField, has: boolean, key: string, target: ListingField) => {
         if (attributeMode(rules, field) === "required" && !has && !errors[target]) errors[target] = key;
       };
-      need("brand", Boolean(values.brandId), "validation.listing.brand.required", "brandId");
+      need(
+        "brand",
+        Boolean(values.brandId) || Boolean(values.brandName?.trim()),
+        "validation.listing.brand.required",
+        "brandId",
+      );
       need("size", Boolean(values.sizeId), "validation.listing.size.required", "sizeId");
       need("condition", Boolean(values.conditionId), "validation.listing.condition.required", "conditionId");
       need("colour", colourIds.length > 0, "validation.listing.colour.required", "colourIds");

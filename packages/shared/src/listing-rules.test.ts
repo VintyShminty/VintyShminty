@@ -207,6 +207,14 @@ describe("listing input schemas", () => {
     expect(result.error?.issues[0]?.message).toBe("validation.listing.title.tooLong");
   });
 
+  it("cleans a typed brand and keeps the brand request limits", () => {
+    const ok = listingDraftInputSchema.parse({ brandName: "  Old \u0000 Mill  " });
+    expect(ok.brandName).toBe("Old Mill");
+    expect(listingDraftInputSchema.safeParse({ brandName: "a" }).success).toBe(false);
+    expect(listingDraftInputSchema.safeParse({ brandName: "x".repeat(61) }).success).toBe(false);
+    expect(listingDraftInputSchema.safeParse({ brandName: null }).success).toBe(true);
+  });
+
   it("reads the price preview query from text", () => {
     expect(pricePreviewQuerySchema.parse({ priceMinor: "4500" })).toEqual({
       priceMinor: 4500,

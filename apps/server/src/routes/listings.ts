@@ -58,6 +58,8 @@ type Merged = {
   description: string;
   categoryId: string | null;
   brandId: string | null;
+  /** The seller's own text, only when there is no brandId. */
+  brandName: string | null;
   sizeId: string | null;
   conditionId: string | null;
   materialId: string | null;
@@ -182,6 +184,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
           description: current.row.description,
           categoryId: current.row.categoryId,
           brandId: current.row.brandId,
+          brandName: current.row.brandId ? null : current.row.brandName,
           sizeId: current.row.sizeId,
           conditionId: current.row.conditionId,
           materialId: current.row.materialId,
@@ -197,6 +200,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
           description: "",
           categoryId: null,
           brandId: null,
+          brandName: null,
           sizeId: null,
           conditionId: null,
           materialId: null,
@@ -212,6 +216,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
       description: pick(input.description, base.description).trim(),
       categoryId: pick(input.categoryId, base.categoryId),
       brandId: pick(input.brandId, base.brandId),
+      brandName: null,
       sizeId: pick(input.sizeId, base.sizeId),
       conditionId: pick(input.conditionId, base.conditionId),
       materialId: pick(input.materialId, base.materialId),
@@ -222,6 +227,11 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
       usedAiPhotos: pick(input.usedAiPhotos, base.usedAiPhotos),
       colourIds: pick(input.colourIds, base.colourIds),
     };
+    // A typed brand only counts when no listed brand is chosen. Changing the brand id alone clears an old typed one.
+    if (!merged.brandId) {
+      merged.brandName =
+        input.brandName !== undefined ? input.brandName : input.brandId !== undefined ? null : base.brandName;
+    }
     const category = merged.categoryId ? findCategory(reference.categories, merged.categoryId) : null;
     merged = stripHiddenAttributes(merged, category);
 
@@ -243,6 +253,8 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
         .limit(1);
       if (brand) brandName = brand.name;
       else fieldErrors.brandId = "validation.listing.brand.invalid";
+    } else if (merged.brandName) {
+      brandName = merged.brandName;
     }
 
     let photoSizes = new Map<string, number>();

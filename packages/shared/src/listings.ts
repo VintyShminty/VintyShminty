@@ -39,6 +39,18 @@ export const listingPhotoInputSchema = z.object({
 export type ListingPhotoInput = z.infer<typeof listingPhotoInputSchema>;
 
 /**
+ * A brand typed by the seller that is not on our list. Trimmed, spaces collapsed, no control characters, 2 to 60 characters
+ * (the same limits as a brand request).
+ */
+export function cleanBrandName(raw: string): string {
+  return raw.replace(/\p{C}/gu, " ").replace(/\s+/gu, " ").trim();
+}
+export const brandNameSchema = z
+  .string()
+  .transform(cleanBrandName)
+  .pipe(z.string().min(2, "validation.brandRequest.tooShort").max(60, "validation.brandRequest.tooLong"));
+
+/**
  * Fields shared by drafts and published listings. A draft may be incomplete, so the title only has a ceiling here.
  * What is required to go live depends on the category and is checked by `validateListing` (listing-rules.ts).
  */
@@ -47,6 +59,8 @@ export const listingDraftInputSchema = z.object({
   description: listingDescriptionSchema.optional(),
   categoryId: idSchema.nullable().optional(),
   brandId: idSchema.nullable().optional(),
+  /** A brand that is not on our list. Used only when `brandId` is empty. */
+  brandName: brandNameSchema.nullable().optional(),
   sizeId: idSchema.nullable().optional(),
   conditionId: idSchema.nullable().optional(),
   materialId: idSchema.nullable().optional(),
@@ -118,7 +132,8 @@ export const listingDetailSchema = listingCardSchema.extend({
     .nullable(),
   condition: namedRefSchema.nullable(),
   size: z.object({ id: idSchema, label: z.string() }).nullable(),
-  brand: z.object({ id: idSchema, name: z.string() }).nullable(),
+  /** `id` is null for a brand the seller typed that is not on our list. */
+  brand: z.object({ id: idSchema.nullable(), name: z.string() }).nullable(),
   material: namedRefSchema.nullable(),
   pattern: namedRefSchema.nullable(),
   colours: z.array(namedRefSchema.extend({ swatchHex: z.string() })),
@@ -202,11 +217,7 @@ export type PricePreview = z.infer<typeof pricePreviewSchema>;
 
 /** POST /v1/brand-requests. A seller asks for a brand that is not on the list. */
 export const brandRequestInputSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "validation.brandRequest.tooShort")
-    .max(60, "validation.brandRequest.tooLong"),
+  name: brandNameSchema,
 });
 
 /** Search and feed filters. Also what a saved search stores. */

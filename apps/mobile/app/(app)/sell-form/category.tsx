@@ -84,6 +84,7 @@ export default function CategoryPanel() {
     const cleaned = stripHiddenAttributes(
       {
         brandId: values.brand?.id ?? null,
+        brandName: values.brand && !values.brand.id ? values.brand.name : null,
         sizeId: values.sizeId,
         conditionId: values.conditionId,
         colourIds: values.colourIds,
@@ -100,7 +101,7 @@ export default function CategoryPanel() {
       );
     set({
       categoryId: leaf.id,
-      brand: cleaned.brandId ? values.brand : null,
+      brand: cleaned.brandId || cleaned.brandName ? values.brand : null,
       sizeId: sizeFits ? cleaned.sizeId : null,
       conditionId: cleaned.conditionId ?? null,
       colourIds: [...(cleaned.colourIds ?? [])],
