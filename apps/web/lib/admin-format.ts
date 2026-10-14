@@ -54,9 +54,15 @@ export function monthLabel(month: string, language: string): string {
 export function weekLabel(weekStart: string, language: string): string {
   return new Date(`${weekStart}T00:00:00Z`).toLocaleDateString(language, {
     day: "numeric",
-    month: "short",
+    month: "numeric",
     timeZone: "UTC",
   });
+}
+
+/** How an AI provider's name is written. Names we have no entry for are shown as they are stored. */
+const PROVIDER_NAMES: Record<string, string> = { anthropic: "Anthropic", openai: "OpenAI", google: "Google" };
+export function providerName(provider: string): string {
+  return PROVIDER_NAMES[provider] ?? provider;
 }
 
 /** "5 minutes ago", "yesterday", in the page language. */

@@ -32,6 +32,7 @@ import {
   monthLabel,
   monthOf,
   parseMinor,
+  providerName,
   shiftMonth,
   usdMicrosToIlsMinor,
 } from "@/lib/admin-format";
@@ -275,7 +276,7 @@ function ExpensesBody({ data, lang }: { data: AdminExpenses; lang: string }) {
               <span className="flex flex-col gap-xs">
                 <span className="flex items-center gap-sm">
                   <span className="text-body-sm font-semibold text-text-1">
-                    {t("admin.expenses.aiProvider", { provider: row.provider })}
+                    {t("admin.expenses.aiProvider", { provider: providerName(row.provider) })}
                   </span>
                   <Tag kind="auto" />
                 </span>

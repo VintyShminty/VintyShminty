@@ -24,7 +24,7 @@ export function AnalyticsView() {
           return (
             <div className="flex flex-col gap-xl">
               <p className="text-body-sm text-text-3">{t("admin.analytics.weekNote")}</p>
-              <div className="grid gap-md lg:grid-cols-3">
+              <div className="grid gap-md xl:grid-cols-3">
                 {charts.map(({ key, pick }) => (
                   <Card key={key} title={t(`admin.analytics.${key}`)}>
                     <BarColumns
