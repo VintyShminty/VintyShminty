@@ -3,9 +3,11 @@ import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
 import { type Env, parseEnv } from "./env.js";
+import type { ListingCheckReader } from "./lib/listing-check.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
 import type { PhotoReader } from "./lib/photo-reader.js";
 import { type MemoryPusher, memoryPusher } from "./lib/push.js";
+import type { ReportSortReader } from "./lib/report-sort.js";
 import type { SearchReader } from "./lib/search-reader.js";
 import type { Storage } from "./lib/storage.js";
 import type { TextReader } from "./lib/text-reader.js";
@@ -63,6 +65,8 @@ export async function buildTestApp(
     photoReader?: PhotoReader;
     textReader?: TextReader;
     searchReader?: SearchReader;
+    listingCheckReader?: ListingCheckReader;
+    reportSortReader?: ReportSortReader;
     storage?: Storage;
   } = {},
 ): Promise<TestContext> {
@@ -80,6 +84,8 @@ export async function buildTestApp(
     ...(extras.photoReader ? { photoReader: extras.photoReader } : {}),
     ...(extras.textReader ? { textReader: extras.textReader } : {}),
     ...(extras.searchReader ? { searchReader: extras.searchReader } : {}),
+    ...(extras.listingCheckReader ? { listingCheckReader: extras.listingCheckReader } : {}),
+    ...(extras.reportSortReader ? { reportSortReader: extras.reportSortReader } : {}),
   });
   await app.ready();
   return { app, mailer, pusher, database, close: () => app.close() };

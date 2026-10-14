@@ -18,6 +18,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { decodeCursor, encodeCursor } from "../lib/cursor.js";
 import { ApiError } from "../lib/errors.js";
+import { checkListingInBackground, LISTING_CHECK_PHOTOS, type ListingChecker } from "../lib/listing-check.js";
 import { createListingWriter } from "../lib/listing-write.js";
 import {
   findOwnListing,
@@ -46,8 +47,17 @@ const MANUAL_TRANSITIONS: Record<string, readonly string[]> = {
   reserved: ["active", "sold"],
 };
 
+/** The AI check reads only the first photos, so only a change among them is worth checking again. */
+function firstPhotosChanged(before: string[], after: string[]): boolean {
+  const n = LISTING_CHECK_PHOTOS;
+  return before.slice(0, n).join("|") !== after.slice(0, n).join("|");
+}
+
 /** Selling: create, edit, photos, publish, state changes, delete, and the owner's own list (Milestone 2). */
-const listingRoutes: FastifyPluginAsyncZod = async (app) => {
+const listingRoutes: FastifyPluginAsyncZod<{ listingChecker: ListingChecker }> = async (
+  app,
+  { listingChecker },
+) => {
   const { db, storage } = app;
   const preHandler = app.requireUser;
 
@@ -145,7 +155,11 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
         if (photos) await writePhotos(tx, listingId, photos, photoSizes, photoVariants);
         return listingId;
       });
-      if (publish) await refreshSellerCounts(db, userId);
+      if (publish) {
+        await refreshSellerCounts(db, userId);
+        // D-038: the AI listing check runs after the answer has gone and only ever flags.
+        checkListingInBackground(listingChecker, id, request.log);
+      }
       reply.code(201);
       return respond(id, userId);
     },
@@ -301,6 +315,22 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
           request.log,
         );
       }
+      // A live listing is checked again when its words, brand, category or first photos changed (not for a price).
+      if (
+        (row.status === "active" || row.status === "reserved") &&
+        (row.title !== merged.title ||
+          row.description !== merged.description ||
+          row.categoryId !== merged.categoryId ||
+          row.brandId !== merged.brandId ||
+          row.brandName !== brandName ||
+          (photos !== undefined &&
+            firstPhotosChanged(
+              photoKeys,
+              photos.map((p) => p.key),
+            )))
+      ) {
+        checkListingInBackground(listingChecker, row.id, request.log);
+      }
       return respond(row.id, userId);
     },
   );
@@ -336,6 +366,15 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
         photoKeys.filter((k) => !kept.has(k)),
         request.log,
       );
+      if (
+        (row.status === "active" || row.status === "reserved") &&
+        firstPhotosChanged(
+          photoKeys,
+          (photos ?? []).map((p) => p.key),
+        )
+      ) {
+        checkListingInBackground(listingChecker, row.id, request.log);
+      }
       return respond(row.id, userId);
     },
   );
@@ -364,6 +403,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
         .set({ ...columnsOf(merged, brandName), status: "active", publishedAt: now, bumpedAt: now })
         .where(eq(listings.id, row.id));
       await refreshSellerCounts(db, userId);
+      checkListingInBackground(listingChecker, row.id, request.log);
       return respond(row.id, userId);
     },
   );
@@ -386,6 +426,14 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
       if (row.status === next) return respond(row.id, userId);
       if (!MANUAL_TRANSITIONS[row.status]?.includes(next)) {
         throw new ApiError(409, "invalid_transition", `A ${row.status} listing cannot become ${next}`);
+      }
+      // Only our team sets a status reason (D-038 Review list). A listing they hid stays hidden until they change it.
+      if (row.status === "hidden" && row.statusReason) {
+        throw new ApiError(
+          409,
+          "invalid_transition",
+          "Our team hid this listing, so it cannot go live again",
+        );
       }
       await db
         .update(listings)

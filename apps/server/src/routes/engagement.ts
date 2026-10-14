@@ -37,13 +37,17 @@ import { queryCardRows, searchTokens, toCards } from "../lib/discovery.js";
 import { ApiError } from "../lib/errors.js";
 import { recordEvents } from "../lib/events.js";
 import { notifyUser } from "../lib/notify.js";
+import { type ReportSorter, sortReportInBackground } from "../lib/report-sort.js";
 
 const idParams = z.object({ id: idSchema });
 const WRITE_LIMIT = { rateLimit: { max: 60, timeWindow: "1 minute" } };
 const errors = { 401: errorResponseSchema, 404: errorResponseSchema };
 
 /** Favourites, saved and recent searches, reports and personalisation sizes (Milestone 3). */
-const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
+const engagementRoutes: FastifyPluginAsyncZod<{ reportSorter: ReportSorter }> = async (
+  app,
+  { reportSorter },
+) => {
   const { db } = app;
   const preHandler = app.requireUser;
 
@@ -478,9 +482,12 @@ const engagementRoutes: FastifyPluginAsyncZod = async (app) => {
         )
         .limit(1);
       if (!open) {
-        await db
+        const [created] = await db
           .insert(reports)
-          .values({ reporterId: userId, targetType, targetId, reason, details: details || null });
+          .values({ reporterId: userId, targetType, targetId, reason, details: details || null })
+          .returning({ id: reports.id });
+        // D-038: a model reads it and sets its urgency for the admin Review list. It never delays the answer.
+        if (created) sortReportInBackground(reportSorter, created.id, request.log);
       }
       return reply.code(204).send(null);
     },

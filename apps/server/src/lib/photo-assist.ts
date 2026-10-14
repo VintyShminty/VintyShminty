@@ -290,7 +290,7 @@ const MEDIA_TYPES: Record<string, PhotoMediaType> = {
 };
 
 /** Reads the photos from storage and keeps each one's key. Photos that are missing or not a known type are skipped. */
-async function loadImages(storage: FastifyInstance["storage"], keys: string[]) {
+export async function loadImages(storage: FastifyInstance["storage"], keys: string[]) {
   const loaded = await Promise.all(
     keys.map(async (key) => {
       const mediaType = MEDIA_TYPES[key.split(".").pop()?.toLowerCase() ?? ""];

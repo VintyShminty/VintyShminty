@@ -8,6 +8,9 @@ export const adminKeys = {
   expenses: (month: string) => ["admin", "expenses", month] as const,
   usersAll: ["admin", "users"] as const,
   users: (filter: string, q: string) => ["admin", "users", filter, q] as const,
+  reviewAll: ["admin", "review"] as const,
+  review: (filter: string) => ["admin", "review", "list", filter] as const,
+  reviewCount: ["admin", "review", "count"] as const,
   standIns: ["admin", "stand-ins"] as const,
   uploadsAll: ["admin", "uploads"] as const,
   uploads: (standInId: string, owner: string, status: string) =>

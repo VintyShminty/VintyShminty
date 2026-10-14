@@ -587,6 +587,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** shared shapes and `applyUnderstanding` in `packages/shared/src/search-assist.ts`. Server: `lib/search-reader.ts`, `POST /v1/search/understand`. App: the search screen. Website: the search field and the results page.
 - **References:** D-036, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
+### D-038 : One Review list in the admin pages, sorted and flagged by the AI, decided by Eden
+
+- **Date:** 2026-10-14
+- **Area:** Admin pages (website), listings, reports
+- **Status:** Built on branch feat/ai-listing-checks, waiting for Eden's review.
+- **Decision:** A new admin page, Review, right after Dashboard, holds member reports and the AI's own listing flags in one list, most urgent first (Urgent, Normal, Low, then Not sorted, then newest). The menu shows how many urgent items are open. Listing check: when a listing goes live, or a live listing's words, brand, category or photos change, Claude Haiku reads the words and the first 2 photos and looks for items that are not allowed, likely fakes, offensive words or pictures, words and photos about different items, and attempts to pay or talk outside the app. Anything it finds becomes one "AI check" row with a short summary. The listing stays live until Eden looks (Eden's choice): the AI never hides, removes or bans anything. Report sorting: when a member reports something, the AI reads the reason, their note and what is reported, and sets the urgency, its own reading of the problem and a one line summary. For a reported chat message it reads only the reason and the note, never the message, until the privacy policy says chats can be read. Each open card has an optional note and Eden's buttons: Hide listing, Remove listing (asks first), Dismiss, Mark handled. Hiding or removing closes every open report about that listing. A listing reserved for a buyer cannot be hidden or removed while its order is in progress, and a listing our team hid stays hidden: the seller cannot put it back live. Handled items move to the Handled tab with their note.
+- **Rationale:** Reports could be sent but nobody could see them. One list with the urgent things first means Eden only has to check one place, and the AI does the reading without ever deciding.
+- **Trade-off:** Reading 2 photos costs about 0.1 cents per listing, about 10 times a words only check, but fakes and items that are not allowed often only show in the photos. A wrong flag costs Eden a look, never the seller their listing.
+- **Implementation:** shared shapes in `packages/shared/src/review.ts`, new report columns (`source`, `urgency`, `ai_reason`, `ai_summary`, a report without a reporter is an AI check). Server: `lib/listing-check.ts`, report sorting, `GET /v1/admin/review`, `POST /v1/admin/review/:id/action`. Website: `app/[lang]/admin/review`.
+- **References:** D-036, D-037, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.
