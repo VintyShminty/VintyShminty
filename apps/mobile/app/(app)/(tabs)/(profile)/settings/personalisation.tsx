@@ -1,6 +1,7 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import { type HiddenItem, PERSONALISATION_SIZES_MAX } from "@vinty/shared";
+import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
@@ -21,6 +22,7 @@ import { buildSizeOptions, summariseSizes } from "@/lib/size-options";
 /** Settings, Shopping preferences: the sizes your feed puts first. Brands arrive in Milestone 6. */
 export default function Personalisation() {
   const { t } = useTranslation();
+  const router = useRouter();
   const name = useLocalName();
   const sheetRef = useRef<BottomSheetModal>(null);
   const reference = useReference();
@@ -87,6 +89,12 @@ export default function Personalisation() {
         <Row label={t("shopping.pick")} value={summary} onPress={() => sheetRef.current?.present()} last />
         <Text variant="cardDesc" className="px-lg pt-sm text-text-3">
           {t("shopping.sizesNote")}
+        </Text>
+        <View className="pt-xl">
+          <Row label={t("shopping.redo")} onPress={() => router.push("/onboarding")} last />
+        </View>
+        <Text variant="cardDesc" className="px-lg pt-sm text-text-3">
+          {t("shopping.redoNote")}
         </Text>
         <SectionHeader>{t("shopping.hiddenTitle")}</SectionHeader>
         {hidden.data && hidden.data.items.length > 0 ? (
