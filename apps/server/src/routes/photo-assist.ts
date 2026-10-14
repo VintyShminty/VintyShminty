@@ -26,7 +26,7 @@ const MEDIA_TYPES: Record<string, PhotoMediaType> = {
 
 /**
  * The AI photo helper (D-028): looks at the photos a seller already uploaded and suggests up to 3 categories, the
- * brand, colours, material, title and description. It never fills anything: the app shows the guesses first inside
+ * brand and colours. It never fills anything: the app shows the guesses first inside
  * its pickers. Always answers 200: when it is off, slow or unsure the suggestion is simply empty and the sell form
  * carries on as before.
  */
