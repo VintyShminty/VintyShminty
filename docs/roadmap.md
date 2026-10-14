@@ -82,9 +82,12 @@ Until the app goes online, the server, database and photos run on the developmen
 
 ## Parked for later
 
+Work that was started or decided but not finished is listed in `docs/unfinished-work.md`.
+
 - Real payments (provider, payouts, fees on real money)
 - Real shipping (labels, tracking, carriers)
 - Hebrew search quality (finding "השמלה" when searching "שמלה")
 - Photo search (search by picture)
 - Translating conversations
+- Translating listings between Hebrew and English with AI (Eden 2026-10-14)
 - Final fee and referral amounts (placeholders: 5 percent of the item price, 50 shekels per referral)
