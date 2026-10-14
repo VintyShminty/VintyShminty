@@ -11,7 +11,7 @@ type ChipProps = {
   selected?: boolean;
   /** An applied filter (D-030, row 13): 1.5px espresso outline with a cross. Clicking it takes the filter off. */
   applied?: boolean;
-  /** Makes the chip a link (the URL changes, like the mood chips on Home). Without it the chip is a button. */
+  /** Makes the chip a link. Without it the chip is a button. With both, a plain click calls `onClick` and the link only serves as the address. */
   href?: string;
   onClick?: () => void;
   disabled?: boolean;
@@ -26,7 +26,7 @@ type ChipProps = {
 };
 
 /**
- * The chip (D-008): 32px tall pill, 14px side padding, 1px outline in text-4 on white. `selected` fills it
+ * The chip (D-008): 29px tall pill (10% under D-008, D-035), 13px side padding, 14px text, 1px outline in text-4 on white. `selected` fills it
  * with espresso, `applied` draws the 1.5px espresso outline with a cross. A link when it has `href`, else a button.
  */
 export function Chip({
@@ -44,7 +44,7 @@ export function Chip({
 }: ChipProps) {
   const text = count === undefined ? label : `${label} · ${count}`;
   const classes = cn(
-    "inline-flex h-8 shrink-0 items-center justify-center gap-xs whitespace-nowrap rounded-full border px-[14px] text-pill",
+    "inline-flex h-[29px] shrink-0 items-center justify-center gap-xs whitespace-nowrap rounded-full border px-[13px]",
     selected
       ? "border-primary bg-primary text-primary-foreground"
       : applied
@@ -52,7 +52,9 @@ export function Chip({
         : "border-text-4 bg-background text-text-1 hover:bg-pressed",
     disabled && "pointer-events-none opacity-40",
     className,
-  );
+  )
+    // Added after cn() on purpose: tailwind-merge does not know our type scale names and would drop the size as a clashing colour.
+    .concat(" text-body-sm");
   const content = (
     <>
       {text}
@@ -65,8 +67,21 @@ export function Chip({
         href={href}
         scroll={scroll}
         replace={replace}
+        // A chip with its own click handler never needs the server's copy of the page it points to.
+        prefetch={onClick ? false : undefined}
         aria-label={ariaLabel}
         aria-current={selected ? "true" : undefined}
+        // With an onClick the link still has its address (crawlers, open in new tab), but a plain click is handled in the page.
+        onClick={
+          onClick
+            ? (e) => {
+                if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+                  return;
+                e.preventDefault();
+                onClick();
+              }
+            : undefined
+        }
         className={classes}
       >
         {content}

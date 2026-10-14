@@ -14,7 +14,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
   const t = getT(lang);
   const base = `/${lang}/settings/account`;
   const row =
-    "flex min-h-14 items-center gap-md border-b border-border-subtle text-body-sm text-text-1 hover:bg-pressed";
+    "flex min-h-14 items-center gap-md border-b border-border-subtle text-body-sm text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary";
   const chevron = <ChevronRight size={16} aria-hidden className="text-text-4 rtl:-scale-x-100" />;
   return (
     <SettingsPage title={t("account.title")}>
@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: Promise<{ lang: string 
         {chevron}
       </Link>
       {me.emailVerified ? (
-        <div className={row.replace("hover:bg-pressed", "")}>
+        <div className={row.replace(/hover:\S+|focus-visible:\S+/g, "")}>
           <span className="w-[18px]" />
           <span className="flex-1 font-semibold">{t("account.emailStatus")}</span>
           <Badge variant="success" icon={Check} label={t("account.verified")} />

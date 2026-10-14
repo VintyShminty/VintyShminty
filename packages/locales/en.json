@@ -1435,7 +1435,7 @@
     "openFailed": "We could not set that up",
     "changeFailed": "That item could not be changed. Try again"
   },
-  "protectionName": "Covered",
+  "protectionName": "Coverage",
   "shopping": {
     "title": "Shopping preferences",
     "sizes": "My sizes",
@@ -1590,8 +1590,8 @@
         "body": "Not sure about the price? Tap \"Or make your price\" on the item and send an offer lower than the listed price. You can send up to 15 offers a day, and one at a time in each chat.\n\nThe seller can accept, decline or answer with a new price. If nobody answers, the offer closes after 48 hours.\n\nWhen an offer is accepted the item is held for you for 24 hours, so you can check out at the agreed price."
       },
       "covered": {
-        "title": "What Covered is",
-        "body": "Covered is a small fee added at checkout. You see it on its own line in the price breakdown, next to the item price and postage.\n\nIt goes towards keeping buying safe, including our team looking into a problem with an order. The name is a working name and may change."
+        "title": "What Coverage is",
+        "body": "Coverage is a small fee added at checkout. You see it on its own line in the price breakdown, next to the item price and postage.\n\nIt goes towards keeping buying safe, including our team looking into a problem with an order. The name is a working name and may change."
       },
       "closetDeal": {
         "title": "Closet deals",
@@ -1607,7 +1607,7 @@
       },
       "setYourPrice": {
         "title": "Choosing your price",
-        "body": "You choose the price. Selling is free, so when an item sells you earn the full item price, after any discount you gave.\n\nBuyers pay a little on top for Covered and postage. You can see what they will pay while you set the price.\n\nWhen someone sends an offer you can accept it, decline it or answer with a new price."
+        "body": "You choose the price. Selling is free, so when an item sells you earn the full item price, after any discount you gave.\n\nBuyers pay a little on top for Coverage and postage. You can see what they will pay while you set the price.\n\nWhen someone sends an offer you can accept it, decline it or answer with a new price."
       },
       "buzz": {
         "title": "Giving an item buzz",
@@ -1665,9 +1665,9 @@
   },
   "web": {
     "nav": {
-      "otherLanguage": "עב",
-      "switchLanguage": "Switch to Hebrew",
+      "languageShort": "EN",
       "mainNavigation": "Main",
+      "feedNavigation": "Home feed",
       "menu": "Menu",
       "favourites": "Favourites",
       "account": "Your account",
@@ -1700,6 +1700,12 @@
       "privacy": "Privacy",
       "rights": "© {{year}} Vinty"
     },
+    "legal": {
+      "draftLine": "Draft, last updated {{date}}",
+      "draftNote": "This is a first draft. A lawyer will check it before real launch. Notes in square brackets show what still needs checking.",
+      "contents": "On this page",
+      "updated": "14 October 2026"
+    },
     "soon": "This page is coming soon.",
     "search": {
       "resultsFor": "Results for {{q}}",
@@ -1715,7 +1721,9 @@
     },
     "browse": {
       "breadcrumb": "You are here",
-      "typesLabel": "Item types"
+      "typesLabel": "Item types",
+      "metaDescription": "Browse second hand pieces on Vinty by type: dresses, tops, jeans, coats, shoes and more.",
+      "tileMetaDescription": "{{name}} on Vinty: second hand pieces from sellers in Israel. Make an offer or buy in a few taps."
     },
     "filters": {
       "sort": "Sort",

@@ -26,9 +26,11 @@ export async function generateMetadata({
   const { lang, tile } = await params;
   const found = findBrowseTile(tile);
   if (!isLang(lang) || !found) return { title: "Vinty" };
-  const name = getT(lang)(`browse.tiles.${found.key}`);
+  const t = getT(lang);
+  const name = t(`browse.tiles.${found.key}`);
   return {
     title: `${name} | Vinty`,
+    description: t("web.browse.tileMetaDescription", { name }),
     // Filters and types in the address are views of the same page, so the canonical address has none of them.
     alternates: alternatesFor(lang, `/browse/${found.key}`),
   };
@@ -69,14 +71,14 @@ export default async function TilePage({
   if (!isLang(lang)) notFound();
   const tile = findBrowseTile(tileKey);
   if (!tile) notFound();
-  const sp = await searchParams;
+  // The address parts and the (cached) reference data are asked at once.
+  const [sp, reference] = await Promise.all([searchParams, getReference(lang).catch(() => null)]);
   const t = getT(lang);
   const tileName = t(`browse.tiles.${tile.key}`);
 
-  const reference = await getReference(lang).catch(() => null);
   if (!reference) {
     return (
-      <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+      <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
         <h1 className="text-title font-bold text-text-1">{tileName}</h1>
         <EmptyState title={t("errors.general")} />
       </main>
@@ -135,7 +137,7 @@ export default async function TilePage({
     : null;
 
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <CategoryVisit key={tile.key} categoryIds={categoryIds} />
       <nav aria-label={t("web.browse.breadcrumb")} className="text-body-sm text-text-3">
         <ol className="flex flex-wrap items-center gap-xs">

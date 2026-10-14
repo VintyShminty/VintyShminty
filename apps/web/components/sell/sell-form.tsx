@@ -120,7 +120,7 @@ function GuessChip({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 items-center rounded-full border border-text-4 bg-background px-[14px] text-pill text-text-1 hover:bg-pressed"
+      className="inline-flex h-[29px] items-center rounded-full border border-text-4 bg-background px-[13px] text-body-sm text-text-1 hover:bg-pressed"
     >
       {label}
     </button>

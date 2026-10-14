@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Originality rule (docs/originality.md, guideline 3): some words are another app's words, so they must never reach
-// a user. This test reads every sentence in both language files and fails if one of them comes back.
+// a user. This test reads every sentence in both language files (and the legal pages) and fails if one comes back.
 const BANNED_EN: [string, RegExp][] = [
   ["Vinted", /vinted/i],
   ["Buyer Protection", /buyer protection/i],
@@ -49,8 +49,11 @@ function sentences(value: unknown, path = ""): [string, string][] {
 }
 
 function load(lang: string) {
-  const file = join(__dirname, "..", "..", "..", "packages", "locales", `${lang}.json`);
-  return sentences(JSON.parse(readFileSync(file, "utf8")));
+  const locales = join(__dirname, "..", "..", "..", "packages", "locales");
+  // The app and website wording, plus the website's Terms, Privacy and About (packages/locales/legal).
+  return [`${lang}.json`, join("legal", `${lang}.json`)].flatMap((file) =>
+    sentences(JSON.parse(readFileSync(join(locales, file), "utf8"))),
+  );
 }
 
 describe("banned words", () => {

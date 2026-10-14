@@ -55,7 +55,7 @@ export function InboxShell({ lang, children }: { lang: string; children: ReactNo
   );
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] md:px-xl md:py-lg">
+    <main className="mx-auto w-full max-w-[1280px] md:px-xl lg:px-[48px] xl:px-[80px] md:py-lg">
       <div className="grid grid-cols-[minmax(0,1fr)] h-[calc(100dvh-8rem)] min-h-[420px] overflow-hidden bg-background md:h-[calc(100dvh-7.5rem)] md:grid-cols-[minmax(320px,400px)_minmax(0,1fr)] md:rounded-window md:border md:border-border">
         <section
           aria-label={t("tabs.inbox")}

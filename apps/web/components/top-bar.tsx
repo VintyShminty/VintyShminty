@@ -4,7 +4,7 @@ import { AccountMenu } from "@/components/auth/account-menu";
 import { BrowsePanel } from "@/components/browse-panel";
 import { BrowseTiles } from "@/components/browse-tiles";
 import { InboxLink } from "@/components/inbox/inbox-link";
-import { LanguageSwitch } from "@/components/language-switch";
+import { LanguageMenu } from "@/components/language-menu";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { SearchField } from "@/components/search-field";
 import { SellButton } from "@/components/sell-button";
@@ -13,7 +13,7 @@ import { loginHref, signUpHref } from "@/lib/login-links";
 import type { Viewer } from "@/lib/viewer";
 
 const iconLink =
-  "inline-flex h-10 w-10 items-center justify-center rounded-control text-text-2 hover:bg-pressed";
+  "inline-flex h-10 w-10 items-center justify-center rounded-control text-text-2 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary";
 
 /**
  * The top bar of D-030, in the language layout so every page has it. On a laptop: the wordmark, one Browse button that
@@ -27,7 +27,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
       <nav
         aria-label={t("web.nav.mainNavigation")}
-        className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-md px-lg py-md md:px-xl"
+        className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-md px-lg py-md md:px-xl lg:px-[48px] xl:px-[80px]"
       >
         <Link
           href={`/${lang}`}
@@ -51,11 +51,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
           <SearchField lang={lang} />
         </search>
         <div className="ms-auto hidden items-center gap-sm md:flex">
-          <LanguageSwitch
-            lang={lang}
-            label={t("web.nav.otherLanguage")}
-            title={t("web.nav.switchLanguage")}
-          />
+          <LanguageMenu lang={lang} />
           {viewer ? (
             <>
               <InboxLink lang={lang} className={iconLink} />
@@ -68,7 +64,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
             <>
               <Link
                 href={loginHref(lang)}
-                className="inline-flex h-10 items-center rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed"
+                className="inline-flex h-10 items-center rounded-control px-md text-body-sm font-semibold text-text-1 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               >
                 {t("welcome.logIn")}
               </Link>

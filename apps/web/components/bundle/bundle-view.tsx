@@ -261,7 +261,9 @@ export function BundleView({ lang, sellerId }: { lang: string; sellerId: string 
                     <dt className="text-text-2">
                       {t("orders.bundleDiscount")} ({b.discountPercent}%)
                     </dt>
-                    <dd className="font-medium text-success">-{formatPrice(b.discountMinor, b.currency)}</dd>
+                    <dd dir="ltr" className="font-medium text-success">
+                      -{formatPrice(b.discountMinor, b.currency)}
+                    </dd>
                   </div>
                 ) : null}
                 <div className="flex items-center justify-between gap-md text-body font-bold text-text-1">

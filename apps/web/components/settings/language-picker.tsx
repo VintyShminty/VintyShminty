@@ -52,7 +52,7 @@ export function LanguagePicker({ lang }: { lang: Lang }) {
               onClick={() => choose(language)}
               lang={language}
               className={cn(
-                "flex min-h-14 items-center gap-md border-b border-border-subtle text-start text-body font-medium hover:bg-pressed disabled:opacity-60",
+                "flex min-h-14 items-center gap-md border-b border-border-subtle text-start text-body font-medium hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary disabled:opacity-60",
                 language === "he" ? "font-heebo-500" : "font-aileron-500",
               )}
             >

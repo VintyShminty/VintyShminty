@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PlaceholderPage } from "@/components/placeholder-page";
-import { getT, isLang } from "@/lib/i18n";
+import { LegalPage } from "@/components/legal-page";
+import { isLang } from "@/lib/i18n";
+import { getLegalDoc } from "@/lib/legal";
 import { alternatesFor } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) return { title: "Vinty" };
+  const doc = getLegalDoc(lang, "privacy");
   return {
-    title: `${getT(lang)("web.footer.privacy")} | Vinty`,
+    title: `${doc.title} | Vinty`,
+    description: doc.description,
     alternates: alternatesFor(lang, "/privacy"),
   };
 }
 
-// A placeholder until the real page is written (step W2 round 2 or W7).
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
-  return <PlaceholderPage lang={lang} title={getT(lang)("web.footer.privacy")} />;
+  return <LegalPage lang={lang} page="privacy" />;
 }

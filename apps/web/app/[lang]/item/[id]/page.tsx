@@ -102,7 +102,7 @@ function BreakdownLine({ label, value, strong = false }: { label: string; value:
     <div
       className={cn(
         "flex items-baseline justify-between gap-md py-px",
-        strong ? "text-body font-bold" : "text-body-sm",
+        strong ? "mt-xs border-t border-border-subtle pt-xs text-body font-bold" : "text-body-sm",
       )}
     >
       <dt className="text-text-1">{label}</dt>
@@ -131,7 +131,7 @@ export default async function ItemPage({
   } catch (error) {
     if (!(error instanceof ApiClientError)) throw error;
     return (
-      <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+      <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
         <EmptyState
           title={t("web.item.loadFailed")}
           action={
@@ -199,7 +199,7 @@ export default async function ItemPage({
   return (
     <main
       className={cn(
-        "mx-auto max-w-[1400px] px-lg pt-lg md:px-xl lg:pt-xl",
+        "mx-auto max-w-[1280px] px-lg pt-lg md:px-xl lg:px-[48px] xl:px-[80px] lg:pt-xl",
         showBar ? "pb-40 lg:pb-2xl" : "pb-2xl",
       )}
     >
@@ -296,26 +296,27 @@ export default async function ItemPage({
             </div>
 
             {sold ? null : (
-              <dl aria-label={t("web.item.breakdownLabel")} className="rounded-control bg-accent-tint p-md">
-                <BreakdownLine
-                  label={t("item.breakdown.item")}
-                  value={formatPrice(price, listing.currency)}
-                />
-                <BreakdownLine
-                  label={t("protectionName")}
-                  value={formatPrice(Math.max(0, buyerPrice - price), listing.currency)}
-                />
-                <div className="my-xs h-px bg-border-subtle" />
-                <BreakdownLine
-                  strong
-                  label={t("item.breakdown.total")}
-                  value={formatPrice(buyerPrice, listing.currency)}
-                />
+              <div className="rounded-control bg-accent-tint p-md">
+                <dl aria-label={t("web.item.breakdownLabel")}>
+                  <BreakdownLine
+                    label={t("item.breakdown.item")}
+                    value={formatPrice(price, listing.currency)}
+                  />
+                  <BreakdownLine
+                    label={t("protectionName")}
+                    value={formatPrice(Math.max(0, buyerPrice - price), listing.currency)}
+                  />
+                  <BreakdownLine
+                    strong
+                    label={t("item.breakdown.total")}
+                    value={formatPrice(buyerPrice, listing.currency)}
+                  />
+                </dl>
                 <div className="flex items-start gap-xs pt-xs">
                   <Check size={14} aria-hidden className="mt-px shrink-0 text-primary" />
                   <p className="text-card-desc text-text-1">{t("item.breakdown.note")}</p>
                 </div>
-              </dl>
+              </div>
             )}
 
             {isOwner ? (
@@ -399,7 +400,9 @@ export default async function ItemPage({
               <h2 className="text-section-label font-semibold uppercase tracking-wide text-text-3">
                 {t("listing.description")}
               </h2>
-              <p className="whitespace-pre-line text-body text-text-1">{listing.description}</p>
+              <p dir="auto" className="whitespace-pre-line text-body text-text-1">
+                {listing.description}
+              </p>
             </section>
           ) : null}
 

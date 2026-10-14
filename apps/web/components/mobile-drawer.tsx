@@ -7,7 +7,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useLogOut } from "@/components/auth/log-out";
 import { UnreadCount } from "@/components/inbox/inbox-link";
-import { LanguageSwitch } from "@/components/language-switch";
+import { LanguageMenu } from "@/components/language-menu";
 import { SellButton } from "@/components/sell-button";
 import { useViewer } from "@/components/site-context";
 import { ACCOUNT_LINKS } from "@/lib/account-links";
@@ -33,7 +33,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
   useEffect(() => dialog.current?.close(), [pathname]);
 
   const linkClass =
-    "flex h-11 items-center gap-md rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed";
+    "flex h-11 items-center gap-md rounded-control px-md text-body-sm font-semibold text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary";
   return (
     <>
       <button
@@ -41,7 +41,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
         aria-label={t("web.nav.menu")}
         aria-haspopup="dialog"
         onClick={() => dialog.current?.showModal()}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-control text-text-1 hover:bg-pressed md:hidden"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-control text-text-1 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary md:hidden"
       >
         <Menu size={22} aria-hidden />
       </button>
@@ -61,7 +61,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
             type="button"
             aria-label={t("common.close")}
             onClick={() => dialog.current?.close()}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-control hover:bg-pressed"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-control hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           >
             <X size={22} aria-hidden />
           </button>
@@ -110,11 +110,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
         </h2>
         {children}
         <div className="mt-lg border-t border-border pt-md">
-          <LanguageSwitch
-            lang={lang}
-            label={t("web.nav.otherLanguage")}
-            title={t("web.nav.switchLanguage")}
-          />
+          <LanguageMenu lang={lang} up />
         </div>
       </dialog>
     </>

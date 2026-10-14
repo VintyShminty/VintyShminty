@@ -1,19 +1,14 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { feedPageSchema, homeFeedPageSchema, type ListingCard, searchPageSchema } from "@vinty/shared";
 import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import type { ZodType } from "zod";
 import { ItemGrid, ItemGridSkeleton } from "@/components/item-grid";
 import { useViewer } from "@/components/site-context";
-import { clientApi } from "@/lib/api-client";
-import { FEED_PAGE_SIZE, pagePath } from "@/lib/feed-url";
+import { type GridKind, type GridPage, gridQueryOptions } from "@/lib/grid-query";
 import { useImpressions } from "@/lib/use-impressions";
 
-type Page = { items: ListingCard[]; nextCursor: string | null };
-
-const SCHEMAS = { feed: homeFeedPageSchema, listings: searchPageSchema, plain: feedPageSchema } as const;
+type Page = GridPage;
 
 /**
  * A grid of item cards that keeps loading as the visitor scrolls (TanStack `useInfiniteQuery` and an
@@ -26,8 +21,8 @@ const SCHEMAS = { feed: homeFeedPageSchema, listings: searchPageSchema, plain: f
  * - `firstPage` is that endpoint's first page as the server got it (`null` if the server could not, the browser then
  *   asks itself).
  * - `empty` is shown when there are no items at all.
- * A new `endpoint` is a new list, so give the component `key={endpoint}` where it can change without a reload.
- * Cached cards stay on screen while a page loads (never blank), and errors show Try again.
+ * A new `endpoint` is a new list. The old cards stay on screen, dimmed, until the new ones arrive (never blank).
+ * Errors show Try again.
  */
 export function InfiniteItemGrid({
   endpoint,
@@ -38,7 +33,7 @@ export function InfiniteItemGrid({
   saveOnSold,
 }: {
   endpoint: string;
-  kind: keyof typeof SCHEMAS;
+  kind: GridKind;
   firstPage: Page | null;
   empty: ReactNode;
   hideSaves?: boolean;
@@ -46,14 +41,7 @@ export function InfiniteItemGrid({
 }) {
   const { t, i18n } = useTranslation();
   const query = useInfiniteQuery({
-    queryKey: ["grid", kind, endpoint, i18n.language],
-    initialPageParam: undefined as string | undefined,
-    queryFn: ({ pageParam }): Promise<Page> =>
-      clientApi(pagePath(endpoint, pageParam, FEED_PAGE_SIZE), {
-        schema: SCHEMAS[kind] as unknown as ZodType<Page>,
-        lang: i18n.language,
-      }),
-    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    ...gridQueryOptions(kind, endpoint, i18n.language),
     initialData: firstPage ? { pages: [firstPage], pageParams: [undefined] } : undefined,
   });
 
@@ -113,7 +101,11 @@ export function InfiniteItemGrid({
 
   return (
     <>
-      <div ref={gridBox}>
+      <div
+        ref={gridBox}
+        aria-busy={query.isPlaceholderData}
+        className={query.isPlaceholderData ? "opacity-50 transition-opacity" : "transition-opacity"}
+      >
         <ItemGrid items={items} hideSaves={hideSaves} saveOnSold={saveOnSold} feed={kind === "feed"} />
       </div>
       {hasNextPage ? (

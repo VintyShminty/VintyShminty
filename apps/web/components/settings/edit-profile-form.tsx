@@ -182,14 +182,14 @@ export function EditProfileForm({
       <div className="flex flex-col border-y border-border-subtle">
         <Link
           href={`/${lang}/settings/account/username`}
-          className="flex min-h-12 items-center justify-between gap-md text-body-sm hover:bg-pressed"
+          className="flex min-h-12 items-center justify-between gap-md text-body-sm hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
         >
           <span className="font-semibold text-text-1">{t("fields.username")}</span>
           <span className="truncate text-text-3">{initial.username}</span>
         </Link>
         <Link
           href={`/${lang}/settings/language`}
-          className="flex min-h-12 items-center justify-between gap-md border-t border-border-subtle text-body-sm hover:bg-pressed"
+          className="flex min-h-12 items-center justify-between gap-md border-t border-border-subtle text-body-sm hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
         >
           <span className="font-semibold text-text-1">{t("settings.language")}</span>
           <span className="text-text-3">{t(`languages.${lang}`)}</span>

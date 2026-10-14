@@ -120,11 +120,11 @@ export function RadioRow({
       role="radio"
       aria-checked={on}
       onClick={onClick}
-      className="flex min-h-14 w-full items-center gap-md border-b border-border-subtle px-lg py-sm text-start hover:bg-surface"
+      className="flex min-h-14 w-full items-center gap-md border-b border-border-subtle px-lg py-sm text-start text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
     >
       {leading}
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="text-body text-text-1">{label}</span>
+        <span className="text-body">{label}</span>
         {detail ? <span className="text-card-desc text-text-3">{detail}</span> : null}
       </span>
       <span

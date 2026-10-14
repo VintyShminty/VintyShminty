@@ -80,9 +80,18 @@ export function ItemThumb({ url, size = 64 }: { url: string | null; size?: numbe
 
 function Line({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="flex items-center justify-between gap-md py-xs">
+    <div
+      className={
+        strong
+          ? "mt-xs flex items-center justify-between gap-md border-t border-border-subtle py-xs"
+          : "flex items-center justify-between gap-md py-xs"
+      }
+    >
       <dt className={strong ? "text-body font-bold text-text-1" : "text-body-sm text-text-2"}>{label}</dt>
-      <dd className={strong ? "text-heading font-bold text-text-1" : "text-body-sm font-medium text-text-1"}>
+      <dd
+        dir="ltr"
+        className={strong ? "text-heading font-bold text-text-1" : "text-body-sm font-medium text-text-1"}
+      >
         {value}
       </dd>
     </div>
@@ -123,7 +132,6 @@ export function PriceBreakdown({ totals, label }: { totals: Totals; label: strin
       ) : null}
       <Line label={t("checkout.protection")} value={money(totals.buyerProtectionFeeMinor)} />
       <Line label={t("checkout.postage")} value={money(totals.shippingMinor)} />
-      <div className="my-xs h-px bg-border-subtle" />
       <Line strong label={t("checkout.total")} value={money(totals.totalMinor)} />
     </dl>
   );

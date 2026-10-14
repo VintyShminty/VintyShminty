@@ -35,9 +35,18 @@ function MoneyRow({
   negative?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-md">
+    <div
+      className={
+        strong
+          ? "flex items-center justify-between gap-md border-t border-border-subtle pt-sm"
+          : "flex items-center justify-between gap-md"
+      }
+    >
       <dt className={strong ? "text-body font-bold text-text-1" : "text-body text-text-2"}>{label}</dt>
-      <dd className={strong ? "text-body font-bold text-text-1" : "text-body font-medium text-text-1"}>
+      <dd
+        dir="ltr"
+        className={strong ? "text-body font-bold text-text-1" : "text-body font-medium text-text-1"}
+      >
         {negative ? "-" : ""}
         {formatPrice(amount, currency)}
       </dd>
@@ -98,9 +107,10 @@ export function OrderView({ lang, id, placed }: { lang: string; id: string; plac
             <Loader2 size={28} className="animate-spin text-text-3 motion-reduce:animate-none" aria-hidden />
           </div>
         ) : notFound ? (
-          <EmptyState title={t("orders.notFound")} message={t("orders.notFoundNote")} />
+          <EmptyState heading title={t("orders.notFound")} message={t("orders.notFoundNote")} />
         ) : (
           <EmptyState
+            heading
             title={t("errors.general")}
             action={
               <button
@@ -412,23 +422,21 @@ export function OrderView({ lang, id, placed }: { lang: string; id: string; plac
                   ) : null}
                 </>
               ) : null}
-              <div className="border-t border-border-subtle pt-sm">
-                {isSeller && order.sellerEarningsMinor !== null ? (
-                  <MoneyRow
-                    strong
-                    label={t("orders.youEarn")}
-                    amount={order.sellerEarningsMinor}
-                    currency={order.currency}
-                  />
-                ) : (
-                  <MoneyRow
-                    strong
-                    label={t("orders.total")}
-                    amount={order.totalMinor}
-                    currency={order.currency}
-                  />
-                )}
-              </div>
+              {isSeller && order.sellerEarningsMinor !== null ? (
+                <MoneyRow
+                  strong
+                  label={t("orders.youEarn")}
+                  amount={order.sellerEarningsMinor}
+                  currency={order.currency}
+                />
+              ) : (
+                <MoneyRow
+                  strong
+                  label={t("orders.total")}
+                  amount={order.totalMinor}
+                  currency={order.currency}
+                />
+              )}
             </dl>
             {!isSeller ? <p className="text-card-meta text-text-3">{t("orders.protectionNote")}</p> : null}
           </section>
