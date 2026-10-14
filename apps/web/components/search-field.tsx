@@ -171,7 +171,7 @@ function LiveSearchField({ lang }: { lang: string }) {
             onMouseEnter={() => setActive(i)}
             className={cn(
               "flex cursor-pointer items-center justify-between gap-md px-lg py-sm text-body-sm text-text-1",
-              i === active && "bg-pressed",
+              i === active && "text-primary",
             )}
           >
             <span className="truncate">{s.text}</span>

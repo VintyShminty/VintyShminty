@@ -107,7 +107,7 @@ export function BrandDialog({
             <button
               type="button"
               onClick={() => chooseTyped(q)}
-              className="flex min-h-14 w-full items-center border-b border-border-subtle px-lg text-start text-body font-semibold hover:bg-surface"
+              className="flex min-h-14 w-full items-center border-b border-border-subtle px-lg text-start text-body font-semibold hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
             >
               {t("sell.useBrand", { name: q })}
             </button>
@@ -122,7 +122,7 @@ export function BrandDialog({
                   else if (cleanBrandName(fromTag.name).length >= 2)
                     chooseTyped(cleanBrandName(fromTag.name).slice(0, 60));
                 }}
-                className="flex min-h-14 w-full items-center border-b border-border-subtle px-lg text-start text-body font-semibold hover:bg-surface"
+                className="flex min-h-14 w-full items-center border-b border-border-subtle px-lg text-start text-body font-semibold hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
               >
                 {t("sell.assist.fromTag", { name: fromTag.name })}
               </button>

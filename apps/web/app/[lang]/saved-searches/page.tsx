@@ -86,7 +86,7 @@ export default async function SavedSearchesPage({ params }: { params: Promise<{ 
   });
 
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <h1 className="mb-lg text-title font-bold text-text-1">{t("savedSearches.title")}</h1>
       {saved ? (
         <SavedSearchList initial={rows} />

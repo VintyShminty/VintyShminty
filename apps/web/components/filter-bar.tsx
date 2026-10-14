@@ -250,7 +250,7 @@ export function FilterBar({
                 type="button"
                 aria-pressed={on}
                 onClick={() => set({ colourIds: toggle(filters.colourIds, c.id) })}
-                className="flex items-center gap-sm rounded-control p-xs text-start text-body-sm text-text-1 hover:bg-pressed"
+                className="flex items-center gap-sm rounded-control p-xs text-start text-body-sm text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
               >
                 <span
                   aria-hidden
@@ -396,13 +396,15 @@ function FilterPill({
         aria-controls={open ? panelId : undefined}
         onClick={onToggle}
         className={cn(
-          "inline-flex h-8 items-center gap-xs whitespace-nowrap rounded-full border px-[14px] text-pill text-text-1 hover:bg-pressed",
+          "inline-flex h-[29px] items-center gap-xs whitespace-nowrap rounded-full border px-[13px] text-text-1 hover:bg-pressed",
           open
             ? "border-[1.5px] border-primary bg-pressed"
             : count > 0
               ? "border-[1.5px] border-primary bg-background"
               : "border-text-4 bg-background",
-        )}
+        )
+          // After cn() on purpose: tailwind-merge would drop our type scale name as a clashing colour.
+          .concat(" text-body-sm")}
       >
         {label}
         {count > 0 ? (
@@ -492,7 +494,7 @@ function CheckRow({ label, on, onToggle }: { label: string; on: boolean; onToggl
       role="checkbox"
       aria-checked={on}
       onClick={onToggle}
-      className="flex items-center gap-md rounded-control px-xs py-[7px] text-start text-body-sm text-text-1 hover:bg-pressed"
+      className="flex items-center gap-md rounded-control px-xs py-[7px] text-start text-body-sm text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
     >
       <span
         aria-hidden
@@ -522,7 +524,7 @@ function SortBody({ value, onPick }: { value: ListingSort; onPick: (sort: Listin
             role="radio"
             aria-checked={on}
             onClick={() => onPick(key)}
-            className="flex items-center gap-md rounded-control px-xs py-[7px] text-start text-body-sm text-text-1 hover:bg-pressed"
+            className="flex items-center gap-md rounded-control px-xs py-[7px] text-start text-body-sm text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
           >
             <span
               aria-hidden

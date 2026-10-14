@@ -19,7 +19,7 @@ export function ItemGrid({
   items: readonly ListingCard[];
   hideSaves?: boolean;
   saveOnSold?: boolean;
-  /** The cards are the Home feed: they report "seen" and get the "..." menu. */
+  /** The cards are the Home feed: they report "seen". */
   feed?: boolean;
   children?: ReactNode;
 }) {

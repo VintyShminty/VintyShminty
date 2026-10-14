@@ -1694,8 +1694,7 @@
   },
   "web": {
     "nav": {
-      "otherLanguage": "EN",
-      "switchLanguage": "מעבר לאנגלית",
+      "languageShort": "עב",
       "mainNavigation": "ראשי",
       "feedNavigation": "הפיד בדף הבית",
       "menu": "תפריט",

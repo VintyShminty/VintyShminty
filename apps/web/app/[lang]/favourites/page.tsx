@@ -32,7 +32,7 @@ export default async function FavouritesPage({
   const firstPage = await serverApi(pagePath(endpoint), { lang, schema: feedPageSchema }).catch(() => null);
 
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <h1 className="text-title font-bold text-text-1">{t("favourites.title")}</h1>
       <form
         action={`/${lang}/favourites`}

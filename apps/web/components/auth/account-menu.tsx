@@ -10,7 +10,7 @@ import { ACCOUNT_LINKS } from "@/lib/account-links";
 import type { Viewer } from "@/lib/viewer";
 
 const itemClass =
-  "flex h-10 w-full items-center gap-md rounded-control px-md text-start text-body-sm font-semibold text-text-1 hover:bg-pressed focus-visible:bg-pressed focus-visible:outline-none";
+  "flex h-10 w-full items-center gap-md rounded-control px-md text-start text-body-sm font-semibold text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary";
 
 /**
  * The avatar in the top bar opens a small menu: Profile, My orders, Balance, Favourites, Saved searches, Settings,

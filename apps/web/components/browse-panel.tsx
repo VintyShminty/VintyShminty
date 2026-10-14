@@ -2,8 +2,9 @@
 
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { type ReactNode, useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FOCUS_RING } from "@/lib/utils";
 
 /**
  * The top bar's Browse button (D-030). It opens a panel under the button with the photo tiles, which the server
@@ -20,6 +21,23 @@ export function BrowsePanel({ children }: { children: ReactNode }) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: closing when the page changes is the point
   useEffect(() => setOpen(false), [pathname]);
+
+  // The tile photos wait lazily inside the closed panel. Once the page is idle, or the pointer or keyboard nears the
+  // button, switch them to eager so they are already there when the panel opens.
+  const panel = useRef<HTMLElement>(null);
+  const warm = useCallback(() => {
+    for (const img of panel.current?.querySelectorAll<HTMLImageElement>('img[loading="lazy"]') ?? []) {
+      img.loading = "eager";
+    }
+  }, []);
+  useEffect(() => {
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(warm, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(warm, 2000);
+    return () => window.clearTimeout(id);
+  }, [warm]);
 
   useEffect(() => {
     if (!open) return;
@@ -48,13 +66,16 @@ export function BrowsePanel({ children }: { children: ReactNode }) {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-10 items-center gap-sm rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed"
+        onPointerEnter={warm}
+        onFocus={warm}
+        className={`inline-flex h-10 items-center gap-sm rounded-control px-md text-body-sm font-semibold text-text-1 hover:text-primary ${FOCUS_RING}`}
       >
         <LayoutGrid size={16} aria-hidden />
         {t("tabs.browse")}
         <ChevronDown size={14} aria-hidden className={open ? "rotate-180" : undefined} />
       </button>
       <section
+        ref={panel}
         id={panelId}
         hidden={!open}
         aria-label={t("web.nav.browseTitle")}

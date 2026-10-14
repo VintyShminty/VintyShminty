@@ -30,7 +30,7 @@
             "No real money moves. Checkout, payments, your balance and withdrawals are simulated. Nobody is charged and nobody is paid.",
             "Shipping is simulated too. No courier collects or delivers anything yet.",
             "Boosts are free for now.",
-            "The fees you see (for example the Covered fee) are placeholders. They show how Vinty will work and may change before real payments start."
+            "The fees you see (for example the Coverage fee) are placeholders. They show how Vinty will work and may change before real payments start."
           ],
           "Do not send real money or items because of something you saw in Vinty. We will tell you clearly, in the app and on the website, on the day real payments start. [Lawyer: confirm wording for a practice service, and whether a notice is needed when it goes live]"
         ]
@@ -81,10 +81,10 @@
       },
       {
         "id": "covered",
-        "heading": "Covered, the buyer promise",
+        "heading": "Coverage, the buyer promise",
         "blocks": [
-          "Covered is the name of Vinty's promise to buyers. When real payments start, the idea is this: the money you pay is held, and the seller is paid only after you receive the item. If the item is not as described, you can open a dispute within 2 days of it arriving, and we look at it. If you are right, you get your money back.",
-          "Covered adds a fee, today a placeholder of 5 percent, which the buyer pays. The exact rules, what is covered and what is not, and the timing will be written here before real payments start. [Lawyer: confirm the final Covered terms, the fee, and how payments are held, including any licence needed to hold customer money]"
+          "Coverage is the name of Vinty's promise to buyers. When real payments start, the idea is this: the money you pay is held, and the seller is paid only after you receive the item. If the item is not as described, you can open a dispute within 2 days of it arriving, and we look at it. If you are right, you get your money back.",
+          "Coverage adds a fee, today a placeholder of 5 percent, which the buyer pays. The exact rules, what is covered and what is not, and the timing will be written here before real payments start. [Lawyer: confirm the final Coverage terms, the fee, and how payments are held, including any licence needed to hold customer money]"
         ]
       },
       {

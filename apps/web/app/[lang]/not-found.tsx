@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 export default function NotFound() {
   const { t, i18n } = useTranslation();
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <EmptyState
         heading
         title={t("web.notFound.title")}

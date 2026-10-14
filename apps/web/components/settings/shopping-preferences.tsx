@@ -125,7 +125,7 @@ export function ShoppingPreferences({ lang, groups, initialSizeIds, initialHidde
   }, []);
 
   const rowClass =
-    "flex min-h-14 w-full items-center gap-md border-b border-border-subtle text-start text-body-sm hover:bg-pressed";
+    "flex min-h-14 w-full items-center gap-md border-b border-border-subtle text-start text-body-sm hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary";
   return (
     <div>
       {saveSizes.isError ? <Notice kind="error">{t(describeApiError(saveSizes.error).key)}</Notice> : null}

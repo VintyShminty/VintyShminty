@@ -1,13 +1,10 @@
-import { type HomeFeedPage, homeFeedPageSchema, personalisationSizesSchema } from "@vinty/shared";
+import { type HomeFeedPage, homeFeedPageSchema } from "@vinty/shared";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { EmptyState } from "@/components/empty-state";
+import { HomeFeed } from "@/components/home-feed";
 import { HomeGreeting } from "@/components/home-greeting";
-import { InfiniteItemGrid } from "@/components/infinite-item-grid";
-import { MoodChips } from "@/components/mood-chips";
 import { getViewer, serverApi } from "@/lib/api";
 import { feedPath, MOODS, pagePath, parseMood } from "@/lib/feed-url";
-import { homeEmptyText } from "@/lib/home-empty";
 import { getT, isLang } from "@/lib/i18n";
 import { alternatesFor } from "@/lib/seo";
 
@@ -36,7 +33,6 @@ export default async function HomePage({
 }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
-  const t = getT(lang);
   const me = await getViewer(lang);
 
   let mood = parseMood((await searchParams).mood);
@@ -48,32 +44,16 @@ export default async function HomePage({
     schema: homeFeedPageSchema,
   }).catch(() => null);
 
-  // Only an empty "Your sizes" list needs to know whether sizes are set (the note differs).
-  let hasSizes: boolean | undefined;
-  if (me && mood === "your_sizes" && firstPage?.items.length === 0) {
-    hasSizes = await serverApi("/v1/me/personalisation/sizes", { lang, schema: personalisationSizesSchema })
-      .then((s) => s.sizeIds.length > 0)
-      .catch(() => undefined);
-  }
-  const empty = homeEmptyText(mood, t, {
-    hasSizes,
-    city: me ? (me.profile.city?.trim() ?? null) : undefined,
-  });
-
   const who = me ? me.name?.trim().split(/\s+/)[0] || me.username || null : null;
 
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <HomeGreeting name={who} />
-      <div className="mb-xl mt-lg">
-        <MoodChips lang={lang} active={mood} signedIn={Boolean(me)} />
-      </div>
-      <InfiniteItemGrid
-        key={endpoint}
-        endpoint={endpoint}
-        kind="feed"
+      <HomeFeed
+        lang={lang}
+        initialMood={mood}
         firstPage={firstPage}
-        empty={<EmptyState title={empty.title} message={empty.message} />}
+        city={me ? (me.profile.city?.trim() ?? null) : undefined}
       />
     </main>
   );

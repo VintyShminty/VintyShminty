@@ -54,7 +54,7 @@ export default async function ProfilePage({
   const tabHref = (key: "listings" | "reviews") => (key === "reviews" ? `${base}?tab=reviews` : base);
   const statusHref = (key: string) => (key === "active" ? base : `${base}?status=${key}`);
   const rowClass =
-    "flex min-h-12 items-center gap-md rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed";
+    "flex min-h-12 items-center gap-md rounded-control px-md text-body-sm font-semibold text-text-1 hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary";
   const rows = [
     { href: `/${lang}/favourites`, icon: Bookmark, label: t("favourites.title") },
     { href: `/${lang}/saved-searches`, icon: SearchCheck, label: t("savedSearches.title") },
@@ -63,7 +63,7 @@ export default async function ProfilePage({
   ];
 
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <ProfileHeader
         profile={profile}
         lang={lang}

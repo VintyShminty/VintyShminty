@@ -24,7 +24,7 @@ export default async function BrowsePage({ params }: { params: Promise<{ lang: s
   if (!isLang(lang)) notFound();
   const t = getT(lang);
   return (
-    <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+    <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
       <h1 className="text-title font-bold text-text-1">{t("tabs.browse")}</h1>
       <div className="mt-lg">
         <BrowseTiles

@@ -131,7 +131,7 @@ export default async function ItemPage({
   } catch (error) {
     if (!(error instanceof ApiClientError)) throw error;
     return (
-      <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
+      <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
         <EmptyState
           title={t("web.item.loadFailed")}
           action={
@@ -199,7 +199,7 @@ export default async function ItemPage({
   return (
     <main
       className={cn(
-        "mx-auto max-w-[1400px] px-lg pt-lg md:px-xl lg:pt-xl",
+        "mx-auto max-w-[1280px] px-lg pt-lg md:px-xl lg:px-[48px] xl:px-[80px] lg:pt-xl",
         showBar ? "pb-40 lg:pb-2xl" : "pb-2xl",
       )}
     >

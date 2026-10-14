@@ -61,7 +61,7 @@ export function PhotoTile({
           alt=""
           fill
           sizes={sizes}
-          unoptimized
+          placeholder="blur"
           className="object-cover transition-transform duration-200 group-hover:scale-[1.03]"
         />
       ) : null}

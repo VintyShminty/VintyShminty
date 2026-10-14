@@ -49,7 +49,7 @@ export function SettingsFrame({ lang, children }: { lang: string; children: Reac
     { path: "language", icon: Globe, label: t("settings.language") },
   ];
   const rowClass =
-    "flex min-h-12 w-full items-center gap-md rounded-control px-md text-start text-body-sm font-semibold hover:bg-pressed";
+    "flex min-h-12 w-full items-center gap-md rounded-control px-md text-start text-body-sm font-semibold hover:text-primary focus-visible:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary";
 
   return (
     <main className="mx-auto w-full max-w-[1100px] px-lg pb-2xl pt-xl md:grid md:grid-cols-[280px_minmax(0,1fr)] md:items-start md:gap-2xl md:px-xl">
@@ -68,7 +68,7 @@ export function SettingsFrame({ lang, children }: { lang: string; children: Reac
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={cn(rowClass, active ? "bg-accent-tint text-primary" : "text-text-1")}
+                  className={cn(rowClass, active ? "text-primary" : "text-text-1")}
                 >
                   <Icon size={18} aria-hidden className={active ? "text-primary" : "text-text-3"} />
                   <span className="min-w-0 flex-1">{label}</span>
@@ -85,7 +85,12 @@ export function SettingsFrame({ lang, children }: { lang: string; children: Reac
             </Link>
           </li>
           <li>
-            <button type="button" onClick={logOut} disabled={busy} className={cn(rowClass, "text-error")}>
+            <button
+              type="button"
+              onClick={logOut}
+              disabled={busy}
+              className={cn(rowClass, "text-error hover:text-error focus-visible:text-error")}
+            >
               <LogOut size={18} aria-hidden />
               <span className="min-w-0 flex-1">{t("settings.logOut")}</span>
             </button>
