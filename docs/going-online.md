@@ -113,8 +113,7 @@ The coordinator can add all of these with `vercel env add` if you read the value
 
 22. In `apps/mobile/.env` (not committed), set:
     - `EXPO_PUBLIC_API_URL=https://<project>.vercel.app`
-    - `EXPO_PUBLIC_STORAGE_URL=` the same address as `S3_PUBLIC_URL`
-    These two are public by design, so they are safe to be in the app.
+    This is public by design, so it is safe to be in the app.
 23. Restart Expo with `npx expo start -c` (the `-c` clears the saved copy of the old address). Open the simulator. Sign up with your Resend account email (the only address that receives mail for now), type the 6 digit code from your real inbox, and list an item with a photo.
 
 Live chat on Vercel: connections are closed by Vercel when a function reaches its maximum duration (5 minutes by default, up to about 13 minutes on Pro). The app already reconnects by itself and reloads what it missed, so people only see a blink ([how it works](https://vercel.com/docs/functions/websockets)). Vercel's WebSocket support is in beta.
@@ -185,5 +184,5 @@ The upload only includes files git tracks, so git-ignored `.env` files never lea
 
 - Deploy fails with "Invalid environment": read the list, it names the exact setting.
 - Build fails on Hobby with a cron message: you picked a faster alarm than Hobby allows, see the plan decision above.
-- Photos upload but do not show: `S3_PUBLIC_URL` and `EXPO_PUBLIC_STORAGE_URL` are wrong or the public development URL was not enabled in step 11.
+- Photos upload but do not show: `S3_PUBLIC_URL` is wrong or the public development URL was not enabled in step 11.
 - No email arrives: only your Resend account address can receive mail until a domain is verified.

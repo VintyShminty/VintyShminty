@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { Pressable, View } from "react-native";
+import { type ImageSourcePropType, Pressable, View } from "react-native";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
@@ -7,14 +7,14 @@ import { colors } from "@/theme";
 
 type PhotoTileProps = {
   label: string;
-  /** A full address of the photo. Without one the tile is a plain tint. */
-  photoUrl?: string;
+  /** A picture bundled in the app. Without one the tile is a plain tint. */
+  photo?: ImageSourcePropType;
   onPress: () => void;
   className?: string;
 };
 
 /** A Browse tile: a photo with the name at the bottom over a soft dark gradient (D-019, row 5). */
-function PhotoTile({ label, photoUrl, onPress, className }: PhotoTileProps) {
+function PhotoTile({ label, photo, onPress, className }: PhotoTileProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -22,9 +22,9 @@ function PhotoTile({ label, photoUrl, onPress, className }: PhotoTileProps) {
       accessibilityLabel={label}
       className={cn("overflow-hidden rounded-control bg-pressed active:opacity-90", className)}
     >
-      {photoUrl ? (
+      {photo ? (
         <Image
-          source={{ uri: photoUrl }}
+          source={photo}
           contentFit="cover"
           transition={200}
           style={{ position: "absolute", top: 0, bottom: 0, start: 0, end: 0 }}

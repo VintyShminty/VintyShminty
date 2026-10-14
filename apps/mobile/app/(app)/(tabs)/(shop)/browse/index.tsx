@@ -8,7 +8,7 @@ import { SearchBar } from "@/components/search-bar";
 import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
-import { type BrowseTile, TILES, tilePhotoUrl } from "@/lib/browse-tiles";
+import { type BrowseTile, TILES } from "@/lib/browse-tiles";
 import { useIsRtl } from "@/lib/rtl";
 
 /** One row of two tiles. A single tile keeps its half width. */
@@ -20,7 +20,7 @@ function TileRow({ tiles, onOpen }: { tiles: BrowseTile[]; onOpen: (tile: Browse
         <PhotoTile
           key={tile.key}
           label={t(`browse.tiles.${tile.key}`)}
-          photoUrl={tilePhotoUrl(tile)}
+          photo={tile.photo}
           onPress={() => onOpen(tile)}
           className="aspect-[4/5] flex-1"
         />
