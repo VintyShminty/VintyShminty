@@ -2,8 +2,7 @@ import "../global.css";
 import "@/i18n";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import Constants from "expo-constants";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { LocaleProvider, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -17,8 +16,7 @@ import { authClient } from "@/lib/auth-client";
 import { useBiometricSupport } from "@/lib/biometrics";
 import { useAppFonts } from "@/lib/fonts";
 import { useIsLocked, useLockStore } from "@/lib/lock-store";
-import { queryClient, queryPersister, wipeLocalData } from "@/lib/query-client";
-import { PERSIST_MAX_AGE, persistBuster, shouldPersistQuery } from "@/lib/query-persist";
+import { queryClient, wipeLocalData } from "@/lib/query-client";
 import { ensureNativeLtr, layoutDirection } from "@/lib/rtl";
 import { Warmup } from "@/lib/warmup";
 import { colors } from "@/theme";
@@ -73,16 +71,8 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, direction }}>
       <SafeAreaProvider>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{
-            persister: queryPersister,
-            maxAge: PERSIST_MAX_AGE,
-            buster: persistBuster(Constants.expoConfig?.version ?? "1.0", userId),
-            dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery },
-          }}
-        >
-          <Warmup signedIn={signedIn} />
+        <QueryClientProvider client={queryClient}>
+          <Warmup />
           <BottomSheetModalProvider>
             <StatusBar style="dark" />
             {/* The app, not the phone, decides the layout direction (the style on the root view above), so a language switch mirrors everything at once, sheets included (D-018). */}
@@ -105,7 +95,7 @@ export default function RootLayout() {
             ) : null}
             <PortalHost />
           </BottomSheetModalProvider>
-        </PersistQueryClientProvider>
+        </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

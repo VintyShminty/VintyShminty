@@ -1,12 +1,14 @@
-import { type InfiniteData, useIsRestoring } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
 import type { HomeFeedPage } from "@vinty/shared";
+import Constants from "expo-constants";
 import { Image } from "expo-image";
 import { useEffect, useRef } from "react";
 import { authClient } from "@/lib/auth-client";
 import { feedQuery } from "@/lib/discovery-queries";
 import { personalisationSizesQuery } from "@/lib/item-queries";
+import { startPersistence } from "@/lib/persist-session";
 import { meQuery, referenceQuery } from "@/lib/queries";
-import { queryClient, wipeLocalData } from "@/lib/query-client";
+import { queryClient, queryPersister, wipeLocalData } from "@/lib/query-client";
 
 /** How many cover photos are downloaded ahead of time, the ones in the first screen of the feed. */
 const PREFETCH_PHOTOS = 8;
@@ -15,8 +17,7 @@ const PREFETCH_PHOTOS = 8;
  * Starts the Home requests as soon as the app is up, instead of waiting for Home to open, then downloads the
  * first cover photos. Home asks for the same things, so it just picks up the answers. It renders nothing.
  */
-export function Warmup({ signedIn }: { signedIn: boolean }) {
-  const restoring = useIsRestoring();
+export function Warmup() {
   const { data: session } = authClient.useSession();
   const userId = session?.user.id;
 
@@ -28,23 +29,39 @@ export function Warmup({ signedIn }: { signedIn: boolean }) {
     lastUser.current = userId;
   }, [userId]);
 
+  // Once the person is known: bring their saved feed back, then ask the server for fresh data.
+  // Signed out phones restore and save nothing.
   useEffect(() => {
-    if (restoring) return;
-    const feed = feedQuery({ mood: "for_you" });
-    void queryClient.prefetchQuery(referenceQuery());
-    if (signedIn) {
+    if (!userId) {
+      void queryClient.prefetchQuery(referenceQuery());
+      void warmFeed();
+      return;
+    }
+    const saving = startPersistence({
+      queryClient,
+      persister: queryPersister,
+      appVersion: Constants.expoConfig?.version ?? "1.0",
+      userId,
+    });
+    void saving.restored.then(() => {
+      void queryClient.prefetchQuery(referenceQuery());
       void queryClient.prefetchQuery(meQuery());
       void queryClient.prefetchQuery(personalisationSizesQuery());
-    }
-    void queryClient.prefetchInfiniteQuery(feed).then(() => {
-      const pages = queryClient.getQueryData<InfiniteData<HomeFeedPage>>(feed.queryKey)?.pages;
-      const urls = (pages?.[0]?.items ?? [])
-        .map((card) => card.cover?.url)
-        .filter((url): url is string => Boolean(url))
-        .slice(0, PREFETCH_PHOTOS);
-      if (urls.length > 0) void Image.prefetch(urls);
+      void warmFeed();
     });
-  }, [restoring, signedIn]);
+    return saving.stop;
+  }, [userId]);
 
   return null;
+}
+
+async function warmFeed() {
+  const feed = feedQuery({ mood: "for_you" });
+  await queryClient.prefetchInfiniteQuery(feed);
+  const pages = queryClient.getQueryData<InfiniteData<HomeFeedPage>>(feed.queryKey)?.pages;
+  const urls = (pages?.[0]?.items ?? [])
+    .map((card) => card.cover?.url)
+    .filter((url): url is string => Boolean(url))
+    .slice(0, PREFETCH_PHOTOS);
+  if (urls.length > 0) void Image.prefetch(urls);
 }
