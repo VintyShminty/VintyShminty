@@ -4,7 +4,7 @@ import { Camera, Plus, TriangleAlert, X } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, useWindowDimensions, View } from "react-native";
-import { useReducedMotion } from "react-native-reanimated";
+import Animated, { useAnimatedRef, useReducedMotion } from "react-native-reanimated";
 import Sortable from "react-native-sortables";
 import { PhotoViewer } from "@/components/sell/photo-viewer";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,7 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
   const photos = useSellStore((s) => s.values.photos);
   const set = useSellStore((s) => s.set);
   const clearError = useSellStore((s) => s.clearError);
+  const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const tile = Math.floor((width - SIDE * 2 - GAP * 3) / 4);
   const remaining = maxPhotos - photos.length;
 
@@ -127,95 +128,116 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
     );
   }
 
+  const addBox = (
+    <Pressable
+      onPress={chooseSource}
+      role="button"
+      accessibilityLabel={t("sell.photos.add")}
+      className="items-center justify-center rounded-control border-[1.5px] border-dashed border-text-4 bg-surface active:bg-pressed"
+      style={{ width: tile, height: tile }}
+    >
+      <Icon as={Plus} size={24} className="text-primary" />
+    </Pressable>
+  );
   const failed = photos.some((p) => p.state === "failed");
   return (
     <View className="gap-sm">
-      {/* The sorting library knows nothing about right to left, so it always lays out left to right and
-          row-reverse puts the first photo on the right in Hebrew. */}
-      <View style={{ direction: "ltr" }}>
-        <Sortable.Flex
-          flexDirection={rtl ? "row-reverse" : "row"}
-          flexWrap="wrap"
-          gap={GAP}
-          width="fill"
-          dragActivationDelay={reduced ? 150 : 200}
-          activeItemScale={reduced ? 1 : 1.06}
-          activationAnimationDuration={reduced ? 0 : 150}
-          dropAnimationDuration={reduced ? 0 : 200}
-          autoScrollEnabled={false}
-          onDragStart={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-          onDragEnd={({ fromIndex, toIndex }) => drop(fromIndex, toIndex)}
-        >
-          {photos.map((photo, index) => (
-            <View key={photo.id}>
-              <Pressable
-                onPress={() => openTile(photo, index)}
-                role="button"
-                accessibilityLabel={
-                  photo.state === "failed"
-                    ? t("sell.photos.retry")
-                    : t("sell.photos.tileLabel", { n: index + 1, total: photos.length })
-                }
-                className={cn(
-                  "overflow-hidden rounded-control border bg-pressed",
-                  photo.state === "failed" ? "border-error" : "border-border-subtle",
-                )}
-                style={{ width: tile, height: tile }}
-              >
-                <Image
-                  source={{ uri: photo.uri }}
-                  style={{ width: "100%", height: "100%", opacity: photo.state === "done" ? 1 : 0.5 }}
-                  contentFit="cover"
-                  accessibilityIgnoresInvertColors
-                />
-                <Pressable
-                  onPress={() => remove(photo.id)}
-                  hitSlop={6}
-                  role="button"
-                  accessibilityLabel={t("sell.photos.remove")}
-                  className="absolute end-xs top-xs h-5 w-5 items-center justify-center rounded-full bg-window"
-                >
-                  <Icon
-                    as={photo.state === "failed" ? TriangleAlert : X}
-                    size={12}
-                    className={photo.state === "failed" ? "text-error" : undefined}
-                  />
-                </Pressable>
-                {index === 0 ? (
-                  <View className="absolute bottom-xs start-xs rounded-full bg-window px-[6px] py-[2px]">
-                    <Text variant="badge" weight={700}>
-                      {t("sell.photos.main")}
-                    </Text>
-                  </View>
-                ) : null}
-                {photo.state === "uploading" ? (
-                  <View className="absolute inset-x-0 bottom-0 p-[6px]">
-                    <View className="h-1 overflow-hidden rounded-full bg-window">
-                      <View
-                        className="h-1 bg-primary"
-                        style={{ width: `${Math.round(photo.progress * 100)}%` }}
-                      />
-                    </View>
-                  </View>
-                ) : null}
-              </Pressable>
-            </View>
-          ))}
-        </Sortable.Flex>
-      </View>
-      {remaining > 0 ? (
-        <View className="flex-row">
-          <Pressable
-            onPress={chooseSource}
-            role="button"
-            accessibilityLabel={t("sell.photos.add")}
-            className="items-center justify-center rounded-control border-[1.5px] border-dashed border-text-4 bg-surface active:bg-pressed"
-            style={{ width: tile, height: tile }}
+      {/* One line: the photos, then the add box. It scrolls sideways when there are many. The sorting library
+          knows nothing about right to left, so everything is laid out left to right and, in Hebrew, the first photo
+          is put on the right with row-reverse, the add box on the left and the line starts scrolled to the right. */}
+      <Animated.ScrollView
+        ref={scrollRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        onContentSizeChange={() => {
+          if (rtl) scrollRef.current?.scrollToEnd({ animated: false });
+        }}
+        style={{ direction: "ltr", marginHorizontal: -SIDE }}
+        contentContainerStyle={{
+          paddingHorizontal: SIDE,
+          minWidth: width,
+          flexDirection: "row",
+          alignItems: "flex-start",
+          justifyContent: rtl ? "flex-end" : "flex-start",
+          gap: GAP,
+        }}
+      >
+        {rtl && remaining > 0 ? addBox : null}
+        <View style={{ width: photos.length * tile + (photos.length - 1) * GAP, flexGrow: 0, flexShrink: 0 }}>
+          <Sortable.Flex
+            flexDirection={rtl ? "row-reverse" : "row"}
+            flexWrap="nowrap"
+            gap={GAP}
+            width="fill"
+            scrollableRef={scrollRef}
+            autoScrollDirection="horizontal"
+            autoScrollEnabled
+            dragActivationDelay={reduced ? 150 : 200}
+            activeItemScale={reduced ? 1 : 1.06}
+            activationAnimationDuration={reduced ? 0 : 150}
+            dropAnimationDuration={reduced ? 0 : 200}
+            onDragStart={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+            onDragEnd={({ fromIndex, toIndex }) => drop(fromIndex, toIndex)}
           >
-            <Icon as={Plus} size={24} className="text-primary" />
-          </Pressable>
+            {photos.map((photo, index) => (
+              <View key={photo.id}>
+                <Pressable
+                  onPress={() => openTile(photo, index)}
+                  role="button"
+                  accessibilityLabel={
+                    photo.state === "failed"
+                      ? t("sell.photos.retry")
+                      : t("sell.photos.tileLabel", { n: index + 1, total: photos.length })
+                  }
+                  className={cn(
+                    "overflow-hidden rounded-control border bg-pressed",
+                    photo.state === "failed" ? "border-error" : "border-border-subtle",
+                  )}
+                  style={{ width: tile, height: tile }}
+                >
+                  <Image
+                    source={{ uri: photo.uri }}
+                    style={{ width: "100%", height: "100%", opacity: photo.state === "done" ? 1 : 0.5 }}
+                    contentFit="cover"
+                    accessibilityIgnoresInvertColors
+                  />
+                  <Pressable
+                    onPress={() => remove(photo.id)}
+                    hitSlop={6}
+                    role="button"
+                    accessibilityLabel={t("sell.photos.remove")}
+                    className="absolute end-xs top-xs h-5 w-5 items-center justify-center rounded-full bg-window"
+                  >
+                    <Icon
+                      as={photo.state === "failed" ? TriangleAlert : X}
+                      size={12}
+                      className={photo.state === "failed" ? "text-error" : undefined}
+                    />
+                  </Pressable>
+                  {index === 0 ? (
+                    <View className="absolute bottom-xs start-xs rounded-full bg-window px-[6px] py-[2px]">
+                      <Text variant="badge" weight={700}>
+                        {t("sell.photos.main")}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {photo.state === "uploading" ? (
+                    <View className="absolute inset-x-0 bottom-0 p-[6px]">
+                      <View className="h-1 overflow-hidden rounded-full bg-window">
+                        <View
+                          className="h-1 bg-primary"
+                          style={{ width: `${Math.round(photo.progress * 100)}%` }}
+                        />
+                      </View>
+                    </View>
+                  ) : null}
+                </Pressable>
+              </View>
+            ))}
+          </Sortable.Flex>
         </View>
-      ) : null}
+        {!rtl && remaining > 0 ? addBox : null}
+      </Animated.ScrollView>
       <PhotoViewer photos={photos} startIndex={viewing} onClose={() => setViewing(null)} />
       <Text variant="cardDesc" className={failed || error ? "text-error" : "text-text-3"}>
         {failed

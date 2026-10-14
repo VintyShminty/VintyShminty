@@ -31,6 +31,20 @@ export function socialProvidersOn(
 }
 
 /**
+ * The .p8 key as jose wants it, however it was pasted: with real line breaks, with \n written out (how Vercel keeps
+ * a multi line value), on one line with spaces, in quotes, or without the BEGIN and END lines. Only the base64 body
+ * is kept and laid out again in 64 character lines.
+ */
+export function normalizeApplePem(raw: string): string {
+  const body = raw
+    .replace(/\\n/g, "\n")
+    .replace(/-----(BEGIN|END)[^-]*-----/g, "")
+    .replace(/[^A-Za-z0-9+/=]/g, "");
+  const lines = body.match(/.{1,64}/g) ?? [];
+  return `-----BEGIN PRIVATE KEY-----\n${lines.join("\n")}\n-----END PRIVATE KEY-----`;
+}
+
+/**
  * Apple's "client secret" is a short lived signed token made from the .p8 key. Apple refuses one that lives
  * longer than 6 months, so this makes one that lives 150 days. The phone sign in (ID token) does not use it, but
  * Apple's web flow and account deletion (revoking the link) do.
@@ -41,9 +55,7 @@ export async function createAppleSecret(opts: {
   keyId: string;
   privateKey: string;
 }): Promise<string> {
-  // Vercel keeps a multi line value on one line with \n written out, so turn those back into real line breaks.
-  const pem = opts.privateKey.replace(/\\n/g, "\n");
-  const key = await importPKCS8(pem, "ES256");
+  const key = await importPKCS8(normalizeApplePem(opts.privateKey), "ES256");
   const now = Math.floor(Date.now() / 1000);
   return new SignJWT({})
     .setProtectedHeader({ alg: "ES256", kid: opts.keyId })
@@ -75,12 +87,21 @@ export async function appleOptions(env: AppleEnv) {
   const clientId = env.APPLE_CLIENT_ID ?? bundleId;
   let clientSecret = env.APPLE_CLIENT_SECRET ?? "";
   if (!clientSecret && env.APPLE_TEAM_ID && env.APPLE_KEY_ID && env.APPLE_PRIVATE_KEY) {
-    clientSecret = await createAppleSecret({
-      clientId,
-      teamId: env.APPLE_TEAM_ID,
-      keyId: env.APPLE_KEY_ID,
-      privateKey: env.APPLE_PRIVATE_KEY,
-    });
+    try {
+      clientSecret = await createAppleSecret({
+        clientId,
+        teamId: env.APPLE_TEAM_ID,
+        keyId: env.APPLE_KEY_ID,
+        privateKey: env.APPLE_PRIVATE_KEY,
+      });
+    } catch (err) {
+      // A key that cannot be read must never stop the server: Better Auth builds this while starting, so a throw here
+      // took every route down (2026-10-14). Without a secret the phone's Apple sign in (ID token) still works, only
+      // Apple's web flow and the revoke on account deletion need it. The key itself is never logged.
+      console.error(
+        `Apple sign in: APPLE_PRIVATE_KEY could not be read (${err instanceof Error ? err.message : "unknown error"}). Apple on the website stays off until it is fixed.`,
+      );
+    }
   }
   return {
     clientId,
