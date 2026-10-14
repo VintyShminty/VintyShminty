@@ -24,3 +24,7 @@ docs/vinted-ux-spec.html
 
 # Server bundle for Vercel, built by apps/server/build.mjs
 apps/server/server.mjs
+
+# Website
+apps/web/.next/
+apps/web/next-env.d.ts

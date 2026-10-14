@@ -8,6 +8,7 @@
   "scripts": {
     "dev:mobile": "pnpm --filter @vinty/mobile start",
     "dev:server": "pnpm --filter @vinty/server dev",
+    "dev:web": "pnpm --filter @vinty/web dev",
     "audit:prod": "pnpm audit --prod --audit-level high",
     "typecheck": "pnpm -r --parallel typecheck",
     "lint": "biome check .",

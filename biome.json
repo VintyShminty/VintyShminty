@@ -11,6 +11,8 @@
       "!**/node_modules",
       "!**/drizzle/meta",
       "!**/.expo",
+      "!**/.next",
+      "!**/next-env.d.ts",
       "!**/dist",
       "!**/assets",
       "!docs/mockups",
@@ -23,6 +25,9 @@
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 110
+  },
+  "css": {
+    "parser": { "tailwindDirectives": true }
   },
   "javascript": {
     "formatter": {

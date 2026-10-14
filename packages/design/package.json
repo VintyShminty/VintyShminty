@@ -11,6 +11,7 @@
       "types": "./fonts.d.ts",
       "default": "./fonts.js"
     },
-    "./fonts/*": "./fonts/*"
+    "./fonts/*": "./fonts/*",
+    "./tailwind": "./tailwind.js"
   }
 }

@@ -7,6 +7,7 @@ Working name. A Vinted-style second-hand marketplace, phone app first. Light mod
 pnpm workspace (pnpm 11, Node 22 via `.nvmrc`), TypeScript 6 everywhere.
 
 - `apps/mobile`: Expo SDK 57, Expo Router, NativeWind 4 with Tailwind 3.4, React Native Reusables (rn-primitives), Lucide icons, Gorhom Bottom Sheet, TanStack Query, Zustand, React Hook Form with Zod, i18next.
+- `apps/web`: the website (W1 of `docs/plans/website.md`, layout in D-030). Next.js 16 (App Router, built with webpack because `packages/shared` imports its own files as `./x.js`, which Turbopack cannot map), Tailwind 3.4 with the same shared theme as the app (`packages/design/tailwind.js`, so `bg-surface`, `text-text-1`, `rounded-control`, `p-lg`, `text-display` are identical), the language in the address (`/en`, `/he`, `proxy.ts` redirects `/`), TanStack Query, i18next on the shared wording. Its `next.config.ts` forwards `/api/auth` and `/v1` to the server (`API_URL`) so the login cookie belongs to the website. Note: in the shared theme `primary` is our espresso accent, `bg-accent` is the pale pressed surface (Reusables mapping).
 - `apps/server`: Fastify 5, `fastify-type-provider-zod`, pino logging, env validated with Zod.
 - `packages/db`: Drizzle ORM with postgres-js. Migrations in `packages/db/drizzle`.
 - `packages/shared`: Zod schemas and types shared by app and server.
@@ -20,6 +21,7 @@ Not added yet (they need decisions or credentials): payments, a real email provi
 ## Repo map
 
 ```
+apps/web/                   The website (Next.js). app/[lang]/ pages, components/, lib/ (i18n, fonts), proxy.ts, tests/
 apps/mobile/app/            Expo Router screens. (dev)/gallery.tsx is the dev-only design gallery
 apps/mobile/components/ui/  Reusables components restyled to our design (Text, Button, Badge, Chip, Switch, Icon)
 apps/mobile/theme/          index.ts only: the one place app code imports tokens from (`@/theme`)
@@ -48,6 +50,7 @@ pnpm db:up          # Postgres 17, Mailpit (email inbox http://localhost:8025) a
 pnpm db:migrate     # apply migrations. After a schema change run pnpm db:generate first
 pnpm dev:server     # http://localhost:3000, check /health and /health/db
 pnpm dev:mobile     # Expo dev server. Press i for the iOS Simulator
+pnpm dev:web        # the website, http://localhost:3001 (needs pnpm dev:server too). Hidden test page for login and live chat: http://localhost:3001/en/dev/connection (development only)
 pnpm db:seed        # reference data + fake sample data (development only, wipes user data first)
 pnpm db:reset       # drop everything, migrate, seed. Run it twice, you get the same data
 pnpm db:seed:reference  # only the reference data (categories, brands, sizes...). Safe anywhere

@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-text-1 antialiased;
+    font-family: var(--font-aileron), -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  }
+  html[lang="he"] body {
+    font-family: var(--font-heebo), -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  }
+}
