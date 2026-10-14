@@ -24,7 +24,7 @@ const iconLink =
 export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) {
   const t = getT(lang);
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border-subtle bg-background/95 backdrop-blur">
       <nav
         aria-label={t("web.nav.mainNavigation")}
         className="mx-auto flex max-w-[1280px] flex-wrap items-center gap-md px-lg py-md md:px-xl lg:px-[48px] xl:px-[80px]"
@@ -32,7 +32,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
         <Link
           href={`/${lang}`}
           aria-label={t("web.nav.homeLink")}
-          className="text-[22px] font-extrabold tracking-tight text-primary"
+          className="text-[23px] font-bold tracking-tight text-text-1"
         >
           Vinty
         </Link>
@@ -47,7 +47,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
             />
           </BrowsePanel>
         </div>
-        <search className="relative order-last flex h-10 w-full items-center gap-sm rounded-bar border border-border bg-surface px-lg focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">
+        <search className="relative order-last flex h-10 w-full items-center gap-sm rounded-full border border-border bg-background focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">
           <SearchField lang={lang} />
         </search>
         <div className="ms-auto hidden items-center gap-sm md:flex">
@@ -64,13 +64,13 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
             <>
               <Link
                 href={loginHref(lang)}
-                className="inline-flex h-10 items-center rounded-control px-md text-body-sm font-semibold text-text-1 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                className="inline-flex h-[34px] items-center rounded-[8px] px-sm text-body-sm font-semibold text-text-1 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
               >
                 {t("welcome.logIn")}
               </Link>
               <Link
                 href={signUpHref(lang)}
-                className="inline-flex h-10 items-center rounded-control border border-primary px-md text-body-sm font-semibold text-primary hover:bg-accent-tint"
+                className="inline-flex h-[34px] items-center rounded-[8px] border border-border px-[14px] text-body-sm font-semibold text-text-1 hover:border-text-1"
               >
                 {t("welcome.signUp")}
               </Link>

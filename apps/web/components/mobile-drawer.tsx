@@ -66,7 +66,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
             <X size={22} aria-hidden />
           </button>
         </div>
-        <SellButton lang={lang} className="w-full" />
+        <SellButton lang={lang} className="h-10 w-full rounded-control" />
         <nav aria-label={t("web.nav.menu")} className="mt-md flex flex-col">
           {viewer ? (
             <>
