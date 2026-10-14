@@ -6,6 +6,8 @@ import { OnboardingGate } from "@/components/auth/onboarding-gate";
 import { EventCollector } from "@/components/event-collector";
 import { Footer } from "@/components/footer";
 import { I18nProvider } from "@/components/i18n-provider";
+import { RealtimeProvider } from "@/components/inbox/realtime-provider";
+import { UnreadTitle } from "@/components/inbox/unread-title";
 import { LoginPromptProvider } from "@/components/login-prompt";
 import { QueryProvider } from "@/components/query-provider";
 import { SiteProvider } from "@/components/site-context";
@@ -48,6 +50,8 @@ export default async function LangLayout({
             <SiteProvider viewer={viewer} conditions={conditions}>
               <LoginPromptProvider lang={lang}>
                 <EventCollector />
+                {viewer ? <RealtimeProvider /> : null}
+                {viewer ? <UnreadTitle /> : null}
                 <OnboardingGate lang={lang} />
                 <TopBar lang={lang} viewer={viewer} />
                 <div className="flex-1">{children}</div>

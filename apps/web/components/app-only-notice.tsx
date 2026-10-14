@@ -6,9 +6,13 @@ import { useTranslation } from "react-i18next";
 /**
  * The small notice for things that only work in the app until the website gets them (buy, make your price, message,
  * report). `const [show, notice] = useAppOnlyNotice()`: render `notice` once and call `show()` from a button.
+ * Pass `text` to say something else in the same dialog (for example why a chat could not start).
  * It is the browser's own modal dialog, so focus stays inside and Escape closes it.
  */
-export function useAppOnlyNotice(): [show: () => void, notice: ReactElement] {
+export function useAppOnlyNotice(text?: {
+  title: string;
+  body: string;
+}): [show: () => void, notice: ReactElement] {
   const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
   const id = useId();
@@ -28,10 +32,10 @@ export function useAppOnlyNotice(): [show: () => void, notice: ReactElement] {
       className="m-auto w-[min(92vw,400px)] rounded-window border-0 bg-background p-xl text-text-1 shadow-none backdrop:bg-backdrop"
     >
       <h2 id={`${id}-title`} className="text-heading font-bold">
-        {t("web.item.appOnly.title")}
+        {text?.title ?? t("web.item.appOnly.title")}
       </h2>
       <p id={`${id}-body`} className="mt-sm text-body-sm text-text-3">
-        {t("web.item.appOnly.body")}
+        {text?.body ?? t("web.item.appOnly.body")}
       </p>
       <button
         type="button"
