@@ -789,7 +789,11 @@
     "noResultsHint": "Try different words or fewer filters",
     "sellers": "Sellers",
     "sellersHint": "Look up a seller by name",
-    "noSellers": "No seller by that name"
+    "noSellers": "No seller by that name",
+    "assist": {
+      "understood": "Searched as filters",
+      "exactWords": "Search the exact words"
+    }
   },
   "filters": {
     "title": "Filter",
@@ -1898,7 +1902,8 @@
       "photo_check": "Photo helper (sell form)",
       "admin_upload_photo_check": "Photo helper (listing upload)",
       "text_suggest": "Text helper (sell form)",
-      "photo_tips": "Photo tips (sell form)"
+      "photo_tips": "Photo tips (sell form)",
+      "search_understand": "Search in plain words"
     },
     "dashboard": {
       "totalUsers": "Users",

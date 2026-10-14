@@ -26,6 +26,7 @@ export * from "./recommendations.js";
 export * from "./reference-data.js";
 export * from "./referrals.js";
 export * from "./reviews.js";
+export * from "./search-assist.js";
 export * from "./sell-helpers.js";
 export * from "./size-steps.js";
 export * from "./state-machines.js";
