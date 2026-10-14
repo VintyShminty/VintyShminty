@@ -11,12 +11,27 @@ import { pagePath } from "@/lib/feed-url";
 import { buildFilterOptions, listingQuery, paramValue, parseFilters } from "@/lib/filters";
 import { getT, isLang, type Lang } from "@/lib/i18n";
 import { getReference } from "@/lib/reference";
+import { alternatesFor } from "@/lib/seo";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
   const { lang } = await params;
-  return { title: isLang(lang) ? `${getT(lang)("search.items")} | Vinty` : "Vinty" };
+  if (!isLang(lang)) return { title: "Vinty" };
+  const sp = await searchParams;
+  // Results for a word or with filters are not pages for Google. Plain /search is.
+  const hasQuery = Object.values(sp).some((v) => (Array.isArray(v) ? v.length > 0 : Boolean(v)));
+  return {
+    title: `${getT(lang)("search.items")} | Vinty`,
+    alternates: alternatesFor(lang, "/search"),
+    robots: hasQuery ? { index: false, follow: true } : undefined,
+  };
 }
 
 /**

@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BrowseTiles } from "@/components/browse-tiles";
 import { getT, isLang } from "@/lib/i18n";
+import { alternatesFor } from "@/lib/seo";
 
 const TILE_GRID = "grid-cols-2 md:grid-cols-3 lg:grid-cols-5";
 const TILE_SIZE = "aspect-[4/5]";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  return { title: isLang(lang) ? `${getT(lang)("tabs.browse")} | Vinty` : "Vinty" };
+  if (!isLang(lang)) return { title: "Vinty" };
+  return { title: `${getT(lang)("tabs.browse")} | Vinty`, alternates: alternatesFor(lang, "/browse") };
 }
 
 /** Browse: every photo tile (the first ten, then "More to explore"), each opening its results page. */

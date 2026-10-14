@@ -13,6 +13,7 @@ import { pagePath } from "@/lib/feed-url";
 import { buildFilterOptions, isGroup, listingQuery, paramValue, parseFilters } from "@/lib/filters";
 import { getT, isLang, type Lang } from "@/lib/i18n";
 import { getReference } from "@/lib/reference";
+import { alternatesFor } from "@/lib/seo";
 import { pageCategoryIds, type SubType, sizeGroupIdsFor, subTypeIds, subTypesOf } from "@/lib/tile-types";
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -25,7 +26,12 @@ export async function generateMetadata({
   const { lang, tile } = await params;
   const found = findBrowseTile(tile);
   if (!isLang(lang) || !found) return { title: "Vinty" };
-  return { title: `${getT(lang)(`browse.tiles.${found.key}`)} | Vinty` };
+  const name = getT(lang)(`browse.tiles.${found.key}`);
+  return {
+    title: `${name} | Vinty`,
+    // Filters and types in the address are views of the same page, so the canonical address has none of them.
+    alternates: alternatesFor(lang, `/browse/${found.key}`),
+  };
 }
 
 function toParams(sp: SearchParams): URLSearchParams {

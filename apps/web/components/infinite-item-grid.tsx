@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { homeFeedPageSchema, type ListingCard, searchPageSchema } from "@vinty/shared";
+import { feedPageSchema, homeFeedPageSchema, type ListingCard, searchPageSchema } from "@vinty/shared";
 import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { ZodType } from "zod";
@@ -11,7 +11,7 @@ import { FEED_PAGE_SIZE, pagePath } from "@/lib/feed-url";
 
 type Page = { items: ListingCard[]; nextCursor: string | null };
 
-const SCHEMAS = { feed: homeFeedPageSchema, listings: searchPageSchema } as const;
+const SCHEMAS = { feed: homeFeedPageSchema, listings: searchPageSchema, plain: feedPageSchema } as const;
 
 /**
  * A grid of item cards that keeps loading as the visitor scrolls (TanStack `useInfiniteQuery` and an
@@ -19,7 +19,8 @@ const SCHEMAS = { feed: homeFeedPageSchema, listings: searchPageSchema } as cons
  *
  * - `endpoint` is the address without paging, for example `/v1/feed?mood=new_today` or `/v1/listings?categoryId=..`.
  *   Paging (`limit`, `cursor`) is added here. The cursor keeps the order, so a card never repeats.
- * - `kind` picks how the answer is read: `feed` for `/v1/feed`, `listings` for `/v1/listings`.
+ * - `kind` picks how the answer is read: `feed` for `/v1/feed`, `listings` for `/v1/listings`, `plain` for a page
+ *   of cards without a total (`/v1/users/:id/listings`).
  * - `firstPage` is that endpoint's first page as the server got it (`null` if the server could not, the browser then
  *   asks itself).
  * - `empty` is shown when there are no items at all.

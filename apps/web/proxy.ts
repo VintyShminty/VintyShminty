@@ -23,6 +23,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except the language folders, the forwarded server calls, Next's own files and files with an extension.
-  matcher: ["/((?!en(?:/|$)|he(?:/|$)|api/|v1/|_next/|.*\\..*).*)"],
+  // Everything except the language folders, the forwarded server calls, Next's own files, the default link preview
+  // picture and files with an extension.
+  matcher: ["/((?!en(?:/|$)|he(?:/|$)|api/|v1/|_next/|opengraph-image|.*\\..*).*)"],
 };

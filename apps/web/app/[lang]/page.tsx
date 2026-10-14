@@ -1,4 +1,5 @@
 import { type HomeFeedPage, homeFeedPageSchema, personalisationSizesSchema } from "@vinty/shared";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { HomeGreeting } from "@/components/home-greeting";
@@ -8,6 +9,18 @@ import { getViewer, serverApi } from "@/lib/api";
 import { feedPath, MOODS, pagePath, parseMood } from "@/lib/feed-url";
 import { homeEmptyText } from "@/lib/home-empty";
 import { getT, isLang } from "@/lib/i18n";
+import { alternatesFor } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLang(lang)) return { title: "Vinty" };
+  return {
+    title: "Vinty",
+    description: getT(lang)("web.meta.homeDescription"),
+    // ?mood= is a view of the same page.
+    alternates: alternatesFor(lang, ""),
+  };
+}
 
 /**
  * Home (D-019 row 4, D-030): the big greeting, the mood chips and the feed grid. The first page of the feed is built

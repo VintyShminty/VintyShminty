@@ -12,6 +12,7 @@ import { getViewer } from "@/lib/api";
 import { aileron, heebo } from "@/lib/fonts";
 import { clientResources, dirOf, isLang, LANGUAGES } from "@/lib/i18n";
 import { getConditionNames } from "@/lib/reference";
+import { SITE_URL } from "@/lib/seo";
 import { toViewer } from "@/lib/viewer";
 
 export const dynamicParams = false;
@@ -20,7 +21,7 @@ export function generateStaticParams() {
   return LANGUAGES.map((lang) => ({ lang }));
 }
 
-export const metadata: Metadata = { title: "Vinty" };
+export const metadata: Metadata = { title: "Vinty", metadataBase: new URL(SITE_URL) };
 
 /**
  * The frame of every page: fonts, language and direction, the providers client components need (wording, TanStack Query,

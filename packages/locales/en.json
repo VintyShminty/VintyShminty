@@ -1718,6 +1718,54 @@
       "pieces_one": "{{count}} piece",
       "pieces_other": "{{count}} pieces",
       "piecesCapped": "{{count}}+ pieces"
+    },
+    "item": {
+      "photosLabel": "Item photos",
+      "openPhoto": "Open photo full screen",
+      "closeViewer": "Close photos",
+      "previousPhoto": "Previous photo",
+      "nextPhoto": "Next photo",
+      "yours": "This is your item",
+      "yoursNote": "You can edit it from the app.",
+      "moreFromSeller": "More from {{name}}",
+      "seeAll": "See all",
+      "similar": "Similar items",
+      "report": "Report this item",
+      "metaFallback": "{{details}} for sale on Vinty",
+      "appOnly": {
+        "title": "This works in the app for now",
+        "body": "Buying, offers, messages and reports are coming to the website soon. Open the app to do it today."
+      },
+      "loadFailed": "We could not load this item",
+      "breakdownLabel": "Price breakdown"
+    },
+    "seller": {
+      "tabsLabel": "Seller sections",
+      "statusLabel": "Show items",
+      "follow": "Follow",
+      "following": "Following",
+      "followLabel": "Follow {{name}}",
+      "unfollowLabel": "Stop following {{name}}",
+      "you": "This is you",
+      "moreReviews": "Show more reviews",
+      "metaDescription_one": "{{name}} has {{count}} item for sale on Vinty",
+      "metaDescription_other": "{{name}} has {{count}} items for sale on Vinty",
+      "statusGroup": "Item status",
+      "rating": "{{rating}} out of 5",
+      "loadFailed": "We could not load this seller"
+    },
+    "help": {
+      "metaDescription": "Quick answers about how Vinty works",
+      "allTopics": "All help topics",
+      "breadcrumb": "You are here"
+    },
+    "notFound": {
+      "title": "We could not find that page",
+      "body": "It may have moved, or the seller may have taken it down.",
+      "home": "Back to Home"
+    },
+    "meta": {
+      "homeDescription": "Second-hand finds from people near you. Buy, sell and make your price on Vinty."
     }
   }
 }

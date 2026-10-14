@@ -69,6 +69,8 @@ export function ItemCard({
       {/* The link covers the whole card. The heart sits above it, so it stays its own button. */}
       <Link
         href={`/${i18n.language}/item/${listing.id}`}
+        // Opening an item page counts a view on the server, so a card scrolling past must not prefetch it.
+        prefetch={false}
         aria-label={listing.title}
         className="absolute inset-0 z-0 rounded-control focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       />

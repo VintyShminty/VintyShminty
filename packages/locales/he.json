@@ -1737,6 +1737,54 @@
       "pieces_one": "פריט אחד",
       "pieces_other": "{{count}} פריטים",
       "piecesCapped": "{{count}}+ פריטים"
+    },
+    "item": {
+      "photosLabel": "תמונות הפריט",
+      "openPhoto": "פתיחת התמונה במסך מלא",
+      "closeViewer": "סגירת התמונות",
+      "previousPhoto": "התמונה הקודמת",
+      "nextPhoto": "התמונה הבאה",
+      "yours": "זה הפריט שלכם",
+      "yoursNote": "אפשר לערוך אותו מהאפליקציה.",
+      "moreFromSeller": "עוד מ{{name}}",
+      "seeAll": "לכל הפריטים",
+      "similar": "פריטים דומים",
+      "report": "דיווח על הפריט",
+      "metaFallback": "{{details}} למכירה ב-Vinty",
+      "appOnly": {
+        "title": "בינתיים זה עובד באפליקציה",
+        "body": "קנייה, הצעות, הודעות ודיווחים יגיעו בקרוב גם לאתר. פתחו את האפליקציה כדי לעשות את זה כבר היום."
+      },
+      "loadFailed": "לא הצלחנו לטעון את הפריט",
+      "breakdownLabel": "פירוט המחיר"
+    },
+    "seller": {
+      "tabsLabel": "חלקי עמוד המוכר",
+      "statusLabel": "הצגת פריטים",
+      "follow": "מעקב",
+      "following": "במעקב",
+      "followLabel": "מעקב אחרי {{name}}",
+      "unfollowLabel": "הפסקת מעקב אחרי {{name}}",
+      "you": "זה אתם",
+      "moreReviews": "עוד ביקורות",
+      "metaDescription_one": "ל{{name}} יש פריט {{count}} למכירה ב-Vinty",
+      "metaDescription_other": "ל{{name}} יש {{count}} פריטים למכירה ב-Vinty",
+      "statusGroup": "מצב הפריטים",
+      "rating": "{{rating}} מתוך 5",
+      "loadFailed": "לא הצלחנו לטעון את המוכר"
+    },
+    "help": {
+      "metaDescription": "תשובות מהירות על איך Vinty עובד",
+      "allTopics": "כל נושאי העזרה",
+      "breadcrumb": "אתם כאן"
+    },
+    "notFound": {
+      "title": "לא מצאנו את העמוד הזה",
+      "body": "ייתכן שהוא הועבר, או שהמוכר הסיר אותו.",
+      "home": "חזרה לדף הבית"
+    },
+    "meta": {
+      "homeDescription": "מציאות יד שנייה מאנשים לידכם. קונים, מוכרים ומציעים מחיר ב-Vinty."
     }
   }
 }
