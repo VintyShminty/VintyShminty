@@ -14,10 +14,9 @@ import {
   validateListing,
 } from "@vinty/shared";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Sparkles } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Pressable, View } from "react-native";
+import { Alert, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PricePill } from "@/components/price-pill";
 import { BrandSheet } from "@/components/sell/brand-sheet";
@@ -29,8 +28,6 @@ import { PhotoUploader } from "@/components/sell/photo-uploader";
 import { UseItChip } from "@/components/sell/use-it-chip";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { PickerRow } from "@/components/ui/picker-row";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
@@ -105,7 +102,6 @@ export default function SellForm() {
   const errors = useSellStore((s) => s.errors);
   const status = useSellStore((s) => s.status);
   const listingId = useSellStore((s) => s.listingId);
-  const assist = useSellStore((s) => s.assist);
   const suggestion = useSellStore((s) => s.suggestion);
   const { set, setErrors, clearError, start } = useSellStore.getState();
   const [banner, setBanner] = useState<string | null>(null);
@@ -144,7 +140,6 @@ export default function SellForm() {
   const sizeRef = useRef<BottomSheetModal>(null);
   const colourRef = useRef<BottomSheetModal>(null);
   const materialRef = useRef<BottomSheetModal>(null);
-  const patternRef = useRef<BottomSheetModal>(null);
 
   const ref = reference.data;
   if (!ref || !ready) {
@@ -192,7 +187,6 @@ export default function SellForm() {
     .filter(Boolean)
     .join(", ");
   const material = ref.materials.find((m) => m.id === values.materialId);
-  const pattern = ref.patterns.find((p) => p.id === values.patternId);
   const recommendedParcel = category?.defaultParcelSizeId ?? ref.parcelSizes[0]?.id ?? null;
   const priceMinor = priceTextToMinor(values.priceText);
   const uploading = values.photos.some((p) => p.state === "uploading");
@@ -273,26 +267,8 @@ export default function SellForm() {
       <ScreenScroll contentContainerClassName="pb-lg">
         <Section title={t("sell.photos.title")}>
           <PhotoUploader maxPhotos={limits.maxPhotos} error={err("photos")} />
-          {assist === "reading" ? (
-            <View className="flex-row items-center gap-sm" accessibilityLiveRegion="polite">
-              <Icon as={Sparkles} size={14} className="text-primary" />
-              <Text variant="cardDesc" className="text-text-3">
-                {t("sell.assist.reading")}
-              </Text>
-            </View>
-          ) : null}
-          <Pressable
-            onPress={() => set({ usedAiPhotos: !values.usedAiPhotos })}
-            role="checkbox"
-            accessibilityState={{ checked: values.usedAiPhotos }}
-            accessibilityLabel={t("sell.aiPhotos")}
-            className="flex-row items-center gap-md rounded-control border border-border px-[14px] py-md active:bg-surface"
-          >
-            <Text variant="bodySmall" className="flex-1">
-              {t("sell.aiPhotos")}
-            </Text>
-            <Checkbox checked={values.usedAiPhotos} />
-          </Pressable>
+          {/* The "made or touched up with AI" checkbox (values.usedAiPhotos, t("sell.aiPhotos")) is hidden for now.
+              The field and the server support stay, it simply stays false until the row comes back. */}
         </Section>
 
         <Section title={t("sell.about")}>
@@ -400,14 +376,6 @@ export default function SellForm() {
               value={name(material?.name)}
               onPress={() => openSheet(materialRef)}
               error={err("materialId")}
-            />
-          ) : null}
-          {category && mode("pattern") !== "hidden" ? (
-            <PickerRow
-              label={t("sell.pattern")}
-              value={name(pattern?.name)}
-              onPress={() => openSheet(patternRef)}
-              error={err("patternId")}
             />
           ) : null}
         </Section>
@@ -531,18 +499,6 @@ export default function SellForm() {
         onChange={([materialId]) => {
           set({ materialId: materialId ?? null });
           clearError("materialId");
-        }}
-      />
-      <OptionListSheet
-        ref={patternRef}
-        title={t("sell.pattern")}
-        mode="single"
-        options={ref.patterns.map((p) => ({ id: p.id, label: name(p.name) }))}
-        selected={values.patternId ? [values.patternId] : []}
-        clearable={mode("pattern") === "optional"}
-        onChange={([patternId]) => {
-          set({ patternId: patternId ?? null });
-          clearError("patternId");
         }}
       />
     </Screen>

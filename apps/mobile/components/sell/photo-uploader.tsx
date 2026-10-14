@@ -1,11 +1,18 @@
+import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { Camera, Plus, TriangleAlert, X } from "lucide-react-native";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, useWindowDimensions, View } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
+import Sortable from "react-native-sortables";
+import { PhotoViewer } from "@/components/sell/photo-viewer";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { type PickedPhoto, pickListingPhotos, shrinkPhoto, uploadListingPhoto } from "@/lib/listing-photos";
+import { movePhoto } from "@/lib/move-photo";
+import { useIsRtl } from "@/lib/rtl";
 import { newPhotoId, type SellPhoto, useSellStore } from "@/lib/sell-store";
 import { cn } from "@/lib/utils";
 
@@ -28,12 +35,15 @@ async function sendPhoto(id: string, picked: PickedPhoto) {
 
 /**
  * The photo tiles of the sell form (docs/components.md, PhotoUploader): an empty dashed box, then square tiles with
- * a remove cross, a Main tag on the cover, upload progress and a retry state. Tap a tile to make it the cover or
- * move it. Up to the platform limit.
+ * a remove cross, a Cover tag on the first photo, upload progress and a retry state. Press and hold a tile, then
+ * drag it to move it (the first place is the cover). A tap opens the photo full screen. Up to the platform limit.
  */
 function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string }) {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
+  const rtl = useIsRtl();
+  const reduced = useReducedMotion();
+  const [viewing, setViewing] = useState<number | null>(null);
   const photos = useSellStore((s) => s.values.photos);
   const set = useSellStore((s) => s.set);
   const clearError = useSellStore((s) => s.clearError);
@@ -71,12 +81,10 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
     ]);
   };
 
-  const move = (from: number, to: number) => {
-    const list = [...useSellStore.getState().values.photos];
-    const [item] = list.splice(from, 1);
-    if (!item) return;
-    list.splice(to, 0, item);
-    set({ photos: list });
+  const drop = (from: number, to: number) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (from === to) return;
+    set({ photos: movePhoto(useSellStore.getState().values.photos, from, to) });
   };
 
   const remove = (id: string) =>
@@ -88,14 +96,7 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
       void sendPhoto(photo.id, { uri: photo.uri, width: photo.width, height: photo.height });
       return;
     }
-    const last = photos.length - 1;
-    Alert.alert(t("sell.photos.optionsTitle"), undefined, [
-      ...(index > 0 ? [{ text: t("sell.photos.makeCover"), onPress: () => move(index, 0) }] : []),
-      ...(index > 0 ? [{ text: t("sell.photos.moveEarlier"), onPress: () => move(index, index - 1) }] : []),
-      ...(index < last ? [{ text: t("sell.photos.moveLater"), onPress: () => move(index, index + 1) }] : []),
-      { text: t("sell.photos.remove"), style: "destructive" as const, onPress: () => remove(photo.id) },
-      { text: t("common.cancel"), style: "cancel" as const },
-    ]);
+    setViewing(index);
   };
 
   if (photos.length === 0) {
@@ -129,62 +130,81 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
   const failed = photos.some((p) => p.state === "failed");
   return (
     <View className="gap-sm">
-      <View className="flex-row flex-wrap" style={{ gap: GAP }}>
-        {photos.map((photo, index) => (
-          <Pressable
-            key={photo.id}
-            onPress={() => openTile(photo, index)}
-            role="button"
-            accessibilityLabel={
-              photo.state === "failed"
-                ? t("sell.photos.retry")
-                : t("sell.photos.tileLabel", { n: index + 1, total: photos.length })
-            }
-            className={cn(
-              "overflow-hidden rounded-control border bg-pressed",
-              photo.state === "failed" ? "border-error" : "border-border-subtle",
-            )}
-            style={{ width: tile, height: tile }}
-          >
-            <Image
-              source={{ uri: photo.uri }}
-              style={{ width: "100%", height: "100%", opacity: photo.state === "done" ? 1 : 0.5 }}
-              contentFit="cover"
-              accessibilityIgnoresInvertColors
-            />
-            <Pressable
-              onPress={() => remove(photo.id)}
-              hitSlop={6}
-              role="button"
-              accessibilityLabel={t("sell.photos.remove")}
-              className="absolute end-xs top-xs h-5 w-5 items-center justify-center rounded-full bg-window"
-            >
-              <Icon
-                as={photo.state === "failed" ? TriangleAlert : X}
-                size={12}
-                className={photo.state === "failed" ? "text-error" : undefined}
-              />
-            </Pressable>
-            {index === 0 ? (
-              <View className="absolute bottom-xs start-xs rounded-full bg-window px-[6px] py-[2px]">
-                <Text variant="badge" weight={700}>
-                  {t("sell.photos.main")}
-                </Text>
-              </View>
-            ) : null}
-            {photo.state === "uploading" ? (
-              <View className="absolute inset-x-0 bottom-0 p-[6px]">
-                <View className="h-1 overflow-hidden rounded-full bg-window">
-                  <View
-                    className="h-1 bg-primary"
-                    style={{ width: `${Math.round(photo.progress * 100)}%` }}
+      {/* The sorting library knows nothing about right to left, so it always lays out left to right and
+          row-reverse puts the first photo on the right in Hebrew. */}
+      <View style={{ direction: "ltr" }}>
+        <Sortable.Flex
+          flexDirection={rtl ? "row-reverse" : "row"}
+          flexWrap="wrap"
+          gap={GAP}
+          width="fill"
+          dragActivationDelay={reduced ? 150 : 200}
+          activeItemScale={reduced ? 1 : 1.06}
+          activationAnimationDuration={reduced ? 0 : 150}
+          dropAnimationDuration={reduced ? 0 : 200}
+          autoScrollEnabled={false}
+          onDragStart={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+          onDragEnd={({ fromIndex, toIndex }) => drop(fromIndex, toIndex)}
+        >
+          {photos.map((photo, index) => (
+            <View key={photo.id}>
+              <Pressable
+                onPress={() => openTile(photo, index)}
+                role="button"
+                accessibilityLabel={
+                  photo.state === "failed"
+                    ? t("sell.photos.retry")
+                    : t("sell.photos.tileLabel", { n: index + 1, total: photos.length })
+                }
+                className={cn(
+                  "overflow-hidden rounded-control border bg-pressed",
+                  photo.state === "failed" ? "border-error" : "border-border-subtle",
+                )}
+                style={{ width: tile, height: tile }}
+              >
+                <Image
+                  source={{ uri: photo.uri }}
+                  style={{ width: "100%", height: "100%", opacity: photo.state === "done" ? 1 : 0.5 }}
+                  contentFit="cover"
+                  accessibilityIgnoresInvertColors
+                />
+                <Pressable
+                  onPress={() => remove(photo.id)}
+                  hitSlop={6}
+                  role="button"
+                  accessibilityLabel={t("sell.photos.remove")}
+                  className="absolute end-xs top-xs h-5 w-5 items-center justify-center rounded-full bg-window"
+                >
+                  <Icon
+                    as={photo.state === "failed" ? TriangleAlert : X}
+                    size={12}
+                    className={photo.state === "failed" ? "text-error" : undefined}
                   />
-                </View>
-              </View>
-            ) : null}
-          </Pressable>
-        ))}
-        {remaining > 0 ? (
+                </Pressable>
+                {index === 0 ? (
+                  <View className="absolute bottom-xs start-xs rounded-full bg-window px-[6px] py-[2px]">
+                    <Text variant="badge" weight={700}>
+                      {t("sell.photos.main")}
+                    </Text>
+                  </View>
+                ) : null}
+                {photo.state === "uploading" ? (
+                  <View className="absolute inset-x-0 bottom-0 p-[6px]">
+                    <View className="h-1 overflow-hidden rounded-full bg-window">
+                      <View
+                        className="h-1 bg-primary"
+                        style={{ width: `${Math.round(photo.progress * 100)}%` }}
+                      />
+                    </View>
+                  </View>
+                ) : null}
+              </Pressable>
+            </View>
+          ))}
+        </Sortable.Flex>
+      </View>
+      {remaining > 0 ? (
+        <View className="flex-row">
           <Pressable
             onPress={chooseSource}
             role="button"
@@ -194,8 +214,9 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
           >
             <Icon as={Plus} size={24} className="text-primary" />
           </Pressable>
-        ) : null}
-      </View>
+        </View>
+      ) : null}
+      <PhotoViewer photos={photos} startIndex={viewing} onClose={() => setViewing(null)} />
       <Text variant="cardDesc" className={failed || error ? "text-error" : "text-text-3"}>
         {failed
           ? t("sell.photos.failed")
