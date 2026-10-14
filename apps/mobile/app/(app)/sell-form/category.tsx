@@ -14,6 +14,7 @@ import { TopBar } from "@/components/ui/top-bar";
 import { categoryGuesses } from "@/lib/category-guesses";
 import { categoryIcon } from "@/lib/category-icons";
 import { useLocalName, useReference } from "@/lib/reference";
+import { currentGuesses } from "@/lib/sell-assist";
 import { useSellStore } from "@/lib/sell-store";
 import { colors } from "@/theme";
 
@@ -36,7 +37,7 @@ export default function CategoryPanel() {
   const reference = useReference();
   const selectedId = useSellStore((s) => s.values.categoryId);
   // What the photo helper saw, taken once when the panel opens so the list never jumps if the answer comes later.
-  const [suggestion] = useState(() => useSellStore.getState().suggestion);
+  const [suggestion] = useState(() => currentGuesses());
   const [query, setQuery] = useState("");
   const isHe = i18n.language === "he";
 

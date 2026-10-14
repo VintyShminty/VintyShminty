@@ -2,14 +2,21 @@ import { brands, type Database } from "@vinty/db";
 import {
   type CategoryNode,
   EMPTY_PHOTO_SUGGESTION,
+  EMPTY_TEXT_SUGGESTION,
   LISTING_COLOURS_MAX,
   PHOTO_ASSIST_MAX_CATEGORIES,
+  PHOTO_TIP_KINDS,
+  type PhotoCheck,
   type PhotoSuggestion,
+  type PhotoTip,
+  type PhotoTipKind,
   type ReferenceData,
+  type TextSuggestion,
 } from "@vinty/shared";
 import { eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
-import type { PhotoMediaType, PhotoReader, RawReading } from "./photo-reader.js";
+import type { PhotoMediaType, PhotoReader, RawCheck, RawReading } from "./photo-reader.js";
+import type { RawTextReading, TextReader } from "./text-reader.js";
 
 type Db = NonNullable<Database["db"]>;
 
@@ -57,11 +64,8 @@ export type CatalogCodes = {
   colours: Map<string, string>;
 };
 
-/**
- * Writes our leaf categories and colours as text. The model answers with short codes (C12, K3) and the
- * server turns them back into ids. Codes are cheaper than ids, and a made up code simply matches nothing.
- */
-export function buildCatalog(reference: ReferenceData): CatalogCodes {
+/** The category and colour lists as text, plus the code maps. Shared by the photo catalog and the text catalog. */
+function categoryAndColourLines(reference: ReferenceData) {
   const categories = new Map<string, string>();
   const colours = new Map<string, string>();
 
@@ -87,7 +91,34 @@ export function buildCatalog(reference: ReferenceData): CatalogCodes {
     colours.set(`K${i + 1}`, c.id);
     lines.push(`K${i + 1}: ${c.name.en}`);
   });
+  return { lines, categories, colours };
+}
+
+/**
+ * Writes our leaf categories and colours as text. The model answers with short codes (C12, K3) and the
+ * server turns them back into ids. Codes are cheaper than ids, and a made up code simply matches nothing.
+ */
+export function buildCatalog(reference: ReferenceData): CatalogCodes {
+  const { lines, categories, colours } = categoryAndColourLines(reference);
   return { text: lines.join("\n"), categories, colours };
+}
+
+export type TextCatalogCodes = CatalogCodes & { conditions: Map<string, string> };
+
+/**
+ * The same lists for the text helper, plus the conditions (Q1, Q2...) with their meaning, because words can say how
+ * worn something is. The category and colour part is the same text as the photo catalog.
+ */
+export function buildTextCatalog(reference: ReferenceData): TextCatalogCodes {
+  const { lines, categories, colours } = categoryAndColourLines(reference);
+  const conditions = new Map<string, string>();
+  lines.push("", "CONDITIONS (code: name, meaning)");
+  reference.conditions.forEach((c, i) => {
+    conditions.set(`Q${i + 1}`, c.id);
+    const meaning = c.description?.en?.trim();
+    lines.push(`Q${i + 1}: ${c.name.en}${meaning ? `, ${meaning}` : ""}`);
+  });
+  return { text: lines.join("\n"), categories, colours, conditions };
 }
 
 /** Lower case, no accents, no spaces or punctuation: "Ralph Lauren", "ralph-lauren" and "RÅLPH LAUREN" all match. */
@@ -147,15 +178,39 @@ const cleanText = (text: string | null | undefined, max: number) => {
 const code = (text: string | null | undefined) => (text ?? "").trim().toUpperCase();
 
 /**
- * Turns the model's raw answer into a suggestion the app can trust. Anything that is not in our lists is dropped, and
- * a category guess without a confidence counts as unsure (0).
+ * Turns the photo numbers the model flagged (1 is the first photo sent) back into upload keys. `keys` are the keys
+ * of the photos that were really sent, in order, so a photo that could not be read does not shift the numbers. Unknown
+ * numbers and unknown issue kinds are dropped, repeats are merged, and the kinds come in the app's order.
  */
-export async function resolveSuggestion(
-  raw: RawReading,
+export function resolvePhotoTips(raw: RawCheck["photoIssues"], keys: string[]): PhotoTip[] {
+  const found = new Map<string, Set<PhotoTipKind>>();
+  for (const entry of raw ?? []) {
+    const number = entry.photo;
+    if (typeof number !== "number" || !Number.isInteger(number) || number < 1) continue;
+    const key = keys[number - 1];
+    if (!key) continue;
+    for (const issue of entry.issues ?? []) {
+      const kind = PHOTO_TIP_KINDS.find((k) => k === issue.trim().toLowerCase());
+      if (!kind) continue;
+      const set = found.get(key) ?? new Set<PhotoTipKind>();
+      set.add(kind);
+      found.set(key, set);
+    }
+  }
+  const tips: PhotoTip[] = [];
+  for (const key of keys) {
+    const set = found.get(key);
+    if (set) tips.push({ key, kinds: PHOTO_TIP_KINDS.filter((k) => set.has(k)) });
+  }
+  return tips;
+}
+
+/** Colour, category and brand of any answer that uses codes. Shared by the photo and text resolvers. */
+async function resolveCommon(
+  raw: Pick<RawReading, "categories" | "brandText" | "colours">,
   catalog: CatalogCodes,
   brandMatcher: BrandMatcher,
-): Promise<PhotoSuggestion> {
-  // Up to 3 real leaf categories in the order the model gave them. Made up codes and repeats are dropped.
+) {
   const categories: PhotoSuggestion["categories"] = [];
   for (const guess of raw.categories ?? []) {
     const id = catalog.categories.get(code(guess.code));
@@ -177,6 +232,36 @@ export async function resolveSuggestion(
     const found = await brandMatcher.match(brandText);
     brand = found ? { id: found.id, name: found.name } : { id: null, name: brandText };
   }
+  return { categories, colourIds, brand };
+}
+
+/**
+ * Turns what the words said into a suggestion the app can trust. Same checks as for photos, plus the condition code.
+ * `raw.condition` that is not in our list is dropped.
+ */
+export async function resolveTextSuggestion(
+  raw: RawTextReading,
+  catalog: TextCatalogCodes,
+  brandMatcher: BrandMatcher,
+): Promise<TextSuggestion> {
+  const common = await resolveCommon(raw, catalog, brandMatcher);
+  const conditionId = raw.condition ? (catalog.conditions.get(code(raw.condition)) ?? null) : null;
+  return { ...common, conditionId };
+}
+
+/**
+ * Turns the model's raw answer into a suggestion the app can trust. Anything that is not in our lists is dropped, and
+ * a category guess without a confidence counts as unsure (0).
+ */
+export async function resolveSuggestion(
+  raw: RawReading,
+  catalog: CatalogCodes,
+  brandMatcher: BrandMatcher,
+  /** The upload keys of the photos that were sent, in order, to place the photo tips. */
+  sentKeys: string[] = [],
+): Promise<PhotoSuggestion> {
+  // Up to 3 real leaf categories in the order the model gave them. Made up codes and repeats are dropped.
+  const { categories, colourIds, brand } = await resolveCommon(raw, catalog, brandMatcher);
 
   const suggestion: PhotoSuggestion = {
     categories,
@@ -186,6 +271,7 @@ export async function resolveSuggestion(
     materialId: null,
     title: null,
     description: null,
+    photoTips: resolvePhotoTips(raw.photoIssues, sentKeys),
   };
   return suggestion;
 }
@@ -193,6 +279,8 @@ export async function resolveSuggestion(
 /** The API takes images up to 5 MB each. The app already shrinks photos to about 1 MB, so this is a safety net. */
 const MAX_IMAGE_BYTES = 5_000_000;
 const READ_TIMEOUT_MS = 15_000;
+const CHECK_TIMEOUT_MS = 10_000;
+const TEXT_TIMEOUT_MS = 10_000;
 
 const MEDIA_TYPES: Record<string, PhotoMediaType> = {
   jpg: "image/jpeg",
@@ -200,6 +288,19 @@ const MEDIA_TYPES: Record<string, PhotoMediaType> = {
   png: "image/png",
   webp: "image/webp",
 };
+
+/** Reads the photos from storage and keeps each one's key. Photos that are missing or not a known type are skipped. */
+async function loadImages(storage: FastifyInstance["storage"], keys: string[]) {
+  const loaded = await Promise.all(
+    keys.map(async (key) => {
+      const mediaType = MEDIA_TYPES[key.split(".").pop()?.toLowerCase() ?? ""];
+      if (!mediaType) return null;
+      const data = await storage.read(key, MAX_IMAGE_BYTES);
+      return data ? { key, mediaType, data } : null;
+    }),
+  );
+  return loaded.filter((image): image is NonNullable<typeof image> => image !== null);
+}
 
 /**
  * Reads already uploaded photos with a (metered) photo reader and turns the answer into a suggestion. Shared by the
@@ -223,16 +324,7 @@ export function createPhotoSuggester(
     const { keys, language, userId, log } = input;
     const startedAt = Date.now();
     try {
-      const images = (
-        await Promise.all(
-          keys.map(async (key) => {
-            const mediaType = MEDIA_TYPES[key.split(".").pop()?.toLowerCase() ?? ""];
-            if (!mediaType) return null;
-            const data = await app.storage.read(key, MAX_IMAGE_BYTES);
-            return data ? { mediaType, data } : null;
-          }),
-        )
-      ).filter((image): image is NonNullable<typeof image> => image !== null);
+      const images = await loadImages(app.storage, keys);
       if (images.length === 0) return EMPTY_PHOTO_SUGGESTION;
 
       const reference = await app.reference.get();
@@ -240,14 +332,20 @@ export function createPhotoSuggester(
         catalog = { version: reference.version, value: buildCatalog(reference) };
       }
       const { reading, usage } = await reader.read({
-        images,
+        images: images.map(({ mediaType, data }) => ({ mediaType, data })),
         catalog: catalog.value.text,
         language,
         userId,
         signal: AbortSignal.timeout(READ_TIMEOUT_MS),
       });
       log.info({ photos: images.length, ms: Date.now() - startedAt, ...usage }, "photo helper read");
-      return await resolveSuggestion(reading, catalog.value, brandMatcher);
+      // The tips use the keys of the photos that were really sent, because unreadable ones were skipped.
+      return await resolveSuggestion(
+        reading,
+        catalog.value,
+        brandMatcher,
+        images.map((image) => image.key),
+      );
     } catch (error) {
       // Never a 500: the form works without help. The error text can name the model, never the key or the photos.
       log.warn(
@@ -255,6 +353,84 @@ export function createPhotoSuggester(
         "photo helper failed",
       );
       return EMPTY_PHOTO_SUGGESTION;
+    }
+  };
+}
+
+/**
+ * Looks at photos added after the first read, for tips only (no categories, no catalog). Same promises as the suggester:
+ * the caller checks ownership, and it never throws, any failure answers with no tips.
+ */
+export function createPhotoChecker(app: Pick<FastifyInstance, "storage">, reader: PhotoReader) {
+  return async function check(input: {
+    keys: string[];
+    userId: string;
+    log: { info: (o: object, m: string) => void; warn: (o: object, m: string) => void };
+  }): Promise<PhotoCheck> {
+    const { keys, userId, log } = input;
+    const startedAt = Date.now();
+    try {
+      const images = await loadImages(app.storage, keys);
+      if (images.length === 0) return { photoTips: [] };
+      const { reading, usage } = await reader.check({
+        images: images.map(({ mediaType, data }) => ({ mediaType, data })),
+        userId,
+        signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
+      });
+      log.info({ photos: images.length, ms: Date.now() - startedAt, ...usage }, "photo check read");
+      return {
+        photoTips: resolvePhotoTips(
+          reading.photoIssues,
+          images.map((image) => image.key),
+        ),
+      };
+    } catch (error) {
+      log.warn(
+        { ms: Date.now() - startedAt, error: error instanceof Error ? error.name : "unknown" },
+        "photo check failed",
+      );
+      return { photoTips: [] };
+    }
+  };
+}
+
+/**
+ * Reads the title and description the seller typed with a (metered) text reader and turns the answer into a suggestion.
+ * Never throws: off, refused by the AI meter, slow (10 seconds) or wrong all answer with the empty suggestion. The
+ * seller's words are never logged.
+ */
+export function createTextSuggester(app: Pick<FastifyInstance, "db" | "reference">, reader: TextReader) {
+  const brandMatcher = createBrandMatcher(app.db);
+  let catalog: { version: string; value: TextCatalogCodes } | null = null;
+
+  return async function suggest(input: {
+    title: string;
+    description: string;
+    userId: string;
+    log: { info: (o: object, m: string) => void; warn: (o: object, m: string) => void };
+  }): Promise<TextSuggestion> {
+    const { title, description, userId, log } = input;
+    const startedAt = Date.now();
+    try {
+      const reference = await app.reference.get();
+      if (catalog?.version !== reference.version) {
+        catalog = { version: reference.version, value: buildTextCatalog(reference) };
+      }
+      const { reading, usage } = await reader.read({
+        title,
+        description,
+        catalog: catalog.value.text,
+        userId,
+        signal: AbortSignal.timeout(TEXT_TIMEOUT_MS),
+      });
+      log.info({ ms: Date.now() - startedAt, ...usage }, "text helper read");
+      return await resolveTextSuggestion(reading, catalog.value, brandMatcher);
+    } catch (error) {
+      log.warn(
+        { ms: Date.now() - startedAt, error: error instanceof Error ? error.name : "unknown" },
+        "text helper failed",
+      );
+      return EMPTY_TEXT_SUGGESTION;
     }
   };
 }

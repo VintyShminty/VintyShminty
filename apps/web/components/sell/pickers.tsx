@@ -44,6 +44,7 @@ export function BrandDialog({
   open,
   selected,
   fromTag,
+  fromText,
   onChange,
   onClose,
 }: {
@@ -51,6 +52,8 @@ export function BrandDialog({
   selected: BrandChoice | null;
   /** The brand the photo helper read from a tag. Shown first, never picked for the seller. */
   fromTag?: BrandChoice | null;
+  /** The guess came from the words the seller typed, not from a tag. */
+  fromText?: boolean;
   onChange: (brand: BrandChoice | null) => void;
   onClose: () => void;
 }) {
@@ -124,7 +127,9 @@ export function BrandDialog({
                 }}
                 className="flex min-h-14 w-full items-center border-b border-border-subtle px-lg text-start text-body font-semibold hover:bg-surface"
               >
-                {t("sell.assist.fromTag", { name: fromTag.name })}
+                {fromText
+                  ? t("sell.assist.guessName", { name: fromTag.name })
+                  : t("sell.assist.fromTag", { name: fromTag.name })}
               </button>
             ) : null}
             <h3 className="px-lg pb-sm pt-sm text-section-label font-bold uppercase text-text-3">

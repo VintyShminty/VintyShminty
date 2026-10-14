@@ -9,7 +9,10 @@ export const PHOTO_ASSIST_MAX_PHOTOS = 4;
  * GET /v1/sell/assist: whether the helpers are on (a Claude key is set and the AI switch is on). `textAssist` is new
  * in D-036, older servers do not send it, so it is optional and missing means off.
  */
-export const photoAssistStatusSchema = z.object({ photoAssist: z.boolean(), textAssist: z.boolean().optional() });
+export const photoAssistStatusSchema = z.object({
+  photoAssist: z.boolean(),
+  textAssist: z.boolean().optional(),
+});
 export type PhotoAssistStatus = z.infer<typeof photoAssistStatusSchema>;
 
 /** POST /v1/listings/suggest: the keys of photos the seller already uploaded, and the app language for the words. */
@@ -118,7 +121,12 @@ export const textSuggestionSchema = z.object({
 });
 export type TextSuggestion = z.infer<typeof textSuggestionSchema>;
 
-export const EMPTY_TEXT_SUGGESTION: TextSuggestion = { categories: [], brand: null, conditionId: null, colourIds: [] };
+export const EMPTY_TEXT_SUGGESTION: TextSuggestion = {
+  categories: [],
+  brand: null,
+  conditionId: null,
+  colourIds: [],
+};
 
 /** The guesses the sell form shows: photos and words together. */
 export type SellGuesses = PhotoSuggestion & {

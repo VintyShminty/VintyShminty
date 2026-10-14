@@ -17,18 +17,17 @@ import {
   type ListingFieldErrors,
   listingDetailSchema,
   listingLimits,
-  PHOTO_ASSIST_MAX_PHOTOS,
-  type PhotoSuggestion,
+  mergeGuesses,
   photoAssistStatusSchema,
-  photoSuggestionSchema,
   pricePreviewSchema,
   priceTextToMinor,
   type ReferenceData,
   SELL_HIDDEN_ROOTS,
+  type SellGuesses,
   stripHiddenAttributes,
   validateListing,
 } from "@vinty/shared";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -53,6 +52,7 @@ import {
   valuesFromListing,
 } from "@/lib/sell-state";
 import { useDebounced } from "@/lib/use-debounced";
+import { useSellAssist } from "@/lib/use-sell-assist";
 import { cn } from "@/lib/utils";
 
 type Lang = "en" | "he";
@@ -115,13 +115,14 @@ function PickerRow({
 }
 
 /** A tappable guess from the photo helper. Nothing is chosen until the seller taps it. */
-function GuessChip({ label, onClick }: { label: string; onClick: () => void }) {
+function GuessChip({ label, onClick, sparkle }: { label: string; onClick: () => void; sparkle?: boolean }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 items-center rounded-full border border-text-4 bg-background px-[14px] text-pill text-text-1 hover:bg-pressed"
+      className="inline-flex h-8 items-center gap-xs rounded-full border border-text-4 bg-background px-[14px] text-pill text-text-1 hover:bg-pressed"
     >
+      {sparkle ? <Sparkles size={14} aria-hidden className="shrink-0 text-text-3" /> : null}
       {label}
     </button>
   );
@@ -189,30 +190,33 @@ export function SellForm({
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
-  const [assist, setAssist] = useState<"idle" | "reading" | "done">("idle");
-  const [suggestion, setSuggestion] = useState<PhotoSuggestion | null>(null);
-  // The pickers show the guesses as they were when the picker opened, so an open list never jumps.
-  const [shown, setShown] = useState<PhotoSuggestion | null>(null);
+  const photoOn = Boolean(assistStatus.data?.photoAssist) && !existing;
+  const textOn = Boolean(assistStatus.data?.textAssist) && !existing;
   const uploading = values.photos.some((p) => p.state === "uploading");
-  const doneKeys = values.photos.filter((p) => p.state === "done" && p.key).map((p) => p.key as string);
-  const keyList = doneKeys.join("|");
-  const assistOn = Boolean(assistStatus.data?.photoAssist) && !existing;
-  // biome-ignore lint/correctness/useExhaustiveDependencies: keyList stands for doneKeys
-  useEffect(() => {
-    if (!assistOn || assist !== "idle" || uploading || doneKeys.length === 0) return;
-    const timer = setTimeout(() => {
-      setAssist("reading");
-      clientApi("/v1/listings/suggest", {
-        method: "POST",
-        body: { photoKeys: doneKeys.slice(0, PHOTO_ASSIST_MAX_PHOTOS), language: lang },
-        schema: photoSuggestionSchema,
-      })
-        .then((s) => setSuggestion(s))
-        .catch(() => undefined)
-        .finally(() => setAssist("done"));
-    }, 700);
-    return () => clearTimeout(timer);
-  }, [assistOn, assist, uploading, keyList, lang]);
+  const {
+    suggestion: photoSuggestion,
+    textSuggestion,
+    tipRows,
+    dismissTip,
+    onTextBlur,
+  } = useSellAssist({
+    photoOn,
+    textOn,
+    lang,
+    order: values.photos.map((p) => (p.state === "done" && p.key ? p.key : null)),
+    uploading,
+    title: values.title,
+    description: values.description,
+    allChosen: Boolean(
+      values.categoryId && values.brand && values.conditionId && values.colourIds.length > 0,
+    ),
+  });
+  // Photo and text guesses together. The pickers show the guesses as they were when the picker opened, so an open list never jumps.
+  const suggestion = useMemo(
+    () => mergeGuesses(photoSuggestion, textSuggestion),
+    [photoSuggestion, textSuggestion],
+  );
+  const [shown, setShown] = useState<SellGuesses | null>(null);
 
   const openPicker = (key: PickerKey) => {
     setShown(suggestion);
@@ -414,6 +418,9 @@ export function SellForm({
   );
   const categoryGuess = values.categoryId ? undefined : guesses[0];
   const brandGuess = values.brand ? null : (suggestion?.brand ?? null);
+  const conditionGuess = values.conditionId
+    ? null
+    : (reference.conditions.find((c) => c.id === suggestion?.conditionId) ?? null);
   const showGuesses =
     (!category && guesses.length > 0) ||
     Boolean(brandGuess) ||
@@ -445,6 +452,26 @@ export function SellForm({
               onAdded={() => set({}, "photos")}
               onChanged={() => setDirty(true)}
             />
+            {tipRows.length > 0 ? (
+              <ul className="flex flex-col gap-xs">
+                {tipRows.map((row) => (
+                  <li key={row.key} className="flex items-center gap-sm text-body-sm text-text-3">
+                    <Sparkles size={14} aria-hidden className="shrink-0" />
+                    <span className="min-w-0 flex-1">
+                      {t(`sell.assist.photoTips.${row.kind}`, { n: row.n })}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => dismissTip(row.key)}
+                      aria-label={t("sell.assist.photoTips.close")}
+                      className="inline-flex size-6 shrink-0 items-center justify-center rounded-full hover:bg-pressed"
+                    >
+                      <X size={14} aria-hidden />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </Section>
 
           <Section title={t("sell.about")}>
@@ -456,6 +483,7 @@ export function SellForm({
               onChange={(title) => set({ title }, "title")}
               error={err("title")}
               hint={`${values.title.length}/${LISTING_TITLE_MAX}`}
+              onBlur={onTextBlur}
             />
             <DescriptionField
               label={t("sell.descriptionLabel")}
@@ -463,6 +491,7 @@ export function SellForm({
               value={values.description}
               onChange={(description) => set({ description }, "description")}
               error={err("description")}
+              onBlur={onTextBlur}
             />
           </Section>
 
@@ -492,7 +521,11 @@ export function SellForm({
                   : null}
                 {brandGuess ? (
                   <GuessChip
-                    label={t("sell.assist.fromTag", { name: brandGuess.name })}
+                    label={
+                      suggestion?.brandSource === "text"
+                        ? t("sell.assist.guessName", { name: brandGuess.name })
+                        : t("sell.assist.fromTag", { name: brandGuess.name })
+                    }
                     onClick={() => void chooseGuessedBrand(brandGuess)}
                   />
                 ) : null}
@@ -526,6 +559,15 @@ export function SellForm({
             {category && mode("condition") !== "hidden" ? (
               <div className="flex flex-col gap-sm">
                 <span className="text-body-sm font-semibold text-text-2">{t("sell.condition")}</span>
+                {conditionGuess ? (
+                  <div>
+                    <GuessChip
+                      sparkle
+                      label={t("sell.assist.guessName", { name: name(conditionGuess.name) })}
+                      onClick={() => set({ conditionId: conditionGuess.id }, "conditionId")}
+                    />
+                  </div>
+                ) : null}
                 <ConditionSlider
                   stops={reference.conditions.map((c) => ({
                     id: c.id,
@@ -653,6 +695,7 @@ export function SellForm({
         open={picker === "brand"}
         selected={values.brand}
         fromTag={shown?.brand}
+        fromText={shown?.brandSource === "text"}
         onChange={(brand) => set({ brand }, "brandId")}
         onClose={closePicker}
       />
@@ -734,12 +777,14 @@ function DescriptionField({
   placeholder,
   value,
   onChange,
+  onBlur,
   error,
 }: {
   label: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
+  onBlur?: () => void;
   error?: string;
 }) {
   const id = useId();
@@ -755,6 +800,7 @@ function DescriptionField({
         maxLength={LISTING_DESCRIPTION_MAX}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         aria-invalid={error ? true : undefined}
         className={cn(
           "w-full rounded-control border bg-background p-md text-body text-text-1 outline-none placeholder:text-text-4 focus:border-primary",
