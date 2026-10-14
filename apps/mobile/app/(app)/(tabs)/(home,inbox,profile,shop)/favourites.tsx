@@ -44,7 +44,7 @@ export default function Favourites() {
             autoCapitalize="none"
             returnKeyType="search"
             accessibilityLabel={t("favourites.search")}
-            className={`flex-1 text-body text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
+            className={`flex-1 text-[16px] text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
             style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
           />
           {text ? (

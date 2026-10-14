@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useScrollToTop } from "expo-router";
 import { Archive } from "lucide-react-native";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, RefreshControl, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -82,6 +83,8 @@ function LoadError({ onRetry }: { onRetry: () => void }) {
 /** The chats (Messages tab) or the archive. */
 function MessagesList({ archived, onOpenArchive }: { archived: boolean; onOpenArchive?: () => void }) {
   const insets = useSafeAreaInsets();
+  const listRef = useRef<FlatList>(null);
+  useScrollToTop(listRef);
   const { t } = useTranslation();
   const query = useInfiniteQuery(conversationsQuery(archived));
   const [refreshing, setRefreshing] = useState(false);
@@ -109,6 +112,7 @@ function MessagesList({ archived, onOpenArchive }: { archived: boolean; onOpenAr
 
   return (
     <FlatList
+      ref={listRef}
       data={rows}
       keyExtractor={(row) => row.id}
       renderItem={({ item }) => <ConversationRow row={item} />}
@@ -145,6 +149,8 @@ function MessagesList({ archived, onOpenArchive }: { archived: boolean; onOpenAr
 /** The news list: sentences written from the type and values the server sends. */
 function NotificationsList() {
   const insets = useSafeAreaInsets();
+  const listRef = useRef<FlatList>(null);
+  useScrollToTop(listRef);
   const { t } = useTranslation();
   const query = useInfiniteQuery(notificationsQuery());
   const [refreshing, setRefreshing] = useState(false);
@@ -168,6 +174,7 @@ function NotificationsList() {
 
   return (
     <FlatList
+      ref={listRef}
       data={rows}
       keyExtractor={(n) => n.id}
       renderItem={({ item }) => <NotificationRow notification={item} />}

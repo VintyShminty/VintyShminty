@@ -8,7 +8,7 @@ import type {
   ReviewItem,
   ReviewsPage,
 } from "@vinty/shared";
-import { useRouter } from "expo-router";
+import { useRouter, useScrollToTop } from "expo-router";
 import {
   Award,
   BadgeCheck,
@@ -368,6 +368,9 @@ function AboutSection({ profile }: { profile: PublicProfile }) {
  */
 function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const insets = useSafeAreaInsets();
+  // Tapping the Profile tab again scrolls back to the top.
+  const listRef = useRef<FlatList<Row>>(null);
+  useScrollToTop(listRef);
   const { t } = useTranslation();
   const router = useRouter();
   const [tab, setTab] = useState<TabKey>("listings");
@@ -489,6 +492,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
         }
       />
       <FlatList
+        ref={listRef}
         data={rows}
         keyExtractor={(row, index) =>
           row.kind === "review"
