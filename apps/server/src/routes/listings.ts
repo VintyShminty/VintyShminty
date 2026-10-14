@@ -33,6 +33,7 @@ import {
   refreshSellerCounts,
   toMyCard,
 } from "../lib/listings.js";
+import { cardKeyFor, type StoredVariants, storePhotoVariants } from "../lib/photo-variants.js";
 import { keyBelongsToUser, MAX_UPLOAD_BYTES } from "../lib/storage.js";
 
 const idParams = z.object({ id: idSchema });
@@ -115,21 +116,24 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
     userId: string,
     photos: ListingPhotoInput[],
     existingKeys: string[],
-  ): Promise<{ error?: string; sizes: Map<string, number> }> {
+  ): Promise<{ error?: string; sizes: Map<string, number>; variants: Map<string, StoredVariants> }> {
     const sizes = new Map<string, number>();
+    const variants = new Map<string, StoredVariants>();
     const keys = photos.map((p) => p.key);
-    if (new Set(keys).size !== keys.length) return { error: "validation.listing.photos.invalid", sizes };
+    if (new Set(keys).size !== keys.length)
+      return { error: "validation.listing.photos.invalid", sizes, variants };
     const fresh = photos.filter((p) => !existingKeys.includes(p.key));
     for (const photo of fresh) {
       if (!keyBelongsToUser(photo.key, "listing_photo", userId)) {
-        return { error: "validation.listing.photos.invalid", sizes };
+        return { error: "validation.listing.photos.invalid", sizes, variants };
       }
     }
     const found = await Promise.all(fresh.map((p) => storage.size(p.key)));
     for (const [index, size] of found.entries()) {
       const photo = fresh[index] as ListingPhotoInput;
-      if (size === null) return { error: "validation.listing.photos.invalid", sizes };
-      if (size > MAX_UPLOAD_BYTES.listing_photo) return { error: "validation.upload.tooBig", sizes };
+      if (size === null) return { error: "validation.listing.photos.invalid", sizes, variants };
+      if (size > MAX_UPLOAD_BYTES.listing_photo)
+        return { error: "validation.upload.tooBig", sizes, variants };
       sizes.set(photo.key, size);
     }
     if (fresh.length > 0) {
@@ -144,9 +148,21 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
           ),
         )
         .limit(1);
-      if (taken) return { error: "validation.listing.photos.invalid", sizes };
+      if (taken) return { error: "validation.listing.photos.invalid", sizes, variants };
+      // The small copy and the blurred preview for each new photo. A photo that cannot be processed is saved
+      // anyway, the daily photo job tries again.
+      await Promise.all(
+        fresh.map(async (photo) => {
+          try {
+            const stored = await storePhotoVariants(storage, photo.key, photo.contentType);
+            if (stored && stored !== "unreadable") variants.set(photo.key, stored);
+          } catch (err) {
+            app.log.warn({ err, key: photo.key }, "could not make a small copy of a photo");
+          }
+        }),
+      );
     }
-    return { sizes };
+    return { sizes, variants };
   }
 
   /**
@@ -230,14 +246,16 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
     }
 
     let photoSizes = new Map<string, number>();
+    let photoVariants = new Map<string, StoredVariants>();
     if (photos && !fieldErrors.photos) {
       const checked = await checkPhotos(userId, photos, current?.photoKeys ?? []);
       if (checked.error) fieldErrors.photos = checked.error;
       photoSizes = checked.sizes;
+      photoVariants = checked.variants;
     }
 
     if (Object.keys(fieldErrors).length > 0) throw invalid(fieldErrors);
-    return { merged, brandName, photos, photoSizes };
+    return { merged, brandName, photos, photoSizes, photoVariants };
   }
 
   type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -247,7 +265,21 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
     listingId: string,
     photos: ListingPhotoInput[],
     sizes: Map<string, number>,
+    variants: Map<string, StoredVariants>,
   ) {
+    // Photos kept from before keep their small copy and preview.
+    const before = new Map(
+      (
+        await tx
+          .select({
+            key: listingPhotos.objectKey,
+            cardObjectKey: listingPhotos.cardObjectKey,
+            placeholder: listingPhotos.placeholder,
+          })
+          .from(listingPhotos)
+          .where(eq(listingPhotos.listingId, listingId))
+      ).map((r) => [r.key, r]),
+    );
     await tx.delete(listingPhotos).where(eq(listingPhotos.listingId, listingId));
     if (photos.length === 0) return;
     await tx.insert(listingPhotos).values(
@@ -258,7 +290,9 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
         height: p.height,
         contentType: p.contentType,
         byteSize: sizes.get(p.key) ?? p.byteSize ?? null,
-        placeholder: p.placeholder ?? null,
+        cardObjectKey: variants.get(p.key)?.cardObjectKey ?? before.get(p.key)?.cardObjectKey ?? null,
+        placeholder:
+          variants.get(p.key)?.placeholder ?? before.get(p.key)?.placeholder ?? p.placeholder ?? null,
         position,
       })),
     );
@@ -277,6 +311,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
     for (const key of keys) {
       if (!keyBelongsToUser(key, "listing_photo", userId)) continue;
       waitUntil(storage.remove(key).catch((err) => log.warn({ err }, "could not delete a listing photo")));
+      waitUntil(storage.remove(cardKeyFor(key)).catch(() => undefined));
     }
   }
 
@@ -315,7 +350,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
       const userId = userIdOf(request);
       const { publish, ...input } = request.body;
       const reference = await app.reference.get();
-      const { merged, brandName, photos, photoSizes } = await prepare(
+      const { merged, brandName, photos, photoSizes, photoVariants } = await prepare(
         userId,
         reference,
         input,
@@ -343,7 +378,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
           .returning({ id: listings.id });
         const listingId = (row as { id: string }).id;
         await writeColours(tx, listingId, merged.colourIds);
-        if (photos) await writePhotos(tx, listingId, photos, photoSizes);
+        if (photos) await writePhotos(tx, listingId, photos, photoSizes, photoVariants);
         return listingId;
       });
       if (publish) await refreshSellerCounts(db, userId);
@@ -375,6 +410,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
           coverWidth: listingPhotos.width,
           coverHeight: listingPhotos.height,
           coverPlaceholder: listingPhotos.placeholder,
+          coverCardKey: listingPhotos.cardObjectKey,
         })
         .from(listings)
         .leftJoin(listingPhotos, and(eq(listingPhotos.listingId, listings.id), eq(listingPhotos.position, 0)))
@@ -420,6 +456,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
                     width: r.coverWidth,
                     height: r.coverHeight,
                     placeholder: r.coverPlaceholder,
+                    cardObjectKey: r.coverCardKey,
                   }
                 : null,
           }),
@@ -458,7 +495,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
       const [colourIds, photoKeys] = await Promise.all([colourIdsOf(row.id), photoKeysOf(row.id)]);
       // A live listing must stay complete. A draft may stay unfinished.
       const publish = row.status !== "draft";
-      const { merged, brandName, photos, photoSizes } = await prepare(
+      const { merged, brandName, photos, photoSizes, photoVariants } = await prepare(
         userId,
         reference,
         request.body,
@@ -490,7 +527,7 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
           });
         }
         await writeColours(tx, row.id, merged.colourIds);
-        if (photos) await writePhotos(tx, row.id, photos, photoSizes);
+        if (photos) await writePhotos(tx, row.id, photos, photoSizes, photoVariants);
       });
       if (photos) {
         const kept = new Set(photos.map((p) => p.key));
@@ -521,14 +558,14 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
       if (row.status === "sold") throw ApiError.conflict("A sold listing cannot be edited");
       const reference = await app.reference.get();
       const [colourIds, photoKeys] = await Promise.all([colourIdsOf(row.id), photoKeysOf(row.id)]);
-      const { photos, photoSizes } = await prepare(
+      const { photos, photoSizes, photoVariants } = await prepare(
         userId,
         reference,
         { photos: request.body.photos },
         { row, colourIds, photoKeys },
         row.status !== "draft",
       );
-      await db.transaction((tx) => writePhotos(tx, row.id, photos ?? [], photoSizes));
+      await db.transaction((tx) => writePhotos(tx, row.id, photos ?? [], photoSizes, photoVariants));
       const kept = new Set((photos ?? []).map((p) => p.key));
       removeFiles(
         userId,

@@ -5,7 +5,7 @@ import type { FastifyInstance } from "fastify";
 import { decodeCursor, encodeCursor } from "./cursor.js";
 import { ApiError } from "./errors.js";
 import { notifyEvent } from "./event-notify.js";
-import { toPhoto } from "./listings.js";
+import { toCardPhoto } from "./listings.js";
 
 type PlanRow = typeof bumpPlans.$inferSelect;
 type BumpRow = typeof bumps.$inferSelect;
@@ -111,6 +111,7 @@ export async function listMyBumps(
       coverWidth: listingPhotos.width,
       coverHeight: listingPhotos.height,
       coverPlaceholder: listingPhotos.placeholder,
+      coverCardKey: listingPhotos.cardObjectKey,
     })
     .from(bumps)
     .innerJoin(bumpPlans, eq(bumpPlans.id, bumps.planId))
@@ -146,11 +147,12 @@ export async function listMyBumps(
         status: r.status,
         cover:
           r.coverKey && r.coverWidth && r.coverHeight
-            ? toPhoto(app.storage, {
+            ? toCardPhoto(app.storage, {
                 objectKey: r.coverKey,
                 width: r.coverWidth,
                 height: r.coverHeight,
                 placeholder: r.coverPlaceholder,
+                cardObjectKey: r.coverCardKey,
               })
             : null,
       },

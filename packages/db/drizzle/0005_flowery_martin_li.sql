@@ -1,0 +1,1 @@
+ALTER TABLE "listing_photos" ADD COLUMN "card_object_key" text;

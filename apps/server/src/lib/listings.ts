@@ -58,6 +58,19 @@ export function toPhoto(
   };
 }
 
+/**
+ * The photo as a card or list shows it: `url` points at the small copy when one exists, so the feed does not
+ * download the full photo. `key` stays the original's. Falls back to the original.
+ */
+export function toCardPhoto(
+  storage: FastifyInstance["storage"],
+  row: Pick<PhotoRow, "objectKey" | "width" | "height" | "placeholder"> & {
+    cardObjectKey?: string | null;
+  },
+): Photo {
+  return { ...toPhoto(storage, row), url: storage.publicUrl(row.cardObjectKey ?? row.objectKey) };
+}
+
 /** Keeps the numbers on the seller's profile (Listings and Sold) true after any change of state. */
 export async function refreshSellerCounts(db: Db, userId: string): Promise<void> {
   await db
@@ -213,7 +226,9 @@ export function toMyCard(
   extra: {
     sizeLabel: string | null;
     conditionSlug: string | null;
-    cover: Pick<PhotoRow, "objectKey" | "width" | "height" | "placeholder"> | null;
+    cover:
+      | (Pick<PhotoRow, "objectKey" | "width" | "height" | "placeholder"> & { cardObjectKey?: string | null })
+      | null;
   },
 ): MyListingCard {
   return {
@@ -227,7 +242,7 @@ export function toMyCard(
     buyerPriceMinor: buyerPrice(reference, row.priceMinor, row.currency),
     previousPriceMinor: row.previousPriceMinor,
     currency: row.currency,
-    cover: extra.cover ? toPhoto(storage, extra.cover) : null,
+    cover: extra.cover ? toCardPhoto(storage, extra.cover) : null,
     favouriteCount: row.favouriteCount,
     isBumped: Boolean(row.bumpedUntil && row.bumpedUntil > new Date()),
     bumpedUntil: activeBuzzEnd(row),
