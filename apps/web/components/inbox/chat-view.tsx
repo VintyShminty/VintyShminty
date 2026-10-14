@@ -22,6 +22,8 @@ import { OrderTracker } from "@/components/inbox/order-tracker";
 import { OfferDialog } from "@/components/offer/offer-dialog";
 import { SellerAvatar } from "@/components/seller-avatar";
 import { useViewer } from "@/components/site-context";
+import { clientApi } from "@/lib/api-client";
+import { quickReplyTarget, visibleQuickReplies } from "@/lib/chat-assist";
 import {
   discardMessage,
   type PendingMessage,
@@ -29,8 +31,6 @@ import {
   sendNewMessage,
   usePendingMessages,
 } from "@/lib/chat-send";
-import { clientApi } from "@/lib/api-client";
-import { quickReplyTarget, visibleQuickReplies } from "@/lib/chat-assist";
 import { conversationQuery, messagesQuery, useArchive, useMute } from "@/lib/messaging-queries";
 import { useCounterOffer, useSendOffer } from "@/lib/order-flow-queries";
 import { joinThread, leaveThread, markThreadRead, useRealtime } from "@/lib/realtime";

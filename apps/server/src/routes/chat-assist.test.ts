@@ -376,6 +376,38 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-039)"
       }
     });
 
+    it("stops after 60 uncached answers an hour for one person, and answers empty", async () => {
+      const [limSeller, limBuyer] = await Promise.all([
+        signUpTestUser(ctx, "qlsel", createdIds),
+        signUpTestUser(ctx, "qlbuy", createdIds),
+      ]);
+      const lid = await publishTestListing(ctx, limSeller, `Limit ${stamp} shirt`);
+      const limChat = (
+        (await call("POST", "/v1/conversations", limBuyer.token, { listingId: lid })).json() as {
+          id: string;
+        }
+      ).id;
+      const before = repliesReader.calls.length;
+      let last: { forMessageId: string | null; replies: string[] } = { forMessageId: null, replies: [] };
+      for (let i = 0; i < 61; i++) {
+        // Written straight to the table so the chat's own sending limits do not get in the way.
+        await db()
+          .insert(messages)
+          .values({
+            conversationId: limChat,
+            senderId: limBuyer.id,
+            kind: "text",
+            body: `Question ${i}`,
+            clientMessageId: crypto.randomUUID(),
+            createdAt: new Date(Date.now() + i),
+          });
+        last = (await quick(limSeller.token, "en", limChat)).json();
+        if (i < 60) expect(last.replies.length, `answer ${i}`).toBeGreaterThan(0);
+      }
+      expect(last).toEqual({ forMessageId: null, replies: [] });
+      expect(repliesReader.calls.length).toBe(before + 60);
+    });
+
     it("cleans replies the way the app expects", () => {
       expect(cleanReplies({ replies: null })).toEqual([]);
       expect(cleanReplies({ replies: ["a", "A", " b ", "c", "d"] })).toEqual(["a", "b", "c"]);

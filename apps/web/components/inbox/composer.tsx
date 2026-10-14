@@ -3,8 +3,8 @@
 import { ArrowUp, HandCoins, ImagePlus, Sparkles } from "lucide-react";
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { withReply } from "@/lib/chat-assist";
 import { Chip } from "@/components/chip";
+import { withReply } from "@/lib/chat-assist";
 import { sendTyping } from "@/lib/realtime";
 import { cn } from "@/lib/utils";
 

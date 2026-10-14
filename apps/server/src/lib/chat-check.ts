@@ -246,7 +246,7 @@ export function createChatChecker(app: CheckApp, reader: ChatCheckReader) {
     const startedAt = Date.now();
     try {
       const [row] = await app.db.select().from(messages).where(eq(messages.id, messageId)).limit(1);
-      if (!row || row.kind !== "text" || !row.body || !row.senderId || row.deletedAt) return;
+      if (row?.kind !== "text" || !row.body || !row.senderId || row.deletedAt) return;
       const [conversation] = await app.db
         .select()
         .from(conversations)

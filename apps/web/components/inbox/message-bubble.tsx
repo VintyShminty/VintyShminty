@@ -21,8 +21,8 @@ import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ApiClientError } from "@/lib/api-error";
-import type { PendingMessage } from "@/lib/chat-send";
 import { warningFor } from "@/lib/chat-assist";
+import type { PendingMessage } from "@/lib/chat-send";
 import { type OfferAnswer, useAnswerOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
 
