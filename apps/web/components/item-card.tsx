@@ -1,9 +1,9 @@
 "use client";
 
 import { favouriteResultSchema, formatPrice, type ListingCard } from "@vinty/shared";
-import { Bookmark, Check, TrendingDown, Zap } from "lucide-react";
+import { Bookmark, Check, ChevronLeft, ChevronRight, TrendingDown, Zap } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/badge";
 import { useLoginPrompt } from "@/components/login-prompt";
@@ -48,6 +48,17 @@ export function ItemCard({
   const { ask } = useLoginPrompt();
   const [favourited, setFavourited] = useState(listing.isFavourited ?? false);
   useEffect(() => setFavourited(listing.isFavourited ?? false), [listing.isFavourited]);
+  const photos = listing.photos && listing.photos.length > 1 ? listing.photos : null;
+  const [photoIndex, setPhotoIndex] = useState(0);
+  // The slot of a photo is rendered only once it was shown, so later photos load lazily.
+  const [seen, setSeen] = useState(1);
+  const showArrows = !preview && photos !== null;
+  const goTo = (e: MouseEvent, next: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPhotoIndex(next);
+    setSeen((s) => Math.max(s, next + 1));
+  };
 
   const sold = listing.status === "sold";
   const priceDrop = listing.previousPriceMinor !== null && listing.previousPriceMinor > listing.priceMinor;
@@ -92,8 +103,23 @@ export function ItemCard({
           className="absolute inset-0 z-0 rounded-control focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         />
       )}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-control bg-pressed">
-        {listing.cover ? (
+      <div className="pointer-events-none relative aspect-[3/4] overflow-hidden rounded-control bg-pressed">
+        {showArrows && photos ? (
+          photos.slice(0, seen).map((p, i) => (
+            // biome-ignore lint/performance/noImgElement: no Vercel image optimisation on purpose, the card photos come ready sized
+            <img
+              key={p.url}
+              src={p.url}
+              width={p.width}
+              height={p.height}
+              alt={i === photoIndex ? listing.title : ""}
+              loading={i === 0 && priority ? "eager" : "lazy"}
+              fetchPriority={i === 0 && priority ? "high" : undefined}
+              decoding="async"
+              className={cn("absolute inset-0 h-full w-full object-cover", i === photoIndex ? "" : "hidden")}
+            />
+          ))
+        ) : listing.cover ? (
           // biome-ignore lint/performance/noImgElement: no Vercel image optimisation on purpose, the card cover comes ready sized
           <img
             src={listing.cover.url}
@@ -122,7 +148,7 @@ export function ItemCard({
             onClick={onSave}
             aria-label={favourited ? t("browse.unfavourite") : t("browse.favourite")}
             aria-pressed={favourited}
-            className="absolute end-sm top-sm z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background hover:bg-pressed"
+            className="pointer-events-auto absolute end-sm top-sm z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background hover:bg-pressed"
           >
             <Bookmark
               size={18}
@@ -131,6 +157,44 @@ export function ItemCard({
               fill={favourited ? "currentColor" : "none"}
             />
           </button>
+        ) : null}
+        {showArrows && photos ? (
+          <>
+            {photoIndex > 0 ? (
+              <button
+                type="button"
+                onClick={(e) => goTo(e, photoIndex - 1)}
+                aria-label={t("web.item.previousPhoto")}
+                className="pointer-events-auto absolute start-sm top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-background text-text-1 opacity-0 transition-opacity hover:bg-pressed focus-visible:opacity-100 group-hover:opacity-100"
+              >
+                <ChevronLeft size={18} aria-hidden className="rtl:-scale-x-100" />
+              </button>
+            ) : null}
+            {photoIndex < photos.length - 1 ? (
+              <button
+                type="button"
+                onClick={(e) => goTo(e, photoIndex + 1)}
+                aria-label={t("web.item.nextPhoto")}
+                className="pointer-events-auto absolute end-sm top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-background text-text-1 opacity-0 transition-opacity hover:bg-pressed focus-visible:opacity-100 group-hover:opacity-100"
+              >
+                <ChevronRight size={18} aria-hidden className="rtl:-scale-x-100" />
+              </button>
+            ) : null}
+            <div
+              aria-hidden
+              className="absolute inset-x-0 bottom-[3px] flex justify-center gap-xs opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              {photos.map((p, i) => (
+                <span
+                  key={p.url}
+                  className={cn(
+                    "h-[5px] w-[5px] rounded-full",
+                    i === photoIndex ? "bg-background" : "bg-background/50",
+                  )}
+                />
+              ))}
+            </div>
+          </>
         ) : null}
         <div className="absolute bottom-sm start-sm flex max-w-[90%] items-baseline gap-xs rounded-[6px] border border-border-subtle bg-background px-sm py-[3px]">
           {priceDrop && !sold ? (
