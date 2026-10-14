@@ -114,7 +114,8 @@
       "tooShort": "Use at least 3 characters",
       "tooLong": "Use 24 characters or fewer",
       "characters": "Use letters, numbers, dots and underscores only",
-      "taken": "That username is taken"
+      "taken": "That username is taken",
+      "reserved": "That username is reserved"
     },
     "password": {
       "required": "Enter your password",
@@ -1839,6 +1840,298 @@
       },
       "posted": "Your listing is up. Buyers can find it now",
       "saved": "Changes saved"
+    }
+  },
+  "admin": {
+    "title": "Back office",
+    "menu": "Menu",
+    "backToSite": "Back to Vinty",
+    "loading": "Loading",
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "analytics": "Analytics",
+      "expenses": "Expenses",
+      "security": "Security",
+      "upload": "Listing upload"
+    },
+    "adminsOnly": {
+      "title": "Admins only",
+      "message": "This area is for the Vinty team. If you should have access, ask an admin to switch it on for you"
+    },
+    "checkFailed": {
+      "title": "We could not check your access",
+      "message": "Please try again in a moment"
+    },
+    "errors": {
+      "notAllowed": "You are not allowed to do that"
+    },
+    "actions": {
+      "madeAdmin": "Made {{name}} an admin",
+      "removedAdmin": "Removed admin from {{name}}",
+      "aPerson": "a person",
+      "userDeleted": "Deleted {{name}}",
+      "adminGranted": "Gave {{name}} admin access",
+      "expensesConfigSaved": "Saved the default costs",
+      "expensesMonthSaved": "Saved the costs for {{month}}",
+      "expensesMonthCleared": "Went back to the default costs for {{month}}",
+      "switchedOn": "Switched {{name}} on",
+      "switchedOff": "Switched {{name}} off",
+      "aiAutoDisabled": "AI switched itself off: {{reason}}"
+    },
+    "aiActions": {
+      "photo_check": "Photo helper (sell form)",
+      "admin_upload_photo_check": "Photo helper (listing upload)"
+    },
+    "dashboard": {
+      "totalUsers": "Users",
+      "newUsers": "New users",
+      "last7Days": "Last 7 days",
+      "activeListings": "Active listings",
+      "orders": "Orders",
+      "last30Days": "Last 30 days",
+      "aiSpend": "AI spend",
+      "thisMonth": "This month",
+      "aiCalls": "AI calls",
+      "today": "Today",
+      "recentActivity": "Recent activity",
+      "noActivity": "Nothing has happened yet",
+      "by": "By {{name}}",
+      "bySystem": "By the system"
+    },
+    "users": {
+      "filters": "Filter people",
+      "filter": {
+        "all": "All",
+        "admins": "Admins",
+        "sellers": "Sellers",
+        "buyers": "Buyers only",
+        "banned": "Banned"
+      },
+      "search": "Search by name, username or email",
+      "empty": "No one matches",
+      "loadMore": "Load more",
+      "adminTag": "Admin",
+      "moderatorTag": "Moderator",
+      "bannedTag": "Banned",
+      "standIn": "Stand-in",
+      "you": "This is you",
+      "joined": "Joined {{date}}",
+      "lastSignIn": "Last seen {{when}}",
+      "neverSignedIn": "Never signed in",
+      "listings_one": "{{count}} listing",
+      "listings_other": "{{count}} listings",
+      "makeAdmin": "Make admin",
+      "removeAdmin": "Remove admin",
+      "delete": "Delete",
+      "madeAdmin": "{{name}} is now an admin",
+      "removedAdmin": "{{name}} is no longer an admin",
+      "deleted": "Deleted {{name}}",
+      "deleteTitle": "Delete {{name}}?",
+      "deleteBody": "This removes the person and everything they own for good. If they have orders or money, ban them instead"
+    },
+    "analytics": {
+      "weekNote": "The last 8 weeks, weeks start on Monday",
+      "signups": "Sign-ups",
+      "newListings": "New listings",
+      "orders": "Orders",
+      "aiByFeature": "AI use by feature",
+      "noAi": "No AI calls this month yet",
+      "callsAndCost": "{{calls}} calls, {{cost}}"
+    },
+    "expenses": {
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "total": "Total for the month",
+      "rateUsed": "Dollars counted at {{rate}} shekels each",
+      "costs": "Costs",
+      "noCosts": "No costs for this month",
+      "aiProvider": "AI: {{provider}}",
+      "autoDetails": "{{calls}} calls, {{input}} tokens in, {{output}} tokens out",
+      "kind": {
+        "subscription": "Subscription",
+        "auto": "Auto",
+        "configured": "Configured"
+      },
+      "byAction": "AI cost by action",
+      "byModel": "By model",
+      "noAi": "No AI calls this month",
+      "action": "Action",
+      "model": "Model",
+      "calls": "Calls",
+      "tokensIn": "Tokens in",
+      "tokensOut": "Tokens out",
+      "totalCost": "Total cost",
+      "avgPerCall": "Average per call",
+      "editTitle": "Fixed costs",
+      "usesOwn": "This month has its own list",
+      "usesDefaults": "This month uses the default list",
+      "name": "Name",
+      "amount": "Amount",
+      "currency": "Currency",
+      "kindLabel": "Type",
+      "removeRow": "Remove this cost",
+      "addRow": "Add a cost",
+      "rate": "Shekels per dollar",
+      "rateNote": "Saved together with the defaults",
+      "fixRows": "Every cost needs a name and an amount of zero or more",
+      "fixRate": "The rate must be between 0.1 and 100",
+      "saveMonth": "Save this month",
+      "useDefaults": "Use defaults instead",
+      "saveDefaults": "Save as defaults",
+      "savedMonth": "Saved the costs for this month",
+      "clearedMonth": "This month now uses the defaults",
+      "savedDefaults": "Saved as the defaults"
+    },
+    "security": {
+      "spendTitle": "AI spend",
+      "thisHour": "AI spend this hour",
+      "today": "AI spend today",
+      "ofCap": "{{used}} of {{cap}}",
+      "capNote": "If a limit is passed, AI switches itself off until an admin turns it back on. The hour is the last 60 minutes, the day starts at midnight UTC",
+      "switchesTitle": "Kill switches",
+      "switches": {
+        "ai": {
+          "name": "AI features",
+          "what": "Turns off every call to an AI provider, such as the photo helper in the sell form"
+        }
+      },
+      "on": "On",
+      "off": "Off",
+      "changed": "Changed {{when}}",
+      "neverChanged": "Never changed",
+      "reason": "{{reason}}",
+      "switchedOn": "{{name}} is on",
+      "switchedOff": "{{name}} is off",
+      "confirmOffTitle": "Turn off {{name}}?",
+      "confirmOffBody": "Everything that uses it stops working until you turn it back on",
+      "turnOff": "Turn off"
+    },
+    "upload": {
+      "tabs": {
+        "new": "New batch",
+        "items": "Uploaded items"
+      },
+      "step1": "Who is this batch for",
+      "step2": "Add the clothes",
+      "who": {
+        "publicTitle": "Username shown to everyone",
+        "publicNote": "This username is public. Buyers see it on every item and on its profile.",
+        "privateTitle": "Real owner, private",
+        "privateNote": "The full name is private. Only admins ever see it, never buyers and never on the item page. It tells us whose clothes were sold.",
+        "ownerLabel": "Owner's full name",
+        "ownerHint": "Needed for every batch. Change it on single items in the table when the owner is different.",
+        "search": "Search usernames",
+        "none": "No usernames yet. Create the first one below.",
+        "noMatch": "No username matches",
+        "counts": "{{active}} active, {{sold}} sold",
+        "owners_one": "{{count}} owner",
+        "owners_other": "{{count}} owners",
+        "locked": "Publish or remove the items below to change the username",
+        "new": "Create a new username",
+        "username": "Username",
+        "usernameHint": "Letters, numbers, dots and underscores, 3 to 24 characters",
+        "displayName": "Display name (optional)",
+        "create": "Create username",
+        "created": "Created {{name}}"
+      },
+      "drop": "Drop photos here",
+      "dropHint": "Each photo becomes its own item. Drop more photos onto an item to add them to it.",
+      "needWho": "Choose a username first",
+      "pickFiles": "Choose photos",
+      "dropOnRow": "Drop photos here to add them to this item",
+      "addPhotos": "Add photos to this item",
+      "addMore": "Add",
+      "photo": {
+        "uploading": "Uploading",
+        "failed": "Upload failed",
+        "retry": "Retry",
+        "remove": "Remove photo"
+      },
+      "photoCount": "{{n}} of {{max}} photos",
+      "reading": "Reading the photos",
+      "suggested": "Suggested",
+      "fields": {
+        "photos": "Photos",
+        "title": "Title",
+        "description": "Description (optional)",
+        "categoryId": "Category",
+        "brandId": "Brand",
+        "sizeId": "Size",
+        "conditionId": "Condition",
+        "colourIds": "Colours",
+        "priceMinor": "Price",
+        "materialId": "Material",
+        "patternId": "Pattern",
+        "parcelSizeId": "Parcel size",
+        "ownerOverride": "Different owner (optional)"
+      },
+      "category": {
+        "title": "Choose a category",
+        "search": "Search categories",
+        "choose": "Choose a category",
+        "none": "No category matches"
+      },
+      "choose": "Choose",
+      "chooseCategoryFirst": "Choose a category first",
+      "notNeeded": "Not needed",
+      "brandPlaceholder": "Type or pick a brand",
+      "brandListed": "Listed brand",
+      "colourPlaceholder": "Choose colours",
+      "ownerOverridePlaceholder": "Same as the batch",
+      "incomplete": "Incomplete",
+      "missing": "Missing: {{fields}}",
+      "ready": "Ready to publish",
+      "failedReason": "Not published: {{reason}}",
+      "removeRow": "Remove this item",
+      "viewItem": "View item",
+      "summary": "{{ready}} of {{total}} items ready",
+      "ownerNeeded": "Type the owner's full name above.",
+      "publish_one": "Publish {{count}} item",
+      "publish_other": "Publish {{count}} items",
+      "publishing": "Publishing",
+      "published_one": "Published {{count}} item",
+      "published_other": "Published {{count}} items",
+      "publishFailed_one": "{{count}} item could not be published",
+      "publishFailed_other": "{{count}} items could not be published",
+      "clearPublished": "Clear published items",
+      "errors": {
+        "ownerRequired": "Add the owner's full name, at least 2 characters",
+        "ownerTooLong": "The owner's name is too long"
+      },
+      "items": {
+        "title": "Uploaded items",
+        "download": "Download Excel",
+        "downloaded": "Downloaded {{name}}",
+        "downloadFailed": "Could not download the file",
+        "username": "Username",
+        "allUsernames": "All usernames",
+        "owner": "Owner's full name",
+        "status": "Status",
+        "empty": "Nothing uploaded yet",
+        "col": {
+          "uploaded": "Uploaded",
+          "owner": "Owner (private)",
+          "username": "Shown as",
+          "item": "Item",
+          "category": "Category",
+          "brand": "Brand",
+          "size": "Size",
+          "price": "Price",
+          "status": "Status",
+          "soldOn": "Sold on",
+          "saleTotal": "Sale total"
+        },
+        "statuses": {
+          "all": "All",
+          "active": "Active",
+          "reserved": "Reserved",
+          "sold": "Sold",
+          "hidden": "Hidden",
+          "removed": "Removed"
+        }
+      },
+      "leaveWarning": "Leave this page? Items you have not published will be lost"
     }
   }
 }

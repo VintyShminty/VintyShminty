@@ -16,7 +16,7 @@ Version 1 covers everything in the Vinted app spec except real payments and real
 
 ## Entity list
 
-55 tables in 9 groups.
+62 tables in 10 groups.
 
 | Group | Tables |
 |---|---|
@@ -30,6 +30,7 @@ Version 1 covers everything in the Vinted app spec except real payments and real
 | Money | `wallet_entries` |
 | Engagement and safety | `notifications`, `reports` |
 | Recommendations (Milestone 7) | `user_events`, `user_affinities`, `feed_hidden`, `feed_snapshots`, view `listing_popularity_7d` |
+| Admin panel | `ai_calls`, `admin_actions`, `kill_switches`, `expense_config`, `expense_months`, `stand_in_sellers`, `admin_uploads` |
 
 ## Overview diagram
 
@@ -1927,6 +1928,131 @@ Measured on the sample data scaled to 23,900 listings: the 20 newest active Wome
 | Invite friends | `referrals`, `vouchers`, `profiles.invite_code` |
 | Holiday mode | `profiles.holiday_*` |
 | Help Centre | Static content, no tables |
+
+## Admin panel
+
+Tables behind `/v1/admin/*` (docs/blueprint/api.md). Only people with `users.role = 'admin'` ever read or write them through the API. Code that records an AI call or a switch change writes them too.
+
+### `ai_calls`
+
+One row per call to an AI provider, written by the one wrapper every AI call goes through (`apps/server/src/lib/ai-cost.ts`). It feeds the spend caps, the Expenses tab and the Analytics tab.
+
+Used by: Admin dashboard, Analytics, Expenses, Security.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | uuid | no | primary key. default gen_random_uuid() |
+| `created_at` | timestamptz | no | default now() |
+| `provider` | text | no | for example anthropic |
+| `model` | text | no | for example claude-haiku-5-5 |
+| `action` | text | no | Short machine name of the feature, for example photo_check |
+| `user_id` | uuid | yes | refers to users.id, on delete set null |
+| `input_tokens` | integer | no | default 0. Tokens that were not read from the cache |
+| `output_tokens` | integer | no | default 0 |
+| `cache_read_tokens` | integer | no | default 0 |
+| `cache_write_tokens` | integer | no | default 0 |
+| `cost_usd_micros` | bigint | no | default 0. Millionths of a US dollar, so 1 dollar is 1000000 |
+| `ok` | boolean | no | default true. False for a call that failed after using tokens |
+
+Indexes:
+
+- `ai_calls_created_idx`: btree on (created_at)
+- `ai_calls_action_created_idx`: btree on (action, created_at)
+
+Rows are only added. An unknown model is priced like the most expensive known model, never at zero.
+
+### `admin_actions`
+
+The audit log of everything an admin (or the system on its own) changed. Only ever inserted into, never updated or deleted by code.
+
+Used by: Admin dashboard (recent actions).
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | uuid | no | primary key. default gen_random_uuid() |
+| `created_at` | timestamptz | no | default now() |
+| `admin_user_id` | uuid | yes | refers to users.id, on delete set null. Null when the system did it, for example ai_auto_disabled |
+| `action` | text | no | for example user_role_changed, user_deleted, switch_changed, expenses_config_saved |
+| `target_type` | text | no | for example user, switch, expenses |
+| `target_id` | text | yes | The id or name of what was changed |
+| `details` | jsonb | no | default '{}'. Before and after values, a reason |
+
+Indexes:
+
+- `admin_actions_created_idx`: btree on (created_at DESC NULLS LAST)
+
+### `kill_switches`
+
+Master switches an admin can turn off. A missing row means the switch is on. The allow-listed names live in `packages/shared/src/enums.ts` (`KILL_SWITCH_NAMES`, today only `ai`).
+
+Used by: Security tab, the AI wrapper.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `name` | text | no | primary key |
+| `enabled` | boolean | no | default true |
+| `changed_at` | timestamptz | no | default now() |
+| `changed_by` | uuid | yes | refers to users.id, on delete set null. Null when the AI cap switched it off |
+| `reason` | text | yes | Shown on the Security tab |
+
+### `expense_config`
+
+The default fixed monthly costs and the dollar rate. One row, `id` is always 1.
+
+Used by: Expenses tab.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer | no | primary key. default 1 |
+| `fixed_costs` | jsonb | no | default '[]'. List of `{ name, amountMinor, currency (ILS or USD), kind (subscription or configured) }`, amounts in minor units |
+| `usd_to_ils_rate_x10000` | integer | no | default 36000. Shekels per dollar times 10000, so 3.6 is stored as 36000 |
+| `updated_at` | timestamptz | no | default now() |
+| `updated_by` | uuid | yes | refers to users.id, on delete set null |
+
+### `expense_months`
+
+Fixed costs for one month that differ from the defaults. No row means use the defaults.
+
+Used by: Expenses tab.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `month` | text | no | primary key. YYYY-MM |
+| `fixed_costs` | jsonb | no | Same shape as `expense_config.fixed_costs` |
+| `updated_at` | timestamptz | no | default now() |
+| `updated_by` | uuid | yes | refers to users.id, on delete set null |
+
+### `stand_in_sellers`
+
+Marks a public seller that admins created to hold uploaded clothes. These people cannot log in: the user row has an address ending in `@stand-in.invalid` (never receives mail), no `accounts` row (no password, no Google or Apple link), email and push switched off in `user_settings`, and `lib/auth.ts` refuses to create a session for anyone listed here. The listing upload page creates them (`POST /v1/admin/stand-ins`).
+
+Used by: Admin Users tab (the Stand in tag), the Listing upload page.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `user_id` | uuid | no | primary key. refers to users.id, on delete cascade |
+| `created_by` | uuid | yes | refers to users.id, on delete set null |
+| `created_at` | timestamptz | no | default now() |
+| `note` | text | yes |  |
+
+### `admin_uploads`
+
+Who really owns a listing that an admin uploaded for a stand in seller. The name is private, admins only, and is never sent to the app or the website. It is stored per item, so one username can hold clothes of several owners and one owner's clothes can sit under several usernames. No public query reads this table (a test checks the public listing and profile answers for the name).
+
+Used by: the Listing upload page and its Excel export (`/v1/admin/uploads`).
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `listing_id` | uuid | no | primary key. refers to listings.id, on delete cascade |
+| `owner_full_name` | text | no | The real owner of the clothes. Private |
+| `uploaded_by` | uuid | yes | refers to users.id, on delete set null |
+| `batch_id` | uuid | yes | Groups listings uploaded together |
+| `created_at` | timestamptz | no | default now() |
+
+Indexes:
+
+- `admin_uploads_owner_idx`: btree on (owner_full_name)
+- `admin_uploads_created_idx`: btree on (created_at)
 
 ## Keeping this page true
 

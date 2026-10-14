@@ -9,6 +9,8 @@
     "start": "tsx --env-file-if-exists=.env src/index.ts",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --no-file-parallelism",
+    "admin-grant": "tsx --env-file-if-exists=.env src/scripts/admin-grant.ts",
+    "admin-grant:online": "tsx --env-file=../../packages/db/.env.online src/scripts/admin-grant.ts",
     "dev-users": "tsx --env-file-if-exists=.env src/scripts/dev-users.ts",
     "storage-seed": "tsx --env-file-if-exists=.env src/scripts/storage-seed.ts"
   },
@@ -28,6 +30,7 @@
     "@vinty/shared": "workspace:*",
     "better-auth": "^1.7.7",
     "blurhash": "^2.0.5",
+    "exceljs": "^4.4.0",
     "fastify": "^5.12.5",
     "fastify-plugin": "^6.0.0",
     "fastify-type-provider-zod": "^7.0.0",

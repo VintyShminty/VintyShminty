@@ -226,3 +226,15 @@ export type AffinityFeature = (typeof AFFINITY_FEATURES)[number];
 /** What "Not interested" hides. */
 export const FEED_HIDE_SCOPES = ["item", "seller", "brand", "category"] as const;
 export type FeedHideScope = (typeof FEED_HIDE_SCOPES)[number];
+
+/** Switches an admin can flip. Only these names are accepted (routes/admin.ts). "ai" is the master AI switch. */
+export const KILL_SWITCH_NAMES = ["ai"] as const;
+export type KillSwitchName = (typeof KILL_SWITCH_NAMES)[number];
+
+/** Currencies a fixed monthly cost can be entered in. Totals are shown in ILS. */
+export const EXPENSE_CURRENCIES = ["ILS", "USD"] as const;
+export type ExpenseCurrency = (typeof EXPENSE_CURRENCIES)[number];
+
+/** A fixed cost is either a subscription (a plan we pay for) or a configured amount (a number we typed in). */
+export const EXPENSE_KINDS = ["subscription", "configured"] as const;
+export type ExpenseKind = (typeof EXPENSE_KINDS)[number];
