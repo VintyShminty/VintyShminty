@@ -57,6 +57,7 @@ const CLIENT_SECTIONS = [
   "editProfile",
   "savedSearches",
   "favourites",
+  "buzz",
   "feedWhy",
   "notifications",
   "languages",

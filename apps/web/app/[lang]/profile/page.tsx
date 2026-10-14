@@ -1,5 +1,5 @@
 import { MY_LISTING_STATUSES, type MyListingsPage, myListingsPageSchema } from "@vinty/shared";
-import { Bookmark, ChevronRight, Heart, Settings } from "lucide-react";
+import { Bookmark, ChevronRight, SearchCheck, Settings, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -21,8 +21,8 @@ const first = (value: string | string[] | undefined) => (Array.isArray(value) ? 
 
 /**
  * Your profile (D-019 row 13, D-025): the same page others see (header, numbers, stamps) with your own tools. The Edit
- * profile button, links to Favourites, Saved searches and Settings, the Away mode strip with its "I'm back" button,
- * and your listings in every state with views and hearts. The tab is `?tab=reviews`, the state is `?status=draft`.
+ * profile button, links to Favourites, Saved searches, Your buzzes and Settings, the Away mode strip with its "I'm back" button,
+ * and your listings in every state with views and saves. The tab is `?tab=reviews`, the state is `?status=draft`.
  */
 export default async function ProfilePage({
   params,
@@ -56,8 +56,9 @@ export default async function ProfilePage({
   const rowClass =
     "flex min-h-12 items-center gap-md rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed";
   const rows = [
-    { href: `/${lang}/favourites`, icon: Heart, label: t("favourites.title") },
-    { href: `/${lang}/saved-searches`, icon: Bookmark, label: t("savedSearches.title") },
+    { href: `/${lang}/favourites`, icon: Bookmark, label: t("favourites.title") },
+    { href: `/${lang}/saved-searches`, icon: SearchCheck, label: t("savedSearches.title") },
+    { href: `/${lang}/buzzes`, icon: Zap, label: t("buzz.yourBuzzes") },
     { href: `/${lang}/settings`, icon: Settings, label: t("settings.title") },
   ];
 

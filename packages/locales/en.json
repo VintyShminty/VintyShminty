@@ -1689,7 +1689,7 @@
     },
     "loginPrompt": {
       "title": "Log in to keep going",
-      "body": "Hearts, messages, buying and selling need an account. It only takes a minute."
+      "body": "Saving items, messages, buying and selling need an account. It only takes a minute."
     },
     "accountSoon": "Logging in on the website is coming soon. For now, the app has everything.",
     "footer": {
@@ -1730,8 +1730,8 @@
       "closeViewer": "Close photos",
       "previousPhoto": "Previous photo",
       "nextPhoto": "Next photo",
-      "yours": "This is your item",
-      "yoursNote": "You can edit it here or in the app.",
+      "buzzLoading": "Loading the plans",
+      "loadMore": "Show more",
       "moreFromSeller": "More from {{name}}",
       "seeAll": "See all",
       "similar": "Similar items",
@@ -1795,7 +1795,7 @@
       "phoneAlertsNote": "Alerts on your phone are set in the Vinty app. Here you choose which ones reach you by email."
     },
     "lists": {
-      "favouritesEmptyNote": "Tap the heart on an item to keep it here"
+      "favouritesEmptyNote": "Tap the bookmark on an item to keep it here"
     },
     "inbox": {
       "iconUnread_one": "Inbox, {{count}} unread",

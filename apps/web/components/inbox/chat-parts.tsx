@@ -1,15 +1,12 @@
 "use client";
 
 import { type ConversationDetail, formatPrice } from "@vinty/shared";
-import { Check, ChevronRight, Clock, MapPin, X } from "lucide-react";
+import { Check, ChevronRight, Clock, X } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/badge";
 import { PricePill } from "@/components/price-pill";
-import { SellerAvatar } from "@/components/seller-avatar";
-import { StarRating } from "@/components/star-rating";
-import { timeAgo } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 /** The item pinned under the chat header: photo, title, price, what the buyer pays. A click opens the item. */
@@ -44,52 +41,6 @@ export function ItemStrip({ lang, listing }: { lang: string; listing: Conversati
       ) : null}
       <ChevronRight size={18} className="shrink-0 text-text-3 rtl:rotate-180" aria-hidden />
     </Link>
-  );
-}
-
-/** The other person's card at the very top of a chat: who they are, where, when they were last around. */
-export function IntroCard({ lang, person }: { lang: string; person: ConversationDetail["otherUser"] }) {
-  const { t } = useTranslation();
-  const name = person.username ?? t("profile.closedAccount");
-  const body = (
-    <>
-      <SellerAvatar url={person.avatarUrl} name={name} size={64} />
-      <span className="text-heading font-semibold text-text-1">{name}</span>
-      {person.reviewCount > 0 ? (
-        <span className="flex items-center gap-sm">
-          <StarRating rating={person.ratingAverage} label={`${person.ratingAverage?.toFixed(1) ?? 0} / 5`} />
-          <span className="text-card-meta text-text-3">
-            {t("profile.reviewCount", { count: person.reviewCount })}
-          </span>
-        </span>
-      ) : (
-        <span className="text-card-meta text-text-3">{t("item.noReviews")}</span>
-      )}
-      {person.city ? (
-        <span className="flex items-center gap-xs text-body-sm text-text-2">
-          <MapPin size={13} className="text-text-3" aria-hidden />
-          {person.city}
-        </span>
-      ) : null}
-      {person.lastSeenAt ? (
-        <span className="text-card-meta text-text-3">
-          {t("profile.about.lastSeen", { when: timeAgo(person.lastSeenAt, t) })}
-        </span>
-      ) : null}
-    </>
-  );
-  const classes =
-    "mx-auto my-lg flex w-full max-w-[320px] flex-col items-center gap-sm rounded-window border border-border-subtle bg-surface p-lg";
-  return person.username ? (
-    <Link
-      href={`/${lang}/seller/${person.id}`}
-      aria-label={t("chat.openProfile", { name })}
-      className={classes}
-    >
-      {body}
-    </Link>
-  ) : (
-    <div className={classes}>{body}</div>
   );
 }
 

@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import Link from "next/link";
 import { AccountMenu } from "@/components/auth/account-menu";
 import { BrowsePanel } from "@/components/browse-panel";
@@ -60,7 +60,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
             <>
               <InboxLink lang={lang} className={iconLink} />
               <Link href={`/${lang}/favourites`} aria-label={t("web.nav.favourites")} className={iconLink}>
-                <Heart size={20} aria-hidden />
+                <Bookmark size={20} aria-hidden />
               </Link>
               <AccountMenu lang={lang} viewer={viewer} />
             </>

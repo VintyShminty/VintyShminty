@@ -1,11 +1,12 @@
 import { formatPrice, type ListingDetail } from "@vinty/shared";
-import { Check, Clock, Moon } from "lucide-react";
+import { Check, Clock, EyeOff, Moon, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/badge";
 import { EmptyState } from "@/components/empty-state";
 import { FavouriteButton } from "@/components/favourite-button";
+import { BuzzingNote, OwnerActions } from "@/components/item/owner-actions";
 import { BuyBar, BuyButtons, MessageChip } from "@/components/item-actions";
 import { ItemCard } from "@/components/item-card";
 import { ItemDwell } from "@/components/item-dwell";
@@ -25,6 +26,13 @@ import { formatDay, timeAgo } from "@/lib/time";
 import { cn } from "@/lib/utils";
 
 type Params = Promise<{ lang: string; id: string }>;
+
+const OWN_STATUS = {
+  draft: { variant: "neutral", icon: Pencil },
+  reserved: { variant: "warning", icon: Clock },
+  hidden: { variant: "neutral", icon: EyeOff },
+  sold: { variant: "success", icon: Check },
+} as const;
 
 const localName = (name: { en: string; he: string } | null | undefined, lang: Lang) => name?.[lang] ?? "";
 
@@ -218,7 +226,26 @@ export default async function ItemPage({
         {/* The card: it flows under the photos on a phone and stays in view beside them on a laptop (D-030, 4). */}
         <aside aria-label={listing.title} className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <div className="flex flex-col gap-lg lg:sticky lg:top-28 lg:rounded-window lg:border lg:border-border lg:p-xl">
-            {sold ? (
+            {isOwner ? (
+              <>
+                {listing.status === "sold" ||
+                listing.status === "reserved" ||
+                listing.status === "hidden" ||
+                listing.status === "draft" ? (
+                  <div className="flex items-center gap-sm">
+                    <Badge
+                      variant={OWN_STATUS[listing.status].variant}
+                      icon={OWN_STATUS[listing.status].icon}
+                      label={t(`listing.${listing.status}`)}
+                    />
+                    <p className="flex-1 text-body-sm text-text-3">{t(`listing.${listing.status}Note`)}</p>
+                  </div>
+                ) : null}
+                {listing.isBumped && listing.bumpedUntil && !sold ? (
+                  <BuzzingNote endsAt={listing.bumpedUntil} />
+                ) : null}
+              </>
+            ) : sold ? (
               <div className="flex items-center gap-sm">
                 <Badge variant="success" icon={Check} label={t("listing.sold")} />
                 <p className="flex-1 text-body-sm text-text-3">{t("item.soldNote")}</p>
@@ -301,16 +328,7 @@ export default async function ItemPage({
                     {justPosted ? t("web.sell.posted") : t("web.sell.saved")}
                   </p>
                 ) : null}
-                <div className="rounded-control border border-border-subtle bg-surface p-md">
-                  <p className="text-body-sm font-semibold text-text-1">{t("web.item.yours")}</p>
-                  <p className="mt-xs text-body-sm text-text-3">{t("web.item.yoursNote")}</p>
-                </div>
-                <Link
-                  href={`/${lang}/sell/${listing.id}`}
-                  className="inline-flex h-10 items-center justify-center rounded-control border border-primary px-lg text-body-sm font-semibold text-primary hover:bg-accent-tint"
-                >
-                  {listing.status === "draft" ? t("listing.continueEditing") : t("listing.edit")}
-                </Link>
+                <OwnerActions listing={listing} lang={lang} />
               </div>
             ) : showBar ? (
               <div className="max-lg:hidden">
@@ -433,7 +451,7 @@ export default async function ItemPage({
           <ul className="-mx-lg flex gap-lg overflow-x-auto px-lg pb-sm md:mx-0 md:px-0">
             {moreFromSeller.map((card) => (
               <li key={card.id} className="w-[160px] shrink-0 md:w-[200px]">
-                <ItemCard listing={card} hideHeart={isOwner} />
+                <ItemCard listing={card} hideSave={isOwner} />
               </li>
             ))}
           </ul>

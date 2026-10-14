@@ -11,14 +11,14 @@ export const GRID_CLASSES = "grid grid-cols-2 gap-x-lg gap-y-xl md:grid-cols-3 l
  */
 export function ItemGrid({
   items,
-  hideHearts,
-  heartOnSold,
+  hideSaves,
+  saveOnSold,
   feed,
   children,
 }: {
   items: readonly ListingCard[];
-  hideHearts?: boolean;
-  heartOnSold?: boolean;
+  hideSaves?: boolean;
+  saveOnSold?: boolean;
   /** The cards are the Home feed: they report "seen" and get the "..." menu. */
   feed?: boolean;
   children?: ReactNode;
@@ -29,8 +29,8 @@ export function ItemGrid({
         <ItemCard
           key={listing.id}
           listing={listing}
-          hideHeart={hideHearts}
-          heartOnSold={heartOnSold}
+          hideSave={hideSaves}
+          saveOnSold={saveOnSold}
           feedPosition={feed ? index : undefined}
         />
       ))}
