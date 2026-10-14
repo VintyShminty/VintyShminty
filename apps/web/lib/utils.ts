@@ -1,5 +1,17 @@
+import { typeScale } from "@vinty/design/tokens";
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+// Teach tailwind-merge our custom names, like the app does (apps/mobile/lib/utils.ts). Otherwise "text-card-meta" (a
+// size) is taken for a colour and silently dropped next to "text-text-3", and the text renders at the default size.
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [{ text: Object.keys(typeScale) }],
+      rounded: [{ rounded: ["control", "window", "bar"] }],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

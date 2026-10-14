@@ -54,9 +54,8 @@ export function CoveredLine({
 }) {
   const { t } = useTranslation();
   return (
-    // Not through cn(): tailwind-merge does not know our type scale names and would drop text-card-meta as a clashing colour.
     <span
-      className={`flex items-center gap-xs text-card-meta text-text-3${muted ? " opacity-60" : ""}${className ? ` ${className}` : ""}`}
+      className={cn("flex items-center gap-xs text-card-meta text-text-3", muted && "opacity-60", className)}
     >
       <BadgeCheck size={12} className="shrink-0" aria-hidden />
       <span className="truncate">
