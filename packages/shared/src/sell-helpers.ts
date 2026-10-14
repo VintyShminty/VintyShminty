@@ -13,7 +13,7 @@ export type CategoryGuess = { node: CategoryNode; parents: CategoryNode[] };
  * rows such as Designer) are left out.
  */
 export function categoryGuesses(
-  suggestion: PhotoSuggestion | null,
+  suggestion: Pick<PhotoSuggestion, "categories"> | null,
   categories: CategoryNode[],
   hiddenRoots: readonly string[] = [],
 ): CategoryGuess[] {

@@ -4,9 +4,12 @@ import type {
   ListingFieldErrors,
   ListingStatus,
   PhotoSuggestion,
+  PhotoTip,
+  PhotoTipKind,
+  TextSuggestion,
 } from "@vinty/shared";
 import { create } from "zustand";
-import { minorToPriceText, priceTextToMinor } from "@/lib/money";
+import { minorToPriceText, priceTextToMinor } from "./money";
 
 export type SellPhoto = {
   /** Local id for the tile. */
@@ -68,11 +71,26 @@ type SellState = {
   assist: "idle" | "reading" | "done";
   /** What the helper saw. Never filled in, the pickers show it first as "Looks like". */
   suggestion: PhotoSuggestion | null;
+  /** What the title and description suggest (D-036). Same rules as `suggestion`: shown first, never filled in. */
+  textSuggestion: TextSuggestion | null;
+  /** How many times the words were sent this session, and the text of the last time (so the same text is not sent twice). */
+  textCalls: number;
+  lastTextSent: string;
+  /** Photo tips by photo key (D-036), the keys the helper already looked at, and the tips the seller closed. */
+  photoTips: Record<string, PhotoTipKind[]>;
+  checkedKeys: string[];
+  dismissedTips: string[];
   /** Counts up on every start(), so a late answer for an earlier form is thrown away. */
   session: number;
   setAssist: (assist: "idle" | "reading" | "done") => void;
   finishAssist: (session: number) => void;
   receiveSuggestion: (session: number, suggestion: PhotoSuggestion) => void;
+  receiveTextSuggestion: (session: number, suggestion: TextSuggestion) => void;
+  /** Notes that the words are being sent now (one more call, and which text). */
+  markTextSent: (session: number, text: string) => void;
+  markChecked: (session: number, keys: string[]) => void;
+  addPhotoTips: (session: number, tips: PhotoTip[]) => void;
+  dismissTip: (key: string) => void;
   start: (listing?: ListingDetail) => void;
   set: (patch: Partial<SellValues>) => void;
   updatePhoto: (id: string, patch: Partial<SellPhoto>) => void;
@@ -86,6 +104,13 @@ export const newPhotoId = () => {
   return `p${Date.now().toString(36)}${counter}`;
 };
 
+/** Adds tips to the ones we have, by photo key. */
+function withTips(current: Record<string, PhotoTipKind[]>, tips: PhotoTip[]) {
+  const next = { ...current };
+  for (const tip of tips) next[tip.key] = tip.kinds;
+  return next;
+}
+
 /**
  * The sell form's values while the person moves between the form, the category panels and the pickers.
  * Small app state, so it lives in Zustand. The saved listing itself comes from the server.
@@ -96,15 +121,44 @@ export const useSellStore = create<SellState>((set) => ({
   errors: {},
   assist: "idle",
   suggestion: null,
+  textSuggestion: null,
+  textCalls: 0,
+  lastTextSent: "",
+  photoTips: {},
+  checkedKeys: [],
+  dismissedTips: [],
   session: 0,
   setAssist: (assist) => set({ assist }),
   finishAssist: (session) => set((s) => (s.session === session ? { assist: "done" } : s)),
   receiveSuggestion: (session, suggestion) =>
-    set((s) => (s.session === session ? { assist: "done", suggestion } : s)),
+    set((s) =>
+      s.session === session
+        ? { assist: "done", suggestion, photoTips: withTips(s.photoTips, suggestion.photoTips) }
+        : s,
+    ),
+  receiveTextSuggestion: (session, textSuggestion) =>
+    set((s) => (s.session === session ? { textSuggestion } : s)),
+  markTextSent: (session, text) =>
+    set((s) => (s.session === session ? { textCalls: s.textCalls + 1, lastTextSent: text } : s)),
+  markChecked: (session, keys) =>
+    set((s) =>
+      s.session === session
+        ? { checkedKeys: [...s.checkedKeys, ...keys.filter((k) => !s.checkedKeys.includes(k))] }
+        : s,
+    ),
+  addPhotoTips: (session, tips) =>
+    set((s) => (s.session === session ? { photoTips: withTips(s.photoTips, tips) } : s)),
+  dismissTip: (key) => set((s) => ({ dismissedTips: [...s.dismissedTips, key] })),
   start: (listing) =>
     set((s) => ({
       assist: "idle",
       suggestion: null,
+      textSuggestion: null,
+      textCalls: 0,
+      lastTextSent: "",
+      photoTips: {},
+      checkedKeys: [],
+      dismissedTips: [],
       session: s.session + 1,
       listingId: listing?.id,
       status: listing?.status,

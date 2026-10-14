@@ -1,8 +1,11 @@
+import { killSwitches } from "@vinty/db";
 import type { PhotoSuggestion, ReferenceData } from "@vinty/shared";
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { buildCatalog } from "../lib/photo-assist.js";
+import { buildCatalog, buildTextCatalog } from "../lib/photo-assist.js";
 import { fakePhotoReader, type RawReading } from "../lib/photo-reader.js";
 import type { Storage } from "../lib/storage.js";
+import { fakeTextReader } from "../lib/text-reader.js";
 import {
   buildTestApp,
   cleanupTestUsers,
@@ -72,7 +75,7 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     const t = await withApp(undefined);
     contexts.push(t.ctx);
     const status = await t.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
-    expect(status.json()).toEqual({ photoAssist: false });
+    expect(status.json()).toEqual({ photoAssist: false, textAssist: false });
     const res = await t.suggest();
     expect(res.statusCode).toBe(200);
     const body = res.json() as PhotoSuggestion;
@@ -85,7 +88,7 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     const t = await withApp({});
     contexts.push(t.ctx);
     const status = await t.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
-    expect(status.json()).toEqual({ photoAssist: true });
+    expect(status.json().photoAssist).toBe(true);
   });
 
   it("needs a signed in person", async () => {
@@ -230,5 +233,233 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     expect(over.statusCode).toBe(429);
     expect(over.headers["retry-after"]).toBeDefined();
     expect(t.reader.calls).toHaveLength(20);
+  });
+});
+
+// ---- D-036: photo tips, the tips-only check, text suggestions and the status ----
+describe.skipIf(!databaseUrl)("photo tips and text helper", () => {
+  const createdIds: string[] = [];
+  const contexts: TestContext[] = [];
+  const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
+
+  async function setup(opts: {
+    photo?: ReturnType<typeof fakePhotoReader>;
+    text?: ReturnType<typeof fakeTextReader>;
+  }) {
+    const ctx = await buildTestApp(
+      {},
+      {
+        storage: storageWithPhotos,
+        ...(opts.photo ? { photoReader: opts.photo } : {}),
+        ...(opts.text ? { textReader: opts.text } : {}),
+      },
+    );
+    contexts.push(ctx);
+    const person = newPerson("tips");
+    const res = await ctx.app.inject({
+      method: "POST",
+      url: "/api/auth/sign-up/email",
+      payload: {
+        email: person.email,
+        password: person.password,
+        name: person.username,
+        username: person.username,
+      },
+    });
+    const id = res.json().user.id as string;
+    createdIds.push(id);
+    const token = res.headers["set-auth-token"] as string;
+    const post = (url: string, payload: unknown, auth = true) =>
+      ctx.app.inject({
+        method: "POST",
+        url,
+        ...(auth ? { headers: bearer(token) } : {}),
+        payload: payload as object,
+      });
+    return { ctx, id, token, post };
+  }
+
+  afterAll(async () => {
+    const first = contexts[0];
+    if (first) await cleanupTestUsers(first.database, createdIds, { onlyIds: true });
+    await Promise.all(contexts.map((c) => c.close()));
+  });
+
+  it("puts photo tips into the suggestion, on the right keys", async () => {
+    const photo = fakePhotoReader({
+      colours: ["K1"],
+      photoIssues: [{ photo: 2, issues: ["dark", "contact"] }],
+    });
+    const t = await setup({ photo });
+    const keys = [`listings/${t.id}/a.jpg`, `listings/${t.id}/b.jpg`];
+    const body = (
+      await t.post("/v1/listings/suggest", { photoKeys: keys, language: "en" })
+    ).json() as PhotoSuggestion;
+    expect(body.photoTips).toEqual([{ key: keys[1], kinds: ["contact", "dark"] }]);
+  });
+
+  describe("photo-check", () => {
+    it("returns tips from the check", async () => {
+      const photo = fakePhotoReader(undefined, { photoIssues: [{ photo: 1, issues: ["cut_off"] }] });
+      const t = await setup({ photo });
+      const key = `listings/${t.id}/a.jpg`;
+      const res = await t.post("/v1/listings/photo-check", { photoKeys: [key] });
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual({ photoTips: [{ key, kinds: ["cut_off"] }] });
+      expect(photo.checkCalls).toHaveLength(1);
+      expect(photo.calls).toHaveLength(0);
+    });
+
+    it("refuses someone else's photos, needs sign in, and is empty without a key or on failure", async () => {
+      const photo = fakePhotoReader(undefined, { photoIssues: [] });
+      const t = await setup({ photo });
+      expect(
+        (await t.post("/v1/listings/photo-check", { photoKeys: ["listings/someone-else/b.jpg"] })).statusCode,
+      ).toBe(400);
+      expect(photo.checkCalls).toHaveLength(0);
+      expect(
+        (await t.post("/v1/listings/photo-check", { photoKeys: [`listings/${t.id}/a.jpg`] }, false))
+          .statusCode,
+      ).toBe(401);
+
+      const off = await setup({ photo: fakePhotoReader() });
+      const res = await off.post("/v1/listings/photo-check", { photoKeys: [`listings/${off.id}/a.jpg`] });
+      expect(res.json()).toEqual({ photoTips: [] });
+
+      const broken = await setup({
+        photo: fakePhotoReader(undefined, () => {
+          throw new Error("model fell over");
+        }),
+      });
+      const failed = await broken.post("/v1/listings/photo-check", {
+        photoKeys: [`listings/${broken.id}/a.jpg`],
+      });
+      expect(failed.statusCode).toBe(200);
+      expect(failed.json()).toEqual({ photoTips: [] });
+    });
+
+    it("allows 20 checks an hour per person", async () => {
+      const photo = fakePhotoReader(undefined, { photoIssues: [] });
+      const t = await setup({ photo });
+      const send = () => t.post("/v1/listings/photo-check", { photoKeys: [`listings/${t.id}/a.jpg`] });
+      for (let i = 0; i < 20; i++) expect((await send()).statusCode).toBe(200);
+      const over = await send();
+      expect(over.statusCode).toBe(429);
+      expect(over.headers["retry-after"]).toBeDefined();
+    });
+  });
+
+  describe("suggest-text", () => {
+    it("turns the model's codes into ids", async () => {
+      const probe = await setup({});
+      const reference = (
+        await probe.ctx.app.inject({ method: "GET", url: "/v1/reference" })
+      ).json() as ReferenceData;
+      const catalog = buildTextCatalog(reference);
+      const text = fakeTextReader({
+        categories: [{ code: "C1", confidence: 0.9 }, { code: "C99999" }],
+        condition: "Q1",
+        colours: ["K1"],
+        brandText: "Zzyzx Unheard Of",
+      });
+      const t = await setup({ text });
+      const res = await t.post("/v1/listings/suggest-text", {
+        title: "Blue dress, worn twice",
+        description: "",
+        language: "en",
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual({
+        categories: [{ id: catalog.categories.get("C1"), confidence: 0.9 }],
+        brand: { id: null, name: "Zzyzx Unheard Of" },
+        conditionId: catalog.conditions.get("Q1"),
+        colourIds: [catalog.colours.get("K1")],
+      });
+      expect(text.calls).toHaveLength(1);
+      expect(text.calls[0]?.catalog).toContain("CONDITIONS");
+    });
+
+    it("is empty without a key, and when the model fails", async () => {
+      const off = await setup({ text: fakeTextReader() });
+      const empty = { categories: [], brand: null, conditionId: null, colourIds: [] };
+      const body = { title: "Blue dress", description: "", language: "en" };
+      expect((await off.post("/v1/listings/suggest-text", body)).json()).toEqual(empty);
+      const broken = await setup({
+        text: fakeTextReader(() => {
+          throw new Error("model fell over");
+        }),
+      });
+      const res = await broken.post("/v1/listings/suggest-text", body);
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual(empty);
+    });
+
+    it("answers 400 on too little text and 401 signed out", async () => {
+      const text = fakeTextReader({});
+      const t = await setup({ text });
+      expect(
+        (await t.post("/v1/listings/suggest-text", { title: " a", description: "", language: "en" }))
+          .statusCode,
+      ).toBe(400);
+      expect(
+        (await t.post("/v1/listings/suggest-text", { title: "Blue dress", language: "fr" })).statusCode,
+      ).toBe(400);
+      expect(
+        (
+          await t.post(
+            "/v1/listings/suggest-text",
+            { title: "Blue dress", description: "", language: "en" },
+            false,
+          )
+        ).statusCode,
+      ).toBe(401);
+      expect(text.calls).toHaveLength(0);
+    });
+
+    it("allows 40 reads an hour per person", async () => {
+      const text = fakeTextReader({});
+      const t = await setup({ text });
+      // The per address limit is 30 a minute, so spread the calls over several addresses. The per person limit still counts.
+      const send = (n: number) =>
+        t.ctx.app.inject({
+          method: "POST",
+          url: "/v1/listings/suggest-text",
+          headers: bearer(t.token),
+          remoteAddress: `10.0.0.${n % 5}`,
+          payload: { title: "Blue dress", description: "", language: "en" },
+        });
+      for (let i = 0; i < 40; i++) expect((await send(i)).statusCode).toBe(200);
+      const over = await send(40);
+      expect(over.statusCode).toBe(429);
+      expect(over.headers["retry-after"]).toBeDefined();
+    });
+  });
+
+  describe("status", () => {
+    it("reports both helpers, and false for both when the AI switch is off", async () => {
+      const t = await setup({ photo: fakePhotoReader({}), text: fakeTextReader({}) });
+      const status = () => t.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
+      const db = t.ctx.database.db;
+      if (!db) throw new Error("no database");
+      await db.delete(killSwitches).where(eq(killSwitches.name, "ai"));
+      const on = await status();
+      expect(on.json()).toEqual({ photoAssist: true, textAssist: true });
+      expect(on.headers["cache-control"]).toBe("public, max-age=60");
+      await db.insert(killSwitches).values({ name: "ai", enabled: false, reason: "Paused" });
+      try {
+        // The meter remembers the switch for 30 seconds, so ask a fresh app copy.
+        const fresh = await setup({ photo: fakePhotoReader({}), text: fakeTextReader({}) });
+        const off = await fresh.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
+        expect(off.json()).toEqual({ photoAssist: false, textAssist: false });
+      } finally {
+        await db.delete(killSwitches).where(eq(killSwitches.name, "ai"));
+      }
+    });
+
+    it("says text is off when only the photo helper has a key", async () => {
+      const t = await setup({ photo: fakePhotoReader({}), text: fakeTextReader() });
+      const res = await t.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
+      expect(res.json()).toEqual({ photoAssist: true, textAssist: false });
+    });
   });
 });

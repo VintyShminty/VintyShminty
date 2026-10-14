@@ -9,11 +9,13 @@ import {
   LISTING_TITLE_MAX,
   type ListingField,
   listingLimits,
-  type PhotoSuggestion,
+  mergeGuesses,
+  type SellGuesses,
   stripHiddenAttributes,
   validateListing,
 } from "@vinty/shared";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Sparkles } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
@@ -24,9 +26,11 @@ import { ColourGridSheet } from "@/components/sell/colour-grid-sheet";
 import { ConditionSlider } from "@/components/sell/condition-slider";
 import { type Option, OptionListSheet } from "@/components/sell/option-list-sheet";
 import { ParcelSizes } from "@/components/sell/parcel-sizes";
+import { PhotoTips } from "@/components/sell/photo-tips";
 import { PhotoUploader } from "@/components/sell/photo-uploader";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { PickerRow } from "@/components/ui/picker-row";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
@@ -39,7 +43,7 @@ import { categoryGuesses } from "@/lib/category-guesses";
 import { formatMoney, priceTextToMinor } from "@/lib/money";
 import { ownListingQuery, pricePreviewQuery, useSaveListing } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
-import { usePhotoAssist } from "@/lib/sell-assist";
+import { currentGuesses, usePhotoAssist, usePhotoTipCheck, useTextAssist } from "@/lib/sell-assist";
 import { toListingInput, useSellStore } from "@/lib/sell-store";
 
 function useDebounced<T>(value: T, ms = 300): T {
@@ -101,12 +105,14 @@ export default function SellForm() {
   const errors = useSellStore((s) => s.errors);
   const status = useSellStore((s) => s.status);
   const listingId = useSellStore((s) => s.listingId);
-  const suggestion = useSellStore((s) => s.suggestion);
+  const photoSuggestion = useSellStore((s) => s.suggestion);
+  const textSuggestion = useSellStore((s) => s.textSuggestion);
+  const suggestion = mergeGuesses(photoSuggestion, textSuggestion);
   const { set, setErrors, clearError, start } = useSellStore.getState();
   const [banner, setBanner] = useState<string | null>(null);
   const [ready, setReady] = useState(!id);
   // The pickers show the helper's guesses as they were when the picker opened, so an open list never jumps.
-  const [shown, setShown] = useState<PhotoSuggestion | null>(null);
+  const [shown, setShown] = useState<SellGuesses | null>(null);
 
   // Start fresh for a new listing, or fill the form from the saved listing.
   const started = useRef(false);
@@ -133,7 +139,11 @@ export default function SellForm() {
 
   // Reads the first photos in the background (new listings only). Nothing is filled in: the guesses show first in the
   // pickers the seller goes through anyway.
-  usePhotoAssist({ enabled: !id, language: i18n.language === "he" ? "he" : "en", reference: reference.data });
+  const assistLanguage = i18n.language === "he" ? "he" : "en";
+  usePhotoAssist({ enabled: !id, language: assistLanguage, reference: reference.data });
+  // Photos added later are checked for tips, and the title and description are read when the seller leaves them.
+  usePhotoTipCheck({ enabled: !id });
+  const readWords = useTextAssist({ enabled: !id, language: assistLanguage });
 
   const brandRef = useRef<BottomSheetModal>(null);
   const sizeRef = useRef<BottomSheetModal>(null);
@@ -172,6 +182,11 @@ export default function SellForm() {
     ? undefined
     : categoryGuesses(suggestion, ref.categories, ["designer"])[0]?.node;
   const categoryHint = topGuess ? t("sell.assist.guess", { name: name(topGuess.name) }) : undefined;
+
+  // While no condition is chosen, the words' guess shows as a chip above the slider. Tapping it picks it.
+  const conditionGuess = values.conditionId
+    ? undefined
+    : ref.conditions.find((c) => c.id === suggestion?.conditionId);
 
   const sizeOptions: Option[] = (() => {
     if (!category) return [];
@@ -256,7 +271,7 @@ export default function SellForm() {
   };
 
   const openSheet = (sheet: React.RefObject<BottomSheetModal | null>) => {
-    setShown(useSellStore.getState().suggestion);
+    setShown(currentGuesses());
     sheet.current?.present();
   };
 
@@ -266,6 +281,7 @@ export default function SellForm() {
       <ScreenScroll contentContainerClassName="pb-lg">
         <Section title={t("sell.photos.title")}>
           <PhotoUploader maxPhotos={limits.maxPhotos} error={err("photos")} />
+          <PhotoTips />
           {/* The "made or touched up with AI" checkbox (values.usedAiPhotos, t("sell.aiPhotos")) is hidden for now.
               The field and the server support stay, it simply stays false until the row comes back. */}
         </Section>
@@ -283,6 +299,7 @@ export default function SellForm() {
             footerEnd={`${values.title.length}/${LISTING_TITLE_MAX}`}
             error={err("title")}
             returnKeyType="next"
+            onBlur={readWords}
           />
           <Input
             label={t("sell.descriptionLabel")}
@@ -296,6 +313,7 @@ export default function SellForm() {
             maxLength={LISTING_DESCRIPTION_MAX}
             footerEnd={`${values.description.length}/${LISTING_DESCRIPTION_MAX}`}
             error={err("description")}
+            onBlur={readWords}
           />
         </Section>
 
@@ -328,6 +346,17 @@ export default function SellForm() {
               <Text variant="smallLabel" weight={600}>
                 {t("sell.condition")}
               </Text>
+              {conditionGuess ? (
+                <Chip
+                  className="self-start"
+                  icon={Sparkles}
+                  label={t("sell.assist.guessName", { name: name(conditionGuess.name) })}
+                  onPress={() => {
+                    set({ conditionId: conditionGuess.id });
+                    clearError("conditionId");
+                  }}
+                />
+              ) : null}
               <ConditionSlider
                 stops={ref.conditions.map((c) => ({
                   id: c.id,
@@ -429,6 +458,7 @@ export default function SellForm() {
         ref={brandRef}
         selected={values.brand}
         fromTag={shown?.brand}
+        fromSource={shown?.brandSource}
         onChange={(brand) => {
           set({ brand });
           clearError("brandId");

@@ -1,0 +1,63 @@
+import { aiCalls, createDb, killSwitches } from "@vinty/db";
+import { and, eq, gte, inArray } from "drizzle-orm";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { databaseUrl } from "../test-helpers.js";
+import { AiMeter, AiRefusedError } from "./ai-cost.js";
+import { fakePhotoReader, meteredPhotoReader } from "./photo-reader.js";
+import { fakeTextReader, meteredTextReader } from "./text-reader.js";
+
+const MODEL = "claude-haiku-5-5";
+const ACTIONS = ["photo_tips", "text_suggest"];
+const image = { mediaType: "image/jpeg" as const, data: Buffer.from("x") };
+
+// Runs only with a local database. Rows are found by action name and by the time this file started.
+describe.skipIf(!databaseUrl)("metering of the tips check and the text helper", () => {
+  const database = createDb(databaseUrl as string);
+  const db = database.db;
+  const startedAt = new Date();
+  const rows = () =>
+    db
+      .select()
+      .from(aiCalls)
+      .where(and(inArray(aiCalls.action, ACTIONS), gte(aiCalls.createdAt, startedAt)));
+  const reset = async () => {
+    await db.delete(aiCalls).where(and(inArray(aiCalls.action, ACTIONS), gte(aiCalls.createdAt, startedAt)));
+    await db.delete(killSwitches).where(eq(killSwitches.name, "ai"));
+  };
+  beforeAll(reset);
+  afterEach(reset);
+  afterAll(async () => {
+    await reset();
+    await database.close();
+  });
+
+  it("records the tips check under photo_tips", async () => {
+    const meter = new AiMeter(db);
+    const reader = meteredPhotoReader(fakePhotoReader({}, { photoIssues: [] }), meter, MODEL);
+    await reader.check({ images: [image] });
+    expect((await rows()).map((r) => r.action)).toEqual(["photo_tips"]);
+  });
+
+  it("records the text helper under text_suggest", async () => {
+    const meter = new AiMeter(db);
+    const reader = meteredTextReader(fakeTextReader({}), meter, MODEL);
+    await reader.read({ title: "Blue jeans", description: "", catalog: "C1: x" });
+    expect((await rows()).map((r) => r.action)).toEqual(["text_suggest"]);
+  });
+
+  it("refuses both, and records nothing, when the AI switch is off", async () => {
+    await db.insert(killSwitches).values({ name: "ai", enabled: false, reason: "Paused" });
+    const meter = new AiMeter(db);
+    const photo = fakePhotoReader({}, { photoIssues: [] });
+    const text = fakeTextReader({});
+    await expect(meteredPhotoReader(photo, meter, MODEL).check({ images: [image] })).rejects.toBeInstanceOf(
+      AiRefusedError,
+    );
+    await expect(
+      meteredTextReader(text, meter, MODEL).read({ title: "Blue jeans", description: "", catalog: "" }),
+    ).rejects.toBeInstanceOf(AiRefusedError);
+    expect(photo.checkCalls).toHaveLength(0);
+    expect(text.calls).toHaveLength(0);
+    expect(await rows()).toHaveLength(0);
+  });
+});

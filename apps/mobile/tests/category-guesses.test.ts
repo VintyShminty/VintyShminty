@@ -22,6 +22,7 @@ const suggestion = (ids: string[]): PhotoSuggestion => ({
   materialId: null,
   title: null,
   description: null,
+  photoTips: [],
 });
 
 describe("categoryGuesses", () => {

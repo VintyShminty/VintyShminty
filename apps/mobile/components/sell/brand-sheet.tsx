@@ -30,11 +30,14 @@ type BrandSheetProps = {
   onChange: (brand: { id: string | null; name: string } | null) => void;
   /** The brand the photo helper read from a tag. Shown first, never picked for the seller. `id` is null when it is not in our list. */
   fromTag?: { id: string | null; name: string } | null;
+  /** Where that brand came from: the tag in a photo, or the words the seller typed (D-036). */
+  fromSource?: "tag" | "text" | null;
 };
 
 /** Brand picker: a search, the most popular brands when empty, and a Use "text" row when nothing fits (old and vintage brands are fine). */
-function BrandSheet({ ref, selected, onChange, fromTag }: BrandSheetProps) {
+function BrandSheet({ ref, selected, onChange, fromTag, fromSource }: BrandSheetProps) {
   const { t, i18n } = useTranslation();
+  const guessKey = fromSource === "text" ? "sell.assist.guessName" : "sell.assist.fromTag";
   const insets = useSafeAreaInsets();
   const [text, setText] = useState("");
   const q = useDebounced(cleanBrandName(text));
@@ -128,12 +131,12 @@ function BrandSheet({ ref, selected, onChange, fromTag }: BrandSheetProps) {
                   }}
                   role={fromTag.id ? "radio" : "button"}
                   accessibilityState={fromTag.id ? { checked: selected?.id === fromTag.id } : undefined}
-                  accessibilityLabel={t("sell.assist.fromTag", { name: fromTag.name })}
+                  accessibilityLabel={t(guessKey, { name: fromTag.name })}
                   className="active:bg-surface"
                 >
                   <View className="min-h-14 flex-row items-center gap-md border-b border-border-subtle px-lg">
                     <Text weight={600} className="flex-1">
-                      {t("sell.assist.fromTag", { name: fromTag.name })}
+                      {t(guessKey, { name: fromTag.name })}
                     </Text>
                     {fromTag.id ? <Radio checked={selected?.id === fromTag.id} /> : null}
                   </View>

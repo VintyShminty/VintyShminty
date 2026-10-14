@@ -8,6 +8,7 @@ import { createMailer, type Mailer } from "./lib/mail.js";
 import { createPhotoReader, meteredPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
 import type { Pusher } from "./lib/push.js";
 import { createStorage, type Storage } from "./lib/storage.js";
+import { createTextReader, meteredTextReader, type TextReader } from "./lib/text-reader.js";
 import authPlugin from "./plugins/auth.js";
 import dbPlugin, { type DatabaseHandle } from "./plugins/db.js";
 import errorsPlugin from "./plugins/errors.js";
@@ -48,11 +49,21 @@ export type BuildAppOptions = {
   storage?: Storage;
   /** Defaults to Claude Haiku when ANTHROPIC_API_KEY is set, otherwise the photo helper is off. Tests pass a fake. */
   photoReader?: PhotoReader;
+  /** Same for the text helper (D-036): Claude Haiku when ANTHROPIC_API_KEY is set, otherwise off. Tests pass a fake. */
+  textReader?: TextReader;
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
 };
 
-export async function buildApp({ env, database, mailer, storage, pusher, photoReader }: BuildAppOptions) {
+export async function buildApp({
+  env,
+  database,
+  mailer,
+  storage,
+  pusher,
+  photoReader,
+  textReader,
+}: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
   }).withTypeProvider<ZodTypeProvider>();
@@ -86,6 +97,8 @@ export async function buildApp({ env, database, mailer, storage, pusher, photoRe
     const baseReader = photoReader ?? createPhotoReader(env);
     await app.register(photoAssistRoutes, {
       reader: meteredPhotoReader(baseReader, aiMeter, env.PHOTO_READER_MODEL),
+      textReader: meteredTextReader(textReader ?? createTextReader(env), aiMeter, env.PHOTO_READER_MODEL),
+      meter: aiMeter,
     });
     await app.register(userRoutes);
     await app.register(discoveryRoutes);

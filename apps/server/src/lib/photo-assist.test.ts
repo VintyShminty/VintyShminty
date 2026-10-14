@@ -4,10 +4,13 @@ import { flattenCategories } from "../../../../packages/db/src/seed/reference/ca
 import {
   type BrandMatcher,
   buildCatalog,
+  buildTextCatalog,
   normaliseBrand,
   PHOTO_HINTS,
   photoHint,
+  resolvePhotoTips,
   resolveSuggestion,
+  resolveTextSuggestion,
 } from "./photo-assist.js";
 
 const name = (en: string) => ({ en, he: en });
@@ -29,6 +32,10 @@ const reference = {
     { id: "col-blue", name: name("Blue") },
   ],
   materials: [{ id: "mat-cotton", name: name("Cotton") }],
+  conditions: [
+    { id: "cond-new", name: name("New with tags"), description: name("Never worn, tags attached") },
+    { id: "cond-good", name: name("Good"), description: name("") },
+  ],
 } as unknown as ReferenceData;
 
 const matcher: BrandMatcher = {
@@ -162,5 +169,119 @@ describe("resolveSuggestion", () => {
     expect(s.categories).toEqual([]);
     expect(s.brand).toBeNull();
     expect(s.colourIds).toEqual([]);
+  });
+});
+
+describe("buildTextCatalog", () => {
+  it("adds the conditions after the same categories and colours as the photo catalog", () => {
+    const photo = buildCatalog(reference);
+    const text = buildTextCatalog(reference);
+    expect(text.text.startsWith(photo.text)).toBe(true);
+    expect(text.text).toContain("CONDITIONS (code: name, meaning)");
+    expect(text.text).toContain("Q1: New with tags, Never worn, tags attached");
+    expect(text.text).toContain("Q2: Good");
+    expect(text.text).not.toContain("Q2: Good,");
+    expect(text.conditions.get("Q2")).toBe("cond-good");
+  });
+
+  it("leaves the photo catalog text without conditions, so its prompt cache holds", () => {
+    expect(buildCatalog(reference).text).not.toContain("CONDITIONS");
+    expect(buildCatalog(reference).text).toBe(
+      [
+        "CATEGORIES (code: path)",
+        "C1: Women > Dresses",
+        "C2: Women > Jeans",
+        "",
+        "COLOURS (code: name)",
+        "K1: Black",
+        "K2: Red",
+        "K3: Blue",
+      ].join("\n"),
+    );
+  });
+});
+
+describe("resolvePhotoTips", () => {
+  const keys = ["listings/u/a.jpg", "listings/u/b.jpg", "listings/u/c.jpg"];
+
+  it("maps photo numbers to the keys that were sent, orders kinds and merges repeats", () => {
+    const tips = resolvePhotoTips(
+      [
+        { photo: 2, issues: ["dark", "contact"] },
+        { photo: 2, issues: ["cut_off", "dark"] },
+        { photo: 1, issues: ["dark"] },
+      ],
+      keys,
+    );
+    expect(tips).toEqual([
+      { key: "listings/u/a.jpg", kinds: ["dark"] },
+      { key: "listings/u/b.jpg", kinds: ["contact", "cut_off", "dark"] },
+    ]);
+  });
+
+  it("drops unknown numbers, unknown kinds and empty entries", () => {
+    expect(
+      resolvePhotoTips(
+        [
+          { photo: 0, issues: ["dark"] },
+          { photo: 4, issues: ["dark"] },
+          { photo: 1.5, issues: ["dark"] },
+          { photo: null, issues: ["dark"] },
+          { photo: 1, issues: ["blurry"] },
+          { photo: 3, issues: null },
+        ],
+        keys,
+      ),
+    ).toEqual([]);
+    expect(resolvePhotoTips(undefined, keys)).toEqual([]);
+  });
+
+  it("uses the keys of the photos really sent, so a skipped photo does not shift the numbers", async () => {
+    // Photo b could not be read, so the model saw a and c as photos 1 and 2.
+    const sent = ["listings/u/a.jpg", "listings/u/c.jpg"];
+    const s = await resolveSuggestion(
+      { photoIssues: [{ photo: 2, issues: ["cut_off"] }] },
+      buildCatalog(reference),
+      matcher,
+      sent,
+    );
+    expect(s.photoTips).toEqual([{ key: "listings/u/c.jpg", kinds: ["cut_off"] }]);
+    expect((await resolveSuggestion({}, buildCatalog(reference), matcher)).photoTips).toEqual([]);
+  });
+});
+
+describe("resolveTextSuggestion", () => {
+  const catalog = buildTextCatalog(reference);
+
+  it("turns codes into ids, matches the brand and reads the condition", async () => {
+    const s = await resolveTextSuggestion(
+      {
+        categories: [
+          { code: "C2", confidence: 0.8 },
+          { code: "C77", confidence: 0.9 },
+        ],
+        brandText: "zara",
+        condition: " q1 ",
+        colours: ["K3", "K42"],
+      },
+      catalog,
+      matcher,
+    );
+    expect(s).toEqual({
+      categories: [{ id: "cat-jeans", confidence: 0.8 }],
+      brand: { id: "brand-zara", name: "Zara" },
+      conditionId: "cond-new",
+      colourIds: ["col-blue"],
+    });
+  });
+
+  it("drops a made up condition and copes with an empty answer", async () => {
+    expect((await resolveTextSuggestion({ condition: "Q9" }, catalog, matcher)).conditionId).toBeNull();
+    expect(await resolveTextSuggestion({}, catalog, matcher)).toEqual({
+      categories: [],
+      brand: null,
+      conditionId: null,
+      colourIds: [],
+    });
   });
 });

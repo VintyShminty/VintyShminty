@@ -228,6 +228,7 @@ describe("the AI suggestion", () => {
     materialId: null,
     title: null,
     description: null,
+    photoTips: [],
   };
 
   it("fills empty fields and marks them as suggestions", () => {
@@ -272,6 +273,7 @@ describe("the AI suggestion", () => {
       materialId: null,
       title: null,
       description: null,
+      photoTips: [],
     };
     const [next] = uploadReducer([row], { type: "suggested", rowId: row.id, suggestion: empty, reference });
     expect(next?.suggestion.state).toBe("none");
