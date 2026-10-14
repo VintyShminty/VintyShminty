@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { SavedSearch } from "@vinty/shared";
 import { useNavigation, useRouter } from "expo-router";
-import { Bookmark, Clock, LayoutGrid, Search, Tag, X } from "lucide-react-native";
+import { Bookmark, Clock, LayoutGrid, Search, Sparkles, Tag, X } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Keyboard, Pressable, TextInput, View } from "react-native";
@@ -25,6 +25,7 @@ import {
 } from "@/lib/discovery-queries";
 import { savedSearchesQuery } from "@/lib/item-queries";
 import { useSavedSearchSummary } from "@/lib/saved-search-summary";
+import { useSearchAssist } from "@/lib/search-assist";
 import { activeFilters, useSearchStore } from "@/lib/search-store";
 import { useDebounced } from "@/lib/use-debounced";
 import { cn } from "@/lib/utils";
@@ -65,6 +66,7 @@ export default function SearchScreen() {
   const addRecent = useAddRecentSearch();
   const clearRecent = useClearRecentSearches();
   const save = useSaveSearch();
+  const assist = useSearchAssist();
 
   // The keyboard waits until the page has slid in. Opening both at once made the slide stutter.
   useEffect(() => {
@@ -98,6 +100,8 @@ export default function SearchScreen() {
     setQuery("search", q);
     finish();
     if (q) addRecent.mutate({ queryText: q, filters: activeFilters({ ...state, q }) });
+    // Long searches may switch on filters by themselves (D-037). The box keeps the person's own words.
+    void assist.run(q);
   };
 
   const onSave = () => {
@@ -307,10 +311,27 @@ export default function SearchScreen() {
               {t("search.saveFailed")}
             </Text>
           ) : null}
-          {tab === "items" ? (
+          {assist.note ? (
+            <View className="flex-row flex-wrap items-center gap-x-sm gap-y-xs px-lg pt-sm">
+              <View className="flex-row items-center gap-xs">
+                <Icon as={Sparkles} size={13} className="text-text-3" />
+                <Text variant="bodySmall" className="text-text-3" accessibilityLiveRegion="polite">
+                  {t("search.assist.understood")}
+                </Text>
+              </View>
+              <Pressable onPress={assist.undo} hitSlop={8} role="button">
+                <Text variant="bodySmall" weight={600} className="text-primary">
+                  {t("search.assist.exactWords")}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+          {assist.pending ? (
+            <Spinner />
+          ) : tab === "items" ? (
             <SearchResults scope="search" />
           ) : (
-            <Members q={state.q} bottom={insets.bottom} />
+            <Members q={draft} bottom={insets.bottom} />
           )}
         </View>
       )}

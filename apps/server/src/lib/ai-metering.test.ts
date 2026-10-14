@@ -4,10 +4,11 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { databaseUrl } from "../test-helpers.js";
 import { AiMeter, AiRefusedError } from "./ai-cost.js";
 import { fakePhotoReader, meteredPhotoReader } from "./photo-reader.js";
+import { fakeSearchReader, meteredSearchReader } from "./search-reader.js";
 import { fakeTextReader, meteredTextReader } from "./text-reader.js";
 
 const MODEL = "claude-haiku-5-5";
-const ACTIONS = ["photo_tips", "text_suggest"];
+const ACTIONS = ["photo_tips", "text_suggest", "search_understand"];
 const image = { mediaType: "image/jpeg" as const, data: Buffer.from("x") };
 
 // Runs only with a local database. Rows are found by action name and by the time this file started.
@@ -43,6 +44,13 @@ describe.skipIf(!databaseUrl)("metering of the tips check and the text helper", 
     const reader = meteredTextReader(fakeTextReader({}), meter, MODEL);
     await reader.read({ title: "Blue jeans", description: "", catalog: "C1: x" });
     expect((await rows()).map((r) => r.action)).toEqual(["text_suggest"]);
+  });
+
+  it("records the search helper under search_understand", async () => {
+    const meter = new AiMeter(db);
+    const reader = meteredSearchReader(fakeSearchReader({}), meter, MODEL);
+    await reader.read({ text: "red dress under 100", catalog: "C1: x" });
+    expect((await rows()).map((r) => r.action)).toEqual(["search_understand"]);
   });
 
   it("refuses both, and records nothing, when the AI switch is off", async () => {

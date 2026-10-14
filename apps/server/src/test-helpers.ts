@@ -6,6 +6,7 @@ import { type Env, parseEnv } from "./env.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
 import type { PhotoReader } from "./lib/photo-reader.js";
 import { type MemoryPusher, memoryPusher } from "./lib/push.js";
+import type { SearchReader } from "./lib/search-reader.js";
 import type { Storage } from "./lib/storage.js";
 import type { TextReader } from "./lib/text-reader.js";
 
@@ -58,7 +59,12 @@ export type TestContext = {
 /** Builds the real app against the local database with email kept in memory. */
 export async function buildTestApp(
   envOverrides: Record<string, string> = {},
-  extras: { photoReader?: PhotoReader; textReader?: TextReader; storage?: Storage } = {},
+  extras: {
+    photoReader?: PhotoReader;
+    textReader?: TextReader;
+    searchReader?: SearchReader;
+    storage?: Storage;
+  } = {},
 ): Promise<TestContext> {
   const env = testEnv(envOverrides);
   // A small pool: some test files keep a dozen apps open at once, and the local database allows 100 connections.
@@ -73,6 +79,7 @@ export async function buildTestApp(
     pusher,
     ...(extras.photoReader ? { photoReader: extras.photoReader } : {}),
     ...(extras.textReader ? { textReader: extras.textReader } : {}),
+    ...(extras.searchReader ? { searchReader: extras.searchReader } : {}),
   });
   await app.ready();
   return { app, mailer, pusher, database, close: () => app.close() };

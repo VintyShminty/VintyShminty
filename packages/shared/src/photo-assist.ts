@@ -12,6 +12,8 @@ export const PHOTO_ASSIST_MAX_PHOTOS = 4;
 export const photoAssistStatusSchema = z.object({
   photoAssist: z.boolean(),
   textAssist: z.boolean().optional(),
+  /** Search in plain words (D-037). Missing means off. */
+  searchAssist: z.boolean().optional(),
 });
 export type PhotoAssistStatus = z.infer<typeof photoAssistStatusSchema>;
 

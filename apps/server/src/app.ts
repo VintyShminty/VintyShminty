@@ -7,6 +7,7 @@ import { loggerOptions } from "./lib/logger.js";
 import { createMailer, type Mailer } from "./lib/mail.js";
 import { createPhotoReader, meteredPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
 import type { Pusher } from "./lib/push.js";
+import { createSearchReader, meteredSearchReader, type SearchReader } from "./lib/search-reader.js";
 import { createStorage, type Storage } from "./lib/storage.js";
 import { createTextReader, meteredTextReader, type TextReader } from "./lib/text-reader.js";
 import authPlugin from "./plugins/auth.js";
@@ -37,6 +38,7 @@ import photoAssistRoutes from "./routes/photo-assist.js";
 import referenceRoutes from "./routes/reference.js";
 import referralRoutes from "./routes/referrals.js";
 import reviewRoutes from "./routes/reviews.js";
+import searchAssistRoutes from "./routes/search-assist.js";
 import uploadRoutes from "./routes/uploads.js";
 import userRoutes from "./routes/users.js";
 
@@ -51,6 +53,8 @@ export type BuildAppOptions = {
   photoReader?: PhotoReader;
   /** Same for the text helper (D-036): Claude Haiku when ANTHROPIC_API_KEY is set, otherwise off. Tests pass a fake. */
   textReader?: TextReader;
+  /** Same for search in plain words (D-037). Tests pass a fake. */
+  searchReader?: SearchReader;
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
 };
@@ -63,6 +67,7 @@ export async function buildApp({
   pusher,
   photoReader,
   textReader,
+  searchReader,
 }: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
@@ -95,11 +100,18 @@ export async function buildApp({
     // Every AI call goes through this meter: the spend caps, the master switch and the cost log (lib/ai-cost.ts).
     const aiMeter = new AiMeter(database.db, { logger: app.log });
     const baseReader = photoReader ?? createPhotoReader(env);
+    const meteredSearch = meteredSearchReader(
+      searchReader ?? createSearchReader(env),
+      aiMeter,
+      env.PHOTO_READER_MODEL,
+    );
     await app.register(photoAssistRoutes, {
       reader: meteredPhotoReader(baseReader, aiMeter, env.PHOTO_READER_MODEL),
       textReader: meteredTextReader(textReader ?? createTextReader(env), aiMeter, env.PHOTO_READER_MODEL),
+      searchReader: meteredSearch,
       meter: aiMeter,
     });
+    await app.register(searchAssistRoutes, { searchReader: meteredSearch });
     await app.register(userRoutes);
     await app.register(discoveryRoutes);
     await app.register(engagementRoutes);

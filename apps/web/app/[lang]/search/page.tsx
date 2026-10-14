@@ -1,4 +1,5 @@
 import { membersPageSchema, searchPageSchema } from "@vinty/shared";
+import { Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,6 +13,7 @@ import { pagePath } from "@/lib/feed-url";
 import { buildFilterOptions, listingQuery, paramValue, parseCategories, parseFilters } from "@/lib/filters";
 import { getT, isLang, type Lang } from "@/lib/i18n";
 import { getReference } from "@/lib/reference";
+import { ASKED_PARAM, exactWordsHref, readAsked } from "@/lib/search-assist";
 import { alternatesFor } from "@/lib/seo";
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -52,6 +54,7 @@ export default async function SearchPage({
   const t = getT(lang);
   const q = paramValue(sp, "q")?.trim().slice(0, 100) ?? "";
   const sellers = paramValue(sp, "view") === "sellers";
+  const asked = readAsked(paramValue(sp, ASKED_PARAM));
 
   const tabHref = (view: "items" | "sellers") => {
     const next = new URLSearchParams();
@@ -74,7 +77,7 @@ export default async function SearchPage({
         <Chip href={tabHref("sellers")} replace selected={sellers} label={t("search.sellers")} />
       </nav>
       <div className="mt-lg">
-        {sellers ? <Sellers lang={lang} q={q} /> : <Items lang={lang} q={q} sp={sp} />}
+        {sellers ? <Sellers lang={lang} q={q} /> : <Items lang={lang} q={q} sp={sp} asked={asked} />}
       </div>
     </main>
   );
@@ -94,7 +97,7 @@ function withoutCategory(lang: Lang, sp: SearchParams, id: string) {
   const next = new URLSearchParams();
   for (const [key, value] of Object.entries(sp)) {
     for (const v of Array.isArray(value) ? value : value === undefined ? [] : [value]) {
-      if (key === "category" && v.split("~")[0] === id) continue;
+      if (key === ASKED_PARAM || (key === "category" && v.split("~")[0] === id)) continue;
       next.append(key, v);
     }
   }
@@ -102,7 +105,7 @@ function withoutCategory(lang: Lang, sp: SearchParams, id: string) {
   return `/${lang}/search${qs ? `?${qs}` : ""}`;
 }
 
-async function Items({ lang, q, sp }: { lang: Lang; q: string; sp: SearchParams }) {
+async function Items({ lang, q, sp, asked }: { lang: Lang; q: string; sp: SearchParams; asked: string }) {
   const t = getT(lang);
   const filters = parseFilters(sp, "relevance");
   // A saved search can limit the words to a category. It shows as a chip that takes it off.
@@ -123,6 +126,15 @@ async function Items({ lang, q, sp }: { lang: Lang; q: string; sp: SearchParams 
     : null;
   return (
     <>
+      {asked ? (
+        <p className="mb-sm flex flex-wrap items-center gap-x-sm gap-y-xs text-body-sm text-text-3">
+          <Sparkles size={14} aria-hidden className="shrink-0" />
+          <span>{t("search.assist.understood")}</span>
+          <Link href={exactWordsHref(lang, asked)} className="font-semibold text-primary hover:underline">
+            {t("search.assist.exactWords")}
+          </Link>
+        </p>
+      ) : null}
       {count ? (
         <p className="mb-md text-body-sm text-text-3" aria-live="polite">
           {count}

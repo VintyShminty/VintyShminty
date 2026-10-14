@@ -39,6 +39,7 @@ import {
   parseFilters,
   writeFilters,
 } from "@/lib/filters";
+import { withoutAsked } from "@/lib/search-assist";
 import { useDebounced } from "@/lib/use-debounced";
 import { cn } from "@/lib/utils";
 
@@ -84,8 +85,9 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const [query, setQuery] = useOptimistic(search, (_current, next: string) => next);
   const params = useMemo(() => new URLSearchParams(query), [query]);
   const navigate = useCallback(
-    (next: URLSearchParams) => {
-      const qs = next.toString();
+    (changed: URLSearchParams) => {
+      // Changing a filter ends the "Searched as filters" line of a plain-words search.
+      const qs = withoutAsked(changed).toString();
       startTransition(() => {
         setQuery(qs);
         router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });

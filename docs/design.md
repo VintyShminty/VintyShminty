@@ -576,6 +576,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** shared shapes and `mergeGuesses` in `packages/shared/src/photo-assist.ts`. Server: `lib/text-reader.ts`, `lib/photo-reader.ts`, `lib/photo-assist.ts`, `routes/photo-assist.ts` (`/v1/listings/suggest-text`, `/v1/listings/photo-check`). App: `lib/sell-assist.ts`, `lib/sell-store.ts`, the sell form. Website: `components/sell/sell-form.tsx`.
 - **References:** D-028, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
+### D-037 : Search in plain words turns into filters, with an easy way back
+
+- **Date:** 2026-10-14
+- **Area:** Search, app and website
+- **Status:** Built on branch feat/ai-plain-search, waiting for Eden's review.
+- **Decision:** When someone searches a sentence (3 words or more, or a number in it), for example "red summer dress under 100", Claude Haiku turns it into our normal filters: category (a whole group such as Dresses when the words are general), brand, size, colour, condition, material, pattern, price and order ("cheapest"). The filters switch on by themselves and show as the usual chips with an X. Only specific words no filter covers, such as a model name ("air force 1"), stay as the search text, because every search word must match and filler words would hide good items. One quiet line with the sparkle sits above the results, "Searched as filters", with a "Search the exact words" link that goes back to a plain word search. Short searches ("Zara", "linen shirt") never go to the AI and stay instant. It works for signed out visitors too, at most 20 new sentences an hour per person or internet address, and a repeated sentence is remembered so it costs nothing. If the AI is off, slow, over its limit or unsure, the search simply uses the exact words.
+- **Rationale:** A plain word search for a sentence finds almost nothing, because every word must match. Turning it into filters finds the items, and the chips show exactly what was understood, so nothing is hidden.
+- **Trade-off:** A sentence waits 1 to 2 seconds for the AI before the results show. Unlike the sell form (D-028, D-036) the filters switch on without a tap, Eden chose that because the undo is one tap and the plain search would be empty anyway.
+- **Implementation:** shared shapes and `applyUnderstanding` in `packages/shared/src/search-assist.ts`. Server: `lib/search-reader.ts`, `POST /v1/search/understand`. App: the search screen. Website: the search field and the results page.
+- **References:** D-036, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.
