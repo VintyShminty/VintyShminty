@@ -42,7 +42,7 @@
   "welcome": {
     "title": "Good taste,\npassed on",
     "subtitle": "Find a piece you love from someone nearby,\nor post yours in a minute.",
-    "photoChip": "Noa’s coat · \u2066₪140\u2069",
+    "photoChip": "Noa’s coat · ⁦₪140⁩",
     "signUp": "Sign up",
     "logIn": "Log in"
   },
@@ -1658,13 +1658,15 @@
     }
   },
   "web": {
-    "home": {
-      "comingSoon": "The Vinty website is on its way. Until then, the app has everything."
-    },
     "nav": {
       "otherLanguage": "עב",
       "switchLanguage": "Switch to Hebrew",
-      "mainNavigation": "Main"
+      "mainNavigation": "Main",
+      "menu": "Menu",
+      "favourites": "Favourites",
+      "account": "Your account",
+      "browseTitle": "Browse by type",
+      "homeLink": "Vinty, home"
     },
     "dev": {
       "title": "Connection check",
@@ -1679,6 +1681,30 @@
       "chatFailed": "Live chat could not connect: {{reason}}",
       "logOut": "Log out",
       "loading": "Checking your login"
+    },
+    "loginPrompt": {
+      "title": "Log in to keep going",
+      "body": "Hearts, messages, buying and selling need an account. It only takes a minute."
+    },
+    "accountSoon": "Logging in on the website is coming soon. For now, the app has everything.",
+    "footer": {
+      "about": "About",
+      "help": "Help",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "rights": "© {{year}} Vinty"
+    },
+    "soon": "This page is coming soon.",
+    "search": {
+      "resultsFor": "Results for {{q}}",
+      "soon": "Search results are coming soon."
+    },
+    "tile": {
+      "soon": "Results for this type are coming soon."
+    },
+    "feed": {
+      "loading": "Loading items",
+      "loadingMore": "Loading more"
     }
   }
 }

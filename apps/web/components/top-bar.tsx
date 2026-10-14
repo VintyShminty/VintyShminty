@@ -1,9 +1,24 @@
-import { Camera, LayoutGrid, Search } from "lucide-react";
+import { Heart, Inbox, Search } from "lucide-react";
+import Link from "next/link";
+import { BrowsePanel } from "@/components/browse-panel";
+import { BrowseTiles } from "@/components/browse-tiles";
+import { LanguageSwitch } from "@/components/language-switch";
+import { MobileDrawer } from "@/components/mobile-drawer";
+import { SellButton } from "@/components/sell-button";
 import { getT, type Lang } from "@/lib/i18n";
-import { LanguageSwitch } from "./language-switch";
+import { loginHref, signUpHref } from "@/lib/login-links";
+import type { Viewer } from "@/lib/viewer";
 
-/** The laptop top bar of D-030. The buttons do nothing yet, the pages they open come in later steps. */
-export function TopBar({ lang }: { lang: Lang }) {
+const iconLink =
+  "inline-flex h-10 w-10 items-center justify-center rounded-control text-text-2 hover:bg-pressed";
+
+/**
+ * The top bar of D-030, in the language layout so every page has it. On a laptop: the wordmark, one Browse button that
+ * opens the photo tiles, the search field (a plain form that opens `/[lang]/search?q=`), then Log in and Sign up, or
+ * inbox, hearts and your photo when logged in, and Sell. Below `md` it shrinks to the wordmark, the search field and a
+ * menu button (the drawer holds Sell, the tiles and the links).
+ */
+export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) {
   const t = getT(lang);
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
@@ -11,49 +26,98 @@ export function TopBar({ lang }: { lang: Lang }) {
         aria-label={t("web.nav.mainNavigation")}
         className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-md px-lg py-md md:px-xl"
       >
-        <span className="text-[22px] font-extrabold tracking-tight text-primary">Vinty</span>
-        <button
-          type="button"
-          className="inline-flex h-10 items-center gap-sm rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed"
+        <Link
+          href={`/${lang}`}
+          aria-label={t("web.nav.homeLink")}
+          className="text-[22px] font-extrabold tracking-tight text-primary"
         >
-          <LayoutGrid size={16} aria-hidden />
-          {t("tabs.browse")}
-        </button>
-        <div className="order-last flex h-10 w-full items-center gap-sm rounded-bar border border-border bg-surface px-lg md:order-none md:max-w-[560px] md:flex-1">
-          <Search size={17} className="shrink-0 text-text-3" aria-hidden />
-          <input
-            type="search"
-            placeholder={t("search.placeholder")}
-            aria-label={t("search.placeholder")}
-            className="min-w-0 flex-1 bg-transparent text-body-sm text-text-1 outline-none placeholder:text-text-3"
-          />
+          Vinty
+        </Link>
+        <div className="hidden md:block">
+          <BrowsePanel>
+            <BrowseTiles
+              lang={lang}
+              withMore
+              className="grid-cols-4"
+              tileClassName="h-[120px]"
+              sizes="170px"
+            />
+          </BrowsePanel>
         </div>
-        <div className="ms-auto">
+        <search className="order-last flex h-10 w-full items-center gap-sm rounded-bar border border-border bg-surface px-lg focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">
+          <form action={`/${lang}/search`} className="flex h-full w-full items-center gap-sm px-lg">
+            <Search size={17} className="shrink-0 text-text-3" aria-hidden />
+            <input
+              type="search"
+              name="q"
+              placeholder={t("search.placeholder")}
+              aria-label={t("search.placeholder")}
+              className="min-w-0 flex-1 bg-transparent text-body-sm text-text-1 outline-none placeholder:text-text-3"
+            />
+          </form>
+        </search>
+        <div className="ms-auto hidden items-center gap-sm md:flex">
           <LanguageSwitch
             lang={lang}
             label={t("web.nav.otherLanguage")}
             title={t("web.nav.switchLanguage")}
           />
+          {viewer ? (
+            <>
+              <Link href={`/${lang}/inbox`} aria-label={t("tabs.inbox")} className={iconLink}>
+                <Inbox size={20} aria-hidden />
+              </Link>
+              <Link href={`/${lang}/favourites`} aria-label={t("web.nav.favourites")} className={iconLink}>
+                <Heart size={20} aria-hidden />
+              </Link>
+              <Link
+                href={`/${lang}/profile`}
+                aria-label={t("web.nav.account")}
+                className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-pressed text-body-sm font-bold text-primary"
+              >
+                {viewer.avatarUrl ? (
+                  // biome-ignore lint/performance/noImgElement: a small avatar, no image optimisation on purpose
+                  <img
+                    src={viewer.avatarUrl}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  (viewer.username ?? viewer.name).slice(0, 1).toUpperCase()
+                )}
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href={loginHref(lang)}
+                className="inline-flex h-10 items-center rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed"
+              >
+                {t("welcome.logIn")}
+              </Link>
+              <Link
+                href={signUpHref(lang)}
+                className="inline-flex h-10 items-center rounded-control border border-primary px-md text-body-sm font-semibold text-primary hover:bg-accent-tint"
+              >
+                {t("welcome.signUp")}
+              </Link>
+            </>
+          )}
+          <SellButton lang={lang} />
         </div>
-        <button
-          type="button"
-          className="inline-flex h-10 items-center rounded-control px-md text-body-sm font-semibold text-text-1 hover:bg-pressed"
-        >
-          {t("welcome.logIn")}
-        </button>
-        <button
-          type="button"
-          className="inline-flex h-10 items-center rounded-control border border-primary px-md text-body-sm font-semibold text-primary hover:bg-accent-tint"
-        >
-          {t("welcome.signUp")}
-        </button>
-        <button
-          type="button"
-          className="inline-flex h-10 items-center gap-sm rounded-control bg-primary px-lg text-body-sm font-semibold text-on-accent hover:opacity-90"
-        >
-          <Camera size={16} aria-hidden />
-          {t("tabs.sell")}
-        </button>
+        <div className="ms-auto md:hidden">
+          <MobileDrawer lang={lang}>
+            <BrowseTiles
+              lang={lang}
+              withMore
+              className="grid-cols-2"
+              tileClassName="h-[96px]"
+              sizes="170px"
+            />
+          </MobileDrawer>
+        </div>
       </nav>
     </header>
   );

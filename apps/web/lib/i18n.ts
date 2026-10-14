@@ -16,7 +16,18 @@ export const otherLang = (lang: Lang): Lang => (lang === "he" ? "en" : "he");
 const locales = { en, he } as const;
 
 /** The parts of the wording that browser components may need. The page sends only these to the browser. */
-const CLIENT_SECTIONS = ["web", "search", "welcome", "home", "tabs"] as const;
+const CLIENT_SECTIONS = [
+  "web",
+  "search",
+  "welcome",
+  "home",
+  "tabs",
+  "listing",
+  "browse",
+  "errors",
+  "common",
+  "protectionName",
+] as const;
 
 type Resources = Record<string, unknown>;
 
