@@ -1,8 +1,8 @@
+import en from "@vinty/locales/en.json";
+import he from "@vinty/locales/he.json";
 import { NOTIFICATION_TYPES } from "@vinty/shared";
 import { createInstance } from "i18next";
 import { describe, expect, it } from "vitest";
-import en from "../i18n/locales/en.json";
-import he from "../i18n/locales/he.json";
 import { routeForNotification } from "../lib/notification-route";
 import { notificationText } from "../lib/notification-text";
 

@@ -28,6 +28,12 @@ const envSchema = z
     LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
     DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
     CORS_ORIGIN: z.string().default("*"),
+    /**
+     * Addresses of the website (comma separated, for example https://vinty-web.vercel.app). The website sends
+     * log in and API calls through its own address, so the server must trust it. In development the website's
+     * local address (http://localhost:3001) is always trusted.
+     */
+    WEB_ORIGINS: z.string().default(""),
 
     // Better Auth
     BETTER_AUTH_SECRET: z
@@ -212,6 +218,23 @@ const envSchema = z
   }));
 
 export type Env = z.output<typeof envSchema>;
+
+/** The website's addresses: WEB_ORIGINS, plus its local address in development. */
+export function webOrigins(env: Pick<Env, "WEB_ORIGINS" | "NODE_ENV">): string[] {
+  const listed = env.WEB_ORIGINS.split(",")
+    .map((o) => o.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  return env.NODE_ENV === "production" ? listed : [...new Set([...listed, "http://localhost:3001"])];
+}
+
+/** Who may call the server from a browser: everyone with CORS_ORIGIN=*, else that list plus the website. */
+export function corsOrigins(env: Pick<Env, "CORS_ORIGIN" | "WEB_ORIGINS" | "NODE_ENV">): true | string[] {
+  if (env.CORS_ORIGIN === "*") return true;
+  const listed = env.CORS_ORIGIN.split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return [...new Set([...listed, ...webOrigins(env)])];
+}
 
 /** Validates the environment once at startup. Throws a readable error on bad values (fail fast). */
 export function parseEnv(source: NodeJS.ProcessEnv = process.env): Env {

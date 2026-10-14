@@ -1,3 +1,3 @@
 // App code reads raw token values (hex) from here when a native prop needs a colour
 // (tab bar tint, icon props, status bar). Everywhere else use NativeWind classes.
-export { brand, colors, opacity, radii, spacing, typeScale } from "./tokens";
+export { brand, colors, opacity, radii, spacing, typeScale } from "@vinty/design/tokens";

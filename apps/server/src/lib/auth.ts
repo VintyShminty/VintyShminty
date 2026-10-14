@@ -15,7 +15,7 @@ import { betterAuth } from "better-auth";
 import { createAuthMiddleware } from "better-auth/api";
 import { admin, bearer, emailOTP, username } from "better-auth/plugins";
 import { eq, sql } from "drizzle-orm";
-import type { Env } from "../env.js";
+import { type Env, webOrigins } from "../env.js";
 import { type CodeEmailKind, codeEmail } from "./emails.js";
 import type { Mailer } from "./mail.js";
 import { buildSocialProviders, socialProvidersOn } from "./social.js";
@@ -87,6 +87,8 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
       `${env.APP_SCHEME}://*`,
       ...(dev ? ["exp://", "exp://**"] : []),
       ...(appleOn ? ["https://appleid.apple.com"] : []),
+      // The website calls /api/auth through its own address (docs/plans/website.md, W1).
+      ...webOrigins(env),
     ],
     emailAndPassword: {
       enabled: true,

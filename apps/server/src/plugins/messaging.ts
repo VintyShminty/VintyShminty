@@ -9,7 +9,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import fp from "fastify-plugin";
 import { Server } from "socket.io";
 import type { z } from "zod";
-import type { Env } from "../env.js";
+import { corsOrigins, type Env } from "../env.js";
 import { ApiError } from "../lib/errors.js";
 import { WindowLimiter } from "../lib/limiter.js";
 import { markRead, requireParty, sendMessage, unreadCounts } from "../lib/messaging.js";
@@ -66,7 +66,7 @@ export default fp<MessagingPluginOptions>(
     const io: IoServer = new Server(app.server, {
       ...(shared ? { adapter: shared.adapter } : {}),
       serveClient: false,
-      cors: { origin: env.CORS_ORIGIN === "*" ? true : env.CORS_ORIGIN.split(",").map((o) => o.trim()) },
+      cors: { origin: corsOrigins(env) },
       // Messages are small. A bigger frame is a sign of abuse.
       maxHttpBufferSize: 64 * 1024,
     });

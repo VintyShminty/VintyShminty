@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseEnv } from "./env.js";
+import { corsOrigins, parseEnv, webOrigins } from "./env.js";
 
 describe("parseEnv", () => {
   it("applies defaults", () => {
@@ -22,6 +22,17 @@ describe("parseEnv", () => {
 
   it("fails fast when DATABASE_URL is missing", () => {
     expect(() => parseEnv({})).toThrow(/DATABASE_URL/);
+  });
+
+  it("trusts the website's addresses, plus its local address in development", () => {
+    const dev = parseEnv({
+      DATABASE_URL: "postgres://x",
+      WEB_ORIGINS: " https://web.example/ ,https://b.example",
+    });
+    expect(webOrigins(dev)).toEqual(["https://web.example", "https://b.example", "http://localhost:3001"]);
+    expect(corsOrigins(dev)).toBe(true);
+    const listed = parseEnv({ DATABASE_URL: "postgres://x", CORS_ORIGIN: "https://a.example" });
+    expect(corsOrigins(listed)).toEqual(["https://a.example", "http://localhost:3001"]);
   });
 
   it("fails fast on a bad port", () => {

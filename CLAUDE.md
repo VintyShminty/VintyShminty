@@ -22,8 +22,10 @@ Not added yet (they need decisions or credentials): payments, a real email provi
 ```
 apps/mobile/app/            Expo Router screens. (dev)/gallery.tsx is the dev-only design gallery
 apps/mobile/components/ui/  Reusables components restyled to our design (Text, Button, Badge, Chip, Switch, Icon)
-apps/mobile/theme/          tokens.js (colours, radii, spacing, type scale), fonts.js. The single source of truth
-apps/mobile/i18n/           i18next setup and locales/en.json, locales/he.json
+apps/mobile/theme/          index.ts only: the one place app code imports tokens from (`@/theme`)
+apps/mobile/i18n/           i18next setup
+packages/design/            tokens.js (colours, radii, spacing, type scale), fonts.js and the font files. The single source of truth, shared with the website
+packages/locales/           en.json and he.json, the wording, shared with the website
 apps/mobile/lib/            utils (cn), fonts, query client, app store, rtl
 apps/mobile/tests/          Vitest, includes the hard-coded colour guard
 apps/server/src/            env.ts, app.ts, plugins/, routes/, lib/
@@ -82,9 +84,9 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 - Schema changes (a table, column, index or enum) must update `docs/blueprint/data-model.md` in the same commit. A test fails if a table is missing from it. Enum value lists live in `packages/shared/src/enums.ts` and feed both the database and zod.
 - Money is an integer in minor units plus a currency code. The order and offer state machines are pure functions in `packages/shared/src/state-machines.ts`. Change them there, nowhere else.
 - Follow `docs/design.md`. Record every new design decision there in the same format as D-001 to D-016. Where nothing is decided, follow the product spec (the Vinted UX deconstruction) for how things work only. Never copy its names, wording, icons or visual details (`docs/originality.md`).
-- Colours, radii, spacing and type come from tokens only. Never write a hex or `rgb()` value in `app/`, `components/`, `lib/` or `i18n/`. `apps/mobile/tests/no-hardcoded-colours.test.ts` fails if you do. When a native prop needs a colour value, import it from `@/theme`.
+- Colours, radii, spacing and type come from tokens only. Never write a hex or `rgb()` value in `app/`, `components/`, `lib/` or `i18n/` (`packages/design/tokens.js` is the one place for them). `apps/mobile/tests/no-hardcoded-colours.test.ts` fails if you do. When a native prop needs a colour value, import it from `@/theme`.
 - Use logical start and end styles for RTL (the `Text` and `Input` components set the text alignment from the app language, because the phone's own language would otherwise decide, which is wrong for an English app on a Hebrew phone): `ps-`, `pe-`, `ms-`, `me-`, `start-`, `end-`, `text-start`. Never `left`, `right`, `pl-`, `pr-`, `ml-`, `mr-`. Place things with `justify-start` and `justify-end`, not a translate.
-- No hard-coded user-facing strings. Add a key to both `locales/en.json` and `locales/he.json` and use `t("...")`.
+- No hard-coded user-facing strings. Add a key to both `packages/locales/en.json` and `packages/locales/he.json` and use `t("...")`.
 - Writing rules for anything a user reads: no em dashes or en dashes, no semicolons, no full stop on headings and short labels, proper capitalisation, warm and direct.
 - Install native or Expo packages with `npx expo install` so versions match SDK 57. Plain JavaScript packages use `pnpm add`.
 - Run pnpm commands with output redirected to a file, not piped into `tail` (a background helper process keeps the pipe open and the command appears to hang).
@@ -93,7 +95,7 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 
 ## Design tokens and the Reusables mapping
 
-Tokens live in `apps/mobile/theme/tokens.js` as hex values. `tailwind.config.js` turns them into CSS variables (HSL triplets, as Reusables expects) and Tailwind classes. Our own names work as classes too: `bg-surface`, `bg-pressed`, `text-text-1` to `text-text-4`, `border-border-subtle`, `bg-accent-tint`, `bg-success-tint`, `text-warning`, `bg-error-tint`, `bg-window`, `bg-backdrop`.
+Tokens live in `packages/design/tokens.js` (`@vinty/design/tokens`) as hex values. `tailwind.config.js` turns them into CSS variables (HSL triplets, as Reusables expects) and Tailwind classes. Our own names work as classes too: `bg-surface`, `bg-pressed`, `text-text-1` to `text-text-4`, `border-border-subtle`, `bg-accent-tint`, `bg-success-tint`, `text-warning`, `bg-error-tint`, `bg-window`, `bg-backdrop`.
 
 | Reusables name | Our token | Notes |
 |---|---|---|
@@ -115,7 +117,7 @@ Dark mode is not built. The theme has no dark variables on purpose.
 
 ## Fonts
 
-Aileron for Latin, Heebo for Hebrew (D-011). Files are in `apps/mobile/assets/fonts` with their licences (Aileron CC0, Heebo OFL). React Native needs one family name per weight, so Tailwind has `font-aileron-<weight>` and `font-heebo-<weight>`. The `Text` component chooses the family from the current language.
+Aileron for Latin, Heebo for Hebrew (D-011). Files are in `packages/design/fonts` with their licences (Aileron CC0, Heebo OFL). React Native needs one family name per weight, so Tailwind has `font-aileron-<weight>` and `font-heebo-<weight>`. The `Text` component chooses the family from the current language.
 
 - Aileron files: 100, 300, 400, 600, 700, 800. Missing: 200, 500 (and 900). Mapping: 200 uses Light 300, 500 uses SemiBold 600.
 - Heebo files: 300 to 800 (generated as static instances from the Google Fonts variable font). Missing: 100, 200, which use 300.

@@ -1,6 +1,6 @@
 const plugin = require("tailwindcss/plugin");
-const { opacity, radii, spacing, typeScale, cssVariables } = require("./theme/tokens");
-const { fontFamilies } = require("./theme/fonts");
+const { opacity, radii, spacing, typeScale, cssVariables } = require("@vinty/design/tokens");
+const { fontFamilies } = require("@vinty/design/fonts");
 
 const v = (name) => `hsl(var(--${name}))`;
 

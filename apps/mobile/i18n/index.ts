@@ -1,9 +1,9 @@
+import en from "@vinty/locales/en.json";
+import he from "@vinty/locales/he.json";
 import { getLocales } from "expo-localization";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { readPref } from "@/lib/secure-prefs";
-import en from "./locales/en.json";
-import he from "./locales/he.json";
 
 export const SUPPORTED_LANGUAGES = ["en", "he"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];

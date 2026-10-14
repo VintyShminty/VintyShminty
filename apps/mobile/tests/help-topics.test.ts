@@ -1,6 +1,6 @@
+import en from "@vinty/locales/en.json";
+import he from "@vinty/locales/he.json";
 import { describe, expect, it } from "vitest";
-import en from "../i18n/locales/en.json";
-import he from "../i18n/locales/he.json";
 import { HELP_ARTICLE_IDS, HELP_GROUPS } from "../lib/help-topics";
 
 // The Help Centre is bundled (no server route), so this checks every article listed has words in both languages.
