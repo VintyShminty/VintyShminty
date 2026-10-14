@@ -42,7 +42,7 @@
   "welcome": {
     "title": "Good taste,\npassed on",
     "subtitle": "Find a piece you love from someone nearby,\nor post yours in a minute.",
-    "photoChip": "Noa’s coat · \u2066₪140\u2069",
+    "photoChip": "Noa’s coat · ⁦₪140⁩",
     "signUp": "Sign up",
     "logIn": "Log in"
   },
@@ -1655,13 +1655,15 @@
     }
   },
   "web": {
-    "home": {
-      "comingSoon": "The Vinty website is on its way. Until then, the app has everything."
-    },
     "nav": {
       "otherLanguage": "עב",
       "switchLanguage": "Switch to Hebrew",
-      "mainNavigation": "Main"
+      "mainNavigation": "Main",
+      "menu": "Menu",
+      "favourites": "Favourites",
+      "account": "Your account",
+      "browseTitle": "Browse by type",
+      "homeLink": "Vinty, home"
     },
     "dev": {
       "title": "Connection check",
@@ -1676,6 +1678,91 @@
       "chatFailed": "Live chat could not connect: {{reason}}",
       "logOut": "Log out",
       "loading": "Checking your login"
+    },
+    "loginPrompt": {
+      "title": "Log in to keep going",
+      "body": "Hearts, messages, buying and selling need an account. It only takes a minute."
+    },
+    "accountSoon": "Logging in on the website is coming soon. For now, the app has everything.",
+    "footer": {
+      "about": "About",
+      "help": "Help",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "rights": "© {{year}} Vinty"
+    },
+    "soon": "This page is coming soon.",
+    "search": {
+      "resultsFor": "Results for {{q}}",
+      "allItems": "All items",
+      "tabsLabel": "Search results",
+      "suggestions": "Search suggestions",
+      "reviews_one": "{{count}} review",
+      "reviews_other": "{{count}} reviews"
+    },
+    "feed": {
+      "loading": "Loading items",
+      "loadingMore": "Loading more"
+    },
+    "browse": {
+      "breadcrumb": "You are here",
+      "typesLabel": "Item types"
+    },
+    "filters": {
+      "sort": "Sort",
+      "clear": "Clear",
+      "mySizes": "My sizes",
+      "pieces_one": "{{count}} piece",
+      "pieces_other": "{{count}} pieces",
+      "piecesCapped": "{{count}}+ pieces"
+    },
+    "item": {
+      "photosLabel": "Item photos",
+      "openPhoto": "Open photo full screen",
+      "closeViewer": "Close photos",
+      "previousPhoto": "Previous photo",
+      "nextPhoto": "Next photo",
+      "yours": "This is your item",
+      "yoursNote": "You can edit it from the app.",
+      "moreFromSeller": "More from {{name}}",
+      "seeAll": "See all",
+      "similar": "Similar items",
+      "report": "Report this item",
+      "metaFallback": "{{details}} for sale on Vinty",
+      "appOnly": {
+        "title": "This works in the app for now",
+        "body": "Buying, offers, messages and reports are coming to the website soon. Open the app to do it today."
+      },
+      "loadFailed": "We could not load this item",
+      "breakdownLabel": "Price breakdown"
+    },
+    "seller": {
+      "tabsLabel": "Seller sections",
+      "statusLabel": "Show items",
+      "follow": "Follow",
+      "following": "Following",
+      "followLabel": "Follow {{name}}",
+      "unfollowLabel": "Stop following {{name}}",
+      "you": "This is you",
+      "moreReviews": "Show more reviews",
+      "metaDescription_one": "{{name}} has {{count}} item for sale on Vinty",
+      "metaDescription_other": "{{name}} has {{count}} items for sale on Vinty",
+      "statusGroup": "Item status",
+      "rating": "{{rating}} out of 5",
+      "loadFailed": "We could not load this seller"
+    },
+    "help": {
+      "metaDescription": "Quick answers about how Vinty works",
+      "allTopics": "All help topics",
+      "breadcrumb": "You are here"
+    },
+    "notFound": {
+      "title": "We could not find that page",
+      "body": "It may have moved, or the seller may have taken it down.",
+      "home": "Back to Home"
+    },
+    "meta": {
+      "homeDescription": "Second-hand finds from people near you. Buy, sell and make your price on Vinty."
     }
   }
 }

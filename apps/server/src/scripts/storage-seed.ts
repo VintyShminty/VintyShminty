@@ -87,7 +87,7 @@ try {
       .where(eq(listingPhotos.id, row.id));
     uploaded++;
   }
-  // The Browse tile photos (browse/<file>.jpg) are the same sample files, see apps/mobile/lib/browse-tiles.ts.
+  // The Browse tile photos (browse/<file>.jpg) are the same sample files, see packages/shared/src/browse-tiles.ts.
   for (const file of readdirSync(assets).filter((f) => f.endsWith(".jpg"))) {
     await s3.send(
       new PutObjectCommand({

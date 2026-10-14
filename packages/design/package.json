@@ -12,6 +12,7 @@
       "default": "./fonts.js"
     },
     "./fonts/*": "./fonts/*",
-    "./tailwind": "./tailwind.js"
+    "./tailwind": "./tailwind.js",
+    "./browse/*": "./browse/*"
   }
 }
