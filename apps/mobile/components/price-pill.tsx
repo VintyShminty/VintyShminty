@@ -1,4 +1,4 @@
-import { Check } from "lucide-react-native";
+import { BadgeCheck, Check } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Icon } from "@/components/ui/icon";
@@ -7,7 +7,7 @@ import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 /**
- * The buyer price as a soft pill (D-019, row 2): a check and "₪189 with {protectionName}" on the accent tint.
+ * The buyer price as a soft pill (D-019, row 2): a badge check and "₪189 with {protectionName}" on the accent tint.
  * It replaces the shield icon and the "incl." line. Used on cards, the chat strip, favourites, the sell form
  * price preview and the offer sheet.
  */
@@ -32,13 +32,37 @@ function PricePill({
         className,
       )}
     >
-      <Icon as={Check} size={11} className={muted ? "text-text-4" : "text-primary"} />
+      <Icon as={BadgeCheck} size={11} className={muted ? "text-text-4" : "text-primary"} />
       <Text
         variant="cardMeta"
         weight={600}
         className={cn("shrink", muted ? "text-text-4" : "text-primary")}
         numberOfLines={1}
       >
+        {t("listing.buyerPays", { price: formatMoney(amountMinor, currency) })}
+      </Text>
+    </View>
+  );
+}
+
+/**
+ * The Covered buyer price as a tiny muted line under the title on item cards (D-032): a BadgeCheck and
+ * "{price} with {protectionName}". No pill, no background.
+ */
+function CoveredLine({
+  amountMinor,
+  currency,
+  className,
+}: {
+  amountMinor: number;
+  currency: string;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <View className={cn("flex-row items-center gap-xs", className)}>
+      <Icon as={BadgeCheck} size={13} className="text-text-3" />
+      <Text variant="cardMeta" className="shrink" numberOfLines={1}>
         {t("listing.buyerPays", { price: formatMoney(amountMinor, currency) })}
       </Text>
     </View>
@@ -96,4 +120,4 @@ function PriceBreakdownCard({
   );
 }
 
-export { PriceBreakdownCard, PricePill };
+export { CoveredLine, PriceBreakdownCard, PricePill };

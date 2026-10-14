@@ -684,6 +684,7 @@
   "browse": {
     "favourite": "Add to favourites",
     "unfavourite": "Remove from favourites",
+    "cardSaved": "Saved",
     "search": "Search",
     "all": "All",
     "more": "More",

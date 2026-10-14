@@ -15,13 +15,13 @@ import {
   Bookmark,
   Check,
   Gift,
-  Heart,
   Layers,
   Leaf,
   type LucideIcon,
   MapPin,
   Moon,
   Receipt,
+  SearchCheck,
   Settings as SettingsIcon,
   Sparkles,
   Wallet,
@@ -187,12 +187,12 @@ function ProfileHeader({
       {isSelf ? (
         <View className="mt-sm">
           <SettingsRow
-            icon={Heart}
+            icon={Bookmark}
             label={t("favourites.title")}
             onPress={() => router.push("/favourites")}
           />
           <SettingsRow
-            icon={Bookmark}
+            icon={SearchCheck}
             label={t("savedSearches.title")}
             onPress={() => router.push("/saved-searches")}
           />
