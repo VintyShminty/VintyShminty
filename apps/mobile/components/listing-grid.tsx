@@ -24,9 +24,9 @@ type ListingGridProps = {
   /** A button or link under the empty message (Home: add your sizes, add your city). */
   emptyAction?: React.ReactElement | null;
   /** Hides the heart on every card (a list known to be the viewer's own items). */
-  hideHearts?: boolean;
+  hideSaves?: boolean;
   /** Favourites: sold items keep their heart so they can be removed. */
-  heartOnSold?: boolean;
+  saveOnSold?: boolean;
   /** Extra space under the last row, on top of the safe area (inside a tab, that includes the floating bar). */
   bottomPadding?: number;
   onScrollBeginDrag?: () => void;
@@ -65,8 +65,8 @@ function ListingGrid({
   emptyTitle,
   emptyMessage,
   emptyAction,
-  hideHearts,
-  heartOnSold,
+  hideSaves,
+  saveOnSold,
   bottomPadding,
   onScrollBeginDrag,
   track,
@@ -160,15 +160,15 @@ function ListingGrid({
         <View className="flex-row gap-md px-lg pb-lg">
           <ListingCard
             listing={item.left}
-            hideHeart={hideHearts}
-            heartOnSold={heartOnSold}
+            hideSave={hideSaves}
+            saveOnSold={saveOnSold}
             onLongPress={onCardLongPress}
           />
           {item.right ? (
             <ListingCard
               listing={item.right}
-              hideHeart={hideHearts}
-              heartOnSold={heartOnSold}
+              hideSave={hideSaves}
+              saveOnSold={saveOnSold}
               onLongPress={onCardLongPress}
             />
           ) : (

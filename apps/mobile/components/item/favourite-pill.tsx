@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import type { ListingDetail } from "@vinty/shared";
-import { Heart } from "lucide-react-native";
+import { Bookmark } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable } from "react-native";
 import { Icon } from "@/components/ui/icon";
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
 
 /**
- * Heart with the number of people who saved the item (docs/components.md, HeartPill, pill variant).
+ * Bookmark with the number of people who saved the item (docs/components.md, SavePill, pill variant).
  * It flips straight away, and flips back if the server says no.
  */
 function FavouritePill({ listing }: { listing: ListingDetail }) {
@@ -48,7 +48,7 @@ function FavouritePill({ listing }: { listing: ListingDetail }) {
       )}
     >
       <Icon
-        as={Heart}
+        as={Bookmark}
         size={16}
         className={on ? "text-error" : "text-text-2"}
         fill={on ? colors.error : "none"}

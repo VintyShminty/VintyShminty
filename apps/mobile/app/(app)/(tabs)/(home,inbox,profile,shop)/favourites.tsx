@@ -61,7 +61,7 @@ export default function Favourites() {
       </View>
       <ListingGrid
         query={query}
-        heartOnSold
+        saveOnSold
         emptyTitle={q ? t("favourites.noMatches") : t("favourites.empty")}
         emptyMessage={q ? undefined : t("favourites.emptyNote")}
       />

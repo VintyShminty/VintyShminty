@@ -2,7 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
 import type { ListingDetail } from "@vinty/shared";
 import { useRouter } from "expo-router";
-import { Check, Clock, Eye, EyeOff, Heart, Pencil, Trash2, Zap } from "lucide-react-native";
+import { Bookmark, Check, Clock, Eye, EyeOff, Pencil, Trash2, Zap } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
@@ -182,7 +182,7 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
                 </Text>
               </View>
               <View className="flex-row items-center gap-xs">
-                <Icon as={Heart} size={16} className="text-text-3" />
+                <Icon as={Bookmark} size={16} className="text-text-3" />
                 <Text variant="bodySmall" className="text-text-2">
                   {t("listing.favourites", { count: listing.favouriteCount })}
                 </Text>

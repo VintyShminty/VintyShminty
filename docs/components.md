@@ -297,14 +297,14 @@ The pieces that make this a second-hand marketplace. Built from Foundation and C
 
 ### ItemCard
 
-The tile for one listing: tall rounded photo, brand, description, size and condition, and the price the buyer really pays (D-007, Option C, Badge forward).
+The tile for one listing: tall rounded photo with the price on a white paper tag, then title, size and condition and the Covered buyer price (D-032, supersedes D-007 and the D-019 card).
 
-- **Variants and states:** Variants: browse (default), favourited (filled heart), sold (washed photo, green Sold badge, muted struck price, no heart), bumped (Bumped badge), price drop (Price drop badge, sale price in espresso, struck "Was: €X" line with the percentage off), own listing (price, views, favourites, Bump), loading (skeleton). States: default, pressed (scale 0.98). Layout: 12px rounded photo, white circle heart top-right, outline badge (Option B) bottom-left, brand with favourite count, two line description, size and condition, price, buyer price with the shield.
+- **Variants and states:** Variants: browse (default), saved (accent filled bookmark), sold (washed photo, green Sold badge, muted struck price in the tag, no bookmark), bumped (Buzzing badge), price drop (Price drop badge, muted struck old price inside the tag before the new price), own listing (price, views, favourites, Bump), loading (skeleton). States: default, pressed (scale 0.98). Layout: 12px rounded photo, outline badge top-start, white circle bookmark top-end, white price tag bottom-start, then the title (one line), size and condition, and the tiny Covered line with a BadgeCheck.
 - **Screens:** Home feed, Search and results, Seller profile, Favourites, Own profile
-- **Source:** Custom (Composed from Photo, HeartPill (circle variant), Text and PriceBlock. The card badge is the standard Badge component, outline style, D-008)
+- **Source:** Custom (Composed from Photo, Bookmark circle, Text and CoveredLine. The card badge is the standard Badge component, outline style, D-008)
 - **Phase:** First flows
 - **Long press (D-022):** On Home a long press opens FeedReasonSheet (an `onLongPress` prop, also a screen reader action).
-- **Status (D-019, supersedes D-007 in part):** The browse card is now the price tag card: seller price big with the heart at the end of that row, brand, size and condition in small capitals, the buyer price pill (`components/price-pill.tsx`), badges on the photo (Buzzing with a zap). Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
+- **Status (D-032, supersedes D-007 and D-019 for the card):** The browse card is the price tag on photo card: price on the photo's bottom-start corner, badge top-start, bookmark top-end, then title, size and condition and `CoveredLine` (`components/price-pill.tsx`). Own listing variant built in Milestone 2 (`components/own-listing-card.tsx`: state badge, price, views, favourites, no Bump until Milestone 6). Browse variant from Milestone 1 in `components/listing-card.tsx`
 
 ### FeedReasonSheet
 
@@ -318,21 +318,23 @@ The "Why you see this" sheet on Home (D-022). It says why a card is in the feed 
 
 ### HeartPill
 
-A small white pill with a heart and the number of people who saved the item. A circle variant (heart only) sits on item cards.
+A small white pill with a bookmark (D-032, was a heart) and the number of people who saved the item. The circle variant (bookmark only) sits on item cards.
 
-- **Variants and states:** Variants: pill with count (item page, inline), circle 32px (on item cards, the count sits beside the brand). States: not saved (outline), saved (filled, red), pressed. On photo or inline.
+- **Variants and states:** Variants: pill with count (item page, inline), circle 32px (on item cards, the count sits beside the brand). States: not saved (outline), saved (filled), pressed. On photo or inline.
 - **Screens:** Home feed, Search and results, Item page, Seller profile, Favourites
 - **Source:** Custom (Composed from Pressable, Icon and Text)
 - **Phase:** First flows
 
 ### PricePill (D-019)
 
-A soft accent-tint pill with a check icon and "{price} with {protectionName}", the buyer price. Replaces the shield and the "incl." line. `PriceBreakdownCard` (same file) is the item page breakdown: Item, protection, You pay and how the buyer is covered.
+A soft accent-tint pill with a BadgeCheck icon and "{price} with {protectionName}", the buyer price. Replaces the shield and the "incl." line. `PriceBreakdownCard` (same file) is the item page breakdown: Item, protection, You pay and how the buyer is covered.
 
 - **Variants and states:** Variants: normal, muted (sold). 
-- **Screens:** Item card, own listing, sell form price preview, offer sheet, item page (breakdown)
+- **Screens:** Own listing, sell form price preview, offer sheet, item page (breakdown)
 - **Source:** Custom, `components/price-pill.tsx`
 - **Status:** Built in Milestone 6
+
+`CoveredLine` (same file, D-032) is the card version: no pill, a muted BadgeCheck and the same words, one line.
 
 ### ConditionSlider (D-019)
 
