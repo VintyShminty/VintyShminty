@@ -594,7 +594,7 @@ A sheet with a flat list of options to pick from, such as size, brand, condition
 - **Screens:** Sell form, Catalog and filters
 - **Source:** Gorhom Bottom Sheet (Gorhom Bottom Sheet with a Checkbox or Radio list and optional search)
 - **Phase:** First flows
-- **Status:** Built in Milestone 2 (`components/sell/option-list-sheet.tsx`, single and multiple choice, Done in the header for multiple) plus the brand variant with search (`components/sell/brand-sheet.tsx`)
+- **Status:** Colours use the swatch grid sheet instead (`components/sell/colour-grid-sheet.tsx`, D-031). Built in Milestone 2 (`components/sell/option-list-sheet.tsx`, single and multiple choice, Done in the header for multiple) plus the brand variant with search (`components/sell/brand-sheet.tsx`)
 
 ### CategoryPicker
 
