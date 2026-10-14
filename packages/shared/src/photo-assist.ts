@@ -14,6 +14,8 @@ export const photoAssistStatusSchema = z.object({
   textAssist: z.boolean().optional(),
   /** Search in plain words (D-037). Missing means off. */
   searchAssist: z.boolean().optional(),
+  /** Chat quick replies and warnings (D-039). Missing means off. */
+  chatAssist: z.boolean().optional(),
 });
 export type PhotoAssistStatus = z.infer<typeof photoAssistStatusSchema>;
 

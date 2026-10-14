@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { idSchema, isoDateTimeSchema, pageSchema, paginationQuerySchema } from "./common.js";
 import {
+  CHAT_WARNING_KINDS,
   LISTING_STATUSES,
   type ListingStatus,
   MESSAGE_KINDS,
@@ -86,6 +87,11 @@ export const messageSchema = z.object({
   /** Echoed back so the app can match its pending bubble. Null on messages written by the server. */
   clientMessageId: idSchema.nullable(),
   createdAt: isoDateTimeSchema,
+  /**
+   * The AI chat check's warning (D-039), shown only to the person who received the message. Set a moment after the
+   * message arrives (a `message:updated` event follows). Optional because older servers do not send it.
+   */
+  warning: z.enum(CHAT_WARNING_KINDS).nullable().optional(),
 });
 export type Message = z.infer<typeof messageSchema>;
 
