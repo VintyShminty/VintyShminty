@@ -48,6 +48,7 @@
   },
   "social": {
     "or": "או",
+    "apple": "המשך עם Apple",
     "google": "המשך עם Google",
     "googleName": "Google",
     "appleName": "Apple"

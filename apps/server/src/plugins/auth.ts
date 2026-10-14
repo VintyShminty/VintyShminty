@@ -8,6 +8,7 @@ import { ApiError } from "../lib/errors.js";
 import { WindowLimiter } from "../lib/limiter.js";
 import type { Mailer } from "../lib/mail.js";
 import type { Storage } from "../lib/storage.js";
+import { authRequestBase, WEB_ORIGIN_HEADER } from "../lib/web-origin.js";
 
 type Db = NonNullable<Database["db"]>;
 type SessionResult = NonNullable<Awaited<ReturnType<Auth["api"]["getSession"]>>>;
@@ -72,6 +73,15 @@ export default fp<AuthPluginOptions>(
         }
       });
 
+      // Apple posts its answer back as a form (response_mode=form_post). Turn it into the same plain object.
+      scope.addContentTypeParser(
+        "application/x-www-form-urlencoded",
+        { parseAs: "string" },
+        (_req, body, done) => {
+          done(null, Object.fromEntries(new URLSearchParams(body as string)));
+        },
+      );
+
       scope.route({
         method: ["GET", "POST"],
         url: "/api/auth/*",
@@ -94,11 +104,18 @@ export default fp<AuthPluginOptions>(
             }
           }
 
-          const url = new URL(request.url, env.BETTER_AUTH_URL);
+          // A call forwarded by the website is treated as arriving on the website's address (see lib/web-origin.ts).
+          const url = new URL(request.url, authRequestBase(env, request.headers[WEB_ORIGIN_HEADER]));
           const headers = fromNodeHeaders(request.headers);
+          headers.delete(WEB_ORIGIN_HEADER);
           // The real address of the caller, never a value the caller made up.
           headers.set("x-forwarded-for", request.ip);
           const hasBody = request.method !== "GET" && request.method !== "HEAD" && request.body !== undefined;
+          if (hasBody) {
+            // The body is always passed on as JSON, whatever form it arrived in.
+            headers.set("content-type", "application/json");
+            headers.delete("content-length");
+          }
           const response = await auth.handler(
             new Request(url, {
               method: request.method,

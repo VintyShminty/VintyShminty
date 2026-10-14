@@ -1,6 +1,6 @@
 "use client";
 
-import { describeAuthError, signInInputSchema } from "@vinty/shared";
+import { type AuthProviders, describeAuthError, signInInputSchema } from "@vinty/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
@@ -12,13 +12,26 @@ import { fieldErrors } from "@/lib/form";
 import { safeNext, signUpHref } from "@/lib/login-links";
 
 /** Email and password (D-020 wording). After logging in the person lands on `next`, else Home. */
-export function LogInForm({ lang, next, reset }: { lang: string; next?: string; reset?: boolean }) {
+export function LogInForm({
+  lang,
+  next,
+  reset,
+  providers,
+  initialError,
+}: {
+  lang: string;
+  next?: string;
+  reset?: boolean;
+  providers: AuthProviders | null;
+  /** Words for a refused Apple or Google login that sent the person back here. */
+  initialError?: string;
+}) {
   const { t } = useTranslation();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [banner, setBanner] = useState<string | null>(null);
+  const [banner, setBanner] = useState<string | null>(initialError ?? null);
   const [busy, setBusy] = useState(false);
 
   const check = (values = { email, password }) => {
@@ -77,7 +90,7 @@ export function LogInForm({ lang, next, reset }: { lang: string; next?: string; 
         {t("logIn.forgot")}
       </Link>
       <SubmitButton busy={busy}>{t("logIn.submit")}</SubmitButton>
-      <SocialSlot />
+      <SocialSlot lang={lang} next={next} providers={providers} />
       <p className="text-center text-body-sm text-text-3">
         {t("logIn.noAccount")}{" "}
         <Link href={signUpHref(lang, next)} className="font-bold text-primary hover:underline">

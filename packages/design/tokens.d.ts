@@ -30,4 +30,7 @@ export const spacing: Record<"xs" | "sm" | "md" | "lg" | "xl" | "2xl", number>;
 export const typeScale: Record<string, { fontSize: number; lineHeight: number; letterSpacing?: number }>;
 export function cssVariables(): Record<string, string>;
 export function hexToHslTriplet(hex: string): string;
-export const brand: Record<"googleBlue" | "googleGreen" | "googleYellow" | "googleRed", string>;
+export const brand: Record<
+  "appleBlack" | "googleBlue" | "googleGreen" | "googleYellow" | "googleRed",
+  string
+>;

@@ -23,6 +23,7 @@ const CLIENT_SECTIONS = [
   "welcome",
   "logIn",
   "signUp",
+  "social",
   "forgot",
   "fields",
   "validation",

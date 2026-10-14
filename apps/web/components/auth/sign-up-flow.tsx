@@ -1,6 +1,12 @@
 "use client";
 
-import { describeAuthError, OTP_LENGTH, signUpInputSchema, verifyCodeInputSchema } from "@vinty/shared";
+import {
+  type AuthProviders,
+  describeAuthError,
+  OTP_LENGTH,
+  signUpInputSchema,
+  verifyCodeInputSchema,
+} from "@vinty/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
@@ -16,7 +22,15 @@ import { markOnboardingPending } from "@/lib/onboarding";
 const RESEND_SECONDS = 30;
 
 /** Sign up with email and password only (D-020), then the 6 digit code from the email, then the two welcome questions. */
-export function SignUpFlow({ lang, next }: { lang: string; next?: string }) {
+export function SignUpFlow({
+  lang,
+  next,
+  providers,
+}: {
+  lang: string;
+  next?: string;
+  providers: AuthProviders | null;
+}) {
   const { t } = useTranslation();
   const [email, setEmail] = useState<string | null>(null);
   return (
@@ -27,7 +41,7 @@ export function SignUpFlow({ lang, next }: { lang: string; next?: string }) {
       {email ? (
         <CodeStep lang={lang} next={next} email={email} />
       ) : (
-        <AccountStep lang={lang} next={next} onCreated={setEmail} />
+        <AccountStep lang={lang} next={next} providers={providers} onCreated={setEmail} />
       )}
     </AuthShell>
   );
@@ -36,10 +50,12 @@ export function SignUpFlow({ lang, next }: { lang: string; next?: string }) {
 function AccountStep({
   lang,
   next,
+  providers,
   onCreated,
 }: {
   lang: string;
   next?: string;
+  providers: AuthProviders | null;
   onCreated: (email: string) => void;
 }) {
   const { t } = useTranslation();
@@ -105,7 +121,7 @@ function AccountStep({
         error={errors.password ? t(errors.password) : undefined}
       />
       <SubmitButton busy={busy}>{t("signUp.submit")}</SubmitButton>
-      <SocialSlot />
+      <SocialSlot lang={lang} next={next} providers={providers} />
       <p className="text-center text-body-sm text-text-3">
         {t("signUp.haveAccount")}{" "}
         <Link href={loginHref(lang, next)} className="font-bold text-primary hover:underline">

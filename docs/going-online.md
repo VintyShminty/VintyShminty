@@ -137,7 +137,7 @@ Later, before the App Store, Apple wants a key so that when someone deletes thei
 4. Click **Download**. You get a file ending in `.p8`. Apple lets you download it only once, so keep it safe (a password manager is best). On the same page copy the **Key ID** (10 letters and numbers).
 5. In Vercel add three more variables for **Production**: `APPLE_TEAM_ID` = `DTT66N8N3D`, `APPLE_KEY_ID` = the Key ID, and `APPLE_PRIVATE_KEY` = the whole text of the `.p8` file (open it with TextEdit, copy everything including the BEGIN and END lines). Vercel keeps the line breaks. The server makes Apple's temporary secret from these by itself every time it starts, you never have to renew anything by hand.
 
-You do **not** need a Services ID or a return address for Apple, those are only for websites.
+You do **not** need a Services ID or a return address for the phone app. Those are only for the website button (J3).
 
 ### J2: Google (about 20 minutes)
 
@@ -151,11 +151,34 @@ You need one thing from Google: a **Web** client. (We use the browser sheet, so 
 6. Under **Authorized redirect URIs** click **Add URI** and paste `https://vinty-shminty.vercel.app/api/auth/callback/google` (your server address, then `/api/auth/callback/google`). Leave **Authorized JavaScript origins** empty. Click **Create**.
 7. A box shows the **Client ID** and **Client secret**. Copy both now into Vercel (**Settings**, **Environment Variables**, Production): `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Redeploy.
 
-### J3: Check it
+### J3: The website's buttons (Apple needs one more thing, Google needs nothing)
 
-1. Open `https://vinty-shminty.vercel.app/v1/auth/providers` in a browser. It should show `{"apple":true,"google":true}` (or only the ones you did). If it says false, the Vercel value is missing or you did not redeploy.
+The website has the same two buttons on its log in and sign up pages. A button only shows when the server says it is ready for the website.
+
+**Google: nothing new to do.** The redirect address you gave Google in J2 (the server's `/api/auth/callback/google`) is the one the website uses too. People go to Google, come back to the server, and the server sends them on to the website, logged in.
+
+**Apple needs a "Services ID" and a key** (Apple wants a different ID for websites than for the app). About 15 minutes:
+
+1. Open [developer.apple.com/account](https://developer.apple.com/account), then **Certificates, Identifiers & Profiles**, then **Identifiers** in the left list. Click the **+** next to **Identifiers**.
+2. Choose **Services IDs**, click **Continue**. Description `Vinty website`. Identifier `com.secondhand.marketplace.web`. Click **Continue**, then **Register**.
+3. Click the new `Vinty website` in the list. Tick **Sign in with Apple** and click **Configure** beside it.
+4. **Primary App ID**: choose `com.secondhand.marketplace`.
+5. **Domains and Subdomains**: type `vinty-shminty.vercel.app` (the server's address, with no `https://` and no slash).
+6. **Return URLs**: type `https://vinty-shminty.vercel.app/api/auth/callback/apple` (the server's address, then `/api/auth/callback/apple`).
+7. Click **Next**, then **Done**, then **Continue**, then **Save**.
+8. If you did steps 2 to 5 of J1 already, you have the key. If not, do them now (Keys, **+**, name `Vinty sign in`, Sign in with Apple, Primary App ID `com.secondhand.marketplace`, download the `.p8` once, copy the Key ID).
+9. In Vercel, open the **server** project (not the website), **Settings**, **Environment Variables**, and for **Production** add or check these four: `APPLE_CLIENT_ID` = `com.secondhand.marketplace.web` (the Services ID), `APPLE_TEAM_ID` = `DTT66N8N3D`, `APPLE_KEY_ID` = the Key ID, `APPLE_PRIVATE_KEY` = the whole text of the `.p8` file. Keep `APPLE_APP_BUNDLE_IDENTIFIER` as it is. The phone app keeps working: the server accepts both IDs.
+10. **Deployments**, the latest one, **Redeploy**.
+11. Open `https://vinty-shminty.vercel.app/v1/auth/providers`. It should now show `"appleWeb":true`. Until it does, the website simply hides the Apple button and the app is not affected.
+
+Apple does not accept `localhost` as a return address, so Apple sign in on the website can only be tried online. Google can be tried locally if `http://localhost:3000/api/auth/callback/google` is in Google's client (see the end of J2's table below).
+
+### J4: Check it
+
+1. Open `https://vinty-shminty.vercel.app/v1/auth/providers` in a browser. It should show `{"apple":true,"google":true,"appleWeb":...}` (or only the ones you did, `appleWeb` stays false until J3 is done). If it says false, the Vercel value is missing or you did not redeploy.
 2. Open the app (it must be the new development build, because the app ID changed). The welcome, log in and sign up screens now show the buttons. Apple's button only shows on a real iPhone or a simulator that is signed in to an Apple ID.
 3. Tap one. A new account lands on the two short questions. A returning one lands on Home.
+4. Open the website's log in page and tap Google (and Apple, once J3 is done). You should land back on the website logged in, new people on the two welcome questions.
 
 ### What goes where
 
@@ -163,7 +186,8 @@ You need one thing from Google: a **Web** client. (We use the browser sheet, so 
 |---|---|---|
 | `com.secondhand.marketplace` | already decided | Vercel `APPLE_APP_BUNDLE_IDENTIFIER` (already inside the app) |
 | Apple Team ID `DTT66N8N3D` | Apple Developer, Membership | Vercel `APPLE_TEAM_ID` (optional now) |
-| Apple Key ID and `.p8` file | Apple Developer, Keys | Vercel `APPLE_KEY_ID` and `APPLE_PRIVATE_KEY` (optional now) |
+| Apple Key ID and `.p8` file | Apple Developer, Keys | Vercel `APPLE_KEY_ID` and `APPLE_PRIVATE_KEY` (needed for the website button) |
+| Apple Services ID `com.secondhand.marketplace.web` | Apple Developer, Identifiers | Vercel `APPLE_CLIENT_ID` (website button only) |
 | Google Client ID and secret | Google Cloud, web client | Vercel `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` |
 
 Nothing goes into `apps/mobile/.env` for sign in: the app asks the server which buttons to show. For a server on your own Mac, put the same values in `apps/server/.env`, and in Google's client add `http://localhost:3000/api/auth/callback/google` as a second redirect address. Apple sign in works against a local server too, because it only checks the token.
