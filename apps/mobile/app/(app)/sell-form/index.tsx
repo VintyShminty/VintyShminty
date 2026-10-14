@@ -209,6 +209,7 @@ export default function SellForm() {
       {
         ...values,
         brandId: values.brand?.id ?? null,
+        brandName: values.brand && !values.brand.id ? values.brand.name : null,
         priceMinor,
         photoCount: values.photos.filter((p) => p.state === "done").length,
       },
@@ -225,7 +226,10 @@ export default function SellForm() {
     try {
       const saved = await save.mutateAsync({
         id: listingId,
-        input: toListingInput({ ...values, brand: cleaned.brandId ? values.brand : null }),
+        input: toListingInput({
+          ...values,
+          brand: cleaned.brandId || cleaned.brandName ? values.brand : null,
+        }),
         publish,
       });
       useSellStore.setState({ dirty: false });

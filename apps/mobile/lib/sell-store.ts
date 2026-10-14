@@ -25,7 +25,8 @@ export type SellValues = {
   title: string;
   description: string;
   categoryId: string | null;
-  brand: { id: string; name: string } | null;
+  /** `id` is null for a brand the seller typed that is not on our list. */
+  brand: { id: string | null; name: string } | null;
   sizeId: string | null;
   conditionId: string | null;
   colourIds: string[];
@@ -158,6 +159,7 @@ export function toListingInput(values: SellValues): ListingDraftInput {
     description: values.description,
     categoryId: values.categoryId,
     brandId: values.brand?.id ?? null,
+    brandName: values.brand && !values.brand.id ? values.brand.name : null,
     sizeId: values.sizeId,
     conditionId: values.conditionId,
     colourIds: values.colourIds,

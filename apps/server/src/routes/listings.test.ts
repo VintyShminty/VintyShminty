@@ -189,6 +189,66 @@ describe.skipIf(!databaseUrl)("selling", () => {
       expect(res.json().size).toBeNull();
     });
 
+    it("accepts a brand that is not on the list, cleaned up, and keeps it through edits", async () => {
+      const res = await create(
+        seller.token,
+        complete(seller.id, { brandId: null, brandName: "  Old\u0000  Mill \n Co  ", publish: true }),
+      );
+      expect(res.statusCode).toBe(201);
+      expect(res.json().brand).toEqual({ id: null, name: "Old Mill Co" });
+      const id = res.json().id as string;
+
+      // An edit that does not mention the brand keeps it.
+      const edit = await ctx.app.inject({
+        method: "PATCH",
+        url: `/v1/listings/${id}`,
+        headers: bearer(seller.token),
+        payload: { title: "Linen summer dress again" },
+      });
+      expect(edit.statusCode).toBe(200);
+      expect(edit.json().brand).toEqual({ id: null, name: "Old Mill Co" });
+
+      // Picking a listed brand replaces it, and the card text follows.
+      const listed = await ctx.app.inject({
+        method: "PATCH",
+        url: `/v1/listings/${id}`,
+        headers: bearer(seller.token),
+        payload: { brandId, brandName: "Ignored Text" },
+      });
+      expect(listed.json().brand.id).toBe(brandId);
+      expect(listed.json().brand.name).not.toBe("Ignored Text");
+
+      // Clearing it on a category that requires a brand is refused.
+      const cleared = await ctx.app.inject({
+        method: "PATCH",
+        url: `/v1/listings/${id}`,
+        headers: bearer(seller.token),
+        payload: { brandId: null, brandName: null },
+      });
+      if (sized.rules.brand === "required") expect(cleared.statusCode).toBe(400);
+    });
+
+    it("refuses a typed brand that is too short or too long", async () => {
+      for (const brandName of ["a", "x".repeat(61), " \u0007 "]) {
+        const res = await create(seller.token, complete(seller.id, { brandId: null, brandName }));
+        expect(res.statusCode).toBe(400);
+      }
+    });
+
+    it("drops a typed brand in a category that hides brands", async () => {
+      const res = await create(
+        seller.token,
+        complete(seller.id, {
+          categoryId: plain.id,
+          sizeId: undefined,
+          brandId: null,
+          brandName: "Old Mill",
+        }),
+      );
+      expect(res.statusCode).toBe(201);
+      expect(res.json().brand).toBeNull();
+    });
+
     it("limits photos to the platform setting and to the seller's own uploads", async () => {
       const many = Array.from({ length: 21 }, () => photo(seller.id));
       const tooMany = await create(seller.token, complete(seller.id, { photos: many }));

@@ -174,7 +174,7 @@ export async function loadListingDetail(
       : null,
     condition: condition ? { id: condition.id, slug: condition.slug, name: condition.name } : null,
     size: sizeRef,
-    brand: row.brandId && row.brandName ? { id: row.brandId, name: row.brandName } : null,
+    brand: row.brandName ? { id: row.brandId ?? null, name: row.brandName } : null,
     material: material ? { id: material.id, slug: material.slug, name: material.name } : null,
     pattern: pattern ? { id: pattern.id, slug: pattern.slug, name: pattern.name } : null,
     colours,
