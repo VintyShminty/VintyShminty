@@ -578,6 +578,90 @@ How the attribute rules work: each category row carries the rules that apply to 
 
 To list a category with everything under it: `category_id IN (SELECT id FROM categories WHERE path LIKE 'women/clothing/%')`. The `text_pattern_ops` index makes that prefix match use an index.
 
+The clothing tree (D-030). A category says what the garment is, not its fabric, occasion or fit, so Linen, Denim, Casual and Formal are not categories (Material is a filter). The purpose groups Sportswear, Maternity and Uniforms and costumes stay because people shop them as a group. Women and Men have the same names where the garment is the same. Slugs are the parent slugs joined with a dash, for example `women-clothing-tops-button-up`. The tree below is the clothing part, the rest of the tree (shoes, bags, home and so on) did not change.
+
+- **Women, Clothing**
+  - Dresses: Mini dresses, Midi dresses, Maxi dresses, Shirt dresses, Wrap dresses, Slip dresses, Cocktail dresses, Gowns, Wedding dresses, Other dresses
+  - Tops: T-shirts, Button-up shirts, Blouses, Tank tops and camis, Crop tops, Long sleeve tops, Bodysuits, Corsets and bustiers, Tunics, Overshirts
+  - Sweatshirts and hoodies: Hoodies, Sweatshirts, Zip hoodies
+  - Knitwear: Jumpers, Cardigans, Roll necks, Knit vests
+  - Jeans: Skinny jeans, Straight jeans, Wide leg jeans, Flared jeans, Relaxed and mom jeans
+  - Trousers: Tailored trousers, Wide leg trousers, Cargo trousers, Leggings, Joggers and sweatpants, Culottes
+  - Shorts
+  - Skirts: Mini skirts, Midi skirts, Maxi skirts, Pencil skirts, Pleated skirts
+  - Coats: Wool coats, Trench coats, Parkas, Puffer coats, Raincoats, Capes and ponchos
+  - Jackets: Denim jackets, Leather and biker jackets, Bomber jackets, Windbreakers, Utility and work jackets, Fleece jackets, Other jackets
+  - Blazers
+  - Vests and gilets
+  - Jumpsuits: Jumpsuits, Playsuits
+  - Dungarees
+  - Matching sets: Two-piece sets, Suits
+  - Kimonos and kaftans
+  - Swimwear: Bikinis, One piece swimsuits, Cover ups and sarongs
+  - Underwear and sleepwear: Bras, Knickers, Shapewear, Tights and socks, Pyjamas, Nightdresses, Robes
+  - Sportswear: Sports bras, Sports tops, Sports leggings, Sports shorts, Track jackets, Tracksuits, Team shirts
+  - Maternity
+  - Uniforms and costumes: Military and surplus, Work uniforms, Costumes
+- **Men, Clothing**
+  - Tops: T-shirts, Polo shirts, Long sleeve tops, Tank tops
+  - Shirts: Button-up shirts, Short sleeve button-ups, Collarless shirts, Overshirts
+  - Sweatshirts and hoodies: Hoodies, Sweatshirts, Zip hoodies
+  - Knitwear: Jumpers, Cardigans, Roll necks, Knit vests
+  - Jeans: Slim jeans, Straight jeans, Relaxed and baggy jeans, Flared jeans
+  - Trousers: Chinos, Tailored trousers, Cargo trousers, Joggers and sweatpants, Work trousers
+  - Shorts
+  - Suits: Suits, Tuxedos, Blazers, Waistcoats
+  - Coats: Wool coats, Trench coats, Parkas, Puffer coats, Raincoats
+  - Jackets: Denim jackets, Leather and biker jackets, Bomber jackets, Windbreakers, Utility and work jackets, Varsity jackets, Fleece jackets, Other jackets
+  - Vests and gilets
+  - Jumpsuits: Jumpsuits, Boiler suits
+  - Dungarees
+  - Swimwear: Swim shorts, Swim briefs
+  - Underwear and sleepwear: Underwear, Socks, Pyjamas, Robes
+  - Sportswear: Sports tops, Sports shorts, Sports trousers, Track jackets, Tracksuits, Team shirts
+  - Uniforms and costumes: Military and surplus, Work uniforms, Costumes
+- **Kids, Girls**
+  - Tops: T-shirts, Shirts, Polo shirts, Long sleeve tops
+  - Sweatshirts and knitwear: Hoodies, Sweatshirts, Jumpers, Cardigans
+  - Dresses
+  - Skirts
+  - Trousers: Jeans, Trousers, Leggings, Joggers
+  - Shorts
+  - Dungarees
+  - Jumpsuits
+  - Coats and jackets: Coats, Puffer jackets, Raincoats, Denim and light jackets
+  - Swimwear
+  - Pyjamas
+  - Underwear and socks
+  - Sportswear and team kit
+  - Costumes and uniforms
+- **Kids, Boys**
+  - Tops: T-shirts, Shirts, Polo shirts, Long sleeve tops
+  - Sweatshirts and knitwear: Hoodies, Sweatshirts, Jumpers, Cardigans
+  - Trousers: Jeans, Trousers, Leggings, Joggers
+  - Shorts
+  - Dungarees
+  - Jumpsuits
+  - Coats and jackets: Coats, Puffer jackets, Raincoats, Denim and light jackets
+  - Swimwear
+  - Pyjamas
+  - Underwear and socks
+  - Sportswear and team kit
+  - Costumes and uniforms
+- **Kids, Baby**
+  - Bodysuits
+  - Rompers and dungarees
+  - Sleepsuits and pyjamas
+  - Tops
+  - Trousers and leggings
+  - Dresses and skirts
+  - Knitwear
+  - Coats and snowsuits
+  - Sets and outfits
+  - Hats, mittens and booties
+
+Moving from the old tree: `packages/db/src/seed/reference/category-moves.ts` lists every old category and where it went. `pnpm db:seed:reference` runs `moveCategories` (in `packages/db/src/seed/category-moves.ts`) after the new categories are written: it moves listings to the new category (setting Material to Linen or Denim where the old category implied it and the listing had none), points saved searches, "not interested" rows and taste scores at the new categories, then deletes the old rows, only when nothing points at them. It is one transaction and does nothing on a second run or on a database that never had the old tree.
+
 ### `category_size_groups`
 
 Which size groups a category offers. A category can offer more than one, for example letters and EU numbers for women's clothing.

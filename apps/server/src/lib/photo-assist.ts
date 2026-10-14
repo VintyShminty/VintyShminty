@@ -14,6 +14,43 @@ import type { RawReading } from "./photo-reader.js";
 
 type Db = NonNullable<Database["db"]>;
 
+/**
+ * One short note for categories the model tends to mix up. It follows the category in the list, so the model reads
+ * "Overshirts (a thick shirt worn open like a light jacket)". Keyed by slug without the first part, so one note
+ * serves Women and Men. Every key must be a real leaf (a test checks it).
+ */
+export const PHOTO_HINTS: Record<string, string> = {
+  "clothing-tops-button-up": "shirt with a collar and buttons down the front",
+  "clothing-tops-blouses": "soft, dressy top, often loose or with ruffles, usually no collar stand",
+  "clothing-tops-overshirts": "thick shirt worn open as a light jacket",
+  "clothing-tops-tunics": "long top that reaches past the hips",
+  "clothing-shirts-button-up": "shirt with a collar and buttons down the front, long sleeves",
+  "clothing-shirts-short-sleeve": "button-up shirt with short sleeves",
+  "clothing-shirts-overshirts": "thick shirt worn open as a light jacket",
+  "clothing-sweatshirts-hoodies": "soft jersey with a hood, pulled over the head",
+  "clothing-sweatshirts-sweatshirts": "soft jersey, no hood, round neck",
+  "clothing-sweatshirts-zip-hoodies": "soft jersey with a hood and a front zip",
+  "clothing-knitwear-jumpers": "knitted, pulled over the head",
+  "clothing-knitwear-cardigans": "knitted, opens down the front",
+  "clothing-jackets-other": "a jacket that fits none of the other jacket types",
+  "clothing-jackets-utility": "workwear style jacket with big pockets, like a chore coat",
+  "clothing-coats-wool": "long wool coat",
+  "clothing-coats-puffer": "long quilted padded coat",
+  "clothing-vests": "sleeveless layer worn over other clothes, such as a puffer vest",
+  "clothing-sportswear-track-jackets": "zip-up sports jacket, part of a tracksuit",
+  "clothing-sportswear-team-shirts": "football or team shirt with a crest or number",
+  "clothing-jumpsuits-playsuits": "jumpsuit with short legs",
+  "clothing-dresses-cocktail": "knee length party dress",
+  "clothing-dresses-gowns": "floor length formal dress",
+  "clothing-uniforms-military": "army surplus or military clothing",
+};
+
+/** The note for a leaf slug such as women-clothing-tops-overshirts, or undefined. */
+export function photoHint(slug: string | undefined): string | undefined {
+  if (!slug) return undefined;
+  return PHOTO_HINTS[slug.slice(slug.indexOf("-") + 1)];
+}
+
 export type CatalogCodes = {
   /** The lists as text for the prompt. Identical until the reference data changes, so the prompt cache holds. */
   text: string;
@@ -39,7 +76,8 @@ export function buildCatalog(reference: ReferenceData): CatalogCodes {
       if (node.isLeaf) {
         n += 1;
         categories.set(`C${n}`, node.id);
-        lines.push(`C${n}: ${path.join(" > ")}`);
+        const hint = photoHint(node.slug);
+        lines.push(`C${n}: ${path.join(" > ")}${hint ? ` (${hint})` : ""}`);
       } else {
         walk(node.children, path);
       }

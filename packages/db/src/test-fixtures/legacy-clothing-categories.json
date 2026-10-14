@@ -1,0 +1,1046 @@
+[
+  {
+    "slug": "women-clothing",
+    "parentSlug": "women",
+    "path": "women/clothing",
+    "depth": 1,
+    "en": "Clothing",
+    "he": "ביגוד",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-dresses",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/dresses",
+    "depth": 2,
+    "en": "Dresses",
+    "he": "שמלות",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-dresses-mini",
+    "parentSlug": "women-clothing-dresses",
+    "path": "women/clothing/dresses/mini",
+    "depth": 3,
+    "en": "Mini dresses",
+    "he": "שמלות מיני",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-dresses-midi",
+    "parentSlug": "women-clothing-dresses",
+    "path": "women/clothing/dresses/midi",
+    "depth": 3,
+    "en": "Midi dresses",
+    "he": "שמלות מידי",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-dresses-maxi",
+    "parentSlug": "women-clothing-dresses",
+    "path": "women/clothing/dresses/maxi",
+    "depth": 3,
+    "en": "Maxi dresses",
+    "he": "שמלות מקסי",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-dresses-evening",
+    "parentSlug": "women-clothing-dresses",
+    "path": "women/clothing/dresses/evening",
+    "depth": 3,
+    "en": "Evening dresses",
+    "he": "שמלות ערב",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-dresses-casual",
+    "parentSlug": "women-clothing-dresses",
+    "path": "women/clothing/dresses/casual",
+    "depth": 3,
+    "en": "Casual dresses",
+    "he": "שמלות יומיומיות",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-tops",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/tops",
+    "depth": 2,
+    "en": "Tops and t-shirts",
+    "he": "חולצות וטישרטים",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-tops-t-shirts",
+    "parentSlug": "women-clothing-tops",
+    "path": "women/clothing/tops/t-shirts",
+    "depth": 3,
+    "en": "T-shirts",
+    "he": "חולצות טי",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-tops-blouses",
+    "parentSlug": "women-clothing-tops",
+    "path": "women/clothing/tops/blouses",
+    "depth": 3,
+    "en": "Blouses and shirts",
+    "he": "חולצות מכופתרות וחולצות אלגנט",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-tops-tank-tops",
+    "parentSlug": "women-clothing-tops",
+    "path": "women/clothing/tops/tank-tops",
+    "depth": 3,
+    "en": "Tank tops",
+    "he": "גופיות",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-tops-crop-tops",
+    "parentSlug": "women-clothing-tops",
+    "path": "women/clothing/tops/crop-tops",
+    "depth": 3,
+    "en": "Crop tops",
+    "he": "קרופ טופ",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-tops-bodysuits",
+    "parentSlug": "women-clothing-tops",
+    "path": "women/clothing/tops/bodysuits",
+    "depth": 3,
+    "en": "Bodysuits",
+    "he": "בגדי גוף",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-knitwear",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/knitwear",
+    "depth": 2,
+    "en": "Jumpers and sweaters",
+    "he": "סריגים וסוודרים",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-knitwear-pullovers",
+    "parentSlug": "women-clothing-knitwear",
+    "path": "women/clothing/knitwear/pullovers",
+    "depth": 3,
+    "en": "Pullovers",
+    "he": "סוודרים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-knitwear-cardigans",
+    "parentSlug": "women-clothing-knitwear",
+    "path": "women/clothing/knitwear/cardigans",
+    "depth": 3,
+    "en": "Cardigans",
+    "he": "קרדיגנים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-knitwear-hoodies",
+    "parentSlug": "women-clothing-knitwear",
+    "path": "women/clothing/knitwear/hoodies",
+    "depth": 3,
+    "en": "Hoodies and sweatshirts",
+    "he": "קפוצ'ונים וסווטשירטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-knitwear-turtlenecks",
+    "parentSlug": "women-clothing-knitwear",
+    "path": "women/clothing/knitwear/turtlenecks",
+    "depth": 3,
+    "en": "Turtlenecks",
+    "he": "גולף",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-jeans",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/jeans",
+    "depth": 2,
+    "en": "Jeans",
+    "he": "ג'ינסים",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-jeans-skinny",
+    "parentSlug": "women-clothing-jeans",
+    "path": "women/clothing/jeans/skinny",
+    "depth": 3,
+    "en": "Skinny jeans",
+    "he": "ג'ינס סקיני",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-jeans-straight",
+    "parentSlug": "women-clothing-jeans",
+    "path": "women/clothing/jeans/straight",
+    "depth": 3,
+    "en": "Straight jeans",
+    "he": "ג'ינס ישר",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-jeans-wide-leg",
+    "parentSlug": "women-clothing-jeans",
+    "path": "women/clothing/jeans/wide-leg",
+    "depth": 3,
+    "en": "Wide leg jeans",
+    "he": "ג'ינס רחב",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-jeans-boyfriend",
+    "parentSlug": "women-clothing-jeans",
+    "path": "women/clothing/jeans/boyfriend",
+    "depth": 3,
+    "en": "Boyfriend and mom jeans",
+    "he": "ג'ינס בויפרנד ומום",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-jeans-denim-shorts",
+    "parentSlug": "women-clothing-jeans",
+    "path": "women/clothing/jeans/denim-shorts",
+    "depth": 3,
+    "en": "Denim shorts",
+    "he": "ג'ינס קצר",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-trousers",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/trousers",
+    "depth": 2,
+    "en": "Trousers and leggings",
+    "he": "מכנסיים וטייטס",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-trousers-wide-trousers",
+    "parentSlug": "women-clothing-trousers",
+    "path": "women/clothing/trousers/wide-trousers",
+    "depth": 3,
+    "en": "Wide leg trousers",
+    "he": "מכנסיים רחבים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-trousers-chinos",
+    "parentSlug": "women-clothing-trousers",
+    "path": "women/clothing/trousers/chinos",
+    "depth": 3,
+    "en": "Tailored trousers",
+    "he": "מכנסי בד",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-trousers-leggings",
+    "parentSlug": "women-clothing-trousers",
+    "path": "women/clothing/trousers/leggings",
+    "depth": 3,
+    "en": "Leggings",
+    "he": "טייטס",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-trousers-joggers",
+    "parentSlug": "women-clothing-trousers",
+    "path": "women/clothing/trousers/joggers",
+    "depth": 3,
+    "en": "Joggers",
+    "he": "מכנסי טרנינג",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-trousers-shorts",
+    "parentSlug": "women-clothing-trousers",
+    "path": "women/clothing/trousers/shorts",
+    "depth": 3,
+    "en": "Shorts",
+    "he": "מכנסיים קצרים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-skirts",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/skirts",
+    "depth": 2,
+    "en": "Skirts",
+    "he": "חצאיות",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-skirts-mini",
+    "parentSlug": "women-clothing-skirts",
+    "path": "women/clothing/skirts/mini",
+    "depth": 3,
+    "en": "Mini skirts",
+    "he": "חצאיות מיני",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-skirts-midi",
+    "parentSlug": "women-clothing-skirts",
+    "path": "women/clothing/skirts/midi",
+    "depth": 3,
+    "en": "Midi skirts",
+    "he": "חצאיות מידי",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-skirts-maxi",
+    "parentSlug": "women-clothing-skirts",
+    "path": "women/clothing/skirts/maxi",
+    "depth": 3,
+    "en": "Maxi skirts",
+    "he": "חצאיות מקסי",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-outerwear",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/outerwear",
+    "depth": 2,
+    "en": "Coats and jackets",
+    "he": "מעילים וג'קטים",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-outerwear-coats",
+    "parentSlug": "women-clothing-outerwear",
+    "path": "women/clothing/outerwear/coats",
+    "depth": 3,
+    "en": "Coats",
+    "he": "מעילים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-outerwear-jackets",
+    "parentSlug": "women-clothing-outerwear",
+    "path": "women/clothing/outerwear/jackets",
+    "depth": 3,
+    "en": "Jackets",
+    "he": "ג'קטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-outerwear-blazers",
+    "parentSlug": "women-clothing-outerwear",
+    "path": "women/clothing/outerwear/blazers",
+    "depth": 3,
+    "en": "Blazers",
+    "he": "בלייזרים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-outerwear-trench",
+    "parentSlug": "women-clothing-outerwear",
+    "path": "women/clothing/outerwear/trench",
+    "depth": 3,
+    "en": "Trench coats",
+    "he": "טרנצ'קוטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-outerwear-puffer",
+    "parentSlug": "women-clothing-outerwear",
+    "path": "women/clothing/outerwear/puffer",
+    "depth": 3,
+    "en": "Puffer jackets",
+    "he": "מעילי פוך",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-outerwear-denim-jackets",
+    "parentSlug": "women-clothing-outerwear",
+    "path": "women/clothing/outerwear/denim-jackets",
+    "depth": 3,
+    "en": "Denim jackets",
+    "he": "ג'קטים מג'ינס",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-outerwear-gilets",
+    "parentSlug": "women-clothing-outerwear",
+    "path": "women/clothing/outerwear/gilets",
+    "depth": 3,
+    "en": "Gilets and waistcoats",
+    "he": "אפודות",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-jumpsuits",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/jumpsuits",
+    "depth": 2,
+    "en": "Jumpsuits and playsuits",
+    "he": "אוברולים וסרבלים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-swimwear",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/swimwear",
+    "depth": 2,
+    "en": "Swimwear",
+    "he": "בגדי ים",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-swimwear-bikinis",
+    "parentSlug": "women-clothing-swimwear",
+    "path": "women/clothing/swimwear/bikinis",
+    "depth": 3,
+    "en": "Bikinis",
+    "he": "ביקיני",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-swimwear-one-piece",
+    "parentSlug": "women-clothing-swimwear",
+    "path": "women/clothing/swimwear/one-piece",
+    "depth": 3,
+    "en": "One piece swimsuits",
+    "he": "בגדי ים שלמים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-swimwear-cover-ups",
+    "parentSlug": "women-clothing-swimwear",
+    "path": "women/clothing/swimwear/cover-ups",
+    "depth": 3,
+    "en": "Cover ups",
+    "he": "כיסויי חוף",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-lingerie",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/lingerie",
+    "depth": 2,
+    "en": "Lingerie and nightwear",
+    "he": "הלבשה תחתונה ופיג'מות",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-lingerie-bras",
+    "parentSlug": "women-clothing-lingerie",
+    "path": "women/clothing/lingerie/bras",
+    "depth": 3,
+    "en": "Bras",
+    "he": "חזיות",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-lingerie-pyjamas",
+    "parentSlug": "women-clothing-lingerie",
+    "path": "women/clothing/lingerie/pyjamas",
+    "depth": 3,
+    "en": "Pyjamas",
+    "he": "פיג'מות",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-lingerie-underwear",
+    "parentSlug": "women-clothing-lingerie",
+    "path": "women/clothing/lingerie/underwear",
+    "depth": 3,
+    "en": "Underwear",
+    "he": "תחתונים",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-activewear",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/activewear",
+    "depth": 2,
+    "en": "Activewear",
+    "he": "בגדי ספורט",
+    "isLeaf": false
+  },
+  {
+    "slug": "women-clothing-activewear-sports-bras",
+    "parentSlug": "women-clothing-activewear",
+    "path": "women/clothing/activewear/sports-bras",
+    "depth": 3,
+    "en": "Sports bras",
+    "he": "חזיות ספורט",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-activewear-gym-leggings",
+    "parentSlug": "women-clothing-activewear",
+    "path": "women/clothing/activewear/gym-leggings",
+    "depth": 3,
+    "en": "Gym leggings",
+    "he": "טייטס ספורט",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-activewear-sports-tops",
+    "parentSlug": "women-clothing-activewear",
+    "path": "women/clothing/activewear/sports-tops",
+    "depth": 3,
+    "en": "Sports tops",
+    "he": "חולצות ספורט",
+    "isLeaf": true
+  },
+  {
+    "slug": "women-clothing-maternity",
+    "parentSlug": "women-clothing",
+    "path": "women/clothing/maternity",
+    "depth": 2,
+    "en": "Maternity clothes",
+    "he": "בגדי הריון",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing",
+    "parentSlug": "men",
+    "path": "men/clothing",
+    "depth": 1,
+    "en": "Clothing",
+    "he": "ביגוד",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-t-shirts",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/t-shirts",
+    "depth": 2,
+    "en": "T-shirts and polo shirts",
+    "he": "חולצות טי ופולו",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-t-shirts-t-shirts",
+    "parentSlug": "men-clothing-t-shirts",
+    "path": "men/clothing/t-shirts/t-shirts",
+    "depth": 3,
+    "en": "T-shirts",
+    "he": "חולצות טי",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-t-shirts-polos",
+    "parentSlug": "men-clothing-t-shirts",
+    "path": "men/clothing/t-shirts/polos",
+    "depth": 3,
+    "en": "Polo shirts",
+    "he": "חולצות פולו",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-t-shirts-tank-tops",
+    "parentSlug": "men-clothing-t-shirts",
+    "path": "men/clothing/t-shirts/tank-tops",
+    "depth": 3,
+    "en": "Tank tops",
+    "he": "גופיות",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-shirts",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/shirts",
+    "depth": 2,
+    "en": "Shirts",
+    "he": "חולצות מכופתרות",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-shirts-casual",
+    "parentSlug": "men-clothing-shirts",
+    "path": "men/clothing/shirts/casual",
+    "depth": 3,
+    "en": "Casual shirts",
+    "he": "חולצות קז'ואל",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-shirts-formal",
+    "parentSlug": "men-clothing-shirts",
+    "path": "men/clothing/shirts/formal",
+    "depth": 3,
+    "en": "Formal shirts",
+    "he": "חולצות אלגנט",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-shirts-linen",
+    "parentSlug": "men-clothing-shirts",
+    "path": "men/clothing/shirts/linen",
+    "depth": 3,
+    "en": "Linen shirts",
+    "he": "חולצות פשתן",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-knitwear",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/knitwear",
+    "depth": 2,
+    "en": "Jumpers and hoodies",
+    "he": "סריגים וקפוצ'ונים",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-knitwear-hoodies",
+    "parentSlug": "men-clothing-knitwear",
+    "path": "men/clothing/knitwear/hoodies",
+    "depth": 3,
+    "en": "Hoodies and sweatshirts",
+    "he": "קפוצ'ונים וסווטשירטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-knitwear-pullovers",
+    "parentSlug": "men-clothing-knitwear",
+    "path": "men/clothing/knitwear/pullovers",
+    "depth": 3,
+    "en": "Pullovers",
+    "he": "סוודרים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-knitwear-cardigans",
+    "parentSlug": "men-clothing-knitwear",
+    "path": "men/clothing/knitwear/cardigans",
+    "depth": 3,
+    "en": "Cardigans",
+    "he": "קרדיגנים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-jeans",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/jeans",
+    "depth": 2,
+    "en": "Jeans",
+    "he": "ג'ינסים",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-jeans-slim",
+    "parentSlug": "men-clothing-jeans",
+    "path": "men/clothing/jeans/slim",
+    "depth": 3,
+    "en": "Slim jeans",
+    "he": "ג'ינס סלים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-jeans-straight",
+    "parentSlug": "men-clothing-jeans",
+    "path": "men/clothing/jeans/straight",
+    "depth": 3,
+    "en": "Straight jeans",
+    "he": "ג'ינס ישר",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-jeans-relaxed",
+    "parentSlug": "men-clothing-jeans",
+    "path": "men/clothing/jeans/relaxed",
+    "depth": 3,
+    "en": "Relaxed jeans",
+    "he": "ג'ינס רחב",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-trousers",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/trousers",
+    "depth": 2,
+    "en": "Trousers and shorts",
+    "he": "מכנסיים ומכנסיים קצרים",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-trousers-chinos",
+    "parentSlug": "men-clothing-trousers",
+    "path": "men/clothing/trousers/chinos",
+    "depth": 3,
+    "en": "Chinos",
+    "he": "צ'ינוס",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-trousers-joggers",
+    "parentSlug": "men-clothing-trousers",
+    "path": "men/clothing/trousers/joggers",
+    "depth": 3,
+    "en": "Joggers",
+    "he": "מכנסי טרנינג",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-trousers-shorts",
+    "parentSlug": "men-clothing-trousers",
+    "path": "men/clothing/trousers/shorts",
+    "depth": 3,
+    "en": "Shorts",
+    "he": "מכנסיים קצרים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-trousers-cargo",
+    "parentSlug": "men-clothing-trousers",
+    "path": "men/clothing/trousers/cargo",
+    "depth": 3,
+    "en": "Cargo trousers",
+    "he": "מכנסי דגמ״ח",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-suits",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/suits",
+    "depth": 2,
+    "en": "Suits and blazers",
+    "he": "חליפות וג'קטים",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-suits-suits",
+    "parentSlug": "men-clothing-suits",
+    "path": "men/clothing/suits/suits",
+    "depth": 3,
+    "en": "Suits",
+    "he": "חליפות",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-suits-blazers",
+    "parentSlug": "men-clothing-suits",
+    "path": "men/clothing/suits/blazers",
+    "depth": 3,
+    "en": "Blazers",
+    "he": "בלייזרים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-suits-waistcoats",
+    "parentSlug": "men-clothing-suits",
+    "path": "men/clothing/suits/waistcoats",
+    "depth": 3,
+    "en": "Waistcoats",
+    "he": "אפודות חליפה",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-outerwear",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/outerwear",
+    "depth": 2,
+    "en": "Coats and jackets",
+    "he": "מעילים וג'קטים",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-outerwear-coats",
+    "parentSlug": "men-clothing-outerwear",
+    "path": "men/clothing/outerwear/coats",
+    "depth": 3,
+    "en": "Coats",
+    "he": "מעילים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-outerwear-jackets",
+    "parentSlug": "men-clothing-outerwear",
+    "path": "men/clothing/outerwear/jackets",
+    "depth": 3,
+    "en": "Jackets",
+    "he": "ג'קטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-outerwear-puffer",
+    "parentSlug": "men-clothing-outerwear",
+    "path": "men/clothing/outerwear/puffer",
+    "depth": 3,
+    "en": "Puffer jackets",
+    "he": "מעילי פוך",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-outerwear-denim-jackets",
+    "parentSlug": "men-clothing-outerwear",
+    "path": "men/clothing/outerwear/denim-jackets",
+    "depth": 3,
+    "en": "Denim jackets",
+    "he": "ג'קטים מג'ינס",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-outerwear-raincoats",
+    "parentSlug": "men-clothing-outerwear",
+    "path": "men/clothing/outerwear/raincoats",
+    "depth": 3,
+    "en": "Raincoats",
+    "he": "מעילי גשם",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-activewear",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/activewear",
+    "depth": 2,
+    "en": "Activewear",
+    "he": "בגדי ספורט",
+    "isLeaf": false
+  },
+  {
+    "slug": "men-clothing-activewear-sports-tops",
+    "parentSlug": "men-clothing-activewear",
+    "path": "men/clothing/activewear/sports-tops",
+    "depth": 3,
+    "en": "Sports tops",
+    "he": "חולצות ספורט",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-activewear-sports-shorts",
+    "parentSlug": "men-clothing-activewear",
+    "path": "men/clothing/activewear/sports-shorts",
+    "depth": 3,
+    "en": "Sports shorts",
+    "he": "מכנסי ספורט",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-activewear-tracksuits",
+    "parentSlug": "men-clothing-activewear",
+    "path": "men/clothing/activewear/tracksuits",
+    "depth": 3,
+    "en": "Tracksuits",
+    "he": "חליפות אימון",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-swimwear",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/swimwear",
+    "depth": 2,
+    "en": "Swimwear",
+    "he": "בגדי ים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-underwear",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/underwear",
+    "depth": 2,
+    "en": "Underwear and socks",
+    "he": "תחתונים וגרביים",
+    "isLeaf": true
+  },
+  {
+    "slug": "men-clothing-pyjamas",
+    "parentSlug": "men-clothing",
+    "path": "men/clothing/pyjamas",
+    "depth": 2,
+    "en": "Pyjamas",
+    "he": "פיג'מות",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-girls",
+    "parentSlug": "kids",
+    "path": "kids/girls",
+    "depth": 1,
+    "en": "Girls' clothing",
+    "he": "בגדי בנות",
+    "isLeaf": false
+  },
+  {
+    "slug": "kids-girls-tops",
+    "parentSlug": "kids-girls",
+    "path": "kids/girls/tops",
+    "depth": 2,
+    "en": "T-shirts and tops",
+    "he": "חולצות וטישרטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-girls-trousers",
+    "parentSlug": "kids-girls",
+    "path": "kids/girls/trousers",
+    "depth": 2,
+    "en": "Trousers and jeans",
+    "he": "מכנסיים וג'ינסים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-girls-dresses",
+    "parentSlug": "kids-girls",
+    "path": "kids/girls/dresses",
+    "depth": 2,
+    "en": "Dresses",
+    "he": "שמלות",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-girls-skirts",
+    "parentSlug": "kids-girls",
+    "path": "kids/girls/skirts",
+    "depth": 2,
+    "en": "Skirts",
+    "he": "חצאיות",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-girls-outerwear",
+    "parentSlug": "kids-girls",
+    "path": "kids/girls/outerwear",
+    "depth": 2,
+    "en": "Coats and jackets",
+    "he": "מעילים וג'קטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-girls-pyjamas",
+    "parentSlug": "kids-girls",
+    "path": "kids/girls/pyjamas",
+    "depth": 2,
+    "en": "Pyjamas",
+    "he": "פיג'מות",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-girls-swimwear",
+    "parentSlug": "kids-girls",
+    "path": "kids/girls/swimwear",
+    "depth": 2,
+    "en": "Swimwear",
+    "he": "בגדי ים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-boys",
+    "parentSlug": "kids",
+    "path": "kids/boys",
+    "depth": 1,
+    "en": "Boys' clothing",
+    "he": "בגדי בנים",
+    "isLeaf": false
+  },
+  {
+    "slug": "kids-boys-tops",
+    "parentSlug": "kids-boys",
+    "path": "kids/boys/tops",
+    "depth": 2,
+    "en": "T-shirts and tops",
+    "he": "חולצות וטישרטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-boys-trousers",
+    "parentSlug": "kids-boys",
+    "path": "kids/boys/trousers",
+    "depth": 2,
+    "en": "Trousers and jeans",
+    "he": "מכנסיים וג'ינסים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-boys-shorts",
+    "parentSlug": "kids-boys",
+    "path": "kids/boys/shorts",
+    "depth": 2,
+    "en": "Shorts",
+    "he": "מכנסיים קצרים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-boys-hoodies",
+    "parentSlug": "kids-boys",
+    "path": "kids/boys/hoodies",
+    "depth": 2,
+    "en": "Hoodies and jumpers",
+    "he": "קפוצ'ונים וסריגים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-boys-outerwear",
+    "parentSlug": "kids-boys",
+    "path": "kids/boys/outerwear",
+    "depth": 2,
+    "en": "Coats and jackets",
+    "he": "מעילים וג'קטים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-boys-pyjamas",
+    "parentSlug": "kids-boys",
+    "path": "kids/boys/pyjamas",
+    "depth": 2,
+    "en": "Pyjamas",
+    "he": "פיג'מות",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-boys-swimwear",
+    "parentSlug": "kids-boys",
+    "path": "kids/boys/swimwear",
+    "depth": 2,
+    "en": "Swimwear",
+    "he": "בגדי ים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-baby",
+    "parentSlug": "kids",
+    "path": "kids/baby",
+    "depth": 1,
+    "en": "Baby clothing",
+    "he": "בגדי תינוקות",
+    "isLeaf": false
+  },
+  {
+    "slug": "kids-baby-bodysuits",
+    "parentSlug": "kids-baby",
+    "path": "kids/baby/bodysuits",
+    "depth": 2,
+    "en": "Bodysuits and rompers",
+    "he": "בגדי גוף ואוברולים",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-baby-sets",
+    "parentSlug": "kids-baby",
+    "path": "kids/baby/sets",
+    "depth": 2,
+    "en": "Baby sets",
+    "he": "סטים לתינוקות",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-baby-sleepwear",
+    "parentSlug": "kids-baby",
+    "path": "kids/baby/sleepwear",
+    "depth": 2,
+    "en": "Sleepwear",
+    "he": "בגדי שינה",
+    "isLeaf": true
+  },
+  {
+    "slug": "kids-baby-outerwear",
+    "parentSlug": "kids-baby",
+    "path": "kids/baby/outerwear",
+    "depth": 2,
+    "en": "Baby coats and snowsuits",
+    "he": "מעילים וסרבלי חורף",
+    "isLeaf": true
+  }
+]

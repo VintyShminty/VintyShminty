@@ -16,6 +16,7 @@ import {
   sizeGroups,
   sizes,
 } from "../schema/index.js";
+import { moveCategories } from "./category-moves.js";
 import type { SeedDb } from "./connection.js";
 import {
   badgeSeed,
@@ -293,6 +294,12 @@ export async function seedReference(db: SeedDb): Promise<ReferenceCounts> {
   }
   counts.categories = flat.length;
   counts.category_size_groups = linkRows.length;
+
+  // A database that still has the old clothing tree gets its listings moved and the old rows removed (D-030).
+  // On a database that never had them this does nothing.
+  const moved = await moveCategories(db, categoryId);
+  counts.listings_moved = Object.values(moved.listings).reduce((a, b) => a + b, 0);
+  counts.old_categories_removed = moved.removedCategories;
 
   // Fee rules, bump plans, settings, badges
   for (const rule of feeRuleSeed) {

@@ -8,7 +8,7 @@ import { ForwardIcon } from "@/components/ui/top-bar";
 type CategoryRowProps = {
   label: string;
   icon?: LucideIcon;
-  /** A path under the label, used for search results ("Women, Dresses"). */
+  /** A path under the label for search results ("Women, Dresses"), or a short hint for rows people mix up. */
   detail?: string;
   /** "branch" shows a chevron and opens the next level. "leaf" shows a radio. */
   kind: "branch" | "leaf";
@@ -31,7 +31,7 @@ function CategoryRow({ label, icon, detail, kind, selected = false, onPress }: C
         <View className="flex-1">
           <Text>{label}</Text>
           {detail ? (
-            <Text variant="cardDesc" className="text-text-3" numberOfLines={1}>
+            <Text variant="cardDesc" className="text-text-3" numberOfLines={2}>
               {detail}
             </Text>
           ) : null}

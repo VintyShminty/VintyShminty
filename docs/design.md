@@ -496,6 +496,18 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **References:** Mockup / test / handoff
 -->
 
+### D-030 : Clothing categories say what the garment is
+
+- **Date:** 2026-10-14
+- **Area:** Categories, category picker, Browse tiles, photo helper
+- **Status:** Built on branch new-categories, waiting for Eden's review (Hebrew names too). Needs one database step before merge, see the pull request.
+- **Decision:** A clothing category names the kind of garment, never its fabric, occasion or fit. "Casual shirts", "Formal shirts" and "Linen shirts" become one "Button-up shirts" (Linen becomes the Material of those listings). Women and Men get the same names where the garment is the same: Dresses, Tops, Sweatshirts and hoodies, Knitwear, Jeans, Trousers, Shorts, Coats, Jackets, Blazers, Vests and gilets, Jumpsuits, Dungarees, Swimwear, Underwear and sleepwear, Sportswear. Women also have Matching sets, Kimonos and kaftans and Maternity. Women and Men have Uniforms and costumes. Overshirts sit under Tops (Women) and Shirts (Men). Hoodies and sweatshirts leave Knitwear. Women keep both Blouses and Button-up shirts. Jumpsuits and Dungarees are two groups. Men's first group is "Tops" like Women. Kids keep Girls, Boys and Baby. The purpose groups Sportswear, Maternity and Uniforms and costumes stay on purpose, they hold only things made for that purpose. No Era or Fit attribute yet. Rows people tend to mix up carry a one line hint under the name in the category picker ("A thick shirt worn open like a light jacket"), taken from the language files (`sell.categoryHints.<slug>`), so there is no schema change. Names that were too close to a competitor's pairs are replaced ("Tops and t-shirts", "Jumpers and sweaters", "Jumpsuits and playsuits", "Lingerie and nightwear", "Suits and blazers", "Outerwear", "Maternity clothes").
+- **Browse:** Tops and Shirts are two tiles (Shirts takes Women's Button-up shirts, Blouses and Overshirts, Men's Shirts and Kids shirts). Knitwear is "Knitwear and hoodies" and also holds the sweatshirt groups. Shorts sit inside the Trousers tile. Bags moved to More so ten tiles still show on Browse. The Shirts photo is cropped from a sample photo, replace it with a real shirt photo.
+- **Rationale:** A seller of a linen shirt had no right answer and the photo helper offered three. One noun answers "what is it" and everything else is a filter.
+- **Trade-off:** Several old categories had no way to tell the new type (plain Coats, plain Jackets, Casual dresses), so their listings land on a first guess (Wool coats, Other jackets, Other dresses) and can be re-sorted later.
+- **Implementation:** `packages/db/src/seed/reference/categories.ts` (the tree), `category-moves.ts` (old to new), `seed/category-moves.ts` (the move, run by the reference seed), `apps/mobile/lib/browse-tiles.ts`, `apps/server/src/lib/photo-assist.ts` (`PHOTO_HINTS`), `docs/blueprint/data-model.md` (the tree).
+- **References:** D-010, D-019, `docs/originality.md`
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

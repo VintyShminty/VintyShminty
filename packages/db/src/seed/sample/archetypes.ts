@@ -98,7 +98,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} mini dress", "Little black dress", "Party mini dress"],
   },
   {
-    cat: "women-clothing-dresses-evening",
+    cat: "women-clothing-dresses-gowns",
     count: 3,
     brands: ["Zara", "Mango", "Massimo Dutti", "Forever 21", "ASOS"],
     price: [120, 450],
@@ -136,7 +136,7 @@ export const archetypes: Archetype[] = [
     materials: ["wool", "cotton"],
   },
   {
-    cat: "women-clothing-knitwear-hoodies",
+    cat: "women-clothing-sweatshirts-hoodies",
     count: 4,
     brands: ["Nike", "Adidas", "Champion", "Zara", "H&M"],
     price: [50, 190],
@@ -155,7 +155,7 @@ export const archetypes: Archetype[] = [
     materials: ["denim"],
   },
   {
-    cat: "women-clothing-trousers-wide-trousers",
+    cat: "women-clothing-trousers-wide-leg",
     count: 3,
     brands: B.womenFashion,
     price: [60, 200],
@@ -174,7 +174,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} midi skirt", "Pleated skirt", "Long denim skirt"],
   },
   {
-    cat: "women-clothing-outerwear-coats",
+    cat: "women-clothing-coats-wool",
     count: 4,
     brands: ["Zara", "Mango", "Massimo Dutti", "COS", "H&M"],
     price: [150, 600],
@@ -184,7 +184,7 @@ export const archetypes: Archetype[] = [
     materials: ["wool"],
   },
   {
-    cat: "women-clothing-outerwear-denim-jackets",
+    cat: "women-clothing-jackets-denim",
     count: 3,
     brands: B.denim,
     price: [80, 280],
@@ -194,7 +194,7 @@ export const archetypes: Archetype[] = [
     materials: ["denim"],
   },
   {
-    cat: "women-clothing-outerwear-blazers",
+    cat: "women-clothing-blazers",
     count: 3,
     brands: B.womenFashion,
     price: [90, 300],
@@ -212,7 +212,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} bikini", "Bikini set"],
   },
   {
-    cat: "women-clothing-activewear-gym-leggings",
+    cat: "women-clothing-sportswear-sports-leggings",
     count: 3,
     brands: ["Lululemon", "Nike", "Adidas", "Gymshark", "Puma"],
     price: [60, 220],
@@ -325,7 +325,7 @@ export const archetypes: Archetype[] = [
     materials: ["wool"],
   },
   {
-    cat: "men-clothing-t-shirts-t-shirts",
+    cat: "men-clothing-tops-t-shirts",
     count: 5,
     brands: B.menFashion.concat(["Nike", "Adidas"]),
     price: [20, 100],
@@ -334,7 +334,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} t-shirt", "Basic white tee", "Graphic tee"],
   },
   {
-    cat: "men-clothing-shirts-casual",
+    cat: "men-clothing-shirts-button-up",
     count: 4,
     brands: B.menFashion,
     price: [40, 180],
@@ -343,7 +343,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} casual shirt", "Linen shirt", "Checked shirt"],
   },
   {
-    cat: "men-clothing-knitwear-hoodies",
+    cat: "men-clothing-sweatshirts-hoodies",
     count: 4,
     brands: ["Nike", "Adidas", "Champion", "Tommy Hilfiger", "Puma"],
     price: [60, 220],
@@ -371,7 +371,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} chinos", "Beige chinos"],
   },
   {
-    cat: "men-clothing-outerwear-jackets",
+    cat: "men-clothing-jackets-other",
     count: 4,
     brands: B.menFashion.concat(["The North Face", "Columbia"]),
     price: [120, 520],
@@ -436,7 +436,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} girls dress", "Summer dress for girls"],
   },
   {
-    cat: "kids-boys-tops",
+    cat: "kids-boys-tops-t-shirts",
     count: 3,
     brands: B.kids,
     price: [15, 70],
@@ -445,7 +445,7 @@ export const archetypes: Archetype[] = [
     titlesEn: ["{brand} boys top", "Boys t-shirt"],
   },
   {
-    cat: "kids-boys-outerwear",
+    cat: "kids-boys-outerwear-coats",
     count: 2,
     brands: B.kids.concat(["The North Face"]),
     price: [60, 220],
