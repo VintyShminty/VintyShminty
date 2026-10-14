@@ -2,7 +2,7 @@ import type { ListingCard as ListingCardData } from "@vinty/shared";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Bookmark, Check, TrendingDown, Zap } from "lucide-react-native";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { CoveredLine } from "@/components/price-pill";
@@ -158,4 +158,8 @@ function ListingCard({
   );
 }
 
-export { ListingCard };
+// A card only redraws when its own item changes, not every time the screen around it does (a Home chip tap redrew
+// every card on screen first, so the chip felt slow).
+const MemoListingCard = memo(ListingCard);
+
+export { MemoListingCard as ListingCard };

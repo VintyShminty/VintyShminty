@@ -61,7 +61,7 @@ function CoveredLine({
   const { t } = useTranslation();
   return (
     <View className={cn("flex-row items-center gap-xs", className)}>
-      <Icon as={BadgeCheck} size={13} className="text-text-3" />
+      <Icon as={BadgeCheck} size={13} className="-translate-y-[1.5px] text-text-3" />
       <Text variant="cardMeta" className="shrink" numberOfLines={1}>
         {t("listing.buyerPays", { price: formatMoney(amountMinor, currency) })}
       </Text>

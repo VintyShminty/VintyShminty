@@ -124,6 +124,13 @@ export type EditProfileForm = z.infer<typeof editProfileFormSchema>;
 export const changeUsernameFormSchema = z.object({ username: usernameSchema });
 export type ChangeUsernameForm = z.infer<typeof changeUsernameFormSchema>;
 
+/** The first onboarding step: a private first name for the Home greeting and the public username. */
+export const onboardingNameFormSchema = z.object({
+  name: z.string().trim().min(1, "validation.name.required").max(NAME_MAX, "validation.name.tooLong"),
+  username: usernameSchema,
+});
+export type OnboardingNameForm = z.infer<typeof onboardingNameFormSchema>;
+
 export const verifyCodeInputSchema = z.object({ otp: otpSchema });
 
 export const changeEmailInputSchema = z.object({ email: emailSchema });

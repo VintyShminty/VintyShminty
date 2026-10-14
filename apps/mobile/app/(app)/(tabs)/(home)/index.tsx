@@ -3,7 +3,7 @@ import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-quer
 import { type FeedCard, type FeedMood, UNDER_50_MINOR } from "@vinty/shared";
 import { useRouter } from "expo-router";
 import { Search } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 import { FeedReasonSheet } from "@/components/feed-reason-sheet";
@@ -65,9 +65,29 @@ export default function Home() {
     await query.refetch();
   };
 
+  // Once the open chip has loaded, load page one of the other chips in the background, so tapping one shows its
+  // items at once instead of waiting on the network.
+  const loaded = query.isSuccess;
+  useEffect(() => {
+    if (!loaded) return;
+    for (const m of MOODS) {
+      if (m.key === activeMood || (m.needsAccount && !signedIn)) continue;
+      void queryClient.prefetchInfiniteQuery(feedQuery({ mood: m.key }));
+    }
+  }, [loaded, activeMood, signedIn, queryClient]);
+
   // "Why you see this" on a long press.
   const reasonSheet = useRef<BottomSheetModal>(null);
   const [whyCard, setWhyCard] = useState<FeedCard | null>(null);
+  const feedData = query.data;
+  // Kept the same between renders, so the cards do not all redraw when a chip is tapped.
+  const openWhy = useCallback(
+    (card: { id: string }) => {
+      setWhyCard(feedData?.pages.flatMap((p) => p.items).find((c) => c.id === card.id) ?? null);
+      reasonSheet.current?.present();
+    },
+    [feedData],
+  );
 
   // First name, or the username when the name is empty. Nothing before the account has loaded.
   const who = me.data?.name?.trim().split(/\s+/)[0] || me.data?.username || null;
@@ -162,14 +182,7 @@ export default function Home() {
         emptyAction={emptyAction}
         track={signedIn ? { feedId } : undefined}
         onRefresh={refreshFeed}
-        onCardLongPress={
-          signedIn
-            ? (card) => {
-                setWhyCard(query.data?.pages.flatMap((p) => p.items).find((c) => c.id === card.id) ?? null);
-                reasonSheet.current?.present();
-              }
-            : undefined
-        }
+        onCardLongPress={signedIn ? openWhy : undefined}
       />
       {signedIn ? <FeedReasonSheet ref={reasonSheet} card={whyCard} /> : null}
     </Screen>

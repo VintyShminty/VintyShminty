@@ -21,7 +21,6 @@ import {
   MapPin,
   Moon,
   Receipt,
-  SearchCheck,
   Settings as SettingsIcon,
   Sparkles,
   Wallet,
@@ -190,11 +189,6 @@ function ProfileHeader({
             icon={Bookmark}
             label={t("favourites.title")}
             onPress={() => router.push("/favourites")}
-          />
-          <SettingsRow
-            icon={SearchCheck}
-            label={t("savedSearches.title")}
-            onPress={() => router.push("/saved-searches")}
           />
           <SettingsRow icon={Receipt} label={t("orders.title")} onPress={() => router.push("/orders")} />
           <SettingsRow icon={Zap} label={t("buzz.yourBuzzes")} onPress={() => router.push("/buzzes")} />

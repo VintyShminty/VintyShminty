@@ -448,10 +448,11 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-13
 - **Area:** Home, Settings (Shopping preferences, Your privacy), sign up
-- **Status:** Approved (Eden, plan decisions in `docs/plans/home-feed.md` section 9), Implemented on branch milestone-7
-- **Decision:** A long press on a Home card opens the "Why you see this" sheet: one plain sentence for the reason (for example "You like Zara", "New in Dresses", "Popular this week", "Something new for you"), then Not interested with this item, everything from this seller, show less of this brand, show less of this category (only those that apply). The card leaves the list at once. A screen reader gets the same through a "Why you see this" action on the card. After a new account is created (never on log in) two skippable screens follow, once: "What do you shop for?" (Women, Men, Kids, several allowed, big tick rows) and "What are your sizes?" (the My sizes picker). Both end on Home. Settings, Shopping preferences lists what was hidden with Undo, and has "Reset my recommendations" with a confirmation that says Home forgets what it learned and that hearts, sizes, follows and hidden items stay. Your privacy has the "Tailor Home to what I do" switch, whose note says turning it off also clears what Home learned.
+- **Status:** Approved (Eden, plan decisions in `docs/plans/home-feed.md` section 9), Implemented on branch milestone-7. The first name and username step was added on branch feat/app-polish (Eden asked 2026-10-14), Built on branch feat/app-polish
+- **Decision:** A long press on a Home card opens the "Why you see this" sheet: one plain sentence for the reason (for example "You like Zara", "New in Dresses", "Popular this week", "Something new for you"), then Not interested with this item, everything from this seller, show less of this brand, show less of this category (only those that apply). The card leaves the list at once. A screen reader gets the same through a "Why you see this" action on the card. After a new account is created (never on log in) three skippable screens follow, once: "What should we call you?" (a first name and a username, see below), "What do you shop for?" (Women, Men, Kids, several allowed, big tick rows) and "What are your sizes?" (the My sizes picker). Both end on Home. Settings, Shopping preferences lists what was hidden with Undo, and has "Reset my recommendations" with a confirmation that says Home forgets what it learned and that hearts, sizes, follows and hidden items stay. Your privacy has the "Tailor Home to what I do" switch, whose note says turning it off also clears what Home learned. The first screen asks for a first name and a username. The first name is private and only used for the greeting on Home (it starts empty, or with the first word of the name Apple passed). The username is the public name on the profile, listings and chats, prefilled with the one made from the email, and a taken name shows its error under the field. Skip goes on without saving.
 - **Rationale:** People should see why a card is there and be able to say no, which builds trust in a feed that learns. Two short questions give a new person a useful Home on day one, and Skip keeps them optional.
 - **Trade-off:** A long press is hidden, so the reason is not visible on the card. Showing it on every card would add noise to the grid.
+
 - **Implementation:** `apps/mobile/components/feed-reason-sheet.tsx`, `apps/mobile/app/(app)/onboarding.tsx`, `apps/mobile/lib/onboarding.ts`, `lib/feed-queries.ts`, `settings/personalisation.tsx`, `settings/privacy.tsx`. The onboarding uses a plain white screen with the step count and Skip at the top, big option rows and one primary button (the welcome photo is not reused, the questions need room).
 - **References:** `docs/plans/home-feed.md`
 
@@ -541,6 +542,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Trade-off:** The tag covers a corner of the photo. The brand name no longer shows on the card (the title carries it). Some user-facing texts still say favourite, heart or like (open question for Eden).
 - **Implementation:** `apps/mobile/components/listing-card.tsx` (`hideSave` and `saveOnSold` props), `CoveredLine` in `components/price-pill.tsx`, new key `browse.cardSaved`.
 - **References:** D-007, D-008, D-019
+
+### D-034 : Chat: ledger line offers and smaller bubbles
+
+- **Date:** 2026-10-14
+- **Area:** Chat
+- **Status:** Approved (Eden, 2026-10-14)
+- **Decision:** Eden picked direction B, "Ledger lines". Message bubbles get 12px corners (`rounded-control`) with a 3px tail corner, text at 15 over 21, padding 12 by 9 and a 76% maximum width. Yours stay filled espresso, theirs are white with a 1px `border` hairline. Photo bubbles take the same corners. An offer is one full width line, not a bubble on one side: a 3px bar at the start edge (espresso when the offer is yours, grey when it is theirs), the label ("Your offer", "Their offer") with the status under it in plain text (green when accepted, no pill), and at the end edge the amount at heading size with the listed price struck under it. An accepted offer shows its "held until" note in muted text under the line, lined up with the label. The actions are a thin bar along the bottom of the card in equal cells separated by hairlines: Decline, Counter, Accept for the receiver (Accept last, espresso and bold), Withdraw for the sender, "Buy for" with the amount for the buyer of an accepted offer. System lines such as "Counter offer sent" are plain small muted centred text without a pill. The order step in the chat loses its border and keeps the surface fill with 12px corners. The person card inside the chat is removed, the top bar already shows who it is.
+- **Rationale:** The old offer card and bubbles felt big and toyish next to the rest of the app.
+- **Trade-off:** Offers no longer sit on a side like messages, so who made them is told by the label and the colour of the bar.
+- **Implementation:** `apps/mobile/components/chat/message-bubble.tsx`, `apps/mobile/components/chat/offer-bubble.tsx`, `apps/mobile/components/chat/order-divider.tsx`.
+- **References:** `docs/mockups/chat-options.html` (direction B), D-019
 
 ## Open decisions
 
