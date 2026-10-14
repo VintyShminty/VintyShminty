@@ -4,7 +4,7 @@ import { formatMoney } from "@/lib/money";
 import { useLocalName, useReference } from "@/lib/reference";
 import { useSearchStore } from "@/lib/search-store";
 
-function findCategory(nodes: CategoryNode[] | undefined, id: string): CategoryNode | undefined {
+export function findCategory(nodes: CategoryNode[] | undefined, id: string): CategoryNode | undefined {
   for (const node of nodes ?? []) {
     if (node.id === id) return node;
     const inside = findCategory(node.children, id);

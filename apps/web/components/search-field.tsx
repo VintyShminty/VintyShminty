@@ -1,12 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { suggestionsSchema } from "@vinty/shared";
-import { Search } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { photoAssistStatusSchema, suggestionsSchema } from "@vinty/shared";
+import { Loader2, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { clientApi } from "@/lib/api-client";
+import { ASKED_PARAM, readAsked, shouldUnderstand } from "@/lib/search-assist";
+import { understandSearch } from "@/lib/understand-search";
 import { useDebounced } from "@/lib/use-debounced";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +45,11 @@ function SearchFieldShell({ lang }: { lang: string }) {
 function LiveSearchField({ lang }: { lang: string }) {
   const { t } = useTranslation();
   const router = useRouter();
-  const current = useSearchParams().get("q") ?? "";
+  const queryClient = useQueryClient();
+  const address = useSearchParams();
+  // After a search in plain words the box keeps what the visitor typed, not the words left over.
+  const current = readAsked(address.get(ASKED_PARAM)) || (address.get("q") ?? "");
+  const [busy, setBusy] = useState(false);
   const [text, setText] = useState(current);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -53,6 +59,15 @@ function LiveSearchField({ lang }: { lang: string }) {
 
   // A new search from elsewhere (back button, a suggestion) updates the field.
   useEffect(() => setText(current), [current]);
+
+  // The same status the sell form reads (the answer is shared and cached). Off or unknown means plain search.
+  const assistStatus = useQuery({
+    queryKey: ["photo-assist"],
+    queryFn: () => clientApi("/v1/sell/assist", { schema: photoAssistStatusSchema }),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const understandOn = Boolean(assistStatus.data?.searchAssist);
 
   const suggestions = useQuery({
     queryKey: ["suggestions", lang, typed],
@@ -119,18 +134,34 @@ function LiveSearchField({ lang }: { lang: string }) {
       ref={root}
       action={`/${lang}/search`}
       className="flex h-full w-full items-center gap-sm px-lg"
-      onSubmit={(e) => {
+      aria-busy={busy}
+      onSubmit={async (e) => {
         // Enter on plain words goes through the router, so the page does not reload.
         e.preventDefault();
+        if (busy) return;
         const q = text.trim();
+        if (q && shouldUnderstand(q, understandOn)) {
+          // A sentence is read first and the results page opens once, already with its filters (no empty flash).
+          setBusy(true);
+          setOpen(false);
+          setActive(-1);
+          const href = await understandSearch(q, lang as "en" | "he", t("filters.brand"), queryClient);
+          setBusy(false);
+          if (href) return router.push(href);
+        }
         go(q ? new URLSearchParams({ q }) : new URLSearchParams());
       }}
     >
-      <Search size={17} className="shrink-0 text-text-3" aria-hidden />
+      {busy ? (
+        <Loader2 size={17} className="shrink-0 animate-spin text-text-3" aria-hidden />
+      ) : (
+        <Search size={17} className="shrink-0 text-text-3" aria-hidden />
+      )}
       <input
         type="search"
         name="q"
         value={text}
+        readOnly={busy}
         autoComplete="off"
         placeholder={t("search.placeholder")}
         aria-label={t("search.placeholder")}

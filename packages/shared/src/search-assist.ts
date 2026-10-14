@@ -37,6 +37,8 @@ export const searchUnderstandingSchema = z.object({
   /** One category, a leaf or a whole group ("Dresses" covers every kind of dress). */
   categoryId: idSchema.nullable(),
   brandIds: z.array(idSchema).max(5),
+  /** The same brands with their names, in the same order, so the filter chips can show them without another lookup. */
+  brands: z.array(z.object({ id: idSchema, name: z.string().min(1).max(80) })).max(5),
   sizeIds: z.array(idSchema).max(10),
   colourIds: z.array(idSchema).max(5),
   conditionIds: z.array(idSchema).max(5),
@@ -54,6 +56,7 @@ export const EMPTY_SEARCH_UNDERSTANDING: SearchUnderstanding = {
   q: "",
   categoryId: null,
   brandIds: [],
+  brands: [],
   sizeIds: [],
   colourIds: [],
   conditionIds: [],
