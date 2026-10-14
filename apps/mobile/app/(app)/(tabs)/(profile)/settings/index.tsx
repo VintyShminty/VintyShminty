@@ -26,7 +26,7 @@ import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { authClient } from "@/lib/auth-client";
 import { meQuery } from "@/lib/queries";
-import { queryClient } from "@/lib/query-client";
+import { wipeLocalData } from "@/lib/query-client";
 import { useFaceId } from "@/lib/use-face-id";
 
 /** Settings list. Rows for Postage, Payments, Away mode and so on arrive with their milestones. */
@@ -47,7 +47,7 @@ export default function Settings() {
         style: "destructive",
         onPress: async () => {
           await authClient.signOut();
-          queryClient.clear();
+          await wipeLocalData();
         },
       },
     ]);

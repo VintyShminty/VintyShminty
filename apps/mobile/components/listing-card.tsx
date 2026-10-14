@@ -89,7 +89,7 @@ function ListingCard({
             placeholder={listing.cover.placeholder ?? undefined}
             style={{ width: "100%", height: "100%" }}
             contentFit="cover"
-            transition={200}
+            transition={100}
             recyclingKey={listing.id}
             accessibilityIgnoresInvertColors
           />

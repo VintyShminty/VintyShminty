@@ -14,7 +14,7 @@ import { TopBar } from "@/components/ui/top-bar";
 import { ApiClientError, api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { describeApiError } from "@/lib/auth-errors";
-import { queryClient } from "@/lib/query-client";
+import { wipeLocalData } from "@/lib/query-client";
 
 const formSchema = z.object({
   password: z.string().min(1, "validation.password.required").max(PASSWORD_MAX),
@@ -44,7 +44,7 @@ export default function DeleteAccount() {
     }
     // The account is closed on the server. Clear this phone too, which sends the person to the welcome screen.
     await authClient.signOut().catch(() => {});
-    queryClient.clear();
+    await wipeLocalData();
   });
 
   const confirm = handleSubmit(() => {

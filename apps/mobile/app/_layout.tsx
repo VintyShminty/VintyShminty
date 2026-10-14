@@ -2,7 +2,8 @@ import "../global.css";
 import "@/i18n";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { PortalHost } from "@rn-primitives/portal";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import Constants from "expo-constants";
 import { LocaleProvider, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -16,8 +17,10 @@ import { authClient } from "@/lib/auth-client";
 import { useBiometricSupport } from "@/lib/biometrics";
 import { useAppFonts } from "@/lib/fonts";
 import { useIsLocked, useLockStore } from "@/lib/lock-store";
-import { queryClient } from "@/lib/query-client";
+import { queryClient, queryPersister, wipeLocalData } from "@/lib/query-client";
+import { PERSIST_MAX_AGE, persistBuster, shouldPersistQuery } from "@/lib/query-persist";
 import { ensureNativeLtr, layoutDirection } from "@/lib/rtl";
+import { Warmup } from "@/lib/warmup";
 import { colors } from "@/theme";
 
 void SplashScreen.preventAutoHideAsync();
@@ -42,7 +45,11 @@ export default function RootLayout() {
 
   // Keep the splash screen up until the fonts are ready and we know whether someone is logged in,
   // so the first thing on screen is the right screen.
-  const ready = (fontsLoaded || Boolean(fontError)) && !isPending;
+  // When the phone already holds a saved, unexpired session, Better Auth puts it in `session` at once and only
+  // checks with the server afterwards. So a known person does not wait for the network: if the server later says
+  // the session is gone, `session` turns empty and the app moves to the login screens by itself.
+  const sessionKnown = !isPending || Boolean(session);
+  const ready = (fontsLoaded || Boolean(fontError)) && sessionKnown;
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
   }, [ready]);
@@ -60,13 +67,22 @@ export default function RootLayout() {
 
   const usePassword = async () => {
     await authClient.signOut();
-    queryClient.clear();
+    await wipeLocalData();
   };
 
   return (
     <GestureHandlerRootView style={{ flex: 1, direction }}>
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{
+            persister: queryPersister,
+            maxAge: PERSIST_MAX_AGE,
+            buster: persistBuster(Constants.expoConfig?.version ?? "1.0", userId),
+            dehydrateOptions: { shouldDehydrateQuery: shouldPersistQuery },
+          }}
+        >
+          <Warmup signedIn={signedIn} />
           <BottomSheetModalProvider>
             <StatusBar style="dark" />
             {/* The app, not the phone, decides the layout direction (the style on the root view above), so a language switch mirrors everything at once, sheets included (D-018). */}
@@ -89,7 +105,7 @@ export default function RootLayout() {
             ) : null}
             <PortalHost />
           </BottomSheetModalProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
