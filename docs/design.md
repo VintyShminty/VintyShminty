@@ -508,6 +508,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `packages/db/src/seed/reference/categories.ts` (the tree), `category-moves.ts` (old to new), `seed/category-moves.ts` (the move, run by the reference seed), `apps/mobile/lib/browse-tiles.ts`, `apps/server/src/lib/photo-assist.ts` (`PHOTO_HINTS`), `docs/blueprint/data-model.md` (the tree).
 - **References:** D-010, D-019, `docs/originality.md`
 
+### D-031 : The Colours picker is a grid of round swatches
+
+- **Date:** 2026-10-14
+- **Area:** Sell form, Colours sheet
+- **Status:** Built on branch colour-grid, waiting for Eden's review.
+- **Decision:** The Colours sheet shows large round swatches (44px) in four columns with the name underneath, instead of a list of rows with a small dot. The header, the "Pick up to 2 colours" line, the "Looks like" section (photo helper guesses) and "All options" stay as they were. A picked swatch gets a ring in the accent colour and a small check badge, and its name turns heavier. Two colours at most, exactly as before: once two are picked the others fade and cannot be tapped until one is unpicked. White and Cream keep a hairline border so they show on the white sheet. Multicolour is drawn as four pie slices using the swatch values of Red, Yellow, Green and Blue from the same reference data, so it reads as many colours. Gold and Silver are flat. Each swatch is a checkbox button named after its colour. The grid mirrors in Hebrew and the sheet scrolls on small phones.
+- **Rationale:** Colour is something people choose by looking. A bigger swatch is easier to compare and tap than a 20px dot in a text row. Founder chose option A (swatch grid) over pills and grouped families.
+- **Trade-off:** Fewer colours fit on screen at once than in a tight list, so small phones scroll a little. The Filters screen still uses the list with small dots.
+- **Implementation:** `apps/mobile/components/sell/colour-grid-sheet.tsx`, used in `apps/mobile/app/(app)/sell-form/index.tsx`.
+- **References:** D-004, D-019
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

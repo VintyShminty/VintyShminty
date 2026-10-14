@@ -21,6 +21,7 @@ import { Alert, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PricePill } from "@/components/price-pill";
 import { BrandSheet } from "@/components/sell/brand-sheet";
+import { ColourGridSheet } from "@/components/sell/colour-grid-sheet";
 import { ConditionSlider } from "@/components/sell/condition-slider";
 import { type Option, OptionListSheet } from "@/components/sell/option-list-sheet";
 import { ParcelSizes } from "@/components/sell/parcel-sizes";
@@ -497,15 +498,18 @@ export default function SellForm() {
           clearError("sizeId");
         }}
       />
-      <OptionListSheet
+      <ColourGridSheet
         ref={colourRef}
         title={t("sell.colours")}
-        mode="multi"
         max={LISTING_COLOURS_MAX}
-        options={ref.colours.map((c) => ({ id: c.id, label: name(c.name), swatch: c.swatchHex }))}
+        options={ref.colours.map((c) => ({
+          id: c.id,
+          label: name(c.name),
+          en: c.name.en,
+          swatch: c.swatchHex,
+        }))}
         selected={values.colourIds}
         suggestedIds={shown?.colourIds}
-        clearable
         header={
           <Text variant="bodySmall" className="text-text-3">
             {t("sell.coloursHint", { max: LISTING_COLOURS_MAX })}
