@@ -100,6 +100,7 @@ const photoAssistRoutes: FastifyPluginAsyncZod<{ reader: PhotoReader }> = async 
           images,
           catalog: catalog.value.text,
           language,
+          userId,
           signal: AbortSignal.timeout(READ_TIMEOUT_MS),
         });
         request.log.info(

@@ -1,9 +1,10 @@
 import Fastify from "fastify";
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { Env } from "./env.js";
+import { AiMeter } from "./lib/ai-cost.js";
 import { loggerOptions } from "./lib/logger.js";
 import { createMailer, type Mailer } from "./lib/mail.js";
-import { createPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
+import { createPhotoReader, meteredPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
 import type { Pusher } from "./lib/push.js";
 import { createStorage, type Storage } from "./lib/storage.js";
 import authPlugin from "./plugins/auth.js";
@@ -14,6 +15,7 @@ import messagingPlugin from "./plugins/messaging.js";
 import referencePlugin from "./plugins/reference.js";
 import securityPlugin from "./plugins/security.js";
 import addressRoutes from "./routes/addresses.js";
+import adminRoutes from "./routes/admin.js";
 import authErrorRoutes from "./routes/auth-error.js";
 import authProvidersRoutes from "./routes/auth-providers.js";
 import bumpRoutes from "./routes/bumps.js";
@@ -78,7 +80,11 @@ export async function buildApp({ env, database, mailer, storage, pusher, photoRe
     await app.register(referenceRoutes);
     await app.register(listingRoutes);
     await app.register(uploadRoutes);
-    await app.register(photoAssistRoutes, { reader: photoReader ?? createPhotoReader(env) });
+    // Every AI call goes through this meter: the spend caps, the master switch and the cost log (lib/ai-cost.ts).
+    const aiMeter = new AiMeter(database.db, { logger: app.log });
+    await app.register(photoAssistRoutes, {
+      reader: meteredPhotoReader(photoReader ?? createPhotoReader(env), aiMeter, env.PHOTO_READER_MODEL),
+    });
     await app.register(userRoutes);
     await app.register(discoveryRoutes);
     await app.register(engagementRoutes);
@@ -92,6 +98,7 @@ export async function buildApp({ env, database, mailer, storage, pusher, photoRe
     await app.register(orderRoutes);
     await app.register(reviewRoutes);
     await app.register(referralRoutes, { env });
+    await app.register(adminRoutes, { meter: aiMeter });
     await app.register(jobsPlugin);
     await app.register(jobRoutes);
   }

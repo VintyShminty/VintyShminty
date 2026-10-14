@@ -9,6 +9,8 @@
     "start": "tsx --env-file-if-exists=.env src/index.ts",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --no-file-parallelism",
+    "admin-grant": "tsx --env-file-if-exists=.env src/scripts/admin-grant.ts",
+    "admin-grant:online": "tsx --env-file=../../packages/db/.env.online src/scripts/admin-grant.ts",
     "dev-users": "tsx --env-file-if-exists=.env src/scripts/dev-users.ts",
     "storage-seed": "tsx --env-file-if-exists=.env src/scripts/storage-seed.ts"
   },
