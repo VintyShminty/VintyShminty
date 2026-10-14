@@ -1,6 +1,7 @@
 import type { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
 import type { ListingCard as ListingCardData } from "@vinty/shared";
-import { useMemo, useState } from "react";
+import { useScrollToTop } from "expo-router";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, RefreshControl, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -75,6 +76,9 @@ function ListingGrid({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
+  // Tapping the tab you are already on scrolls the list back to the top.
+  const listRef = useRef<FlatList<Row>>(null);
+  useScrollToTop(listRef);
 
   const rows = useMemo<Row[]>(() => {
     // A card never shows twice, even if two pages overlap.
@@ -147,6 +151,7 @@ function ListingGrid({
 
   return (
     <FlatList
+      ref={listRef}
       data={body ? [] : rows}
       keyExtractor={(row) => row.key}
       ListHeaderComponent={header}

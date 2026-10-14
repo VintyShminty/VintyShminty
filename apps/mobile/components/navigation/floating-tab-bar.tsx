@@ -62,7 +62,17 @@ export function FloatingTabBar({ state, navigation, descriptors }: BottomTabBarP
 
           const onPress = () => {
             const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-            if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
+            if (event.defaultPrevented) return;
+            if (!focused) {
+              navigation.navigate(route.name, route.params);
+              return;
+            }
+            // Already on this tab: go back to its first screen. The scroll to the top happens in the
+            // screen itself (useScrollToTop listens to the same tabPress event).
+            const inner = route.state;
+            if (inner?.key && (inner.index ?? 0) > 0) {
+              navigation.dispatch({ type: "POP_TO_TOP", target: inner.key });
+            }
           };
 
           if (tab.sell) {

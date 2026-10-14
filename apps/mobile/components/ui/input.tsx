@@ -94,7 +94,9 @@ function Input({
             props.onBlur?.(e);
           }}
           className={cn(
-            "flex-1 text-body text-text-1",
+            // One line: no lineHeight (iOS clips the bottoms of g, y, p when a single-line box has one). Several lines need it.
+            multiline ? "text-body" : "text-[16px]",
+            "flex-1 text-text-1",
             isHe ? "font-heebo-400" : "font-aileron-400",
             isHe ? "text-right" : "text-left",
             multiline && "min-h-[96px] pt-xs",

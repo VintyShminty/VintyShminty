@@ -1,5 +1,6 @@
-import { useRouter } from "expo-router";
+import { useRouter, useScrollToTop } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -36,6 +37,9 @@ export default function Browse() {
   const router = useRouter();
   const rtl = useIsRtl();
   const insets = useSafeAreaInsets();
+  // Tapping the Browse tab again scrolls back to the top.
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
 
   const rows: BrowseTile[][] = [];
   for (let i = 0; i < TILES.length; i += 2) rows.push(TILES.slice(i, i + 2));
@@ -43,6 +47,7 @@ export default function Browse() {
   return (
     <Screen bottomInset={false}>
       <ScrollView
+        ref={scrollRef}
         contentContainerClassName="gap-md px-lg pt-sm"
         contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}
         showsVerticalScrollIndicator={false}
