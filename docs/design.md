@@ -598,6 +598,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** shared shapes in `packages/shared/src/review.ts`, new report columns (`source`, `urgency`, `ai_reason`, `ai_summary`, a report without a reporter is an AI check). Server: `lib/listing-check.ts`, report sorting, `GET /v1/admin/review`, `POST /v1/admin/review/:id/action`. Website: `app/[lang]/admin/review`.
 - **References:** D-036, D-037, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
+### D-039 : A calmer top of the website
+
+- **Date:** 2026-10-14
+- **Area:** Website, top bar, Home
+- **Status:** Built on branch feat/web-top-bar, waiting for Eden's review. Changes the Home greeting of D-030 (row 7) and the look of the Home mood chips (D-008, D-035).
+- **Decision:** Eden picked direction C of `docs/mockups/top-bar-options.html` ("Today, tightened"), with the search bar fully rounded. The top bar keeps its layout. The wordmark is near black (text-1) in bold, the bar's bottom line is the subtle border, the search bar is white with a thin border and fully rounded (no cream fill), and the Sell button shows a plus instead of the camera. The Home greeting is one line, "Good evening," in light weight and the first name in semibold, at the title size instead of two display lines. The Home mood chips are pills (fully rounded, 32px tall, light border, text-2), the chosen one filled near black. The buttons at the end of the top bar are slimmer: Sell, Sign up and Log in are 34px tall with 8px corners and less padding, Sign up has a light border and dark text instead of the espresso outline (the phone menu keeps its 40px Sell). Chips elsewhere are unchanged.
+- **Rationale:** Eden felt the top of the website looked childish. The cream filled search, the heavy chip outlines and the huge two line greeting made it read playful rather than grown up.
+- **Trade-off:** Home chips now differ from the filter chips on other pages. Directions A (quiet editorial) and B (department store) were not taken.
+- **Implementation:** `apps/web/components/top-bar.tsx`, `sell-button.tsx`, `home-greeting.tsx`, `home-feed.tsx`.
+- **References:** D-008, D-030, D-035, `docs/mockups/top-bar-options.html`
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

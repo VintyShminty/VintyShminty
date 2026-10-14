@@ -16,8 +16,8 @@ export function partOfDay(date: Date): Part {
 const subscribe = () => () => {};
 
 /**
- * The big Home greeting (D-030, row 7). Logged out: "Welcome in". Logged in: "Good morning," in light weight and the
- * first name in heavy weight, the part of the day taken from the visitor's own clock in the browser (the server
+ * The Home greeting (D-030, row 7, one line since D-039). Logged out: "Welcome in". Logged in: "Good morning," in
+ * light weight and the first name in semibold, the part of the day taken from the visitor's own clock in the browser (the server
  * does not know their time zone), so the first line appears just after the page loads.
  */
 export function HomeGreeting({ name }: { name: string | null }) {
@@ -28,14 +28,12 @@ export function HomeGreeting({ name }: { name: string | null }) {
     () => null,
   );
   if (!name) {
-    return <h1 className="text-display font-extrabold text-text-1">{t("home.greetingGuest")}</h1>;
+    return <h1 className="text-title font-light text-text-1">{t("home.greetingGuest")}</h1>;
   }
   return (
-    <h1 className="text-text-1">
-      <span className="block min-h-[40px] text-display font-light">
-        {part ? t(`home.greeting.${part}`) : ""}
-      </span>
-      <span className="block truncate text-display font-extrabold">{name}</span>
+    <h1 className="min-h-[38px] truncate text-title font-light text-text-1">
+      {part ? `${t(`home.greeting.${part}`)} ` : ""}
+      <span className="font-semibold">{name}</span>
     </h1>
   );
 }

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top bar options</title>
+<style>
+@font-face{font-family:Aileron;font-weight:300;src:url(../../packages/design/fonts/Aileron-300.ttf)}
+@font-face{font-family:Aileron;font-weight:400;src:url(../../packages/design/fonts/Aileron-400.ttf)}
+@font-face{font-family:Aileron;font-weight:600;src:url(../../packages/design/fonts/Aileron-600.ttf)}
+@font-face{font-family:Aileron;font-weight:700;src:url(../../packages/design/fonts/Aileron-700.ttf)}
+@font-face{font-family:Aileron;font-weight:800;src:url(../../packages/design/fonts/Aileron-800.ttf)}
+:root{
+  --bg:#FFFFFF;--surface:#FBF8F2;--pressed:#F1E9DA;--border:#E4DACA;--border-subtle:#F0EADF;
+  --t1:#241811;--t2:#54443A;--t3:#695A4F;--t4:#7A6B60;--accent:#4B2E22;--tint:#F7EEDC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Aileron,system-ui,sans-serif;background:#EDE7DD;color:var(--t1);-webkit-font-smoothing:antialiased}
+.intro{max-width:1280px;margin:0 auto;padding:40px 48px 8px}
+.intro h1{font-size:28px;font-weight:300;letter-spacing:-.5px}
+.intro p{font-size:14px;color:var(--t2);margin-top:8px;max-width:760px;line-height:21px}
+.label{max-width:1280px;margin:40px auto 12px;padding:0 48px;display:flex;align-items:baseline;gap:12px}
+.label b{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent)}
+.label span{font-size:14px;color:var(--t2)}
+.frame{background:var(--bg);max-width:1376px;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 1px 0 var(--border)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 48px}
+svg{display:block;flex:none}
+.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.av{width:30px;height:30px;border-radius:50%;background:url(../../packages/db/seed-assets/22-coat.jpg) center/cover;flex:none}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;padding-bottom:32px}
+.ph{aspect-ratio:3/4;border-radius:12px;background:var(--pressed) center/cover;position:relative}
+.bm{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--t1)}
+.bm .ic{width:16px;height:16px}
+
+/* ---------- A: Quiet editorial ---------- */
+.a .bar{height:64px;display:flex;align-items:center;gap:32px;border-bottom:1px solid var(--border-subtle)}
+.a .logo{font-size:22px;font-weight:700;letter-spacing:-.6px}
+.a .nav{display:flex;gap:24px;font-size:14px;color:var(--t2)}
+.a .nav a{color:inherit;text-decoration:none}
+.a .search{flex:1;max-width:460px;height:38px;display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:8px;background:var(--surface);color:var(--t4);font-size:14px}
+.a .search .ic{width:17px;height:17px}
+.a .right{margin-left:auto;display:flex;align-items:center;gap:20px;color:var(--t1)}
+.a .lang{font-size:13px;color:var(--t2);letter-spacing:.4px}
+.a .sell{height:36px;padding:0 18px;border-radius:8px;background:var(--t1);color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center}
+.a .head{padding:40px 0 20px;display:flex;align-items:flex-end;justify-content:space-between}
+.a .greet{font-size:13px;color:var(--t3);letter-spacing:.2px}
+.a h2{font-size:30px;font-weight:300;letter-spacing:-.8px;margin-top:4px}
+.a .tabs{display:flex;gap:28px;border-bottom:1px solid var(--border-subtle);margin-bottom:20px}
+.a .tabs span{font-size:14px;color:var(--t3);padding:0 0 12px;border-bottom:1.5px solid transparent;margin-bottom:-1px}
+.a .tabs span.on{color:var(--t1);font-weight:600;border-color:var(--t1)}
+
+/* ---------- B: Department store, two rows ---------- */
+.b .top{height:60px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.b .logo{font-size:24px;font-weight:800;letter-spacing:-.4px;text-align:center}
+.b .lft{display:flex;align-items:center;gap:10px;color:var(--t3);font-size:14px}
+.b .lft .field{width:300px;height:36px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);color:var(--t4)}
+.b .lft .ic{width:17px;height:17px}
+.b .rgt{display:flex;align-items:center;justify-content:flex-end;gap:20px;font-size:13px;color:var(--t2)}
+.b .sell{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t1);border:1px solid var(--t1);padding:9px 16px;border-radius:2px}
+.b .cats{height:44px;display:flex;align-items:center;justify-content:center;gap:36px;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--t2)}
+.b .cats span.on{color:var(--t1);font-weight:700}
+.b .head{padding:36px 0 20px;display:flex;align-items:baseline;justify-content:space-between}
+.b h2{font-size:22px;font-weight:600;letter-spacing:-.3px}
+.b h2 em{font-style:normal;font-weight:300;color:var(--t3)}
+.b .seg{display:flex;gap:4px;font-size:13px}
+.b .seg span{padding:6px 12px;color:var(--t3);border-radius:6px}
+.b .seg span.on{background:var(--surface);color:var(--t1);font-weight:600}
+
+/* ---------- C: Today's layout, tightened ---------- */
+.c .bar{height:68px;display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--border-subtle)}
+.c .logo{font-size:23px;font-weight:700;letter-spacing:-.5px}
+.c .browse{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--t2)}
+.c .browse .ic{width:16px;height:16px}
+.c .search{flex:1;height:40px;display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:10px;border:1px solid var(--border);color:var(--t4);font-size:14px}
+.c .search .ic{width:17px;height:17px}
+.c .right{display:flex;align-items:center;gap:18px;color:var(--t1)}
+.c .lang{font-size:13px;color:var(--t2)}
+.c .sell{height:38px;padding:0 18px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.c .sell .ic{width:16px;height:16px;stroke-width:1.75}
+.c h2{font-size:30px;font-weight:300;letter-spacing:-.8px;padding:36px 0 18px}
+.c h2 b{font-weight:600}
+.c .chips{display:flex;gap:8px;margin-bottom:20px}
+.c .chips span{height:32px;padding:0 14px;display:flex;align-items:center;border-radius:8px;border:1px solid var(--border);font-size:13px;color:var(--t2)}
+.c .chips span.on{background:var(--t1);border-color:var(--t1);color:#fff;font-weight:600}
+
+.why{max-width:1280px;margin:12px auto 0;padding:0 48px;font-size:13px;line-height:20px;color:var(--t2)}
+.why li{margin-left:18px}
+.foot{height:60px}
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>Top of the website, three directions</h1>
+  <p>What reads as "childish" today: everything is a fat rounded pill (search, chips, Sell), the search box is filled cream with a warm outline, the greeting is huge and bold on two lines, and the filter chips have heavy dark outlines. All three options below use flatter shapes (8px corners or none), thinner lines, fewer fills and a calmer greeting. Same colours and font as today.</p>
+</div>
+
+<!-- ================= A ================= -->
+<div class="label"><b>A · Quiet editorial</b><span>One slim row. Text tabs instead of chips.</span></div>
+<div class="frame a">
+  <div class="wrap">
+    <div class="bar">
+      <div class="logo">Vinty</div>
+      <div class="nav"><a>Women</a><a>Men</a><a>Kids</a><a>Home</a><a>More</a></div>
+      <div class="search"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search clothes, brands or sellers</div>
+      <div class="right">
+        <span class="lang">EN</span>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <svg class="ic" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        <div class="av"></div>
+        <div class="sell">Sell</div>
+      </div>
+    </div>
+    <div class="head">
+      <div><div class="greet">Good evening, Eden</div><h2>Picked for you</h2></div>
+    </div>
+    <div class="tabs"><span class="on">For you</span><span>New today</span><span>Under ₪50</span><span>Your sizes</span><span>Near you</span></div>
+    <div class="grid" data-start="0"></div>
+  </div>
+</div>
+<ul class="why">
+  <li>Feels like a fashion magazine site. Calmest of the three.</li>
+  <li>Categories sit right in the bar, so Browse is one click less. Sell is a small dark block, not a pill.</li>
+  <li>The greeting shrinks to a small line above a plain heading.</li>
+</ul>
+
+<!-- ================= B ================= -->
+<div class="label"><b>B · Department store</b><span>Logo centred, categories on their own row.</span></div>
+<div class="frame b">
+  <div class="wrap">
+    <div class="top">
+      <div class="lft"><div class="field"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</div></div>
+      <div class="logo">VINTY</div>
+      <div class="rgt">
+        <span>EN</span>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <svg class="ic" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        <div class="av"></div>
+        <span class="sell">Sell</span>
+      </div>
+    </div>
+  </div>
+  <div class="cats"><span class="on">New in</span><span>Women</span><span>Men</span><span>Kids</span><span>Shoes</span><span>Bags</span><span>Home</span><span>Brands</span></div>
+  <div class="wrap">
+    <div class="head">
+      <h2>Good evening, Eden <em>· picked for you</em></h2>
+      <div class="seg"><span class="on">For you</span><span>New today</span><span>Under ₪50</span><span>Your sizes</span><span>Near you</span></div>
+    </div>
+    <div class="grid" data-start="5"></div>
+  </div>
+</div>
+<ul class="why">
+  <li>The most "grown up shop" look: centred name in capitals, small capitals category row, an outlined Sell.</li>
+  <li>The search becomes a quiet underlined field. The filters move to the right of the heading as soft tabs.</li>
+  <li>Trade-off: two rows take a little more height, and it is the furthest from today.</li>
+</ul>
+
+<!-- ================= C ================= -->
+<div class="label"><b>C · Today, tightened</b><span>Same layout, just grown up.</span></div>
+<div class="frame c">
+  <div class="wrap">
+    <div class="bar">
+      <div class="logo">Vinty</div>
+      <div class="browse"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Browse</div>
+      <div class="search"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search clothes, brands or sellers</div>
+      <div class="right">
+        <span class="lang">EN</span>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <svg class="ic" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        <div class="av"></div>
+        <div class="sell"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Sell</div>
+      </div>
+    </div>
+    <h2>Good evening, <b>Eden</b></h2>
+    <div class="chips"><span class="on">For you</span><span>New today</span><span>Under ₪50</span><span>Your sizes</span><span>Near you</span></div>
+    <div class="grid" data-start="10"></div>
+  </div>
+</div>
+<ul class="why">
+  <li>Smallest change: white search with a thin outline and 10px corners, chips become soft rectangles with light outlines, active chip is near black.</li>
+  <li>The greeting is one line and lighter. Sell keeps espresso but loses the camera and the pill shape.</li>
+  <li>Safest to ship, but the least different from what bothers you today.</li>
+</ul>
+
+<div class="foot"></div>
+<script>
+const photos=["10-jacket","04-jeans","01-dress","22-coat","07-sneakers","11-jacket","05-jeans","02-dress","08-sneakers","12-jacket","06-jeans","03-dress","09-sneakers","22-coat","10-jacket"];
+const bm='<div class="bm"><svg class="ic" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg></div>';
+document.querySelectorAll(".grid").forEach(g=>{const s=+g.dataset.start;g.innerHTML=photos.slice(s,s+5).map(p=>`<div class="ph" style="background-image:url(../../packages/db/seed-assets/${p}.jpg)">${bm}</div>`).join("")});
+</script>
+</body>
+</html>
