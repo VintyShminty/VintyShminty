@@ -151,6 +151,10 @@ export default async function ItemPage({ params }: { params: Params }) {
   const cover = listing.photos[0] ?? listing.cover;
 
   const buyProps = {
+    listingId: listing.id,
+    lang,
+    conversationId: listing.viewer.conversationId,
+    priceMinor: price,
     reserved,
     canBuy: listing.viewer.canBuy,
     canOffer: listing.viewer.canOffer,

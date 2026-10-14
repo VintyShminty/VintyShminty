@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp, ImagePlus } from "lucide-react";
+import { ArrowUp, HandCoins, ImagePlus } from "lucide-react";
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { sendTyping } from "@/lib/realtime";
@@ -16,10 +16,13 @@ export function Composer({
   conversationId,
   onSend,
   onPickPhoto,
+  onOffer,
 }: {
   conversationId: string;
   onSend: (text: string) => void;
   onPickPhoto: (file: File) => void;
+  /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
+  onOffer?: () => void;
 }) {
   const { t } = useTranslation();
   const [text, setText] = useState("");
@@ -97,6 +100,17 @@ export function Composer({
       >
         <ImagePlus size={24} aria-hidden />
       </button>
+      {onOffer ? (
+        <button
+          type="button"
+          onClick={onOffer}
+          aria-label={t("offer.title")}
+          title={t("offer.title")}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
+        >
+          <HandCoins size={24} aria-hidden />
+        </button>
+      ) : null}
       <div className="flex min-h-11 flex-1 items-center rounded-bar border border-border bg-surface px-md focus-within:border-primary">
         <textarea
           ref={box}

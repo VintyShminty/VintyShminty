@@ -14,8 +14,10 @@ import {
   Wallet,
   XCircle,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useOrderSteps } from "@/components/orders/order-steps";
 import { orderQuery } from "@/lib/messaging-queries";
 import { cn } from "@/lib/utils";
 
@@ -49,14 +51,15 @@ function reachedAt(order: OrderDetail): Record<StepKey, string | null> {
 
 /**
  * The order card pinned at the top of a chat (D-019, row 16): four step icons with their dates and the buttons the
- * order allows right now. Same card as the app. Paying, shipping and "I got it" come to the website in a later step,
- * so those buttons open the "works in the app for now" notice. Track parcel only shows the code. The live
- * `order:updated` event refreshes the card.
+ * order allows right now. Same card as the app. Pay goes to checkout, Mark as shipped and I got it ask first and then
+ * move the order, Track parcel shows the code and the card opens the order page. The live `order:updated` event
+ * refreshes the card.
  */
-export function OrderTracker({ orderId, onAppOnly }: { orderId: string; onAppOnly: () => void }) {
+export function OrderTracker({ orderId, lang }: { orderId: string; lang: string }) {
   const { t, i18n } = useTranslation();
   const { data: order } = useQuery(orderQuery(orderId));
   const [showCode, setShowCode] = useState(false);
+  const steps = useOrderSteps({ id: orderId, role: order?.role ?? "buyer" });
   if (!order) return null;
 
   const has = (a: OrderDetail["actions"][number]) => order.actions.includes(a);
@@ -75,9 +78,8 @@ export function OrderTracker({ orderId, onAppOnly }: { orderId: string; onAppOnl
       aria-label={t("chat.order.number", { number: order.orderNumber })}
       className="border-b border-border-subtle bg-surface"
     >
-      <button
-        type="button"
-        onClick={onAppOnly}
+      <Link
+        href={`/${lang}/orders/${order.id}`}
         aria-label={`${t("chat.order.number", { number: order.orderNumber })}. ${statusLabel}. ${t("chat.order.view")}`}
         className="flex w-full flex-col gap-md px-lg pb-sm pt-md text-start hover:bg-pressed"
       >
@@ -142,7 +144,7 @@ export function OrderTracker({ orderId, onAppOnly }: { orderId: string; onAppOnl
             })}
           </span>
         )}
-      </button>
+      </Link>
       {showCode && code ? (
         <div className="mx-lg mb-sm rounded-control bg-background p-md">
           <p className="text-card-meta text-text-3">{t("orders.tracking")}</p>
@@ -152,19 +154,19 @@ export function OrderTracker({ orderId, onAppOnly }: { orderId: string; onAppOnl
       {hasButtons ? (
         <div className="flex gap-sm px-lg pb-md">
           {has("pay") ? (
-            <button
-              type="button"
-              onClick={onAppOnly}
+            <Link
+              href={`/${lang}/checkout?order=${order.id}`}
               className={cn(button, "bg-primary text-on-accent hover:opacity-90")}
             >
               {t("orders.pay")}
-            </button>
+            </Link>
           ) : null}
           {has("ship") ? (
             <button
               type="button"
-              onClick={onAppOnly}
-              className={cn(button, "bg-primary text-on-accent hover:opacity-90")}
+              disabled={steps.pending}
+              onClick={() => steps.ask("ship")}
+              className={cn(button, "bg-primary text-on-accent hover:opacity-90 disabled:opacity-60")}
             >
               {t("orders.ship")}
             </button>
@@ -172,8 +174,8 @@ export function OrderTracker({ orderId, onAppOnly }: { orderId: string; onAppOnl
           {canTrack ? (
             <button
               type="button"
-              onClick={() => (code ? setShowCode((v) => !v) : onAppOnly())}
-              aria-expanded={code ? showCode : undefined}
+              onClick={() => setShowCode((v) => !v)}
+              aria-expanded={showCode}
               className={cn(button, "border border-border text-text-1 hover:bg-pressed")}
             >
               {t("chat.tracker.track")}
@@ -182,14 +184,21 @@ export function OrderTracker({ orderId, onAppOnly }: { orderId: string; onAppOnl
           {has("confirm_received") ? (
             <button
               type="button"
-              onClick={onAppOnly}
-              className={cn(button, "bg-primary text-on-accent hover:opacity-90")}
+              disabled={steps.pending}
+              onClick={() => steps.ask("confirm-received")}
+              className={cn(button, "bg-primary text-on-accent hover:opacity-90 disabled:opacity-60")}
             >
               {t("chat.tracker.gotIt")}
             </button>
           ) : null}
         </div>
       ) : null}
+      {steps.errorKey ? (
+        <p role="alert" className="px-lg pb-md text-body-sm text-error">
+          {t(steps.errorKey)}
+        </p>
+      ) : null}
+      {steps.dialog}
     </section>
   );
 }

@@ -1,5 +1,6 @@
 import { type BottomSheetModal, BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
+import { QUICK_OFFER_PERCENT, quickOfferAmount } from "@vinty/shared";
 import { type Ref, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
@@ -18,9 +19,6 @@ import { useDebounced } from "@/lib/use-debounced";
 import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
 
-/** The quick offers: this much off the price, each tile shows the amount it works out to. */
-const QUICK_PERCENT = [10, 20, 30];
-
 type OfferSheetProps = {
   ref: Ref<BottomSheetModal>;
   /** make: the buyer's first offer. counter: an answer to the other person's offer. */
@@ -32,11 +30,6 @@ type OfferSheetProps = {
   /** Buyers have a daily limit. Counters from a seller are not counted, so they show no limit line. */
   showQuota: boolean;
 };
-
-/** Whole shekels only for the quick tiles, so the numbers look like a person chose them. */
-function quickAmount(priceMinor: number, percent: number) {
-  return Math.round((priceMinor * (100 - percent)) / 100 / 100) * 100;
-}
 
 /** The server's refusal, in words. */
 function errorKeyFor(err: unknown): string {
@@ -119,8 +112,8 @@ function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota 
           </Text>
 
           <View className="flex-row gap-sm">
-            {QUICK_PERCENT.map((percent) => {
-              const value = quickAmount(listingPriceMinor, percent);
+            {QUICK_OFFER_PERCENT.map((percent) => {
+              const value = quickOfferAmount(listingPriceMinor, percent);
               const selected = amount === value;
               return (
                 <Pressable

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ export function ConfirmDialog({
   confirmLabel,
   destructive = false,
   busy = false,
+  disabled = false,
   onConfirm,
   onCancel,
   children,
@@ -25,12 +26,15 @@ export function ConfirmDialog({
   confirmLabel: string;
   destructive?: boolean;
   busy?: boolean;
+  /** The confirm button stays off (for example until a form inside is filled in). */
+  disabled?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
 }) {
   const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const el = dialog.current;
@@ -42,14 +46,14 @@ export function ConfirmDialog({
   return (
     <dialog
       ref={dialog}
-      aria-labelledby="confirm-title"
+      aria-labelledby={titleId}
       onCancel={(e) => {
         e.preventDefault();
         onCancel();
       }}
       className="m-auto w-[min(92vw,400px)] rounded-window border-0 bg-background p-xl text-text-1 backdrop:bg-backdrop"
     >
-      <h2 id="confirm-title" className="text-heading font-bold">
+      <h2 id={titleId} className="text-heading font-bold">
         {title}
       </h2>
       {body ? <p className="mt-sm text-body-sm text-text-3">{body}</p> : null}
@@ -58,7 +62,7 @@ export function ConfirmDialog({
         <button
           type="button"
           onClick={onConfirm}
-          disabled={busy}
+          disabled={busy || disabled}
           className={cn(
             "inline-flex h-12 items-center justify-center rounded-control px-lg text-body font-semibold text-on-accent hover:opacity-90 disabled:opacity-60",
             destructive ? "bg-error" : "bg-primary",

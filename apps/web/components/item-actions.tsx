@@ -1,29 +1,35 @@
 "use client";
 
-import { formatPrice } from "@vinty/shared";
+import { formatPrice, messagePageSchema } from "@vinty/shared";
 import { Flag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppOnlyNotice } from "@/components/app-only-notice";
 import { useLoginPrompt } from "@/components/login-prompt";
+import { OfferDialog } from "@/components/offer/offer-dialog";
 import { useViewer } from "@/components/site-context";
+import { clientApi } from "@/lib/api-client";
 import { ApiClientError } from "@/lib/api-error";
 import { useStartConversation } from "@/lib/messaging-queries";
+import { useSendOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
 
 type BuyProps = {
+  listingId: string;
+  lang: string;
   reserved: boolean;
   canBuy: boolean;
   canOffer: boolean;
+  /** The listed price (before Covered), the offer rules compare against it. */
+  priceMinor: number;
   buyerPriceMinor: number;
   currency: string;
+  /** The chat the viewer already has about this item, if any. */
+  conversationId: string | null;
 };
 
-/**
- * Buy and "Or make your price" (D-019, row 8). Logged out they open the login prompt. Logged in, buying and offers
- * come to the website in a later step, so for now they open a small notice saying it works in the app.
- */
+/** Logged out, the buttons that need an account open the login prompt. Reports still say they work in the app. */
 function useGate() {
   const viewer = useViewer();
   const { ask } = useLoginPrompt();
@@ -31,23 +37,70 @@ function useGate() {
   return { gate: () => (viewer ? showNotice() : ask()), notice };
 }
 
+/**
+ * Buy and "Or make your price" (D-019, row 8). Logged out they open the login prompt. Buying goes to checkout (an item
+ * held for you after an accepted offer is bought at that offer's price). Making your price opens the offer dialog, then
+ * sends the offer into the chat about this item (made first when there is none) and opens that chat.
+ */
 export function BuyButtons({
+  listingId,
+  lang,
   reserved,
   canBuy,
   canOffer,
+  priceMinor,
   buyerPriceMinor,
   currency,
+  conversationId,
   compact = false,
 }: BuyProps & { compact?: boolean }) {
   const { t } = useTranslation();
-  const { gate, notice } = useGate();
+  const viewer = useViewer();
+  const { ask } = useLoginPrompt();
+  const router = useRouter();
+  const startChat = useStartConversation();
+  const sendOffer = useSendOffer();
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [buying, setBuying] = useState(false);
+
+  const buy = async () => {
+    if (!viewer) return ask();
+    if (buying) return;
+    setBuying(true);
+    try {
+      if (reserved && conversationId) {
+        const page = await clientApi(`/v1/conversations/${conversationId}/messages?limit=30`, {
+          schema: messagePageSchema,
+        }).catch(() => null);
+        const accepted = page?.items.find(
+          (m) => m.offer?.status === "accepted" && new Date(m.offer.expiresAt).getTime() > Date.now(),
+        );
+        if (accepted?.offer) {
+          router.push(`/${lang}/checkout?offer=${accepted.offer.id}`);
+          return;
+        }
+      }
+      router.push(`/${lang}/checkout?listing=${listingId}`);
+    } finally {
+      setBuying(false);
+    }
+  };
+
+  const makeOffer = async (amountMinor: number) => {
+    const chatId = conversationId ?? (await startChat.mutateAsync(listingId)).id;
+    await sendOffer.mutateAsync({ conversationId: chatId, amountMinor });
+    router.push(`/${lang}/inbox/${chatId}`);
+  };
+  const openOffer = () => (viewer ? setOfferOpen(true) : ask());
+
   return (
     <div className="flex flex-col gap-sm">
       {canBuy ? (
         <button
           type="button"
-          onClick={gate}
-          className="inline-flex h-12 w-full items-center justify-center rounded-control bg-primary px-lg text-body font-semibold text-on-accent hover:opacity-90"
+          onClick={() => void buy()}
+          disabled={buying}
+          className="inline-flex h-12 w-full items-center justify-center rounded-control bg-primary px-lg text-body font-semibold text-on-accent hover:opacity-90 disabled:opacity-60"
         >
           {reserved ? t("item.buyNow") : t("item.buyFor", { amount: formatPrice(buyerPriceMinor, currency) })}
         </button>
@@ -56,7 +109,7 @@ export function BuyButtons({
         canBuy ? (
           <button
             type="button"
-            onClick={gate}
+            onClick={openOffer}
             className={cn(
               "self-center rounded-control px-sm text-body-sm font-semibold text-primary underline-offset-4 hover:underline",
               compact ? "py-px" : "py-xs",
@@ -67,14 +120,24 @@ export function BuyButtons({
         ) : (
           <button
             type="button"
-            onClick={gate}
+            onClick={openOffer}
             className="inline-flex h-12 w-full items-center justify-center rounded-control border border-primary px-lg text-body font-semibold text-primary hover:bg-accent-tint"
           >
             {t("item.orMakeYourPrice")}
           </button>
         )
       ) : null}
-      {notice}
+      {canOffer && viewer ? (
+        <OfferDialog
+          open={offerOpen}
+          mode="make"
+          listingPriceMinor={priceMinor}
+          currency={currency}
+          showQuota
+          onSend={makeOffer}
+          onClose={() => setOfferOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

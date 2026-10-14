@@ -1731,7 +1731,7 @@
       "metaFallback": "{{details}} for sale on Vinty",
       "appOnly": {
         "title": "This works in the app for now",
-        "body": "Buying, offers, orders and reports are coming to the website soon. Open the app to do it today."
+        "body": "Reports and reviews are coming to the website soon. Open the app to do it today."
       },
       "loadFailed": "We could not load this item",
       "breakdownLabel": "Price breakdown"

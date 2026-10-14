@@ -1,16 +1,23 @@
 "use client";
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { buildThreadItems, dayLabel, formatClock, type ThreadItem } from "@vinty/shared";
+import {
+  areOffersClosed,
+  buildThreadItems,
+  dayLabel,
+  formatClock,
+  type MessageOffer,
+  type ThreadItem,
+} from "@vinty/shared";
 import { Archive, ArchiveRestore, ArrowLeft, Bell, BellOff, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppOnlyNotice } from "@/components/app-only-notice";
 import { IntroCard, ItemStrip, TypingDots, usePhotoViewer } from "@/components/inbox/chat-parts";
 import { Composer } from "@/components/inbox/composer";
 import { MessageBubble, PendingBubble } from "@/components/inbox/message-bubble";
 import { OrderTracker } from "@/components/inbox/order-tracker";
+import { OfferDialog } from "@/components/offer/offer-dialog";
 import { SellerAvatar } from "@/components/seller-avatar";
 import { useViewer } from "@/components/site-context";
 import {
@@ -21,6 +28,7 @@ import {
   usePendingMessages,
 } from "@/lib/chat-send";
 import { conversationQuery, messagesQuery, useArchive, useMute } from "@/lib/messaging-queries";
+import { useCounterOffer, useSendOffer } from "@/lib/order-flow-queries";
 import { joinThread, leaveThread, markThreadRead, useRealtime } from "@/lib/realtime";
 
 type Translate = (key: string, options?: Record<string, unknown>) => string;
@@ -51,7 +59,13 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
   const otherTyping = useRealtime((s) => Boolean(s.typing[id]));
   const archive = useArchive();
   const mute = useMute();
-  const [showAppOnly, appOnlyNotice] = useAppOnlyNotice();
+  const sendOffer = useSendOffer();
+  const counterOffer = useCounterOffer();
+  // The offer dialog: closed, a new offer from the buyer ("make"), or an answer to someone's offer (that offer).
+  const [offerDialog, setOfferDialog] = useState<{ open: boolean; counterOf: MessageOffer | null }>({
+    open: false,
+    counterOf: null,
+  });
   const [openPhoto, photoViewer] = usePhotoViewer();
   const conversation = detail.data;
 
@@ -113,9 +127,9 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
 
   const orderStatus = conversation?.order?.status;
   // Once the item is sold or an order is paid, old offers are history.
-  const offersClosed =
-    conversation?.listing.status === "sold" ||
-    Boolean(orderStatus && !["pending_payment", "cancelled", "refunded"].includes(orderStatus));
+  const offersClosed = areOffersClosed(conversation?.listing.status, orderStatus);
+  const canOffer =
+    conversation?.role === "buyer" && conversation.listing.status === "active" && !conversation.blocked;
   const otherName = conversation?.otherUser.username ?? t("profile.closedAccount");
   const otherLastReadAt = conversation?.otherLastReadAt ?? null;
 
@@ -159,9 +173,10 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
             tight={item.tight}
             statusLine={statusLine}
             role={conversation?.role ?? "buyer"}
+            lang={lang}
             offersClosed={offersClosed}
             onOpenPhoto={openPhoto}
-            onAppOnly={showAppOnly}
+            onCounter={(offer) => setOfferDialog({ open: true, counterOf: offer })}
           />
         );
       }
@@ -253,7 +268,7 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
     body = (
       <>
         <ItemStrip lang={lang} listing={conversation.listing} />
-        {conversation.order ? <OrderTracker orderId={conversation.order.id} onAppOnly={showAppOnly} /> : null}
+        {conversation.order ? <OrderTracker orderId={conversation.order.id} lang={lang} /> : null}
         {/* The list is drawn upside down (newest first in the page, the browser puts the first one at the bottom and
             keeps the place when older messages are added above). */}
         <div
@@ -277,7 +292,12 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
             <p className="text-center text-body-sm text-text-2">{t("chat.blockedNote")}</p>
           </div>
         ) : (
-          <Composer conversationId={id} onSend={sendText} onPickPhoto={sendPhoto} />
+          <Composer
+            conversationId={id}
+            onSend={sendText}
+            onPickPhoto={sendPhoto}
+            onOffer={canOffer ? () => setOfferDialog({ open: true, counterOf: null }) : undefined}
+          />
         )}
       </>
     );
@@ -287,7 +307,21 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
     <div className="flex h-full min-h-0 flex-col bg-background">
       {header}
       {body}
-      {appOnlyNotice}
+      {conversation ? (
+        <OfferDialog
+          open={offerDialog.open}
+          mode={offerDialog.counterOf ? "counter" : "make"}
+          listingPriceMinor={offerDialog.counterOf?.listingPriceMinor ?? conversation.listing.priceMinor}
+          currency={conversation.listing.currency}
+          showQuota={conversation.role === "buyer"}
+          onSend={async (amountMinor) => {
+            const counterOf = offerDialog.counterOf;
+            if (counterOf) await counterOffer.mutateAsync({ offerId: counterOf.id, amountMinor });
+            else await sendOffer.mutateAsync({ conversationId: id, amountMinor });
+          }}
+          onClose={() => setOfferDialog((d) => ({ ...d, open: false }))}
+        />
+      ) : null}
       {photoViewer}
     </div>
   );
