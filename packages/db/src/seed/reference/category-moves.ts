@@ -1,5 +1,5 @@
 /**
- * How the clothing categories moved in the new tree (D-030). Used once per database by `moveCategories` in
+ * How the clothing categories moved in the new tree (D-033). Used once per database by `moveCategories` in
  * `../category-moves.ts`: it moves every listing from the old category to the new one, then removes the old rows.
  * Slugs are the full slugs. The list is kept after the move so a database that is still on the old tree can be
  * brought up to date at any time, and running it again changes nothing.
