@@ -75,6 +75,12 @@ export default function CategoryPanel() {
     [suggestion, allCategories, node],
   );
 
+  // A short line under rows people tend to mix up ("Blouses" or "Button-up shirts"). Only a few rows have one.
+  const hintFor = (slug: string) => {
+    const key = `sell.categoryHints.${slug}`;
+    return i18n.exists(key) ? t(key) : undefined;
+  };
+
   const closeAll = () => router.dismiss(depth);
 
   const choose = (leaf: CategoryNode) => {
@@ -226,6 +232,7 @@ export default function CategoryPanel() {
             <CategoryRow
               kind={item.isLeaf ? "leaf" : "branch"}
               label={name(item.name)}
+              detail={hintFor(item.slug)}
               icon={iconFor(item)}
               selected={item.id === selectedId}
               onPress={() => open(item)}

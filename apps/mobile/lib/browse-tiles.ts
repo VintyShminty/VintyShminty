@@ -22,22 +22,59 @@ export const TILES: BrowseTile[] = [
     key: "tops",
     photo: require("@/assets/browse/19-t-shirt.jpg"),
     slugs: [
-      "women-clothing-tops",
-      "men-clothing-t-shirts",
+      "women-clothing-tops-t-shirts",
+      "women-clothing-tops-tank-tops",
+      "women-clothing-tops-crop-tops",
+      "women-clothing-tops-long-sleeve",
+      "women-clothing-tops-bodysuits",
+      "men-clothing-tops",
+      "kids-girls-tops-t-shirts",
+      "kids-girls-tops-polos",
+      "kids-girls-tops-long-sleeve",
+      "kids-boys-tops-t-shirts",
+      "kids-boys-tops-polos",
+      "kids-boys-tops-long-sleeve",
+    ],
+  },
+  {
+    key: "shirts",
+    photo: require("@/assets/browse/31-shirt.jpg"),
+    slugs: [
+      "women-clothing-tops-button-up",
+      "women-clothing-tops-blouses",
+      "women-clothing-tops-overshirts",
       "men-clothing-shirts",
-      "kids-girls-tops",
-      "kids-boys-tops",
+      "kids-girls-tops-shirts",
+      "kids-boys-tops-shirts",
     ],
   },
   {
     key: "jeans",
     photo: require("@/assets/browse/05-jeans.jpg"),
-    slugs: ["women-clothing-jeans", "men-clothing-jeans", "kids-girls-trousers", "kids-boys-trousers"],
+    slugs: [
+      "women-clothing-jeans",
+      "men-clothing-jeans",
+      "kids-girls-trousers-jeans",
+      "kids-boys-trousers-jeans",
+    ],
   },
   {
     key: "trousers",
     photo: require("@/assets/browse/06-jeans.jpg"),
-    slugs: ["women-clothing-trousers", "men-clothing-trousers", "kids-girls-trousers", "kids-boys-trousers"],
+    slugs: [
+      "women-clothing-trousers",
+      "women-clothing-shorts",
+      "men-clothing-trousers",
+      "men-clothing-shorts",
+      "kids-girls-trousers-trousers",
+      "kids-girls-trousers-leggings",
+      "kids-girls-trousers-joggers",
+      "kids-girls-shorts",
+      "kids-boys-trousers-trousers",
+      "kids-boys-trousers-leggings",
+      "kids-boys-trousers-joggers",
+      "kids-boys-shorts",
+    ],
   },
   {
     key: "skirts",
@@ -48,8 +85,10 @@ export const TILES: BrowseTile[] = [
     key: "coats",
     photo: require("@/assets/browse/22-coat.jpg"),
     slugs: [
-      "women-clothing-outerwear",
-      "men-clothing-outerwear",
+      "women-clothing-coats",
+      "women-clothing-jackets",
+      "men-clothing-coats",
+      "men-clothing-jackets",
       "kids-girls-outerwear",
       "kids-boys-outerwear",
       "kids-baby-outerwear",
@@ -58,7 +97,15 @@ export const TILES: BrowseTile[] = [
   {
     key: "knitwear",
     photo: require("@/assets/browse/16-sweater.jpg"),
-    slugs: ["women-clothing-knitwear", "men-clothing-knitwear", "kids-boys-hoodies"],
+    slugs: [
+      "women-clothing-knitwear",
+      "women-clothing-sweatshirts",
+      "men-clothing-knitwear",
+      "men-clothing-sweatshirts",
+      "kids-girls-sweatshirts",
+      "kids-boys-sweatshirts",
+      "kids-baby-knitwear",
+    ],
   },
   {
     key: "sneakers",
@@ -70,15 +117,15 @@ export const TILES: BrowseTile[] = [
     photo: require("@/assets/browse/26-boots.jpg"),
     slugs: ["women-shoes", "men-shoes", "kids-shoes"],
   },
+];
+
+/** Behind the "More" tile. Designer is browse only (D-015), so it lives here. */
+export const MORE_TILES: BrowseTile[] = [
   {
     key: "bags",
     photo: require("@/assets/browse/14-handbag.jpg"),
     slugs: ["women-bags", "men-accessories-bags"],
   },
-];
-
-/** Behind the "More" tile. Designer is browse only (D-015), so it lives here. */
-export const MORE_TILES: BrowseTile[] = [
   {
     key: "accessories",
     photo: require("@/assets/browse/33-watch.jpg"),
@@ -88,7 +135,13 @@ export const MORE_TILES: BrowseTile[] = [
   {
     key: "sportswear",
     photo: require("@/assets/browse/47-hoodie.jpg"),
-    slugs: ["sports", "women-clothing-activewear", "men-clothing-activewear"],
+    slugs: [
+      "sports",
+      "women-clothing-sportswear",
+      "men-clothing-sportswear",
+      "kids-girls-sportswear",
+      "kids-boys-sportswear",
+    ],
   },
   { key: "designer", photo: require("@/assets/browse/15-handbag.jpg"), slugs: ["designer"] },
   { key: "home", photo: require("@/assets/browse/41-vase.jpg"), slugs: ["home"] },
