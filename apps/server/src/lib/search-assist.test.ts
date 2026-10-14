@@ -94,8 +94,8 @@ describe("buildSearchCatalog", () => {
     expect(catalog.text).toContain("Q1: New, Never worn | חדש, לא נלבש");
     expect(catalog.text).toContain("M1: Linen | פשתן");
     expect(catalog.text).toContain("P1: Striped | פסים");
-    expect(catalog.text).toContain("S2: Women's tops: L");
-    expect(catalog.sizes.get("S1")).toBe("sz-m");
+    expect(catalog.text).toContain("G1: Women's tops: M, L");
+    expect(catalog.sizes.get("G1|M")).toBe("sz-m");
   });
 
   it("writes the same text for the same data, so the prompt cache holds", () => {
@@ -111,7 +111,7 @@ describe("resolveSearchUnderstanding", () => {
       {
         category: "c2",
         brands: ["Michael Kors", "Unknown Label"],
-        sizes: ["S1", "S1", "S99"],
+        sizes: ["G1: m", "G1:M", "G1: XXL", "G9: M", "M"],
         colours: ["K1", "K9"],
         conditions: ["Q1"],
         materials: ["M1"],

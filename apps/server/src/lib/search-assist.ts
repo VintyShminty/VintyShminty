@@ -74,15 +74,12 @@ export function buildSearchCatalog(reference: ReferenceData): SearchCatalogCodes
   simple("MATERIALS (code: English | Hebrew)", "M", reference.materials, materials);
   simple("PATTERNS (code: English | Hebrew)", "P", reference.patterns, patterns);
 
-  lines.push("", "SIZES (code: size group: size)");
-  let s = 0;
-  for (const group of reference.sizeGroups) {
-    for (const size of group.sizes) {
-      s += 1;
-      sizes.set(`S${s}`, size.id);
-      lines.push(`S${s}: ${group.name.en}: ${size.label}`);
-    }
-  }
+  // Sizes by group, answered as "G6: 42". Codes per size (S120 next to a label 41) made the model pick a neighbour.
+  lines.push("", "SIZE GROUPS (code: group: the sizes in it)");
+  reference.sizeGroups.forEach((group, i) => {
+    for (const size of group.sizes) sizes.set(sizeKey(`G${i + 1}`, size.label), size.id);
+    lines.push(`G${i + 1}: ${group.name.en}: ${group.sizes.map((size) => size.label).join(", ")}`);
+  });
   return { text: lines.join("\n"), categories, colours, conditions, materials, patterns, sizes };
 }
 
@@ -100,6 +97,24 @@ function pick(codes: string[] | null | undefined, map: Map<string, string>, max:
   const ids: string[] = [];
   for (const c of codes ?? []) {
     const id = map.get(code(c));
+    if (id && !ids.includes(id)) ids.push(id);
+    if (ids.length >= max) break;
+  }
+  return ids;
+}
+
+/** A size in the lookup: the group code and the label, upper case without spaces ("G6|42", "G8|8Y"). */
+function sizeKey(group: string, label: string): string {
+  return `${code(group)}|${label.toUpperCase().replace(/\s+/g, "")}`;
+}
+
+/** Sizes answered as "G6: 42". A label that is not in that group matches nothing. */
+function pickSizes(answers: string[] | null | undefined, map: Map<string, string>, max: number): string[] {
+  const ids: string[] = [];
+  for (const answer of answers ?? []) {
+    const at = answer.indexOf(":");
+    if (at < 0) continue;
+    const id = map.get(sizeKey(answer.slice(0, at), answer.slice(at + 1)));
     if (id && !ids.includes(id)) ids.push(id);
     if (ids.length >= max) break;
   }
@@ -149,7 +164,7 @@ export async function resolveSearchUnderstanding(
     categoryId,
     brandIds,
     brands,
-    sizeIds: pick(raw.sizes, catalog.sizes, 10),
+    sizeIds: pickSizes(raw.sizes, catalog.sizes, 10),
     colourIds: pick(raw.colours, catalog.colours, 5),
     conditionIds: pick(raw.conditions, catalog.conditions, 5),
     materialIds: pick(raw.materials, catalog.materials, 3),
