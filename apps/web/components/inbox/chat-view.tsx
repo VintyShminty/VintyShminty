@@ -13,7 +13,7 @@ import { Archive, ArchiveRestore, ArrowLeft, Bell, BellOff, Loader2 } from "luci
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IntroCard, ItemStrip, TypingDots, usePhotoViewer } from "@/components/inbox/chat-parts";
+import { ItemStrip, TypingDots, usePhotoViewer } from "@/components/inbox/chat-parts";
 import { Composer } from "@/components/inbox/composer";
 import { MessageBubble, PendingBubble } from "@/components/inbox/message-bubble";
 import { OrderTracker } from "@/components/inbox/order-tracker";
@@ -143,8 +143,9 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
             {dayLabel(item.iso, i18n.language, { today: t("chat.today"), yesterday: t("chat.yesterday") })}
           </p>
         );
+      // The app has no person card here either, the top bar shows who it is (D-034).
       case "intro":
-        return conversation ? <IntroCard key={item.key} lang={lang} person={conversation.otherUser} /> : null;
+        return null;
       case "pending":
         return (
           <PendingBubble

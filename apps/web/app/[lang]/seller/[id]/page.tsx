@@ -183,8 +183,8 @@ export default async function SellerPage({
               endpoint={endpoint}
               kind="plain"
               firstPage={listingsFirst}
-              hideHearts={isSelf}
-              heartOnSold={false}
+              hideSaves={isSelf}
+              saveOnSold={false}
               empty={
                 <EmptyState title={status === "active" ? t("profile.noListings") : t("profile.noSold")} />
               }

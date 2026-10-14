@@ -54,7 +54,7 @@ export default async function FavouritesPage({
           endpoint={endpoint}
           kind="plain"
           firstPage={firstPage}
-          heartOnSold
+          saveOnSold
           empty={
             <EmptyState
               title={q ? t("favourites.noMatches") : t("favourites.empty")}

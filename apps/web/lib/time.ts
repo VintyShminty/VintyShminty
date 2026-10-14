@@ -28,3 +28,13 @@ export function formatDate(iso: string, language: string): string {
 export function formatDay(iso: string, language: string): string {
   return new Date(iso).toLocaleDateString(language, { day: "numeric", month: "short", timeZone: "UTC" });
 }
+
+/** "Oct 12, 3:40 PM", for when a buzz ends. In the viewer's own time zone. */
+export function formatDateTime(iso: string, language: string): string {
+  return new Date(iso).toLocaleString(language, {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

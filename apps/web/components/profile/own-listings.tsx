@@ -13,8 +13,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Your own card (the app's "mini dashboard"): the photo with a state badge, then the price, views and hearts first. A
- * draft shows its title instead. Drafts cannot be opened on the website yet (selling comes in a later step), so they are
- * not links.
+ * draft shows its title instead and opens the sell form to finish it.
  */
 function OwnCard({ listing, lang }: { listing: MyListingCard; lang: string }) {
   const { t } = useTranslation();
@@ -86,10 +85,13 @@ function OwnCard({ listing, lang }: { listing: MyListingCard; lang: string }) {
       </div>
     </>
   );
-  return draft ? (
-    <article className="min-w-0">{body}</article>
-  ) : (
-    <Link href={`/${lang}/item/${listing.id}`} prefetch={false} aria-label={title} className="min-w-0">
+  return (
+    <Link
+      href={draft ? `/${lang}/sell/${listing.id}` : `/${lang}/item/${listing.id}`}
+      prefetch={false}
+      aria-label={title}
+      className="min-w-0"
+    >
       {body}
     </Link>
   );

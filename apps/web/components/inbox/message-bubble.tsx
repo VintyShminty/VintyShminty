@@ -5,12 +5,8 @@ import {
   AlertCircle,
   AlertTriangle,
   Ban,
-  Check,
   CheckCircle2,
   ChevronRight,
-  Clock,
-  CornerUpLeft,
-  Hourglass,
   Loader2,
   type LucideIcon,
   Package,
@@ -18,13 +14,10 @@ import {
   RotateCcw,
   Star,
   Truck,
-  Undo2,
-  X,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/badge";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ApiClientError } from "@/lib/api-error";
 import type { PendingMessage } from "@/lib/chat-send";
@@ -32,7 +25,7 @@ import { type OfferAnswer, useAnswerOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
 
 /** The corner that points at the sender is tighter (a small tail). `rounded-ee` is the end side, `rounded-es` the start. */
-const TAIL = { mine: "rounded-ee-[6px]", theirs: "rounded-es-[6px]" } as const;
+const TAIL = { mine: "rounded-ee-[3px]", theirs: "rounded-es-[3px]" } as const;
 type Side = keyof typeof TAIL;
 
 /** The most a photo bubble shows: 260 wide, and no taller than 1.4 times its width. */
@@ -70,10 +63,10 @@ function PhotoBubble({
       aria-label={label}
       style={{ width: box.width, height: box.height }}
       className={cn(
-        "relative block max-w-[80%] overflow-hidden rounded-window border bg-pressed",
+        "relative block max-w-[76%] overflow-hidden rounded-control border bg-pressed",
         TAIL[side],
         side === "mine" ? "self-end" : "self-start",
-        failed ? "border-error" : "border-border-subtle",
+        failed ? "border-error" : "border-border",
         onOpen ? "cursor-zoom-in" : "cursor-default",
       )}
     >
@@ -93,11 +86,11 @@ function TextBubble({ body, side }: { body: string; side: Side }) {
     <div
       dir="auto"
       className={cn(
-        "max-w-[80%] whitespace-pre-wrap break-words rounded-window px-md py-sm text-body",
+        "max-w-[76%] whitespace-pre-wrap break-words rounded-control px-md py-[9px] text-[15px] leading-[21px]",
         TAIL[side],
         side === "mine"
           ? "self-end bg-primary text-on-accent"
-          : "self-start border border-border-subtle bg-background text-text-1",
+          : "self-start border border-border bg-background text-text-1",
       )}
     >
       {body}
@@ -176,7 +169,7 @@ function OrderDivider({
     </>
   );
   const classes =
-    "mx-auto flex w-full max-w-[420px] items-center gap-md rounded-control border border-border-subtle bg-surface px-md py-md";
+    "mx-auto flex w-full max-w-[420px] items-center gap-md rounded-control bg-surface px-[14px] py-md";
   return (
     <div className="px-lg py-sm">
       {orderId ? (
@@ -194,26 +187,9 @@ function OrderDivider({
   );
 }
 
-const OFFER_ICON = {
-  pending: Hourglass,
-  accepted: Check,
-  declined: X,
-  countered: CornerUpLeft,
-  withdrawn: Undo2,
-  expired: Clock,
-} as const;
-const OFFER_VARIANT = {
-  pending: "accent",
-  accepted: "success",
-  declined: "error",
-  countered: "neutral",
-  withdrawn: "neutral",
-  expired: "neutral",
-} as const;
-
 /**
- * An offer in the chat: the price, the listed price struck through, the state, and the buttons that make sense for
- * this person right now. The other person's waiting offer can be accepted, declined or countered. My own waiting
+ * An offer in the chat (D-034): a full width ledger line with who and the state on one side, the price and the listed
+ * price struck through on the other, and a thin bar of the buttons that make sense for this person right now. The other person's waiting offer can be accepted, declined or countered. My own waiting
  * offer can be withdrawn. An accepted offer lets the buyer buy at that price until the hold runs out.
  */
 function OfferBubble({
@@ -244,8 +220,6 @@ function OfferBubble({
     hour: "numeric",
     minute: "2-digit",
   });
-  const small =
-    "inline-flex h-9 items-center justify-center rounded-control px-md text-body-sm font-semibold disabled:opacity-60";
   const busy = answer.isPending;
 
   const run = (kind: OfferAnswer) => {
@@ -262,95 +236,103 @@ function OfferBubble({
     );
   };
 
+  const cell =
+    "flex h-11 flex-1 items-center justify-center text-[14px] font-semibold text-text-1 hover:bg-pressed disabled:opacity-60";
+  const strong = "font-bold text-primary";
+  const cells: ReactNode[] = [];
+  if (canAnswer && !mine) {
+    cells.push(
+      <button
+        key="decline"
+        type="button"
+        disabled={busy}
+        onClick={() => setConfirming("decline")}
+        className={cell}
+      >
+        {t("offer.decline")}
+      </button>,
+      <button key="counter" type="button" disabled={busy} onClick={() => onCounter(offer)} className={cell}>
+        {t("offer.counter")}
+      </button>,
+      <button
+        key="accept"
+        type="button"
+        disabled={busy}
+        onClick={() => run("accept")}
+        className={cn(cell, strong)}
+      >
+        {t("offer.accept")}
+      </button>,
+    );
+  } else if (canAnswer && mine) {
+    cells.push(
+      <button
+        key="withdraw"
+        type="button"
+        disabled={busy}
+        onClick={() => setConfirming("withdraw")}
+        className={cell}
+      >
+        {t("offer.withdraw")}
+      </button>,
+    );
+  } else if (status === "accepted" && role === "buyer" && !closed) {
+    cells.push(
+      <Link key="buy" href={`/${lang}/checkout?offer=${offer.id}`} className={cn(cell, strong)}>
+        {t("offer.buyNow", { amount: formatPrice(offer.amountMinor, offer.currency) })}
+      </Link>,
+    );
+  }
+
   return (
-    <div
-      className={cn(
-        "flex w-[78%] max-w-[340px] flex-col gap-sm rounded-window border border-border bg-surface px-md py-md",
-        mine ? "self-end" : "self-start",
-      )}
-    >
-      <span className="text-section-label font-semibold uppercase text-text-3">
-        {mine ? t("offer.bubble.yours") : t("offer.bubble.theirs")}
-      </span>
-      <span className="flex items-baseline gap-sm">
-        <span className="text-title font-bold text-primary">
-          {formatPrice(offer.amountMinor, offer.currency)}
-        </span>
-        {lower ? (
-          <span className="text-card-desc text-text-3 line-through">
-            {formatPrice(offer.listingPriceMinor, offer.currency)}
+    <div className="w-full self-stretch overflow-hidden rounded-control border border-border bg-background">
+      <div className="flex items-center gap-md px-[14px] py-md">
+        <span
+          aria-hidden
+          className={cn("w-[3px] self-stretch rounded-full", mine ? "bg-primary" : "bg-border")}
+        />
+        <span className="flex min-w-0 flex-1 flex-col gap-px text-start">
+          <span className="text-section-label font-semibold uppercase text-text-3">
+            {mine ? t("offer.bubble.yours") : t("offer.bubble.theirs")}
           </span>
-        ) : null}
-      </span>
-      <Badge
-        className="self-start"
-        variant={OFFER_VARIANT[status]}
-        icon={OFFER_ICON[status]}
-        label={
-          status === "pending"
-            ? t(`offer.bubble.pending_${mine ? "mine" : "theirs"}`)
-            : t(`chat.offerStatus.${status}`)
-        }
-      />
+          <span
+            className={cn(
+              "text-[13px] leading-[18px]",
+              status === "accepted" ? "text-success" : "text-text-2",
+            )}
+          >
+            {status === "pending"
+              ? t(`offer.bubble.pending_${mine ? "mine" : "theirs"}`)
+              : t(`chat.offerStatus.${status}`)}
+          </span>
+        </span>
+        <span className="flex flex-col items-end">
+          <span className="text-heading font-bold text-text-1">
+            {formatPrice(offer.amountMinor, offer.currency)}
+          </span>
+          {lower ? (
+            <span className="text-card-desc text-text-3 line-through">
+              {formatPrice(offer.listingPriceMinor, offer.currency)}
+            </span>
+          ) : null}
+        </span>
+      </div>
       {status === "accepted" ? (
-        <span className="text-card-desc text-text-2">
+        <p className="pb-md ps-[29px] pe-[14px] text-card-desc text-text-3">
           {role === "buyer"
             ? t("offer.bubble.reservedForYou", { time: until })
             : t("offer.bubble.reservedForThem", { time: until })}
-        </span>
+        </p>
       ) : null}
       {failed ? (
-        <span role="alert" className="text-card-desc text-error">
+        <p role="alert" className="pb-md ps-[29px] pe-[14px] text-card-desc text-error">
           {t(failed)}
-        </span>
+        </p>
       ) : null}
-      {canAnswer && !mine ? (
-        <div className="flex flex-col gap-sm pt-xs">
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => run("accept")}
-            className={cn(small, "bg-primary text-on-accent hover:opacity-90")}
-          >
-            {t("offer.accept")}
-          </button>
-          <div className="flex gap-sm">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setConfirming("decline")}
-              className={cn(small, "flex-1 border border-border text-text-1 hover:bg-pressed")}
-            >
-              {t("offer.decline")}
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => onCounter(offer)}
-              className={cn(small, "flex-1 border border-border text-text-1 hover:bg-pressed")}
-            >
-              {t("offer.counter")}
-            </button>
-          </div>
+      {cells.length > 0 ? (
+        <div className="flex divide-x divide-border-subtle border-t border-border-subtle rtl:divide-x-reverse">
+          {cells}
         </div>
-      ) : null}
-      {canAnswer && mine ? (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => setConfirming("withdraw")}
-          className={cn(small, "mt-xs border border-border text-text-1 hover:bg-pressed")}
-        >
-          {t("offer.withdraw")}
-        </button>
-      ) : null}
-      {status === "accepted" && role === "buyer" && !closed ? (
-        <Link
-          href={`/${lang}/checkout?offer=${offer.id}`}
-          className={cn(small, "mt-xs bg-primary text-on-accent hover:opacity-90")}
-        >
-          {t("offer.buyNow", { amount: formatPrice(offer.amountMinor, offer.currency) })}
-        </Link>
       ) : null}
       <ConfirmDialog
         open={confirming !== null}
@@ -415,10 +397,8 @@ export function MessageBubble({
       );
     }
     return (
-      <div className="flex justify-center px-xl py-sm">
-        <span className="rounded-full bg-surface px-md py-xs text-center text-card-desc text-text-2">
-          {systemText(message, t)}
-        </span>
+      <div className="flex justify-center px-xl pb-xs pt-lg">
+        <span className="text-center text-card-desc text-text-3">{systemText(message, t)}</span>
       </div>
     );
   }
@@ -496,7 +476,7 @@ export function PendingBubble({
         <div
           dir="auto"
           className={cn(
-            "max-w-[80%] self-end whitespace-pre-wrap break-words rounded-window rounded-ee-[6px] bg-primary px-md py-sm text-body text-on-accent",
+            "max-w-[76%] self-end whitespace-pre-wrap break-words rounded-control rounded-ee-[3px] bg-primary px-md py-[9px] text-[15px] leading-[21px] text-on-accent",
             failed ? "border border-error" : "opacity-70",
           )}
         >

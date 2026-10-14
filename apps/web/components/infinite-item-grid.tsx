@@ -34,15 +34,15 @@ export function InfiniteItemGrid({
   kind,
   firstPage,
   empty,
-  hideHearts,
-  heartOnSold,
+  hideSaves,
+  saveOnSold,
 }: {
   endpoint: string;
   kind: keyof typeof SCHEMAS;
   firstPage: Page | null;
   empty: ReactNode;
-  hideHearts?: boolean;
-  heartOnSold?: boolean;
+  hideSaves?: boolean;
+  saveOnSold?: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const query = useInfiniteQuery({
@@ -114,7 +114,7 @@ export function InfiniteItemGrid({
   return (
     <>
       <div ref={gridBox}>
-        <ItemGrid items={items} hideHearts={hideHearts} heartOnSold={heartOnSold} feed={kind === "feed"} />
+        <ItemGrid items={items} hideSaves={hideSaves} saveOnSold={saveOnSold} feed={kind === "feed"} />
       </div>
       {hasNextPage ? (
         <div ref={sentinel} className="py-xl text-center text-body-sm text-text-3" aria-live="polite">
