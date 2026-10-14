@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "../globals.css";
 import { notFound } from "next/navigation";
+import { OnboardingGate } from "@/components/auth/onboarding-gate";
+import { EventCollector } from "@/components/event-collector";
 import { Footer } from "@/components/footer";
 import { I18nProvider } from "@/components/i18n-provider";
 import { LoginPromptProvider } from "@/components/login-prompt";
@@ -45,6 +47,8 @@ export default async function LangLayout({
           <QueryProvider>
             <SiteProvider viewer={viewer} conditions={conditions}>
               <LoginPromptProvider lang={lang}>
+                <EventCollector />
+                <OnboardingGate lang={lang} />
                 <TopBar lang={lang} viewer={viewer} />
                 <div className="flex-1">{children}</div>
                 <Footer lang={lang} />

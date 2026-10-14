@@ -15,5 +15,7 @@ export type HealthDbResponse = z.infer<typeof healthDbResponseSchema>;
 export const authProvidersSchema = z.object({
   apple: z.boolean(),
   google: z.boolean(),
+  /** Apple for the website (needs a Services ID and Apple's key, the phone needs neither). Optional so an older server still parses. */
+  appleWeb: z.boolean().optional(),
 });
 export type AuthProviders = z.infer<typeof authProvidersSchema>;

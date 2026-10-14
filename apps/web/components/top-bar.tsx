@@ -1,5 +1,6 @@
 import { Heart, Inbox } from "lucide-react";
 import Link from "next/link";
+import { AccountMenu } from "@/components/auth/account-menu";
 import { BrowsePanel } from "@/components/browse-panel";
 import { BrowseTiles } from "@/components/browse-tiles";
 import { LanguageSwitch } from "@/components/language-switch";
@@ -62,24 +63,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
               <Link href={`/${lang}/favourites`} aria-label={t("web.nav.favourites")} className={iconLink}>
                 <Heart size={20} aria-hidden />
               </Link>
-              <Link
-                href={`/${lang}/profile`}
-                aria-label={t("web.nav.account")}
-                className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-pressed text-body-sm font-bold text-primary"
-              >
-                {viewer.avatarUrl ? (
-                  // biome-ignore lint/performance/noImgElement: a small avatar, no image optimisation on purpose
-                  <img
-                    src={viewer.avatarUrl}
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  (viewer.username ?? viewer.name).slice(0, 1).toUpperCase()
-                )}
-              </Link>
+              <AccountMenu lang={lang} viewer={viewer} />
             </>
           ) : (
             <>

@@ -1,4 +1,4 @@
-import { type Me, meSchema } from "@vinty/shared";
+import { type AuthProviders, authProvidersSchema, type Me, meSchema } from "@vinty/shared";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import type { z } from "zod";
@@ -63,3 +63,17 @@ export const getViewer = cache(async (lang: Lang): Promise<Me | null> => {
     return null;
   }
 });
+
+/** Which "Continue with ..." buttons the website may show (GET /v1/auth/providers), or null when the server is unreachable. */
+export async function getAuthProviders(lang: Lang): Promise<AuthProviders | null> {
+  try {
+    return await serverApi("/v1/auth/providers", {
+      lang,
+      schema: authProvidersSchema,
+      anonymous: true,
+      revalidate: 60,
+    });
+  } catch {
+    return null;
+  }
+}

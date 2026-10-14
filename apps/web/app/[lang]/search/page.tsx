@@ -6,9 +6,10 @@ import { Chip } from "@/components/chip";
 import { EmptyState } from "@/components/empty-state";
 import { FilterBar, FilterProvider, PendingFade } from "@/components/filter-bar";
 import { InfiniteItemGrid } from "@/components/infinite-item-grid";
+import { SaveSearchButton } from "@/components/lists/save-search-button";
 import { serverApi } from "@/lib/api";
 import { pagePath } from "@/lib/feed-url";
-import { buildFilterOptions, listingQuery, paramValue, parseFilters } from "@/lib/filters";
+import { buildFilterOptions, listingQuery, paramValue, parseCategories, parseFilters } from "@/lib/filters";
 import { getT, isLang, type Lang } from "@/lib/i18n";
 import { getReference } from "@/lib/reference";
 import { alternatesFor } from "@/lib/seo";
@@ -62,9 +63,12 @@ export default async function SearchPage({
 
   return (
     <main className="mx-auto max-w-[1400px] px-lg pb-2xl pt-xl md:px-xl">
-      <h1 className="text-title font-bold text-text-1">
-        {q ? t("web.search.resultsFor", { q }) : t("web.search.allItems")}
-      </h1>
+      <div className="flex flex-col gap-md md:flex-row md:items-start md:justify-between">
+        <h1 className="text-title font-bold text-text-1">
+          {q ? t("web.search.resultsFor", { q }) : t("web.search.allItems")}
+        </h1>
+        {sellers ? null : <SaveSearchButton q={q} query={queryString(sp)} />}
+      </div>
       <nav aria-label={t("web.search.tabsLabel")} className="mt-lg flex gap-sm">
         <Chip href={tabHref("items")} replace selected={!sellers} label={t("search.items")} />
         <Chip href={tabHref("sellers")} replace selected={sellers} label={t("search.sellers")} />
@@ -76,10 +80,35 @@ export default async function SearchPage({
   );
 }
 
+/** The address query as text, for the Save button to read the words and filters from. */
+function queryString(sp: SearchParams) {
+  const next = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    for (const v of Array.isArray(value) ? value : value === undefined ? [] : [value]) next.append(key, v);
+  }
+  return next.toString();
+}
+
+/** The search address with one category taken off. */
+function withoutCategory(lang: Lang, sp: SearchParams, id: string) {
+  const next = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    for (const v of Array.isArray(value) ? value : value === undefined ? [] : [value]) {
+      if (key === "category" && v.split("~")[0] === id) continue;
+      next.append(key, v);
+    }
+  }
+  const qs = next.toString();
+  return `/${lang}/search${qs ? `?${qs}` : ""}`;
+}
+
 async function Items({ lang, q, sp }: { lang: Lang; q: string; sp: SearchParams }) {
   const t = getT(lang);
   const filters = parseFilters(sp, "relevance");
-  const endpoint = `/v1/listings?${listingQuery(filters, { q })}`;
+  // A saved search can limit the words to a category. It shows as a chip that takes it off.
+  const categories = parseCategories(sp);
+  const categoryIds = categories.map((c) => c.id);
+  const endpoint = `/v1/listings?${listingQuery(filters, { q, categoryIds })}`;
   const [firstPage, reference] = await Promise.all([
     serverApi(pagePath(endpoint), { lang, schema: searchPageSchema }).catch(() => null),
     getReference(lang).catch(() => null),
@@ -99,8 +128,23 @@ async function Items({ lang, q, sp }: { lang: Lang; q: string; sp: SearchParams 
           {count}
         </p>
       ) : null}
+      {categories.length > 0 ? (
+        <div className="mb-md flex flex-wrap gap-sm">
+          {categories.map((category) => (
+            <Chip
+              key={category.id}
+              applied
+              replace
+              scroll={false}
+              href={withoutCategory(lang, sp, category.id)}
+              label={category.name}
+              ariaLabel={t("filters.removeFilter", { name: category.name })}
+            />
+          ))}
+        </div>
+      ) : null}
       <FilterProvider>
-        <FilterBar defaultSort="relevance" options={options} q={q} />
+        <FilterBar defaultSort="relevance" options={options} q={q} categoryIds={categoryIds} />
         <div className="mt-xl">
           <PendingFade>
             <InfiniteItemGrid

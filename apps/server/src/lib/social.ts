@@ -1,13 +1,32 @@
 import { importPKCS8, SignJWT } from "jose";
 import type { Env } from "../env.js";
 
-/** Which sign in providers are switched on. Apple needs the app's bundle id, Google needs its web client pair. */
+/**
+ * Which sign in providers are switched on. Apple needs the app's bundle id, Google needs its web client pair.
+ * `appleWeb` is Apple for the website: it also needs a Services ID (APPLE_CLIENT_ID) and a secret (given, or made
+ * from the key values), because the website uses Apple's redirect flow and the phone uses an ID token.
+ */
 export function socialProvidersOn(
-  env: Pick<Env, "GOOGLE_CLIENT_ID" | "GOOGLE_CLIENT_SECRET" | "APPLE_APP_BUNDLE_IDENTIFIER">,
+  env: Pick<
+    Env,
+    | "GOOGLE_CLIENT_ID"
+    | "GOOGLE_CLIENT_SECRET"
+    | "APPLE_APP_BUNDLE_IDENTIFIER"
+    | "APPLE_CLIENT_ID"
+    | "APPLE_CLIENT_SECRET"
+    | "APPLE_TEAM_ID"
+    | "APPLE_KEY_ID"
+    | "APPLE_PRIVATE_KEY"
+  >,
 ) {
+  const apple = Boolean(env.APPLE_APP_BUNDLE_IDENTIFIER);
+  const hasSecret = Boolean(
+    env.APPLE_CLIENT_SECRET || (env.APPLE_TEAM_ID && env.APPLE_KEY_ID && env.APPLE_PRIVATE_KEY),
+  );
   return {
     google: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
-    apple: Boolean(env.APPLE_APP_BUNDLE_IDENTIFIER),
+    apple,
+    appleWeb: apple && Boolean(env.APPLE_CLIENT_ID) && hasSecret,
   };
 }
 

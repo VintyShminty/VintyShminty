@@ -125,8 +125,9 @@ function cssVariables() {
   return vars;
 }
 
-/** Colours of third party brand marks that must not be recoloured (the Google "G"). Never used for our own UI. */
+/** Colours of third party brand marks that must not be recoloured (the Google "G", Apple's black). Never used for our own UI. */
 const brand = {
+  appleBlack: "#000000",
   googleBlue: "#4285F4",
   googleGreen: "#34A853",
   googleYellow: "#FBBC05",

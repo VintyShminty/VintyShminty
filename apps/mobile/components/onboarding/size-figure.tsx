@@ -12,16 +12,16 @@ import { FIGURE_FILE, type SizeFigure, type SizeStep } from "@/components/onboar
 
 // Hand-drawn ink pictures (D-029). All pictures of one person have the same crop and size, so the figure never jumps.
 const PICTURES = {
-  "woman-tops": require("@/assets/sizes/woman-tops.jpg"),
-  "woman-bottoms": require("@/assets/sizes/woman-bottoms.jpg"),
-  "woman-belts": require("@/assets/sizes/woman-belts.jpg"),
-  "woman-shoes": require("@/assets/sizes/woman-shoes.jpg"),
-  "man-tops": require("@/assets/sizes/man-tops.jpg"),
-  "man-bottoms": require("@/assets/sizes/man-bottoms.jpg"),
-  "man-belts": require("@/assets/sizes/man-belts.jpg"),
-  "man-shoes": require("@/assets/sizes/man-shoes.jpg"),
-  "kid-whole": require("@/assets/sizes/kid-whole.jpg"),
-  "kid-shoes": require("@/assets/sizes/kid-shoes.jpg"),
+  "woman-tops": require("@vinty/design/sizes/woman-tops.jpg"),
+  "woman-bottoms": require("@vinty/design/sizes/woman-bottoms.jpg"),
+  "woman-belts": require("@vinty/design/sizes/woman-belts.jpg"),
+  "woman-shoes": require("@vinty/design/sizes/woman-shoes.jpg"),
+  "man-tops": require("@vinty/design/sizes/man-tops.jpg"),
+  "man-bottoms": require("@vinty/design/sizes/man-bottoms.jpg"),
+  "man-belts": require("@vinty/design/sizes/man-belts.jpg"),
+  "man-shoes": require("@vinty/design/sizes/man-shoes.jpg"),
+  "kid-whole": require("@vinty/design/sizes/kid-whole.jpg"),
+  "kid-shoes": require("@vinty/design/sizes/kid-shoes.jpg"),
 } as const;
 
 type PictureKey = keyof typeof PICTURES;

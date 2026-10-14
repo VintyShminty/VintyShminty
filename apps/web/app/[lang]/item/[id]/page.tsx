@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { FavouriteButton } from "@/components/favourite-button";
 import { BuyBar, BuyButtons, MessageChip, ReportButton } from "@/components/item-actions";
 import { ItemCard } from "@/components/item-card";
+import { ItemDwell } from "@/components/item-dwell";
 import { ItemGrid } from "@/components/item-grid";
 import { PhotoGallery } from "@/components/photo-gallery";
 import { PricePill } from "@/components/price-pill";
@@ -190,6 +191,7 @@ export default async function ItemPage({ params }: { params: Params }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
 
+      <ItemDwell listingId={listing.id} />
       <div className="grid gap-x-2xl gap-y-lg lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_420px]">
         <div className="min-w-0 lg:col-start-1 lg:row-start-1">
           <PhotoGallery

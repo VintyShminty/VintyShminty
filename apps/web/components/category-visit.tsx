@@ -2,11 +2,12 @@
 
 import { useEffect } from "react";
 import { useViewer } from "@/components/site-context";
-import { clientApi } from "@/lib/api-client";
+import { trackCategoryVisit } from "@/lib/events";
 
 /**
  * Tells the server a Browse tile was opened, like the app does (up to six of its categories), so the Home feed can learn
- * what the person likes. Only for a logged in person, once per visit, and silent when it fails.
+ * what the person likes. Goes through the shared event queue, so it is batched with the other signals, only for a
+ * logged in person whose personalised feed is on, and silent when it fails.
  */
 export function CategoryVisit({ categoryIds }: { categoryIds: string[] }) {
   const viewer = useViewer();
@@ -14,13 +15,7 @@ export function CategoryVisit({ categoryIds }: { categoryIds: string[] }) {
   const signedIn = Boolean(viewer);
   useEffect(() => {
     if (!signedIn || !key) return;
-    const events = key.split(",").map((categoryId) => ({
-      clientEventId: crypto.randomUUID(),
-      type: "category_visit" as const,
-      categoryId,
-      surface: "browse" as const,
-    }));
-    clientApi("/v1/events", { method: "POST", body: { events } }).catch(() => undefined);
+    for (const categoryId of key.split(",")) trackCategoryVisit(categoryId);
   }, [signedIn, key]);
   return null;
 }

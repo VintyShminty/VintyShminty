@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 // The browser only ever talks to the website's own address, so the login cookie belongs to the website.
-// These two forwards send the calls on to the server (Safari and Chrome block cookies from another address).
+// The forward for /v1 sits here. The one for /api/auth sits in proxy.ts because it adds a header (see there).
 const apiUrl = (process.env.API_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
 const config: NextConfig = {
@@ -18,10 +18,7 @@ const config: NextConfig = {
     return webpackConfig;
   },
   async rewrites() {
-    return [
-      { source: "/api/auth/:path*", destination: `${apiUrl}/api/auth/:path*` },
-      { source: "/v1/:path*", destination: `${apiUrl}/v1/:path*` },
-    ];
+    return [{ source: "/v1/:path*", destination: `${apiUrl}/v1/:path*` }];
   },
 };
 

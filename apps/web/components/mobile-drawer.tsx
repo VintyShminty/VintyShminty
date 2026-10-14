@@ -1,13 +1,15 @@
 "use client";
 
-import { Heart, Inbox, Menu, User, X } from "lucide-react";
+import { Inbox, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useLogOut } from "@/components/auth/log-out";
 import { LanguageSwitch } from "@/components/language-switch";
 import { SellButton } from "@/components/sell-button";
 import { useViewer } from "@/components/site-context";
+import { ACCOUNT_LINKS } from "@/lib/account-links";
 import type { Lang } from "@/lib/i18n";
 import { loginHref, signUpHref } from "@/lib/login-links";
 
@@ -22,6 +24,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
   const viewer = useViewer();
   const dialog = useRef<HTMLDialogElement>(null);
   const pathname = usePathname();
+  const { logOut, busy } = useLogOut(lang);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: closing when the page changes is the point
   useEffect(() => dialog.current?.close(), [pathname]);
@@ -68,14 +71,24 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
                 <Inbox size={18} aria-hidden />
                 {t("tabs.inbox")}
               </Link>
-              <Link href={`/${lang}/favourites`} className={linkClass}>
-                <Heart size={18} aria-hidden />
-                {t("web.nav.favourites")}
-              </Link>
-              <Link href={`/${lang}/profile`} className={linkClass}>
-                <User size={18} aria-hidden />
-                {t("web.nav.account")}
-              </Link>
+              {ACCOUNT_LINKS.map(({ key, path, icon: Icon }) => (
+                <Link key={key} href={`/${lang}${path}`} className={linkClass}>
+                  <Icon size={18} aria-hidden />
+                  {t(`web.auth.menu.${key}`)}
+                </Link>
+              ))}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  dialog.current?.close();
+                  void logOut();
+                }}
+                className={`${linkClass} w-full text-start`}
+              >
+                <LogOut size={18} aria-hidden />
+                {t("web.auth.menu.logOut")}
+              </button>
             </>
           ) : (
             <>

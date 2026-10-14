@@ -10,14 +10,30 @@ const base = { NODE_ENV: "test", DATABASE_URL: "postgres://test:test@localhost:5
 
 describe("which providers are on", () => {
   it("is off with no settings", () => {
-    expect(socialProvidersOn(parseEnv(base))).toEqual({ apple: false, google: false });
+    expect(socialProvidersOn(parseEnv(base))).toEqual({ apple: false, google: false, appleWeb: false });
   });
 
   it("turns Apple on with the bundle id alone, and Google only with the pair", () => {
     const env = parseEnv({ ...base, APPLE_APP_BUNDLE_IDENTIFIER: "com.secondhand.marketplace" });
-    expect(socialProvidersOn(env)).toEqual({ apple: true, google: false });
+    expect(socialProvidersOn(env)).toEqual({ apple: true, google: false, appleWeb: false });
     const both = parseEnv({ ...base, GOOGLE_CLIENT_ID: "id", GOOGLE_CLIENT_SECRET: "secret" });
-    expect(socialProvidersOn(both)).toEqual({ apple: false, google: true });
+    expect(socialProvidersOn(both)).toEqual({ apple: false, google: true, appleWeb: false });
+  });
+
+  it("turns Apple on for the website only with a Services ID and a secret", () => {
+    const app = { ...base, APPLE_APP_BUNDLE_IDENTIFIER: "com.secondhand.marketplace" };
+    const idOnly = parseEnv({ ...app, APPLE_CLIENT_ID: "com.secondhand.marketplace.web" });
+    expect(socialProvidersOn(idOnly).appleWeb).toBe(false);
+    const withSecret = parseEnv({ ...app, APPLE_CLIENT_ID: "x.web", APPLE_CLIENT_SECRET: "s" });
+    expect(socialProvidersOn(withSecret)).toMatchObject({ apple: true, appleWeb: true });
+    const withKey = parseEnv({
+      ...app,
+      APPLE_CLIENT_ID: "x.web",
+      APPLE_TEAM_ID: "T",
+      APPLE_KEY_ID: "K",
+      APPLE_PRIVATE_KEY: "pem",
+    });
+    expect(socialProvidersOn(withKey).appleWeb).toBe(true);
   });
 
   it("refuses half filled settings", () => {
@@ -80,7 +96,7 @@ describe("GET /v1/auth/providers", () => {
     });
     const res = await app.inject({ method: "GET", url: "/v1/auth/providers" });
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({ apple: true, google: false });
+    expect(res.json()).toEqual({ apple: true, google: false, appleWeb: false });
   });
 });
 

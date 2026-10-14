@@ -13,7 +13,7 @@ import {
 } from "@vinty/shared";
 import { betterAuth } from "better-auth";
 import { createAuthMiddleware } from "better-auth/api";
-import { admin, bearer, emailOTP, username } from "better-auth/plugins";
+import { admin, bearer, emailOTP, oAuthProxy, username } from "better-auth/plugins";
 import { eq, sql } from "drizzle-orm";
 import { type Env, webOrigins } from "../env.js";
 import { type CodeEmailKind, codeEmail } from "./emails.js";
@@ -172,6 +172,11 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
         },
       }),
       expo(),
+      // Google and Apple only know the server's address as the place to come back to. When the website starts a login
+      // (the call arrives on the website's address, plugins/auth.ts), this plugin sends the person back to the
+      // website after the server has checked the answer, and the website's own address then sets the login cookie.
+      // The phone app calls the server directly, so for it nothing changes.
+      oAuthProxy({ productionURL: env.BETTER_AUTH_URL }),
     ],
   });
 }
