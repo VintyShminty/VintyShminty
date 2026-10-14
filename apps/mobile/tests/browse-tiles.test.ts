@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import en from "@vinty/locales/en.json";
+import he from "@vinty/locales/he.json";
 import { describe, expect, it } from "vitest";
 import { flattenCategories } from "../../../packages/db/src/seed/reference/categories";
-import en from "../i18n/locales/en.json";
-import he from "../i18n/locales/he.json";
 
 // Tiles name categories by slug, and an unknown slug is skipped without any error, so a renamed category would
 // silently empty a tile. These checks fail instead.
