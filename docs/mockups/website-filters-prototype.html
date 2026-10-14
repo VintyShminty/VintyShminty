@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filters prototype</title>
+<style>
+@font-face{font-family:Aileron;font-weight:300;src:url(../../apps/mobile/assets/fonts/Aileron-300.ttf)}
+@font-face{font-family:Aileron;font-weight:400;src:url(../../apps/mobile/assets/fonts/Aileron-400.ttf)}
+@font-face{font-family:Aileron;font-weight:600;src:url(../../apps/mobile/assets/fonts/Aileron-600.ttf)}
+@font-face{font-family:Aileron;font-weight:700;src:url(../../apps/mobile/assets/fonts/Aileron-700.ttf)}
+@font-face{font-family:Aileron;font-weight:800;src:url(../../apps/mobile/assets/fonts/Aileron-800.ttf)}
+@font-face{font-family:Heebo;font-weight:300;src:url(../../apps/mobile/assets/fonts/Heebo-300.ttf)}
+@font-face{font-family:Heebo;font-weight:400;src:url(../../apps/mobile/assets/fonts/Heebo-400.ttf)}
+@font-face{font-family:Heebo;font-weight:600;src:url(../../apps/mobile/assets/fonts/Heebo-600.ttf)}
+@font-face{font-family:Heebo;font-weight:700;src:url(../../apps/mobile/assets/fonts/Heebo-700.ttf)}
+@font-face{font-family:Heebo;font-weight:800;src:url(../../apps/mobile/assets/fonts/Heebo-800.ttf)}
+:root{
+--background:#FFFFFF;--surface:#FBF8F2;--pressed:#F1E9DA;--border:#E4DACA;--border-subtle:#F0EADF;
+--text-1:#241811;--text-2:#54443A;--text-3:#695A4F;--text-4:#7A6B60;
+--accent:#4B2E22;--on-accent:#FFFFFF;--accent-tint:#F7EEDC;--warning:#8A4F00;
+--backdrop:rgba(36,24,17,.25);--page:#EDE6DA;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--page);color:var(--text-1);font-family:Aileron,-apple-system,Arial,sans-serif;font-size:15px;line-height:1.4;display:flex;flex-direction:column;overflow:hidden}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+svg.i{flex:none;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* controls */
+.ctl{background:var(--background);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;flex:none}
+.ctl h1{margin:0;font-size:16px;font-weight:800;letter-spacing:-.02em;margin-inline-end:6px}
+.grp{display:flex;align-items:center;gap:8px}
+.grp > span{font-size:12px;font-weight:700;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.seg button{height:32px;padding:0 12px;font-size:13px;font-weight:600;color:var(--text-2);position:relative}
+.seg button + button{border-inline-start:1px solid var(--border)}
+.seg button.on{background:var(--accent);color:var(--on-accent)}
+.seg button .s{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--warning);margin-inline-start:6px;vertical-align:middle}
+.seg button.on .s{background:var(--on-accent)}
+.hint{font-size:12px;color:var(--text-3)}
+.reset{font-size:13px;font-weight:600;color:var(--accent);text-decoration:underline;text-underline-offset:3px;margin-inline-start:auto}
+.stage{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;padding:14px 20px 20px}
+.browser{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--background);box-shadow:0 12px 40px rgba(36,24,17,.10)}
+.chrome{height:30px;background:var(--pressed);display:flex;align-items:center;gap:6px;padding:0 10px}
+.chrome i{width:9px;height:9px;border-radius:50%;background:var(--border)}
+.chrome .url{flex:1;max-width:380px;margin:0 auto;height:18px;border-radius:6px;background:var(--background);font-size:11px;color:var(--text-3);display:flex;align-items:center;justify-content:center;direction:ltr}
+
+/* the site */
+#site{width:1280px;overflow-y:auto;overflow-x:hidden;position:relative;background:var(--background)}
+#site.he{font-family:Heebo,Arial,sans-serif}
+.tb{position:sticky;top:0;z-index:20;height:68px;display:flex;align-items:center;gap:18px;padding:0 32px;border-bottom:1px solid var(--border);background:var(--background)}
+.wm{font-weight:800;font-size:24px;letter-spacing:-.04em;color:var(--accent);cursor:pointer}
+.bb{height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--border);font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.bb.on,.bb:hover{background:var(--pressed)}
+.sf{flex:1;max-width:560px;height:42px;border-radius:32px;background:var(--surface);border:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px;padding:0 16px;color:var(--text-4);font-size:14px}
+.ics{display:flex;gap:18px;color:var(--text-2);margin-inline-start:auto}
+.av{width:32px;height:32px;border-radius:50%;background:url(../../packages/db/seed-assets/22-coat.jpg) center/cover;flex:none}
+.sell{height:40px;padding:0 18px;border-radius:12px;background:var(--accent);color:var(--on-accent);font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.drop{position:absolute;z-index:30;background:var(--background);border:1px solid var(--border);border-radius:20px;box-shadow:0 18px 40px rgba(36,24,17,.14);padding:22px}
+.tiles{display:grid;grid-template-columns:repeat(4,160px);gap:12px}
+.tile{height:120px;border-radius:12px;background-size:cover;background-position:center;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s ease}
+.tile:hover{transform:scale(.98)}
+.tile span{position:absolute;inset-inline-start:10px;bottom:8px;color:var(--on-accent);font-weight:700;font-size:14px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.tile.plain{background:var(--accent-tint)}
+.tile.plain span{color:var(--text-1);text-shadow:none}
+.tile.sel{outline:3px solid var(--accent);outline-offset:-3px}
+.tile.dim{opacity:.45;cursor:default}
+.main{padding:24px 32px 60px}
+.crumb{font-size:13px;color:var(--text-3);margin-bottom:4px}
+.crumb a{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.h2{font-size:34px;font-weight:300;letter-spacing:-.6px;margin:0}
+.count{font-size:14px;color:var(--text-3)}
+.greet{font-size:40px;font-weight:300;letter-spacing:-1.4px;line-height:1.05;margin:0 0 18px}
+.greet b{font-weight:600}
+.row{display:flex;align-items:center;gap:8px}
+.chip{height:34px;padding:0 14px;border-radius:99px;border:1px solid var(--text-4);font-size:13px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;background:var(--background);cursor:pointer;user-select:none}
+.chip:hover{background:var(--pressed)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chip.app{border:1.5px solid var(--accent)}
+.chip.open{background:var(--pressed);border:1.5px solid var(--accent)}
+.chip .n{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:700;padding:0 5px}
+.sep{width:1px;height:24px;background:var(--border);margin:0 6px;flex:none}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px 16px;transition:opacity .2s ease}
+.grid.fade{opacity:.35}
+.card .ph{aspect-ratio:3/4;border-radius:12px;background-size:cover;background-position:center;background-color:var(--pressed)}
+.card .pr{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.card .pr b{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.card .pr svg{color:var(--text-3)}
+.card .meta{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:inline-flex;align-items:center;gap:4px;background:var(--accent-tint);color:var(--accent);border-radius:99px;padding:3px 8px;font-size:11px;font-weight:600;margin-top:6px;white-space:nowrap}
+.lbl{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-3);font-weight:700;margin:0 0 10px}
+.tray{background:var(--surface);border:1px solid var(--border-subtle);border-radius:20px;padding:22px 24px;margin:12px 0 4px}
+.anim.tray,.anim.drop{animation:open .2s ease}
+@keyframes open{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:16px}
+.link{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:14px}
+.live{font-size:13px;color:var(--text-3)}
+.live b{color:var(--text-1)}
+.cbx{display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer;font-size:14px}
+.cbx i{width:18px;height:18px;border:1.5px solid var(--text-4);border-radius:5px;flex:none;display:grid;place-items:center;color:var(--on-accent)}
+.cbx.on i{background:var(--accent);border-color:var(--accent)}
+.cbx.radio i{border-radius:50%}
+.cbx.radio.on i{background:var(--background);border:6px solid var(--accent)}
+.sw{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);cursor:pointer;flex:none}
+.swrow{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:14px}
+.swrow.on .sw{outline:2px solid var(--accent);outline-offset:2px}
+.vpw{position:relative}
+#layer{position:absolute;top:0;left:0;width:1280px;overflow:hidden;pointer-events:none}
+#layer > *{pointer-events:auto}
+#layer.he{font-family:Heebo,Arial,sans-serif}
+.backdrop{position:absolute;inset:0;background:var(--backdrop);z-index:40}
+.side{position:absolute;top:0;bottom:0;inset-inline-end:0;width:460px;background:var(--background);z-index:41;display:flex;flex-direction:column}
+.side.anim{animation:slide .25s ease}
+@keyframes slide{from{transform:translateX(var(--from))}to{transform:none}}
+.side .hd{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border)}
+.side .bd{flex:1;overflow-y:auto;padding:0 24px}
+.side .ft{padding:16px 24px;border-top:1px solid var(--border)}
+.sec{border-bottom:1px solid var(--border-subtle);padding:16px 0}
+.sec .t{display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:15px;cursor:pointer}
+.bigbtn{height:50px;border-radius:12px;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;width:100%;cursor:pointer}
+.btn{height:42px;padding:0 18px;border-radius:12px;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+.catcols{display:flex;gap:48px}
+.side .catcols{flex-wrap:wrap;gap:18px 36px}
+.catcols h6{margin:0 0 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
+.catcols a{display:block;font-size:14px;padding:5px 0;cursor:pointer}
+.catcols a.on{font-weight:700;color:var(--accent)}
+.empty{padding:60px 0;text-align:center;color:var(--text-3)}
+.tip{position:fixed;z-index:60;bottom:22px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--on-accent);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;pointer-events:none;transition:opacity .3s ease}
+</style>
+</head>
+<body>
+<div class="ctl">
+  <h1>Filters prototype</h1>
+  <div class="grp"><span>2a Narrow a type</span><div class="seg" data-k="a"><button data-v="tiles">Photo tiles<i class="s"></i></button><button data-v="chips">Type chips</button><button data-v="pill">Category pill</button></div></div>
+  <div class="grp"><span>2b Filter opens in</span><div class="seg" data-k="b"><button data-v="tray">Wide tray<i class="s"></i></button><button data-v="panel">Floating panel</button><button data-v="side">Side panel</button></div></div>
+  <div class="grp"><span>2c Results change</span><div class="seg" data-k="c"><button data-v="live">On every click<i class="s"></i></button><button data-v="button">After Show results</button></div></div>
+  <div class="grp"><div class="seg" data-k="lang"><button data-v="en">English</button><button data-v="he">עברית</button></div></div>
+  <span class="hint">Dot = suggested</span>
+  <a class="reset" id="reset">Start over</a>
+</div>
+<div class="stage" id="stage"><div class="browser" id="browser"><div class="chrome"><i></i><i></i><i></i><div class="url" id="url"></div></div><div class="vpw" id="vpw"><div id="site"></div><div id="layer"></div></div></div></div>
+<div class="tip" id="tip">Click Browse, then pick an item type</div>
+
+<script>
+const IMG = "../../packages/db/seed-assets/";
+const P = {
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  msg:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>', chevUp:'<path d="m18 15-6-6-6 6"/>', chevS:'<path d="m9 18 6-6-6-6"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>', check:'<path d="M20 6 9 17l-5-5"/>',
+  sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+};
+const I = (n, s = 20) => `<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24">${P[n]}</svg>`;
+
+/* ---------- words ---------- */
+const W = {
+  en: { browse:"Browse", sell:"Sell", search:"Search clothes, brands or sellers", morning:"Good morning,", name:"Noa", moods:["For you","New today","Under ₪50","Your sizes","Near you"],
+    with:"with", covered:"Covered", results:(n)=>`${n} results`, pieces:(n)=>`${n} pieces`, show:(n)=>`Show ${n} results`, live:"Results update as you click",
+    all:"All", allOf:(t)=>`All ${t.toLowerCase()}`, women:"Women", men:"Men", kids:"Kids", sort:"Sort", size:"Size", condition:"Condition", price:"Price", colour:"Colour",
+    clear:"Clear", clearAll:"Clear all", filter:"Filter", done:"Done", more:"More", otherTypes:"Other item types", mySizes:"My sizes", letters:"Letters", numbers:"EU numbers",
+    sorts:["Relevance","Newest first","Price, low to high","Price, high to low"], prices:["Under ₪50","₪50 to ₪100","₪100 to ₪200","Over ₪200"],
+    none:"Nothing matches these filters", oneSize:"One size", tip:"Click Browse, then pick an item type" },
+  he: { browse:"גלישה", sell:"מכירה", search:"חיפוש בגדים, מותגים או מוכרים", morning:"בוקר טוב,", name:"נועה", moods:["בשבילך","חדש היום","עד ₪50","המידות שלך","לידך"],
+    with:"עם", covered:"כיסוי", results:(n)=>`${n} תוצאות`, pieces:(n)=>`${n} פריטים`, show:(n)=>`הצגת ${n} תוצאות`, live:"התוצאות מתעדכנות בכל לחיצה",
+    all:"הכול", allOf:(t)=>`כל ה${t}`, women:"נשים", men:"גברים", kids:"ילדים", sort:"מיון", size:"מידה", condition:"מצב", price:"מחיר", colour:"צבע",
+    clear:"ניקוי", clearAll:"ניקוי הכול", filter:"סינון", done:"סיום", more:"עוד", otherTypes:"סוגי פריטים אחרים", mySizes:"המידות שלי", letters:"אותיות", numbers:"מספרים",
+    sorts:["רלוונטיות","הכי חדש קודם","מחיר, מהנמוך לגבוה","מחיר, מהגבוה לנמוך"], prices:["עד ₪50","₪50 עד ₪100","₪100 עד ₪200","מעל ₪200"],
+    none:"אין פריטים שמתאימים לסינון", oneSize:"מידה אחת", tip:"לחצו על גלישה ובחרו סוג פריט" },
+};
+const COND = [["Unworn with tags","חדש עם תווית"],["Unworn","לא נלבש"],["Like new","כמו חדש"],["Worn","נלבש"],["Well loved","אהוב ומשומש"]];
+const COLOURS = [["Black","שחור","#241811"],["White","לבן","#FFFFFF"],["Beige","בז׳","#C9A982"],["Blue","כחול","#3F5A7A"],["Red","אדום","#A3262E"],["Green","ירוק","#5E7347"]];
+const LETTERS = ["XS","S","M","L","XL"], SHOE = ["36","37","38","39","40","41","42","43"];
+const TYPES = [
+  { k:"dresses", en:"Dresses", he:"שמלות", imgs:["01-dress","02-dress","03-dress"], groups:["women","kids"], sizes:"letters",
+    subs:[["mini","Mini","מיני"],["midi","Midi","מידי"],["maxi","Maxi","מקסי"],["summer","Summer dresses","שמלות קיץ"],["evening","Evening","ערב"]] },
+  { k:"tops", en:"Tops", he:"חולצות", imgs:["19-t-shirt","20-t-shirt","21-t-shirt"], groups:["women","men","kids"], sizes:"letters",
+    subs:[["tees","T-shirts","טישרטים"],["shirts","Shirts","חולצות מכופתרות"],["blouses","Blouses","חולצות נשים"],["tanks","Tank tops","גופיות"]] },
+  { k:"jeans", en:"Jeans", he:"ג׳ינס", imgs:["04-jeans","05-jeans","06-jeans"], groups:["women","men","kids"], sizes:"letters",
+    subs:[["skinny","Skinny","סקיני"],["straight","Straight","ישר"],["wide","Wide leg","רחב"],["mom","Mom","מאם"]] },
+  { k:"coats", en:"Coats and jackets", he:"מעילים וז׳קטים", imgs:["22-coat","10-jacket","23-coat","11-jacket","24-coat","12-jacket"], groups:["women","men","kids"], sizes:"letters",
+    subs:[["coats","Coats","מעילים"],["jackets","Jackets","ז׳קטים"],["puffers","Puffers","מעילי פוך"],["blazers","Blazers","בלייזרים"]] },
+  { k:"knit", en:"Knitwear", he:"סריגים", imgs:["16-sweater","17-sweater","18-sweater"], groups:["women","men","kids"], sizes:"letters",
+    subs:[["jumpers","Jumpers","סוודרים"],["cardigans","Cardigans","קרדיגנים"],["hoodies","Hoodies","קפוצ׳ונים"]] },
+  { k:"sneakers", en:"Sneakers", he:"סניקרס", imgs:["07-sneakers","08-sneakers","09-sneakers"], groups:["women","men","kids"], sizes:"shoe",
+    subs:[["low","Low tops","נמוכות"],["high","High tops","גבוהות"],["running","Running","ריצה"]] },
+  { k:"bags", en:"Bags", he:"תיקים", imgs:["13-handbag","14-handbag","15-handbag"], groups:["women","men"], sizes:"none",
+    subs:[["shoulder","Shoulder bags","תיקי כתף"],["totes","Totes","טוט"],["backpacks","Backpacks","תרמילים"],["cross","Crossbody","תיקי צד"]] },
+];
+const BRANDS = ["Zara","Mango","Cos","Levi's","Massimo Dutti","Uniqlo","H&M","Castro","Fox","& Other Stories","Nike","Adidas"];
+
+/* ---------- fake but stable data ---------- */
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const pick = (a) => a[Math.floor(rnd() * a.length)];
+const ITEMS = [];
+TYPES.forEach((t) => {
+  for (let n = 0; n < 46; n++) {
+    const price = [25, 35, 40, 45, 60, 70, 85, 90, 110, 120, 140, 150, 180, 210, 260, 340][Math.floor(rnd() * 16)];
+    ITEMS.push({ id: ITEMS.length, type: t.k, img: t.imgs[n % t.imgs.length], sub: t.subs[n % t.subs.length][0], group: pick(t.groups),
+      size: t.sizes === "letters" ? pick(LETTERS) : t.sizes === "shoe" ? pick(SHOE) : "OS", cond: Math.floor(rnd() * 5), colour: Math.floor(rnd() * 6),
+      price, brand: pick(BRANDS), age: Math.floor(rnd() * 100) });
+  }
+});
+const HOME = [0, 47, 95, 140, 190, 235, 285, 3, 50, 99];
+
+/* ---------- state ---------- */
+const blankF = () => ({ sizes: [], conds: [], price: null, colours: [], sort: 0 });
+const S = { a: "tiles", b: "tray", c: "live", lang: "en", page: "home", type: null, browse: false, open: null, sub: null, group: "all", f: blankF(), pending: null, expanded: [] };
+const T = (k, ...x) => { const v = W[S.lang][k]; return typeof v === "function" ? v(...x) : v; };
+const he = () => S.lang === "he";
+const typeOf = () => TYPES.find((t) => t.k === S.type);
+const nm = (o) => (he() ? o.he : o.en);
+const subName = (t, k) => { const s = t.subs.find((x) => x[0] === k); return s ? s[he() ? 2 : 1] : ""; };
+const groupName = (g) => T(g);
+const editing = () => (S.c === "button" && S.pending) ? S.pending : S.f;
+
+function filtered(f, sub = S.sub, group = S.group) {
+  const PR = [[0, 49], [50, 100], [101, 200], [201, 99999]];
+  let r = ITEMS.filter((i) => i.type === S.type && (!sub || i.sub === sub) && (group === "all" || i.group === group)
+    && (!f.sizes.length || f.sizes.includes(i.size)) && (!f.conds.length || f.conds.includes(i.cond))
+    && (f.price === null || (i.price >= PR[f.price][0] && i.price <= PR[f.price][1])) && (!f.colours.length || f.colours.includes(i.colour)));
+  if (f.sort === 1) r = [...r].sort((a, b) => a.age - b.age);
+  if (f.sort === 2) r = [...r].sort((a, b) => a.price - b.price);
+  if (f.sort === 3) r = [...r].sort((a, b) => b.price - a.price);
+  return r;
+}
+
+/* ---------- pieces ---------- */
+function card(i) {
+  const sz = i.size === "OS" ? T("oneSize") : i.size;
+  return `<div class="card"><div class="ph" style="background-image:url(${IMG}${i.img}.jpg)"></div>
+    <div class="pr"><b>₪${i.price}</b>${I("heart", 18)}</div>
+    <div class="meta">${i.brand} · ${sz} · ${COND[i.cond][he() ? 1 : 0]}</div>
+    <div class="pill">${I("check", 11)} ₪${Math.round(i.price * 1.05 + 3)} ${T("with")} ${T("covered")}</div></div>`;
+}
+function topbar() {
+  return `<div class="tb"><div class="wm" data-act="home">Vinty</div>
+    <button class="bb ${S.browse ? "on" : ""}" data-act="browse">${I("grid", 16)} ${T("browse")} ${I(S.browse ? "chevUp" : "chev", 14)}</button>
+    <div class="sf">${I("search", 17)}<span>${T("search")}</span></div>
+    <div class="ics">${I("msg")}${I("bell")}${I("heart")}</div><div class="av"></div><div class="sell">${I("camera", 16)} ${T("sell")}</div></div>
+    ${S.browse ? `<div class="drop" style="top:62px;inset-inline-start:110px"><div class="tiles">${TYPES.map((t) => `<div class="tile" data-act="type" data-v="${t.k}" style="background-image:url(${IMG}${t.imgs[0]}.jpg)"><span>${nm(t)}</span></div>`).join("")}<div class="tile plain dim"><span>${T("more")}</span></div></div></div>` : ""}`;
+}
+function home() {
+  return `<div class="main"><div class="greet">${T("morning")} <b>${T("name")}</b></div>
+    <div class="row" style="margin-bottom:22px">${T("moods").map((m, k) => `<span class="chip ${k ? "" : "on"}">${m}</span>`).join("")}</div>
+    <div class="grid">${HOME.map((k) => card(ITEMS[k])).join("")}</div></div>`;
+}
+const chk = (on, label, act, v, radio) => `<div class="cbx ${radio ? "radio" : ""} ${on ? "on" : ""}" data-act="${act}" data-v="${v}"><i>${!radio && on ? I("check", 12) : ""}</i>${label}</div>`;
+
+/** The body of one filter, used in the tray, the floating panel and the side panel. */
+function filterBody(key, cols) {
+  const f = editing(), t = typeOf();
+  if (key === "sort") return T("sorts").map((s, k) => chk(f.sort === k, s, "sort", k, true)).join("");
+  if (key === "size") {
+    if (t.sizes === "shoe") return `<div class="lbl">${T("numbers")}</div><div class="row" style="flex-wrap:wrap">${SHOE.map((s) => `<span class="chip ${f.sizes.includes(s) ? "on" : ""}" data-act="size" data-v="${s}">${s}</span>`).join("")}</div>`;
+    return `<div style="display:grid;grid-template-columns:repeat(${cols},minmax(0,1fr));gap:22px">
+      <div><div class="lbl">${T("mySizes")}</div><span class="chip ${["M"].every((x) => f.sizes.includes(x)) ? "on" : ""}" data-act="mysizes">${I("check", 13)} ${T("mySizes")} · M</span></div>
+      <div><div class="lbl">${T("letters")}</div><div class="row" style="flex-wrap:wrap">${LETTERS.map((s) => `<span class="chip ${f.sizes.includes(s) ? "on" : ""}" data-act="size" data-v="${s}">${s}</span>`).join("")}</div></div></div>`;
+  }
+  if (key === "condition") return `<div style="columns:${cols > 1 ? 2 : 1}">${COND.map((c, k) => chk(f.conds.includes(k), c[he() ? 1 : 0], "cond", k)).join("")}</div>`;
+  if (key === "price") return `<div class="row" style="flex-wrap:wrap">${T("prices").map((p, k) => `<span class="chip ${f.price === k ? "on" : ""}" data-act="price" data-v="${k}">${p}</span>`).join("")}</div>`;
+  if (key === "colour") return `<div style="display:grid;grid-template-columns:repeat(${cols > 1 ? 3 : 2},1fr);gap:4px 18px">${COLOURS.map((c, k) => `<div class="swrow ${f.colours.includes(k) ? "on" : ""}" data-act="colour" data-v="${k}"><span class="sw" style="background:${c[2]}"></span>${c[he() ? 1 : 0]}</div>`).join("")}</div>`;
+  if (key === "cat") {
+    return `<div class="catcols">${t.groups.map((g) => `<div><h6>${groupName(g)}</h6><a class="${S.group === g && !S.sub ? "on" : ""}" data-act="catpick" data-g="${g}" data-s=""><b>${T("allOf", nm(t))}</b></a>${t.subs.map((s) => `<a class="${S.group === g && S.sub === s[0] ? "on" : ""}" data-act="catpick" data-g="${g}" data-s="${s[0]}">${s[he() ? 2 : 1]}</a>`).join("")}</div>`).join("")}
+      <div><h6>${T("otherTypes")}</h6>${TYPES.filter((x) => x.k !== t.k).map((x) => `<a data-act="type" data-v="${x.k}">${nm(x)}</a>`).join("")}</div></div>`;
+  }
+  return "";
+}
+function footer() {
+  if (S.open === "cat") return "";
+  const n = filtered(editing()).length;
+  if (S.c === "live") return `<div class="foot"><span class="link" data-act="clearone">${T("clear")}</span><span class="live">${T("live")} · <b>${T("pieces", n)}</b></span></div>`;
+  return `<div class="foot"><span class="link" data-act="clearone">${T("clear")}</span><button class="btn" data-act="apply">${T("show", n)}</button></div>`;
+}
+const PILLS = () => {
+  const t = typeOf();
+  const list = [["sort", T("sort") + ": " + T("sorts")[S.f.sort]], ["size", T("size"), S.f.sizes.length], ["condition", T("condition"), S.f.conds.length], ["price", T("price"), S.f.price !== null ? 1 : 0], ["colour", T("colour"), S.f.colours.length]];
+  return t.sizes === "none" ? list.filter((p) => p[0] !== "size") : list;
+};
+function pillRow() {
+  const t = typeOf();
+  const catLabel = S.sub ? subName(t, S.sub) : S.group !== "all" ? `${nm(t)} · ${groupName(S.group)}` : nm(t);
+  const pills = PILLS().map(([k, l, n]) => `<span class="chip ${S.open === k ? "open" : n ? "app" : ""}" data-act="pill" data-v="${k}">${l}${n ? ` <span class="n">${n}</span>` : ""} ${I(S.open === k && S.b !== "side" ? "chevUp" : "chev", 14)}</span>`).join("");
+  const cat = S.a === "pill" ? `<span class="chip ${S.open === "cat" ? "open" : "app"}" data-act="pill" data-v="cat">${catLabel} ${I(S.open === "cat" && S.b !== "side" ? "chevUp" : "chev", 14)}</span>` : "";
+  const groups = S.a !== "pill" ? `${["all", ...t.groups].map((g) => `<span class="chip ${S.group === g ? "on" : ""}" data-act="group" data-v="${g}">${g === "all" ? T("all") : groupName(g)}</span>`).join("")}<span class="sep"></span>` : "";
+  return `<div class="row" id="pillrow" style="flex-wrap:wrap;position:relative">${cat}${groups}${pills}${S.b === "side" ? `<span class="chip" data-act="pill" data-v="all">${I("sliders", 14)} ${T("filter")}</span>` : ""}</div>`;
+}
+function applied() {
+  const f = S.f, out = [];
+  f.sizes.forEach((s) => out.push([s, "size", s]));
+  f.conds.forEach((c) => out.push([COND[c][he() ? 1 : 0], "cond", c]));
+  if (f.price !== null) out.push([T("prices")[f.price], "price", f.price]);
+  f.colours.forEach((c) => out.push([COLOURS[c][he() ? 1 : 0], "colour", c]));
+  if (!out.length) return "";
+  return `<div class="row" style="flex-wrap:wrap;margin-top:12px">${out.map(([l, a, v]) => `<span class="chip app" data-act="remove" data-k="${a}" data-v="${v}">${l} ${I("x", 12)}</span>`).join("")}<span class="link" data-act="clearall" style="margin-inline-start:6px">${T("clearAll")}</span></div>`;
+}
+function typePage() {
+  const t = typeOf();
+  const list = filtered(S.f);
+  let narrow = "";
+  if (S.a === "tiles") {
+    narrow = `<div style="display:grid;grid-template-columns:repeat(${t.subs.length + 1},minmax(0,1fr));gap:12px;margin:6px 0 18px;max-width:${(t.subs.length + 1) * 190}px">
+      <div class="tile plain ${!S.sub ? "sel" : ""}" data-act="sub" data-v="" style="height:110px"><span>${T("allOf", nm(t))}</span></div>
+      ${t.subs.map((s, k) => `<div class="tile ${S.sub === s[0] ? "sel" : ""}" data-act="sub" data-v="${s[0]}" style="height:110px;background-image:url(${IMG}${t.imgs[(k + 1) % t.imgs.length]}.jpg)"><span>${s[he() ? 2 : 1]}</span></div>`).join("")}</div>`;
+  } else if (S.a === "chips") {
+    narrow = `<div class="row" style="flex-wrap:wrap;margin:6px 0 12px"><span class="chip ${!S.sub ? "on" : ""}" data-act="sub" data-v="">${T("allOf", nm(t))}</span>${t.subs.map((s) => `<span class="chip ${S.sub === s[0] ? "on" : ""}" data-act="sub" data-v="${s[0]}">${s[he() ? 2 : 1]}</span>`).join("")}</div>`;
+  }
+  let opened = "";
+  if (S.open && S.open !== "all" && S.b === "tray") opened = `<div class="tray ${S.anim ? "anim" : ""}">${filterBody(S.open, 3)}${footer()}</div>`;
+  const crumbSub = S.sub ? ` › <span>${subName(t, S.sub)}</span>` : "";
+  return `<div class="main"><div class="crumb"><a data-act="home">${T("browse")}</a> › <a data-act="sub" data-v="">${nm(t)}</a>${crumbSub}</div>
+    <div class="row" style="gap:14px;align-items:baseline;margin-bottom:10px"><h2 class="h2">${S.sub ? subName(t, S.sub) : nm(t)}</h2><span class="count">${T("results", list.length)}</span></div>
+    ${narrow}${pillRow()}${opened}${applied()}
+    <div class="grid" id="grid" style="margin-top:22px">${list.length ? list.map(card).join("") : ""}</div>${list.length ? "" : `<div class="empty">${T("none")}</div>`}</div>`;
+}
+function floating() {
+  if (!S.open || S.b !== "panel" || S.open === "all") return "";
+  return `<div class="drop ${S.anim ? "anim" : ""}" id="floatp" style="width:${S.open === "cat" ? 680 : S.open === "size" ? 620 : 440}px">${filterBody(S.open, S.open === "size" ? 2 : 2)}${footer()}</div>`;
+}
+function sidePanel() {
+  if (!S.open || S.b !== "side") return "";
+  const keys = [...(S.a === "pill" ? ["cat"] : []), ...PILLS().map((p) => p[0])];
+  const label = (k) => (k === "cat" ? nm(typeOf()) : PILLS().find((p) => p[0] === k)[1].split(":")[0]);
+  const n = filtered(editing()).length;
+  return `<div class="backdrop" data-act="close"></div><div class="side ${S.anim ? "anim" : ""}" style="--from:${he() ? "-100%" : "100%"}">
+    <div class="hd"><span data-act="close" style="cursor:pointer">${I("x", 22)}</span><b style="font-size:17px">${T("filter")}</b><span class="link" data-act="clearall">${T("clearAll")}</span></div>
+    <div class="bd">${keys.map((k) => { const ex = S.expanded.includes(k); return `<div class="sec"><div class="t" data-act="expand" data-v="${k}">${label(k)}${I(ex ? "chev" : "chevS", 16)}</div>${ex ? `<div style="margin-top:14px">${filterBody(k, 1)}</div>` : ""}</div>`; }).join("")}</div>
+    <div class="ft">${S.c === "live" ? `<div class="row" style="justify-content:space-between"><span class="live">${T("live")} · <b>${T("pieces", n)}</b></span><button class="btn" data-act="close">${T("done")}</button></div>` : `<div class="bigbtn" data-act="apply">${T("show", n)}</div>`}</div></div>`;
+}
+
+/* ---------- render ---------- */
+const site = document.getElementById("site");
+function render(fade) {
+  const top = site.scrollTop;
+  site.className = S.lang;
+  site.dir = he() ? "rtl" : "ltr";
+  site.innerHTML = topbar() + (S.page === "home" ? home() : typePage()) + floating();
+  const layer = document.getElementById("layer");
+  layer.className = S.lang; layer.dir = site.dir;
+  layer.innerHTML = sidePanel();
+  site.scrollTop = top;
+  const t = typeOf();
+  document.getElementById("url").textContent = `vinty-web.vercel.app/${S.lang}${S.page === "home" ? "" : `/browse/${S.type}${S.sub ? "/" + S.sub : ""}`}`;
+  document.querySelectorAll(".seg").forEach((seg) => seg.querySelectorAll("button").forEach((b) => b.classList.toggle("on", S[seg.dataset.k] === b.dataset.v)));
+  // place the floating panel under its pill
+  const fp = document.getElementById("floatp");
+  if (fp) {
+    const pill = site.querySelector(`[data-act="pill"][data-v="${S.open}"]`);
+    const sr = site.getBoundingClientRect(), pr = pill.getBoundingClientRect(), z = parseFloat(site.style.zoom) || 1;
+    fp.style.top = `${(pr.bottom - sr.top) / z + site.scrollTop + 8}px`;
+    let start = he() ? (sr.right - pr.right) / z : (pr.left - sr.left) / z;
+    start = Math.min(start, 1280 - parseFloat(fp.style.width) - 24);
+    fp.style.insetInlineStart = `${start}px`;
+  }
+  S.anim = false;
+  if (fade) { const g = document.getElementById("grid"); if (g) { g.classList.add("fade"); requestAnimationFrame(() => setTimeout(() => g.classList.remove("fade"), 120)); } }
+  document.getElementById("tip").textContent = T("tip");
+}
+function fit() {
+  const stage = document.getElementById("stage");
+  const w = stage.clientWidth - 40, h = stage.clientHeight - 34 - 30;
+  const z = Math.min(1, w / 1280);
+  site.style.zoom = z;
+  site.style.height = `${h / z}px`;
+  const layer = document.getElementById("layer");
+  layer.style.zoom = z;
+  layer.style.height = `${h / z}px`;
+}
+
+/* ---------- actions ---------- */
+const toggle = (arr, v) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+function edit(fn) {
+  if (S.c === "button" && S.open) { S.pending = S.pending || structuredClone(S.f); fn(S.pending); render(); }
+  else { fn(S.f); render(true); }
+}
+function openPill(k) {
+  if (S.open === k && S.b !== "side") { closeAll(); return; }
+  S.open = k; S.browse = false;
+  S.pending = S.c === "button" ? structuredClone(S.f) : null;
+  S.anim = true;
+  S.expanded = k === "all" ? (S.a === "pill" ? ["cat"] : ["size"]) : [k];
+  render();
+}
+function closeAll() { S.open = null; S.pending = null; render(); }
+document.getElementById("vpw").addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el && e.target.closest(".drop,.tray,.side")) return;
+  if (!el) { if (S.browse) { S.browse = false; render(); } else if (S.open && S.b === "panel") closeAll(); return; }
+  const v = el.dataset.v, act = el.dataset.act;
+  document.getElementById("tip").style.opacity = 0;
+  switch (act) {
+    case "home": S.page = "home"; S.browse = false; S.open = null; render(); site.scrollTop = 0; break;
+    case "browse": S.browse = !S.browse; S.open = null; render(); break;
+    case "type": Object.assign(S, { page: "type", type: v, browse: false, open: null, sub: null, group: "all", f: blankF(), pending: null }); render(); site.scrollTop = 0; break;
+    case "sub": S.sub = v || null; if (S.open === "cat") S.open = null; render(true); break;
+    case "group": S.group = v; render(true); break;
+    case "catpick": S.group = el.dataset.g; S.sub = el.dataset.s || null; S.open = S.b === "side" ? S.open : null; render(true); break;
+    case "pill": openPill(v); break;
+    case "expand": S.expanded = toggle(S.expanded, v); render(); break;
+    case "size": edit((f) => (f.sizes = toggle(f.sizes, v))); break;
+    case "mysizes": edit((f) => (f.sizes = f.sizes.includes("M") ? f.sizes.filter((x) => x !== "M") : [...f.sizes, "M"])); break;
+    case "cond": edit((f) => (f.conds = toggle(f.conds, +v))); break;
+    case "colour": edit((f) => (f.colours = toggle(f.colours, +v))); break;
+    case "price": edit((f) => (f.price = f.price === +v ? null : +v)); break;
+    case "sort": edit((f) => (f.sort = +v)); break;
+    case "clearone": edit((f) => { if (S.open === "size") f.sizes = []; if (S.open === "condition") f.conds = []; if (S.open === "price") f.price = null; if (S.open === "colour") f.colours = []; if (S.open === "sort") f.sort = 0; }); break;
+    case "clearall": if (S.c === "button" && S.open) { S.pending = blankF(); render(); } else { S.f = blankF(); render(true); } break;
+    case "remove": { const k = el.dataset.k; if (k === "size") S.f.sizes = S.f.sizes.filter((x) => x !== v); if (k === "cond") S.f.conds = S.f.conds.filter((x) => x !== +v); if (k === "price") S.f.price = null; if (k === "colour") S.f.colours = S.f.colours.filter((x) => x !== +v); render(true); break; }
+    case "apply": S.f = S.pending || S.f; S.open = null; S.pending = null; render(true); break;
+    case "close": closeAll(); break;
+  }
+});
+document.querySelector(".ctl").addEventListener("click", (e) => {
+  const b = e.target.closest(".seg button");
+  if (b) {
+    const k = b.closest(".seg").dataset.k;
+    S[k] = b.dataset.v; S.open = null; S.pending = null; S.browse = false;
+    // Show the difference at once: switching where filters open jumps to Dresses with Size open.
+    if (k === "b") {
+      if (S.page === "home") Object.assign(S, { page: "type", type: "dresses", sub: null, group: "all", f: blankF() });
+      document.getElementById("tip").style.opacity = 0;
+      render();
+      openPill(typeOf().sizes === "none" ? "condition" : "size");
+      return;
+    }
+    render();
+  }
+});
+document.getElementById("reset").addEventListener("click", () => { Object.assign(S, { page: "home", type: null, browse: false, open: null, sub: null, group: "all", f: blankF(), pending: null }); render(); site.scrollTop = 0; document.getElementById("tip").style.opacity = 1; });
+window.addEventListener("resize", () => { fit(); render(); });
+fit(); render();
+</script>
+</body></html>
