@@ -118,7 +118,7 @@ function ColourGridSheet({
               role="checkbox"
               accessibilityState={{ checked: on, disabled }}
               accessibilityLabel={c.label}
-              className={cn("items-center gap-xs", disabled && "opacity-40")}
+              className="items-center gap-xs"
             >
               <View
                 className={cn(
@@ -134,7 +134,12 @@ function ColourGridSheet({
                   </View>
                 ) : null}
               </View>
-              <Text variant="cardMeta" weight={on ? 600 : 400} numberOfLines={1} className="text-center">
+              <Text
+                variant="cardMeta"
+                weight={on ? 600 : 400}
+                numberOfLines={1}
+                className={cn("text-center", disabled && "text-text-4")}
+              >
                 {c.label}
               </Text>
             </Pressable>
