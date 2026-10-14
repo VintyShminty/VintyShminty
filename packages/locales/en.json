@@ -769,6 +769,8 @@
     "save": "Save this search",
     "saveFailed": "Could not save this search. Try again",
     "recent": "Recent searches",
+    "savedTitle": "Saved searches",
+    "manageSaved": "Manage",
     "clearAll": "Clear all",
     "noRecent": "Your recent searches show up here",
     "items": "Items",
@@ -1492,6 +1494,12 @@
     "skip": "Skip",
     "continue": "Continue",
     "finish": "Start browsing",
+    "name": {
+      "title": "What should we call you?",
+      "subtitle": "Your first name is just for greeting you in the app. Your username is the public name others see on your profile, listings and chats",
+      "firstName": "First name",
+      "firstNameHint": "Only you see this"
+    },
     "shopFor": {
       "title": "What do you shop for?",
       "subtitle": "Pick as many as you like and we will show those first",

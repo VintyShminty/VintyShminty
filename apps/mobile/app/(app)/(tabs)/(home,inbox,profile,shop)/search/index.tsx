@@ -1,7 +1,8 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import type { SavedSearch } from "@vinty/shared";
+import { useNavigation, useRouter } from "expo-router";
 import { Bookmark, Clock, LayoutGrid, Search, Tag, X } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Keyboard, Pressable, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,7 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { StarRating } from "@/components/ui/star-rating";
 import { Tabs } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
-import { BackIcon } from "@/components/ui/top-bar";
+import { BackIcon, ForwardIcon } from "@/components/ui/top-bar";
 import {
   membersQuery,
   recentSearchesQuery,
@@ -22,6 +23,8 @@ import {
   useClearRecentSearches,
   useSaveSearch,
 } from "@/lib/discovery-queries";
+import { savedSearchesQuery } from "@/lib/item-queries";
+import { useSavedSearchSummary } from "@/lib/saved-search-summary";
 import { activeFilters, useSearchStore } from "@/lib/search-store";
 import { useDebounced } from "@/lib/use-debounced";
 import { cn } from "@/lib/utils";
@@ -30,12 +33,13 @@ import { colors } from "@/theme";
 type TabKey = "items" | "members";
 
 /**
- * The search page: autosuggest while typing, recent searches when the field is empty, and after a search the Items
- * and Members tabs. The bookmark next to the field saves the search.
+ * The search page: autosuggest while typing, your saved searches and recent searches when the field is empty, and
+ * after a search the Items and Members tabs. The bookmark next to the field saves the search.
  */
 export default function SearchScreen() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const isHe = i18n.language === "he";
   const inputRef = useRef<TextInput>(null);
@@ -57,9 +61,30 @@ export default function SearchScreen() {
   const typed = useDebounced(draft.trim(), 200);
   const suggestions = useQuery(suggestionsQuery(typed));
   const recent = useQuery(recentSearchesQuery());
+  const savedSearches = useQuery(savedSearchesQuery());
   const addRecent = useAddRecentSearch();
   const clearRecent = useClearRecentSearches();
   const save = useSaveSearch();
+
+  // The keyboard waits until the page has slid in. Opening both at once made the slide stutter.
+  useEffect(() => {
+    if (startsCommitted) return;
+    const focus = () => inputRef.current?.focus();
+    // In case the slide-in event never comes (no animation), focus anyway.
+    const fallback = setTimeout(focus, 600);
+    const unsubscribe = navigation.addListener(
+      "transitionEnd" as never,
+      (e: { data?: { closing?: boolean } }) => {
+        if (e.data?.closing) return;
+        clearTimeout(fallback);
+        focus();
+      },
+    );
+    return () => {
+      clearTimeout(fallback);
+      unsubscribe();
+    };
+  }, [navigation, startsCommitted]);
 
   const finish = () => {
     setFocused(false);
@@ -106,7 +131,6 @@ export default function SearchScreen() {
             onChangeText={setDraft}
             onFocus={() => setFocused(true)}
             onSubmitEditing={() => submit(draft)}
-            autoFocus={!startsCommitted}
             placeholder={t("search.placeholder")}
             placeholderTextColor={colors.text4}
             selectionColor={colors.accent}
@@ -196,25 +220,53 @@ export default function SearchScreen() {
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
             ListHeaderComponent={
-              (recent.data?.items.length ?? 0) > 0 ? (
-                <View className="flex-row items-center justify-between px-lg pb-sm pt-md">
-                  <Text variant="sectionLabel">{t("search.recent")}</Text>
-                  <Text
-                    variant="bodySmall"
-                    weight={600}
-                    className="text-primary"
-                    role="button"
-                    onPress={() => clearRecent.mutate()}
-                  >
-                    {t("search.clearAll")}
-                  </Text>
-                </View>
-              ) : null
+              <>
+                {(savedSearches.data?.items.length ?? 0) > 0 ? (
+                  <View className="pb-md">
+                    <View className="flex-row items-center justify-between px-lg pb-sm pt-md">
+                      <Text variant="sectionLabel">{t("search.savedTitle")}</Text>
+                      <Text
+                        variant="bodySmall"
+                        weight={600}
+                        className="text-primary"
+                        role="button"
+                        onPress={() => router.push("/saved-searches")}
+                      >
+                        {t("search.manageSaved")}
+                      </Text>
+                    </View>
+                    {savedSearches.data?.items.map((item) => (
+                      <SavedRow
+                        key={item.id}
+                        search={item}
+                        onRun={(q) => {
+                          setDraft(q);
+                          finish();
+                        }}
+                      />
+                    ))}
+                  </View>
+                ) : null}
+                {(recent.data?.items.length ?? 0) > 0 ? (
+                  <View className="flex-row items-center justify-between px-lg pb-sm pt-md">
+                    <Text variant="sectionLabel">{t("search.recent")}</Text>
+                    <Text
+                      variant="bodySmall"
+                      weight={600}
+                      className="text-primary"
+                      role="button"
+                      onPress={() => clearRecent.mutate()}
+                    >
+                      {t("search.clearAll")}
+                    </Text>
+                  </View>
+                ) : null}
+              </>
             }
             ListEmptyComponent={
               recent.isPending ? (
                 <Spinner />
-              ) : (
+              ) : (savedSearches.data?.items.length ?? 0) > 0 ? null : (
                 <Text variant="subtitle" className="px-lg py-xl text-center text-text-3">
                   {t("search.noRecent")}
                 </Text>
@@ -263,6 +315,37 @@ export default function SearchScreen() {
         </View>
       )}
     </Screen>
+  );
+}
+
+/** A saved search on the empty search page: the words and what is filtered. Tap runs it right here. */
+function SavedRow({ search, onRun }: { search: SavedSearch; onRun: (q: string) => void }) {
+  const { title, parts, load } = useSavedSearchSummary(search);
+  return (
+    <Pressable
+      onPress={() => {
+        load();
+        onRun(useSearchStore.getState().scopes.search.q);
+      }}
+      role="button"
+      accessibilityLabel={[title, parts.join(", ")].filter(Boolean).join(", ")}
+      className="active:bg-surface"
+    >
+      <View className="min-h-14 flex-row items-center gap-md border-b border-border-subtle px-lg py-sm">
+        <Icon as={Bookmark} size={18} className="text-text-3" />
+        <View className="flex-1 gap-[2px]">
+          <Text numberOfLines={1} className="self-start">
+            {title}
+          </Text>
+          {parts.length > 0 ? (
+            <Text variant="cardMeta" numberOfLines={1} className="self-start">
+              {parts.join(" · ")}
+            </Text>
+          ) : null}
+        </View>
+        <ForwardIcon />
+      </View>
+    </Pressable>
   );
 }
 

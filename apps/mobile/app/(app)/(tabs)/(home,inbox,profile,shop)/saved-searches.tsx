@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CategoryNode, SavedSearch } from "@vinty/shared";
+import type { SavedSearch } from "@vinty/shared";
 import { useRouter } from "expo-router";
 import { Bell, Trash2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -14,57 +14,16 @@ import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { ForwardIcon, TopBar } from "@/components/ui/top-bar";
 import { savedSearchesQuery, useDeleteSavedSearch, useUpdateSavedSearch } from "@/lib/item-queries";
-import { formatMoney } from "@/lib/money";
-import { useLocalName, useReference } from "@/lib/reference";
-import { useSearchStore } from "@/lib/search-store";
+import { useSavedSearchSummary } from "@/lib/saved-search-summary";
 import { colors } from "@/theme";
-
-function findCategory(nodes: CategoryNode[] | undefined, id: string): CategoryNode | undefined {
-  for (const node of nodes ?? []) {
-    if (node.id === id) return node;
-    const inside = findCategory(node.children, id);
-    if (inside) return inside;
-  }
-  return undefined;
-}
 
 /** One saved search: the words, a short line of what is filtered, the alert switch and delete. Tap runs it again. */
 function SavedSearchRow({ search }: { search: SavedSearch }) {
   const { t } = useTranslation();
   const router = useRouter();
-  const reference = useReference();
-  const name = useLocalName();
   const update = useUpdateSavedSearch();
   const remove = useDeleteSavedSearch();
-  const { filters } = search;
-
-  // Money is shown in the currency of the app (shekels).
-  const parts: string[] = [];
-  const category = filters.categoryId
-    ? findCategory(reference.data?.categories, filters.categoryId)
-    : undefined;
-  if (category) parts.push(name(category.name));
-  const counts = [
-    ["brands", filters.brandIds],
-    ["sizes", filters.sizeIds],
-    ["conditions", filters.conditionIds],
-    ["colours", filters.colourIds],
-    ["materials", filters.materialIds],
-    ["patterns", filters.patternIds],
-  ] as const;
-  for (const [key, list] of counts) {
-    if (list && list.length > 0) parts.push(t(`savedSearches.${key}`, { count: list.length }));
-  }
-  const { priceMinMinor: min, priceMaxMinor: max } = filters;
-  if (min !== undefined && max !== undefined) {
-    parts.push(t("savedSearches.priceRange", { min: formatMoney(min, "ILS"), max: formatMoney(max, "ILS") }));
-  } else if (min !== undefined) {
-    parts.push(t("savedSearches.priceFrom", { min: formatMoney(min, "ILS") }));
-  } else if (max !== undefined) {
-    parts.push(t("savedSearches.priceTo", { max: formatMoney(max, "ILS") }));
-  }
-  const words = search.queryText ?? filters.q;
-  const title = words || (parts.length > 0 ? t("savedSearches.filtersOnly") : t("savedSearches.allItems"));
+  const { title, parts, load } = useSavedSearchSummary(search);
 
   const confirmDelete = () =>
     Alert.alert(t("savedSearches.deleteTitle"), t("savedSearches.deleteConfirm"), [
@@ -76,13 +35,7 @@ function SavedSearchRow({ search }: { search: SavedSearch }) {
     <View className="border-b border-border-subtle px-lg py-md">
       <Pressable
         onPress={() => {
-          // The search screen reads its words and filters from the search store, so the saved search is put there.
-          const { q, ...rest } = filters;
-          useSearchStore.getState().reset("search", {
-            q: search.queryText ?? q ?? "",
-            filters: { ...rest, sort: rest.sort ?? "relevance" },
-            categoryName: category ? name(category.name) : null,
-          });
+          load();
           router.push("/search");
         }}
         role="button"

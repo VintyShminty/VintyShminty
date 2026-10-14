@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap">
+<style>
+@font-face{font-family:Aileron;font-weight:400;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:600;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-600-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:700;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-700-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Aileron;font-weight:800;src:url(https://cdn.jsdelivr.net/npm/@fontsource/aileron@5.3.0/files/aileron-latin-800-normal.woff2) format("woff2");font-display:swap}
+
+/* Tokens copied from packages/design/tokens.js (D-006). Light mode only (D-002). */
+:root{
+  --background:#FFFFFF;--surface:#FBF8F2;--pressed:#F1E9DA;--border:#E4DACA;--border-subtle:#F0EADF;
+  --text-1:#241811;--text-2:#54443A;--text-3:#695A4F;--text-4:#7A6B60;
+  --accent:#4B2E22;--on-accent:#FFFFFF;--accent-tint:#F7EEDC;
+  --success:#1B7A43;--success-tint:#E6F4EA;--warning:#8A4F00;--warning-tint:#FFEFC2;
+  --page:#EFE9DF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--text-1);font-family:Aileron,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding:32px 16px 64px}
+html[lang=he] body{font-family:Heebo,system-ui,sans-serif}
+.head{max-width:1120px;margin:0 auto 28px;display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between}
+.head h1{font-size:28px;font-weight:700;letter-spacing:-.4px}
+.head p{color:var(--text-2);font-size:15px;line-height:22px;max-width:620px;margin-top:6px}
+.lang{display:flex;border:1px solid var(--border);border-radius:999px;background:var(--background);padding:3px}
+.lang button{border:0;background:none;font:inherit;font-size:13px;font-weight:600;color:var(--text-2);padding:6px 14px;border-radius:999px;cursor:pointer}
+.lang button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:32px;justify-items:center}
+.col{width:100%;max-width:390px}
+.col h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.col .why{font-size:14px;line-height:20px;color:var(--text-2);margin-bottom:16px;min-height:60px}
+
+/* Phone */
+.phone{width:100%;max-width:390px;height:780px;background:var(--background);border-radius:44px;border:10px solid #1d1410;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(36,24,17,.18)}
+.status{height:44px;flex:none}
+.top{height:52px;display:flex;align-items:center;gap:10px;padding:0 12px;flex:none}
+.top .name{flex:1;font-size:18px;font-weight:700}
+.av{width:34px;height:34px;border-radius:50%;background:var(--accent-tint);display:grid;place-items:center;font-weight:700;font-size:14px}
+.icon{width:22px;height:22px;stroke:var(--text-1);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+html[dir=rtl] .flip{transform:scaleX(-1)}
+.strip{display:flex;gap:10px;align-items:center;padding:10px 16px;background:var(--surface);border-block:1px solid var(--border-subtle);flex:none}
+.thumb{width:44px;height:44px;border-radius:10px;background:linear-gradient(160deg,#3a2c25,#120c09);flex:none}
+.strip .t{flex:1;min-width:0}
+.strip .t b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.strip .t s{font-size:12px;color:var(--text-3)}
+.sold{font-size:11px;font-weight:700;color:var(--success);background:var(--success-tint);border-radius:999px;padding:3px 9px;letter-spacing:.3px}
+.thread{flex:1;overflow:auto;padding:12px 16px 16px;display:flex;flex-direction:column}
+.thread::-webkit-scrollbar{display:none}
+.thread>*{flex:none}
+.day{align-self:center;font-size:11px;color:var(--text-3);margin:6px 0 10px;letter-spacing:.4px}
+.meta{font-size:11px;color:var(--text-3);margin-top:4px}
+.mine{align-self:flex-end}
+.theirs{align-self:flex-start}
+.end{align-self:flex-end}
+.composer{flex:none;display:flex;gap:10px;align-items:center;padding:10px 12px 26px;border-top:1px solid var(--border-subtle)}
+.field{flex:1;height:42px;border:1px solid var(--border);border-radius:32px;display:flex;align-items:center;padding:0 16px;color:var(--text-4);font-size:15px}
+.send{width:42px;height:42px;border-radius:50%;background:var(--accent-tint);display:grid;place-items:center}
+.send .icon{stroke:var(--accent)}
+
+/* ---------- Direction A: Quiet notes ---------- */
+.a .msg{max-width:78%;padding:8px 12px;font-size:15px;line-height:21px;border-radius:16px;margin-top:10px}
+.a .msg.mine{background:var(--accent);color:var(--on-accent);border-end-end-radius:4px}
+.a .msg.theirs{background:var(--surface);border-end-start-radius:4px}
+.a .tight{margin-top:3px}
+.a .offer{max-width:78%;margin-top:12px;border-radius:16px;padding:10px 12px 10px;background:var(--surface)}
+.a .offer.mine{background:var(--accent-tint);border-end-end-radius:4px}
+.a .offer.theirs{border-end-start-radius:4px}
+.a .offer .row{display:flex;align-items:baseline;gap:8px}
+.a .offer .lbl{font-size:13px;color:var(--text-2)}
+.a .offer .amt{font-size:18px;font-weight:700;letter-spacing:-.2px}
+.a .offer s{font-size:12px;color:var(--text-3)}
+.a .offer .st{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-top:2px}
+.a .dot{width:6px;height:6px;border-radius:50%;background:var(--warning)}
+.a .dot.ok{background:var(--success)}
+.a .acts{display:flex;gap:6px;margin-top:6px}
+.a .pill{height:30px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;border:1px solid var(--text-4);background:var(--background);color:var(--text-1)}
+.a .pill.fill{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.a .sys{align-self:center;font-size:12px;color:var(--text-3);margin:14px 0 2px;display:flex;gap:6px;align-items:center}
+.a .sys::before,.a .sys::after{content:"";width:24px;height:1px;background:var(--border)}
+.a .order{align-self:stretch;display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 0;border-block:1px solid var(--border-subtle)}
+.a .order .t{flex:1;font-size:13px;color:var(--text-2)}
+.a .order .t b{display:block;font-size:14px;color:var(--text-1);font-weight:600}
+
+/* ---------- Direction B: Ledger lines ---------- */
+.b .msg{max-width:76%;padding:9px 12px;font-size:15px;line-height:21px;border-radius:12px;margin-top:10px}
+.b .msg.mine{background:var(--accent);color:var(--on-accent);border-end-end-radius:3px}
+.b .msg.theirs{background:var(--background);border:1px solid var(--border);border-end-start-radius:3px}
+.b .tight{margin-top:3px}
+.b .offer{align-self:stretch;margin-top:14px;border:1px solid var(--border);border-radius:12px;background:var(--background);overflow:hidden}
+.b .offer .main{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.b .offer .side{width:3px;align-self:stretch;border-radius:3px;background:var(--border)}
+.b .offer.mine .side{background:var(--accent)}
+.b .offer .txt{flex:1;min-width:0}
+.b .offer .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-3);font-weight:600}
+html[lang=he] .b .offer .lbl{letter-spacing:0;text-transform:none;font-size:12px}
+.b .offer .st{font-size:13px;color:var(--text-2);margin-top:2px}
+.b .offer .st.ok{color:var(--success)}
+.b .offer .money{text-align:end}
+.b .offer .amt{font-size:20px;font-weight:700;letter-spacing:-.3px;display:block}
+.b .offer s{font-size:12px;color:var(--text-3)}
+.b .bar{display:flex;border-top:1px solid var(--border-subtle)}
+.b .bar span{flex:1;text-align:center;font-size:14px;font-weight:600;padding:11px 0;color:var(--text-1)}
+.b .bar span+span{border-inline-start:1px solid var(--border-subtle)}
+.b .bar .go{color:var(--accent);font-weight:700}
+.b .offer .note{font-size:12px;color:var(--text-3);padding:0 14px 12px 29px}
+html[dir=rtl] .b .offer .note{padding:0 29px 12px 14px}
+.b .offerwrap{display:flex;flex-direction:column}
+.b .sys{align-self:center;font-size:12px;color:var(--text-3);margin:14px 0 2px}
+.b .order{align-self:stretch;display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--surface)}
+.b .order .t{flex:1;font-size:13px;color:var(--text-2)}
+.b .order .t b{display:block;font-size:14px;color:var(--text-1);font-weight:600}
+
+.notes{max-width:1120px;margin:40px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.notes div{background:var(--background);border-radius:20px;padding:20px}
+.notes h3{font-size:15px;font-weight:700;margin-bottom:8px}
+.notes li{font-size:14px;line-height:21px;color:var(--text-2);margin-inline-start:18px}
+</style>
+</head>
+<body>
+<div class="head">
+  <div>
+    <h1 data-t="title"></h1>
+    <p data-t="intro"></p>
+  </div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="en" aria-pressed="true">English</button>
+    <button type="button" data-lang="he" aria-pressed="false">עברית</button>
+  </div>
+</div>
+
+<div class="grid">
+  <section class="col">
+    <h2 data-t="aName"></h2>
+    <p class="why" data-t="aWhy"></p>
+    <div class="phone a" id="phoneA"></div>
+  </section>
+  <section class="col">
+    <h2 data-t="bName"></h2>
+    <p class="why" data-t="bWhy"></p>
+    <div class="phone b" id="phoneB"></div>
+  </section>
+</div>
+
+<div class="notes">
+  <div><h3 data-t="sameTitle"></h3><ul data-list="same"></ul></div>
+  <div><h3 data-t="aName"></h3><ul data-list="aNotes"></ul></div>
+  <div><h3 data-t="bName"></h3><ul data-list="bNotes"></ul></div>
+</div>
+
+<script>
+const S = {
+  en: {
+    title: "Chat, two directions",
+    intro: "Both drop the person card inside the chat (the top bar already shows who it is) and shrink the offers. Same conversation in both, so only the design changes.",
+    aName: "A. Quiet notes",
+    aWhy: "Offers become small soft notes, the same size as a message. No borders, the price at heading size, actions as small pills under the note.",
+    bName: "B. Ledger lines",
+    bWhy: "Messages stay small and sharp (12 corners like our tiles). Offers become one full width line, label and status on one side, the price on the other, actions in a thin bar.",
+    sameTitle: "The same in both",
+    same: ["No person card at the top of the chat", "Offer price at 18 to 20 instead of 32", "Message text 15 instead of 16, less padding", "Item strip and order steps unchanged"],
+    aNotes: ["Lightest, feels like a calm messaging app", "Offers sit on your side or theirs, like messages", "Actions are smaller, a bit less obvious to tap"],
+    bNotes: ["Most structured, money reads like a receipt", "Offers span the width, so they stand apart from talk", "Clear tap targets for Accept, Decline and Counter"],
+    name: "tomedry7", item: "Men's black ribbed quarter-zip knit", today: "Today",
+    theirOffer: "Their offer", yourOffer: "Your offer", offer: "Offer",
+    waiting: "Waiting for your answer", waitingThem: "Waiting for their answer",
+    accepted: "Accepted", held: "Held for you until 15 Oct, 13:50",
+    accept: "Accept", decline: "Decline", counter: "Counter", buy: "Buy for ₪37",
+    counterSent: "Counter offer sent", acceptedSys: "Offer of ₪37 accepted",
+    m1: "Hi, is it still available?", m2: "Yes it is", m3: "Lovely, thanks!",
+    paid: "Order paid", paidSub: "Order #1003 · Men's black ribbed…",
+    write: "Write a message", sold: "Sold"
+  },
+  he: {
+    title: "צ׳אט, שני כיוונים",
+    intro: "בשניהם הכרטיס של האדם בתוך הצ׳אט יורד (הסרגל העליון כבר מראה מי זה) וההצעות קטנות יותר. אותה שיחה בשניהם, כך שרק העיצוב משתנה.",
+    aName: "א. פתקים שקטים",
+    aWhy: "הצעות הופכות לפתקים רכים וקטנים, בגודל של הודעה. בלי מסגרות, המחיר בגודל כותרת, הפעולות ככפתורים קטנים מתחת לפתק.",
+    bName: "ב. שורות חשבון",
+    bWhy: "ההודעות נשארות קטנות וחדות (פינות 12 כמו האריחים שלנו). הצעה הופכת לשורה אחת ברוחב מלא, תווית ומצב בצד אחד, המחיר בצד השני, הפעולות בפס דק.",
+    sameTitle: "משותף לשניהם",
+    same: ["בלי כרטיס האדם בראש הצ׳אט", "מחיר ההצעה 18 עד 20 במקום 32", "טקסט ההודעה 15 במקום 16, פחות ריפוד", "פס הפריט ושלבי ההזמנה לא משתנים"],
+    aNotes: ["הכי קליל, מרגיש כמו אפליקציית הודעות רגועה", "ההצעות יושבות בצד שלכם או שלהם, כמו הודעות", "הפעולות קטנות יותר, קצת פחות בולטות ללחיצה"],
+    bNotes: ["הכי מסודר, הכסף נקרא כמו קבלה", "ההצעות ברוחב מלא, כך שהן נפרדות מהשיחה", "מקומות לחיצה ברורים לקבלה, דחייה והצעה נגדית"],
+    name: "tomedry7", item: "Men's black ribbed quarter-zip knit", today: "היום",
+    theirOffer: "ההצעה שלהם", yourOffer: "ההצעה שלכם", offer: "הצעה",
+    waiting: "ממתינה לתשובה שלכם", waitingThem: "ממתינה לתשובה שלהם",
+    accepted: "התקבלה", held: "שמור בשבילכם עד 15 באוק׳, 13:50",
+    accept: "קבלה", decline: "דחייה", counter: "הצעה נגדית", buy: "קנייה ב־₪37",
+    counterSent: "נשלחה הצעה נגדית", acceptedSys: "ההצעה של ₪37 התקבלה",
+    m1: "היי, זה עדיין זמין?", m2: "כן, זמין", m3: "תודה רבה!",
+    paid: "ההזמנה שולמה", paidSub: "הזמנה #1003 · Men's black ribbed…",
+    write: "כתבו הודעה", sold: "נמכר"
+  }
+};
+
+const back = '<svg class="icon flip" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>';
+const more = '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>';
+const fwd = '<svg class="icon flip" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--text-3)"><path d="M9 18l6-6-6-6"/></svg>';
+const up = '<svg class="icon" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const img = '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>';
+const receipt = '<svg class="icon" viewBox="0 0 24 24" style="stroke:var(--accent)"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>';
+
+function shell(s, thread){
+  return `<div class="status"></div>
+  <div class="top">${back}<div class="av">T</div><div class="name">${s.name}</div>${more}</div>
+  <div class="strip"><div class="thumb"></div><div class="t"><b>${s.item}</b><s>₪150</s></div><span class="sold">${s.sold}</span></div>
+  <div class="thread">${thread}</div>
+  <div class="composer">${img}<div class="field">${s.write}</div><div class="send">${up}</div></div>`;
+}
+
+function phoneA(s){
+  return shell(s, `
+    <div class="day">${s.today}</div>
+    <div class="msg theirs">${s.m1}</div>
+    <div class="msg mine">${s.m2}</div>
+    <div class="offer theirs">
+      <div class="row"><span class="lbl">${s.theirOffer}</span><span class="amt">₪105</span><s>₪150</s></div>
+      <div class="st"><span class="dot"></span>${s.waiting}</div>
+    </div>
+    <div class="acts theirs"><span class="pill fill">${s.accept}</span><span class="pill">${s.counter}</span><span class="pill">${s.decline}</span></div>
+    <div class="meta theirs">13:49</div>
+    <div class="sys">${s.counterSent}</div>
+    <div class="offer mine">
+      <div class="row"><span class="lbl">${s.yourOffer}</span><span class="amt">₪135</span><s>₪150</s></div>
+      <div class="st"><span class="dot"></span>${s.waitingThem}</div>
+    </div>
+    <div class="meta end">13:50</div>
+    <div class="offer theirs">
+      <div class="row"><span class="lbl">${s.theirOffer}</span><span class="amt">₪37</span><s>₪150</s></div>
+      <div class="st"><span class="dot ok"></span>${s.accepted} · ${s.held}</div>
+    </div>
+    <div class="sys">${s.acceptedSys}</div>
+    <div class="order">${receipt}<div class="t"><b>${s.paid}</b>${s.paidSub}</div>${fwd}</div>
+    <div class="msg theirs">${s.m3}</div>
+    <div class="meta theirs">13:50</div>`);
+}
+
+function phoneB(s){
+  const offer = (who, label, amt, status, ok, extra) => `
+    <div class="offer ${who}">
+      <div class="main"><div class="side"></div>
+        <div class="txt"><div class="lbl">${label}</div><div class="st ${ok ? "ok" : ""}">${status}</div></div>
+        <div class="money"><span class="amt">${amt}</span><s>₪150</s></div>
+      </div>${extra || ""}
+    </div>`;
+  return shell(s, `
+    <div class="day">${s.today}</div>
+    <div class="msg theirs">${s.m1}</div>
+    <div class="msg mine">${s.m2}</div>
+    ${offer("theirs", s.theirOffer, "₪105", s.waiting, false,
+      `<div class="bar"><span>${s.decline}</span><span>${s.counter}</span><span class="go">${s.accept}</span></div>`)}
+    <div class="meta theirs">13:49</div>
+    <div class="sys">${s.counterSent}</div>
+    ${offer("mine", s.yourOffer, "₪135", s.waitingThem, false)}
+    <div class="meta end">13:50</div>
+    ${offer("theirs", s.theirOffer, "₪37", s.accepted, true, `<div class="note">${s.held}</div>`)}
+    <div class="sys">${s.acceptedSys}</div>
+    <div class="order">${receipt}<div class="t"><b>${s.paid}</b>${s.paidSub}</div>${fwd}</div>
+    <div class="msg theirs">${s.m3}</div>
+    <div class="meta theirs">13:50</div>`);
+}
+
+function render(lang){
+  const s = S[lang];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "he" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach(el => el.textContent = s[el.dataset.t]);
+  document.querySelectorAll("[data-list]").forEach(el => el.innerHTML = s[el.dataset.list].map(x => `<li>${x}</li>`).join(""));
+  document.getElementById("phoneA").innerHTML = phoneA(s);
+  document.getElementById("phoneB").innerHTML = phoneB(s);
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => render(b.dataset.lang)));
+render(location.hash === "#he" ? "he" : "en");
+</script>
+</body>
+</html>
