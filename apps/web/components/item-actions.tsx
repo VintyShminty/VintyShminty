@@ -2,10 +2,14 @@
 
 import { formatPrice } from "@vinty/shared";
 import { Flag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppOnlyNotice } from "@/components/app-only-notice";
 import { useLoginPrompt } from "@/components/login-prompt";
 import { useViewer } from "@/components/site-context";
+import { ApiClientError } from "@/lib/api-error";
+import { useStartConversation } from "@/lib/messaging-queries";
 import { cn } from "@/lib/utils";
 
 type BuyProps = {
@@ -84,21 +88,62 @@ export function BuyBar(props: BuyProps) {
   );
 }
 
-/** The Message chip on the seller row. Logged out: login prompt. Logged in: the app-only notice for now. */
-export function MessageChip({ sellerName }: { sellerName: string }) {
+/**
+ * The Message chip on the seller row. Logged out: login prompt. Logged in: opens the chat about this item (the one
+ * you already have, or a new one) and goes there.
+ */
+export function MessageChip({
+  sellerName,
+  listingId,
+  lang,
+}: {
+  sellerName: string;
+  listingId: string;
+  lang: string;
+}) {
   const { t } = useTranslation();
-  const { gate, notice } = useGate();
+  const viewer = useViewer();
+  const { ask } = useLoginPrompt();
+  const router = useRouter();
+  const start = useStartConversation();
+  const [failure, setFailure] = useState({ title: "", body: "" });
+  const [showFailure, failureNotice] = useAppOnlyNotice(failure);
+
+  const onClick = () => {
+    if (!viewer) return ask();
+    if (start.isPending) return;
+    start.mutate(listingId, {
+      onSuccess: (chat) => router.push(`/${lang}/inbox/${chat.id}`),
+      onError: (error) => {
+        const code = error instanceof ApiClientError ? error.code : null;
+        setFailure({
+          title: t("web.inbox.startFailedTitle"),
+          body:
+            code === "blocked"
+              ? t("chat.blockedSend")
+              : code === "listing_unavailable"
+                ? t("web.inbox.startUnavailable")
+                : code === "forbidden"
+                  ? t("web.inbox.startOwn")
+                  : t("web.inbox.startFailed"),
+        });
+        showFailure();
+      },
+    });
+  };
+
   return (
     <>
       <button
         type="button"
-        onClick={gate}
+        onClick={onClick}
+        disabled={start.isPending}
         aria-label={`${t("item.messageSeller")}: ${sellerName}`}
-        className="inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-text-4 bg-background px-[14px] text-pill text-text-1 hover:bg-pressed"
+        className="inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-text-4 bg-background px-[14px] text-pill text-text-1 hover:bg-pressed disabled:opacity-60"
       >
         {t("item.message")}
       </button>
-      {notice}
+      {failureNotice}
     </>
   );
 }

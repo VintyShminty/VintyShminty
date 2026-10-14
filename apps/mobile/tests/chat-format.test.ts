@@ -21,7 +21,7 @@ const msg = (id: string, sender: string | null, at: string, extra: Partial<Messa
 const base = { pending: [], me: "me", hasMore: false, otherTyping: false };
 
 describe("buildThreadItems", () => {
-  it("puts newest first, a day divider after each day's oldest message", () => {
+  it("puts newest first, a day divider after each day's oldest message, and the intro last", () => {
     const items = buildThreadItems({
       ...base,
       messages: [
@@ -30,7 +30,7 @@ describe("buildThreadItems", () => {
         msg("a", "me", "2026-10-01T10:00:00"),
       ],
     });
-    expect(items.map((i) => i.type)).toEqual(["message", "day", "message", "message", "day"]);
+    expect(items.map((i) => i.type)).toEqual(["message", "day", "message", "message", "day", "intro"]);
   });
 
   it("marks only your newest message and groups close messages from one side", () => {
@@ -62,10 +62,10 @@ describe("buildThreadItems", () => {
       pending: [pending("x"), pending("y")],
       messages: [msg("m", "me", "2026-10-01T10:00:00", { clientMessageId: "x" })],
     });
-    expect(items.map((i) => i.type)).toEqual(["pending", "message", "day"]);
+    expect(items.map((i) => i.type)).toEqual(["pending", "message", "day", "intro"]);
   });
 
-  it("shows no first day divider while older messages can still load, and a typing row at the bottom", () => {
+  it("shows no intro or first day divider while older messages can still load, and a typing row at the bottom", () => {
     const items = buildThreadItems({
       ...base,
       hasMore: true,

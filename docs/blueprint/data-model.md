@@ -578,7 +578,7 @@ How the attribute rules work: each category row carries the rules that apply to 
 
 To list a category with everything under it: `category_id IN (SELECT id FROM categories WHERE path LIKE 'women/clothing/%')`. The `text_pattern_ops` index makes that prefix match use an index.
 
-The clothing tree (D-030). A category says what the garment is, not its fabric, occasion or fit, so Linen, Denim, Casual and Formal are not categories (Material is a filter). The purpose groups Sportswear, Maternity and Uniforms and costumes stay because people shop them as a group. Women and Men have the same names where the garment is the same. Slugs are the parent slugs joined with a dash, for example `women-clothing-tops-button-up`. The tree below is the clothing part, the rest of the tree (shoes, bags, home and so on) did not change.
+The clothing tree (D-033). A category says what the garment is, not its fabric, occasion or fit, so Linen, Denim, Casual and Formal are not categories (Material is a filter). The purpose groups Sportswear, Maternity and Uniforms and costumes stay because people shop them as a group. Women and Men have the same names where the garment is the same. Slugs are the parent slugs joined with a dash, for example `women-clothing-tops-button-up`. The tree below is the clothing part, the rest of the tree (shoes, bags, home and so on) did not change.
 
 - **Women, Clothing**
   - Dresses: Mini dresses, Midi dresses, Maxi dresses, Shirt dresses, Wrap dresses, Slip dresses, Cocktail dresses, Gowns, Wedding dresses, Other dresses

@@ -509,7 +509,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **References:** Mockup / test / handoff
 -->
 
-### D-030 : Clothing categories say what the garment is
+### D-033 : Clothing categories say what the garment is
 
 - **Date:** 2026-10-14
 - **Area:** Categories, category picker, Browse tiles, photo helper

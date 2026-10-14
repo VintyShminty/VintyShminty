@@ -1739,7 +1739,7 @@
       "metaFallback": "{{details}} for sale on Vinty",
       "appOnly": {
         "title": "This works in the app for now",
-        "body": "Buying, offers, messages and reports are coming to the website soon. Open the app to do it today."
+        "body": "Buying, offers, orders and reports are coming to the website soon. Open the app to do it today."
       },
       "loadFailed": "We could not load this item",
       "breakdownLabel": "Price breakdown"
@@ -1800,6 +1800,18 @@
     },
     "lists": {
       "favouritesEmptyNote": "Tap the heart on an item to keep it here"
+    },
+    "inbox": {
+      "iconUnread_one": "Inbox, {{count}} unread",
+      "iconUnread_other": "Inbox, {{count}} unread",
+      "backToInbox": "Back to inbox",
+      "pickTitle": "Pick a chat",
+      "pickNote": "Your messages open here",
+      "loading": "Loading",
+      "startFailedTitle": "We could not open the chat",
+      "startFailed": "Something went wrong. Try again in a moment.",
+      "startUnavailable": "This item is not available any more, so a new chat cannot start.",
+      "startOwn": "This is your own item."
     }
   }
 }

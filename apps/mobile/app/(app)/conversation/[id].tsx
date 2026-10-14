@@ -138,6 +138,9 @@ function ConversationScreen() {
 
   const renderItem = ({ item }: { item: ThreadItem }) => {
     switch (item.type) {
+      // The website shows a person card here. The app does not, the top bar already shows who it is (D-034).
+      case "intro":
+        return null;
       case "typing":
         return <TypingIndicator name={otherName} />;
       case "day":

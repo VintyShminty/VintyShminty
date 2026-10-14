@@ -329,7 +329,7 @@ export default async function ItemPage({ params }: { params: Params }) {
                   )}
                 </div>
                 {isOwner || (sold && !listing.viewer.conversationId) ? null : (
-                  <MessageChip sellerName={sellerName} />
+                  <MessageChip sellerName={sellerName} listingId={listing.id} lang={lang} />
                 )}
               </div>
               {profile && profile.badges.length > 0 ? (
