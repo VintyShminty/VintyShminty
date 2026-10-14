@@ -114,7 +114,8 @@
       "tooShort": "נדרשים לפחות 3 תווים",
       "tooLong": "עד 24 תווים",
       "characters": "אפשר להשתמש רק באותיות באנגלית, מספרים, נקודות וקו תחתון",
-      "taken": "שם המשתמש הזה תפוס"
+      "taken": "שם המשתמש הזה תפוס",
+      "reserved": "שם המשתמש הזה שמור"
     },
     "password": {
       "required": "הזינו סיסמה",
@@ -1846,7 +1847,8 @@
       "users": "משתמשים",
       "analytics": "ניתוח נתונים",
       "expenses": "הוצאות",
-      "security": "אבטחה"
+      "security": "אבטחה",
+      "upload": "העלאת מודעות"
     },
     "adminsOnly": {
       "title": "למנהלים בלבד",
@@ -1860,11 +1862,11 @@
       "notAllowed": "אין לך הרשאה לעשות את זה"
     },
     "actions": {
-      "madeAdmin": "הפך אדם למנהל",
-      "removedAdmin": "הסיר הרשאת מנהל מאדם",
+      "madeAdmin": "הפך את {{name}} למנהל",
+      "removedAdmin": "הסיר את הרשאת המנהל של {{name}}",
       "aPerson": "אדם",
       "userDeleted": "מחק את {{name}}",
-      "adminGranted": "נתן לאדם הרשאת מנהל",
+      "adminGranted": "{{name}} קיבל הרשאת מנהל",
       "expensesConfigSaved": "שמר את עלויות ברירת המחדל",
       "expensesMonthSaved": "שמר את העלויות של {{month}}",
       "expensesMonthCleared": "חזר לעלויות ברירת המחדל של {{month}}",
@@ -1873,7 +1875,8 @@
       "aiAutoDisabled": "ה-AI כבה את עצמו: {{reason}}"
     },
     "aiActions": {
-      "photo_check": "עוזר התמונות (טופס המכירה)"
+      "photo_check": "עוזר התמונות (טופס המכירה)",
+      "admin_upload_photo_check": "עוזר התמונות (העלאת מודעות)"
     },
     "dashboard": {
       "totalUsers": "משתמשים",
@@ -1999,6 +2002,136 @@
       "confirmOffTitle": "לכבות את {{name}}?",
       "confirmOffBody": "כל מה שמשתמש בו יפסיק לעבוד עד שתפעילו אותו מחדש",
       "turnOff": "כבה"
+    },
+    "upload": {
+      "tabs": {
+        "new": "אצווה חדשה",
+        "items": "פריטים שהועלו"
+      },
+      "step1": "בשביל מי האצווה הזו",
+      "step2": "הוספת הבגדים",
+      "who": {
+        "publicTitle": "שם המשתמש שכולם רואים",
+        "publicNote": "שם המשתמש הזה פומבי. הקונים רואים אותו בכל פריט ובפרופיל שלו.",
+        "privateTitle": "הבעלים האמיתי, פרטי",
+        "privateNote": "השם המלא פרטי. רק מנהלים רואים אותו, אף פעם לא קונים ולא בדף הפריט. הוא מגלה לנו של מי הבגדים שנמכרו.",
+        "ownerLabel": "שם מלא של הבעלים",
+        "ownerHint": "חובה לכל אצווה. אפשר לשנות בפריט בודד בטבלה כשהבעלים שונה.",
+        "search": "חיפוש שמות משתמש",
+        "none": "אין עדיין שמות משתמש. צרו את הראשון למטה.",
+        "noMatch": "אין שם משתמש שמתאים",
+        "counts": "{{active}} פעילים, {{sold}} נמכרו",
+        "owners_one": "בעלים אחד",
+        "owners_two": "{{count}} בעלים",
+        "owners_other": "{{count}} בעלים",
+        "locked": "פרסמו או הסירו את הפריטים שבטבלה כדי להחליף שם משתמש",
+        "new": "יצירת שם משתמש חדש",
+        "username": "שם משתמש",
+        "usernameHint": "אותיות באנגלית, מספרים, נקודות וקו תחתון, 3 עד 24 תווים",
+        "displayName": "שם תצוגה (לא חובה)",
+        "create": "יצירת שם משתמש",
+        "created": "{{name}} נוצר"
+      },
+      "drop": "גררו לכאן תמונות",
+      "dropHint": "כל תמונה הופכת לפריט נפרד. גררו עוד תמונות על פריט כדי להוסיף אותן אליו.",
+      "needWho": "קודם בחרו שם משתמש",
+      "pickFiles": "בחירת תמונות",
+      "dropOnRow": "גררו לכאן תמונות כדי להוסיף אותן לפריט הזה",
+      "addPhotos": "הוספת תמונות לפריט הזה",
+      "addMore": "הוספה",
+      "photo": {
+        "uploading": "מעלה",
+        "failed": "ההעלאה נכשלה",
+        "retry": "נסו שוב",
+        "remove": "הסרת תמונה"
+      },
+      "photoCount": "{{n}} מתוך {{max}} תמונות",
+      "reading": "קורא את התמונות",
+      "suggested": "הצעה",
+      "fields": {
+        "photos": "תמונות",
+        "title": "כותרת",
+        "description": "תיאור (לא חובה)",
+        "categoryId": "קטגוריה",
+        "brandId": "מותג",
+        "sizeId": "מידה",
+        "conditionId": "מצב",
+        "colourIds": "צבעים",
+        "priceMinor": "מחיר",
+        "materialId": "חומר",
+        "patternId": "דוגמה",
+        "parcelSizeId": "גודל החבילה",
+        "ownerOverride": "בעלים אחר (לא חובה)"
+      },
+      "category": {
+        "title": "בחירת קטגוריה",
+        "search": "חיפוש קטגוריות",
+        "choose": "בחרו קטגוריה",
+        "none": "אין קטגוריה שמתאימה"
+      },
+      "choose": "בחירה",
+      "chooseCategoryFirst": "קודם בחרו קטגוריה",
+      "notNeeded": "לא נדרש",
+      "brandPlaceholder": "הקלידו או בחרו מותג",
+      "brandListed": "מותג מהרשימה",
+      "colourPlaceholder": "בחירת צבעים",
+      "ownerOverridePlaceholder": "כמו באצווה",
+      "incomplete": "חסר מידע",
+      "missing": "חסר: {{fields}}",
+      "ready": "מוכן לפרסום",
+      "failedReason": "לא פורסם: {{reason}}",
+      "removeRow": "הסרת הפריט",
+      "viewItem": "לצפייה בפריט",
+      "summary": "{{ready}} מתוך {{total}} פריטים מוכנים",
+      "ownerNeeded": "הקלידו למעלה את השם המלא של הבעלים.",
+      "publish_one": "פרסום פריט אחד",
+      "publish_two": "פרסום {{count}} פריטים",
+      "publish_other": "פרסום {{count}} פריטים",
+      "publishing": "מפרסם",
+      "published_one": "פריט אחד פורסם",
+      "published_two": "{{count}} פריטים פורסמו",
+      "published_other": "{{count}} פריטים פורסמו",
+      "publishFailed_one": "פריט אחד לא פורסם",
+      "publishFailed_two": "{{count}} פריטים לא פורסמו",
+      "publishFailed_other": "{{count}} פריטים לא פורסמו",
+      "clearPublished": "ניקוי הפריטים שפורסמו",
+      "errors": {
+        "ownerRequired": "הוסיפו את השם המלא של הבעלים, לפחות 2 תווים",
+        "ownerTooLong": "שם הבעלים ארוך מדי"
+      },
+      "items": {
+        "title": "פריטים שהועלו",
+        "download": "הורדת אקסל",
+        "downloaded": "הקובץ {{name}} ירד",
+        "downloadFailed": "לא הצלחנו להוריד את הקובץ",
+        "username": "שם משתמש",
+        "allUsernames": "כל שמות המשתמש",
+        "owner": "שם מלא של הבעלים",
+        "status": "סטטוס",
+        "empty": "עדיין לא הועלה כלום",
+        "col": {
+          "uploaded": "הועלה",
+          "owner": "בעלים (פרטי)",
+          "username": "מוצג בשם",
+          "item": "פריט",
+          "category": "קטגוריה",
+          "brand": "מותג",
+          "size": "מידה",
+          "price": "מחיר",
+          "status": "סטטוס",
+          "soldOn": "נמכר ב",
+          "saleTotal": "סכום המכירה"
+        },
+        "statuses": {
+          "all": "הכול",
+          "active": "פעיל",
+          "reserved": "שמור",
+          "sold": "נמכר",
+          "hidden": "מוסתר",
+          "removed": "הוסר"
+        }
+      },
+      "leaveWarning": "לצאת מהעמוד? פריטים שלא פורסמו יימחקו"
     }
   }
 }

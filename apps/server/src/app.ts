@@ -1,3 +1,4 @@
+import { ADMIN_UPLOAD_AI_ACTION } from "@vinty/shared";
 import Fastify from "fastify";
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { Env } from "./env.js";
@@ -82,8 +83,9 @@ export async function buildApp({ env, database, mailer, storage, pusher, photoRe
     await app.register(uploadRoutes);
     // Every AI call goes through this meter: the spend caps, the master switch and the cost log (lib/ai-cost.ts).
     const aiMeter = new AiMeter(database.db, { logger: app.log });
+    const baseReader = photoReader ?? createPhotoReader(env);
     await app.register(photoAssistRoutes, {
-      reader: meteredPhotoReader(photoReader ?? createPhotoReader(env), aiMeter, env.PHOTO_READER_MODEL),
+      reader: meteredPhotoReader(baseReader, aiMeter, env.PHOTO_READER_MODEL),
     });
     await app.register(userRoutes);
     await app.register(discoveryRoutes);
@@ -98,7 +100,11 @@ export async function buildApp({ env, database, mailer, storage, pusher, photoRe
     await app.register(orderRoutes);
     await app.register(reviewRoutes);
     await app.register(referralRoutes, { env });
-    await app.register(adminRoutes, { meter: aiMeter });
+    await app.register(adminRoutes, {
+      meter: aiMeter,
+      // The listing upload page reads photos too, counted as its own line in the cost log.
+      reader: meteredPhotoReader(baseReader, aiMeter, env.PHOTO_READER_MODEL, ADMIN_UPLOAD_AI_ACTION),
+    });
     await app.register(jobsPlugin);
     await app.register(jobRoutes);
   }

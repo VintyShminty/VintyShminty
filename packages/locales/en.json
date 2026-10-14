@@ -114,7 +114,8 @@
       "tooShort": "Use at least 3 characters",
       "tooLong": "Use 24 characters or fewer",
       "characters": "Use letters, numbers, dots and underscores only",
-      "taken": "That username is taken"
+      "taken": "That username is taken",
+      "reserved": "That username is reserved"
     },
     "password": {
       "required": "Enter your password",
@@ -1827,7 +1828,8 @@
       "users": "Users",
       "analytics": "Analytics",
       "expenses": "Expenses",
-      "security": "Security"
+      "security": "Security",
+      "upload": "Listing upload"
     },
     "adminsOnly": {
       "title": "Admins only",
@@ -1841,11 +1843,11 @@
       "notAllowed": "You are not allowed to do that"
     },
     "actions": {
-      "madeAdmin": "Made a person an admin",
-      "removedAdmin": "Removed admin from a person",
+      "madeAdmin": "Made {{name}} an admin",
+      "removedAdmin": "Removed admin from {{name}}",
       "aPerson": "a person",
       "userDeleted": "Deleted {{name}}",
-      "adminGranted": "Gave a person admin access",
+      "adminGranted": "Gave {{name}} admin access",
       "expensesConfigSaved": "Saved the default costs",
       "expensesMonthSaved": "Saved the costs for {{month}}",
       "expensesMonthCleared": "Went back to the default costs for {{month}}",
@@ -1854,7 +1856,8 @@
       "aiAutoDisabled": "AI switched itself off: {{reason}}"
     },
     "aiActions": {
-      "photo_check": "Photo helper (sell form)"
+      "photo_check": "Photo helper (sell form)",
+      "admin_upload_photo_check": "Photo helper (listing upload)"
     },
     "dashboard": {
       "totalUsers": "Users",
@@ -1979,6 +1982,132 @@
       "confirmOffTitle": "Turn off {{name}}?",
       "confirmOffBody": "Everything that uses it stops working until you turn it back on",
       "turnOff": "Turn off"
+    },
+    "upload": {
+      "tabs": {
+        "new": "New batch",
+        "items": "Uploaded items"
+      },
+      "step1": "Who is this batch for",
+      "step2": "Add the clothes",
+      "who": {
+        "publicTitle": "Username shown to everyone",
+        "publicNote": "This username is public. Buyers see it on every item and on its profile.",
+        "privateTitle": "Real owner, private",
+        "privateNote": "The full name is private. Only admins ever see it, never buyers and never on the item page. It tells us whose clothes were sold.",
+        "ownerLabel": "Owner's full name",
+        "ownerHint": "Needed for every batch. Change it on single items in the table when the owner is different.",
+        "search": "Search usernames",
+        "none": "No usernames yet. Create the first one below.",
+        "noMatch": "No username matches",
+        "counts": "{{active}} active, {{sold}} sold",
+        "owners_one": "{{count}} owner",
+        "owners_other": "{{count}} owners",
+        "locked": "Publish or remove the items below to change the username",
+        "new": "Create a new username",
+        "username": "Username",
+        "usernameHint": "Letters, numbers, dots and underscores, 3 to 24 characters",
+        "displayName": "Display name (optional)",
+        "create": "Create username",
+        "created": "Created {{name}}"
+      },
+      "drop": "Drop photos here",
+      "dropHint": "Each photo becomes its own item. Drop more photos onto an item to add them to it.",
+      "needWho": "Choose a username first",
+      "pickFiles": "Choose photos",
+      "dropOnRow": "Drop photos here to add them to this item",
+      "addPhotos": "Add photos to this item",
+      "addMore": "Add",
+      "photo": {
+        "uploading": "Uploading",
+        "failed": "Upload failed",
+        "retry": "Retry",
+        "remove": "Remove photo"
+      },
+      "photoCount": "{{n}} of {{max}} photos",
+      "reading": "Reading the photos",
+      "suggested": "Suggested",
+      "fields": {
+        "photos": "Photos",
+        "title": "Title",
+        "description": "Description (optional)",
+        "categoryId": "Category",
+        "brandId": "Brand",
+        "sizeId": "Size",
+        "conditionId": "Condition",
+        "colourIds": "Colours",
+        "priceMinor": "Price",
+        "materialId": "Material",
+        "patternId": "Pattern",
+        "parcelSizeId": "Parcel size",
+        "ownerOverride": "Different owner (optional)"
+      },
+      "category": {
+        "title": "Choose a category",
+        "search": "Search categories",
+        "choose": "Choose a category",
+        "none": "No category matches"
+      },
+      "choose": "Choose",
+      "chooseCategoryFirst": "Choose a category first",
+      "notNeeded": "Not needed",
+      "brandPlaceholder": "Type or pick a brand",
+      "brandListed": "Listed brand",
+      "colourPlaceholder": "Choose colours",
+      "ownerOverridePlaceholder": "Same as the batch",
+      "incomplete": "Incomplete",
+      "missing": "Missing: {{fields}}",
+      "ready": "Ready to publish",
+      "failedReason": "Not published: {{reason}}",
+      "removeRow": "Remove this item",
+      "viewItem": "View item",
+      "summary": "{{ready}} of {{total}} items ready",
+      "ownerNeeded": "Type the owner's full name above.",
+      "publish_one": "Publish {{count}} item",
+      "publish_other": "Publish {{count}} items",
+      "publishing": "Publishing",
+      "published_one": "Published {{count}} item",
+      "published_other": "Published {{count}} items",
+      "publishFailed_one": "{{count}} item could not be published",
+      "publishFailed_other": "{{count}} items could not be published",
+      "clearPublished": "Clear published items",
+      "errors": {
+        "ownerRequired": "Add the owner's full name, at least 2 characters",
+        "ownerTooLong": "The owner's name is too long"
+      },
+      "items": {
+        "title": "Uploaded items",
+        "download": "Download Excel",
+        "downloaded": "Downloaded {{name}}",
+        "downloadFailed": "Could not download the file",
+        "username": "Username",
+        "allUsernames": "All usernames",
+        "owner": "Owner's full name",
+        "status": "Status",
+        "empty": "Nothing uploaded yet",
+        "col": {
+          "uploaded": "Uploaded",
+          "owner": "Owner (private)",
+          "username": "Shown as",
+          "item": "Item",
+          "category": "Category",
+          "brand": "Brand",
+          "size": "Size",
+          "price": "Price",
+          "status": "Status",
+          "soldOn": "Sold on",
+          "saleTotal": "Sale total"
+        },
+        "statuses": {
+          "all": "All",
+          "active": "Active",
+          "reserved": "Reserved",
+          "sold": "Sold",
+          "hidden": "Hidden",
+          "removed": "Removed"
+        }
+      },
+      "leaveWarning": "Leave this page? Items you have not published will be lost"
     }
   }
 }

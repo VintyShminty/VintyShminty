@@ -1,30 +1,24 @@
 import { waitUntil } from "@vercel/functions";
-import { brands, listingColours, listingPhotos, listingPriceHistory, listings, profiles } from "@vinty/db";
+import { listingColours, listingPhotos, listingPriceHistory, listings, profiles } from "@vinty/db";
 import {
   createListingInputSchema,
   errorResponseSchema,
-  findCategory,
   idSchema,
-  type ListingDraftInput,
-  type ListingFieldErrors,
-  type ListingPhotoInput,
   listingDetailSchema,
   listingDraftInputSchema,
   MY_LISTING_STATUSES,
   type MyListingStatus,
   myListingsPageSchema,
   myListingsQuerySchema,
-  type ReferenceData,
   replaceListingPhotosInputSchema,
-  stripHiddenAttributes,
   updateListingStatusInputSchema,
-  validateListing,
 } from "@vinty/shared";
-import { and, asc, desc, eq, inArray, lt, ne, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, lt, ne, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { decodeCursor, encodeCursor } from "../lib/cursor.js";
 import { ApiError } from "../lib/errors.js";
+import { createListingWriter } from "../lib/listing-write.js";
 import {
   findOwnListing,
   hasOrders,
@@ -33,8 +27,8 @@ import {
   refreshSellerCounts,
   toMyCard,
 } from "../lib/listings.js";
-import { cardKeyFor, type StoredVariants, storePhotoVariants } from "../lib/photo-variants.js";
-import { keyBelongsToUser, MAX_UPLOAD_BYTES } from "../lib/storage.js";
+import { cardKeyFor } from "../lib/photo-variants.js";
+import { keyBelongsToUser } from "../lib/storage.js";
 
 const idParams = z.object({ id: idSchema });
 const WRITE_LIMIT = { rateLimit: { max: 60, timeWindow: "1 minute" } };
@@ -52,27 +46,6 @@ const MANUAL_TRANSITIONS: Record<string, readonly string[]> = {
   reserved: ["active", "sold"],
 };
 
-/** Columns a listing write can set, after merging the request into what is saved. */
-type Merged = {
-  title: string;
-  description: string;
-  categoryId: string | null;
-  brandId: string | null;
-  /** The seller's own text, only when there is no brandId. */
-  brandName: string | null;
-  sizeId: string | null;
-  conditionId: string | null;
-  materialId: string | null;
-  patternId: string | null;
-  parcelSizeId: string | null;
-  priceMinor: number | null;
-  currency: string;
-  usedAiPhotos: boolean;
-  colourIds: string[];
-};
-
-const pick = <T>(next: T | undefined, current: T): T => (next === undefined ? current : next);
-
 /** Selling: create, edit, photos, publish, state changes, delete, and the owner's own list (Milestone 2). */
 const listingRoutes: FastifyPluginAsyncZod = async (app) => {
   const { db, storage } = app;
@@ -83,8 +56,11 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
     return request.session.user.id;
   };
 
-  const invalid = (fields: ListingFieldErrors | Record<string, string>) =>
-    ApiError.invalid("Some fields are not valid", fields as Record<string, string>);
+  const { prepare, writePhotos, writeColours, columnsOf } = createListingWriter({
+    db,
+    storage,
+    log: app.log,
+  });
 
   async function ownOr404(id: string, userId: string): Promise<ListingRow> {
     const row = await findOwnListing(db, id, userId);
@@ -110,214 +86,6 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
     return rows.map((r) => r.key);
   }
 
-  /**
-   * A photo list is accepted when every key is one the seller uploaded (their own folder) and the file is really in
-   * storage and not too big, or the key is already on this listing. Returns the byte size of each new file.
-   */
-  async function checkPhotos(
-    userId: string,
-    photos: ListingPhotoInput[],
-    existingKeys: string[],
-  ): Promise<{ error?: string; sizes: Map<string, number>; variants: Map<string, StoredVariants> }> {
-    const sizes = new Map<string, number>();
-    const variants = new Map<string, StoredVariants>();
-    const keys = photos.map((p) => p.key);
-    if (new Set(keys).size !== keys.length)
-      return { error: "validation.listing.photos.invalid", sizes, variants };
-    const fresh = photos.filter((p) => !existingKeys.includes(p.key));
-    for (const photo of fresh) {
-      if (!keyBelongsToUser(photo.key, "listing_photo", userId)) {
-        return { error: "validation.listing.photos.invalid", sizes, variants };
-      }
-    }
-    const found = await Promise.all(fresh.map((p) => storage.size(p.key)));
-    for (const [index, size] of found.entries()) {
-      const photo = fresh[index] as ListingPhotoInput;
-      if (size === null) return { error: "validation.listing.photos.invalid", sizes, variants };
-      if (size > MAX_UPLOAD_BYTES.listing_photo)
-        return { error: "validation.upload.tooBig", sizes, variants };
-      sizes.set(photo.key, size);
-    }
-    if (fresh.length > 0) {
-      // A key that already belongs to another listing cannot be reused.
-      const [taken] = await db
-        .select({ id: listingPhotos.id })
-        .from(listingPhotos)
-        .where(
-          inArray(
-            listingPhotos.objectKey,
-            fresh.map((p) => p.key),
-          ),
-        )
-        .limit(1);
-      if (taken) return { error: "validation.listing.photos.invalid", sizes, variants };
-      // The small copy and the blurred preview for each new photo. A photo that cannot be processed is saved
-      // anyway, the daily photo job tries again.
-      await Promise.all(
-        fresh.map(async (photo) => {
-          try {
-            const stored = await storePhotoVariants(storage, photo.key, photo.contentType);
-            if (stored && stored !== "unreadable") variants.set(photo.key, stored);
-          } catch (err) {
-            app.log.warn({ err, key: photo.key }, "could not make a small copy of a photo");
-          }
-        }),
-      );
-    }
-    return { sizes, variants };
-  }
-
-  /**
-   * Merges a request into the saved listing, drops rows the category hides, and runs the shared rules plus the
-   * checks only the server can make (brand exists, photo files exist). Throws 400 with field keys.
-   */
-  async function prepare(
-    userId: string,
-    reference: ReferenceData,
-    input: ListingDraftInput,
-    current: { row: ListingRow; colourIds: string[]; photoKeys: string[] } | null,
-    publish: boolean,
-  ) {
-    const base: Merged = current
-      ? {
-          title: current.row.title,
-          description: current.row.description,
-          categoryId: current.row.categoryId,
-          brandId: current.row.brandId,
-          brandName: current.row.brandId ? null : current.row.brandName,
-          sizeId: current.row.sizeId,
-          conditionId: current.row.conditionId,
-          materialId: current.row.materialId,
-          patternId: current.row.patternId,
-          parcelSizeId: current.row.parcelSizeId,
-          priceMinor: current.row.priceMinor,
-          currency: current.row.currency,
-          usedAiPhotos: current.row.usedAiPhotos,
-          colourIds: current.colourIds,
-        }
-      : {
-          title: "",
-          description: "",
-          categoryId: null,
-          brandId: null,
-          brandName: null,
-          sizeId: null,
-          conditionId: null,
-          materialId: null,
-          patternId: null,
-          parcelSizeId: null,
-          priceMinor: null,
-          currency: "ILS",
-          usedAiPhotos: false,
-          colourIds: [],
-        };
-    let merged: Merged = {
-      title: pick(input.title, base.title).trim(),
-      description: pick(input.description, base.description).trim(),
-      categoryId: pick(input.categoryId, base.categoryId),
-      brandId: pick(input.brandId, base.brandId),
-      brandName: null,
-      sizeId: pick(input.sizeId, base.sizeId),
-      conditionId: pick(input.conditionId, base.conditionId),
-      materialId: pick(input.materialId, base.materialId),
-      patternId: pick(input.patternId, base.patternId),
-      parcelSizeId: pick(input.parcelSizeId, base.parcelSizeId),
-      priceMinor: pick(input.priceMinor, base.priceMinor),
-      currency: pick(input.currency, base.currency),
-      usedAiPhotos: pick(input.usedAiPhotos, base.usedAiPhotos),
-      colourIds: pick(input.colourIds, base.colourIds),
-    };
-    // A typed brand only counts when no listed brand is chosen. Changing the brand id alone clears an old typed one.
-    if (!merged.brandId) {
-      merged.brandName =
-        input.brandName !== undefined ? input.brandName : input.brandId !== undefined ? null : base.brandName;
-    }
-    const category = merged.categoryId ? findCategory(reference.categories, merged.categoryId) : null;
-    merged = stripHiddenAttributes(merged, category);
-
-    const photos = input.photos;
-    const photoCount = photos ? photos.length : (current?.photoKeys.length ?? 0);
-    const fieldErrors: Record<string, string> = {
-      ...validateListing({ ...merged, photoCount }, reference, { publish }),
-    };
-    if (!reference.currencies.some((c) => c.code === merged.currency)) {
-      fieldErrors.priceMinor ??= "validation.listing.currency.invalid";
-    }
-
-    let brandName: string | null = null;
-    if (merged.brandId) {
-      const [brand] = await db
-        .select({ name: brands.name })
-        .from(brands)
-        .where(and(eq(brands.id, merged.brandId), eq(brands.isActive, true)))
-        .limit(1);
-      if (brand) brandName = brand.name;
-      else fieldErrors.brandId = "validation.listing.brand.invalid";
-    } else if (merged.brandName) {
-      brandName = merged.brandName;
-    }
-
-    let photoSizes = new Map<string, number>();
-    let photoVariants = new Map<string, StoredVariants>();
-    if (photos && !fieldErrors.photos) {
-      const checked = await checkPhotos(userId, photos, current?.photoKeys ?? []);
-      if (checked.error) fieldErrors.photos = checked.error;
-      photoSizes = checked.sizes;
-      photoVariants = checked.variants;
-    }
-
-    if (Object.keys(fieldErrors).length > 0) throw invalid(fieldErrors);
-    return { merged, brandName, photos, photoSizes, photoVariants };
-  }
-
-  type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
-
-  async function writePhotos(
-    tx: Tx,
-    listingId: string,
-    photos: ListingPhotoInput[],
-    sizes: Map<string, number>,
-    variants: Map<string, StoredVariants>,
-  ) {
-    // Photos kept from before keep their small copy and preview.
-    const before = new Map(
-      (
-        await tx
-          .select({
-            key: listingPhotos.objectKey,
-            cardObjectKey: listingPhotos.cardObjectKey,
-            placeholder: listingPhotos.placeholder,
-          })
-          .from(listingPhotos)
-          .where(eq(listingPhotos.listingId, listingId))
-      ).map((r) => [r.key, r]),
-    );
-    await tx.delete(listingPhotos).where(eq(listingPhotos.listingId, listingId));
-    if (photos.length === 0) return;
-    await tx.insert(listingPhotos).values(
-      photos.map((p, position) => ({
-        listingId,
-        objectKey: p.key,
-        width: p.width,
-        height: p.height,
-        contentType: p.contentType,
-        byteSize: sizes.get(p.key) ?? p.byteSize ?? null,
-        cardObjectKey: variants.get(p.key)?.cardObjectKey ?? before.get(p.key)?.cardObjectKey ?? null,
-        placeholder:
-          variants.get(p.key)?.placeholder ?? before.get(p.key)?.placeholder ?? p.placeholder ?? null,
-        position,
-      })),
-    );
-  }
-
-  async function writeColours(tx: Tx, listingId: string, colourIds: string[]) {
-    await tx.delete(listingColours).where(eq(listingColours.listingId, listingId));
-    if (colourIds.length === 0) return;
-    await tx
-      .insert(listingColours)
-      .values(colourIds.map((colourId, position) => ({ listingId, colourId, position })));
-  }
-
   /** Files the seller uploaded that are no longer on any listing. Seed photos are never touched. */
   function removeFiles(userId: string, keys: string[], log: { warn: (o: object, m: string) => void }) {
     for (const key of keys) {
@@ -326,22 +94,6 @@ const listingRoutes: FastifyPluginAsyncZod = async (app) => {
       waitUntil(storage.remove(cardKeyFor(key)).catch(() => undefined));
     }
   }
-
-  const columnsOf = (m: Merged, brandName: string | null) => ({
-    title: m.title,
-    description: m.description,
-    categoryId: m.categoryId,
-    brandId: m.brandId,
-    brandName,
-    sizeId: m.sizeId,
-    conditionId: m.conditionId,
-    materialId: m.materialId,
-    patternId: m.patternId,
-    parcelSizeId: m.parcelSizeId,
-    priceMinor: m.priceMinor,
-    currency: m.currency,
-    usedAiPhotos: m.usedAiPhotos,
-  });
 
   async function respond(id: string, userId: string) {
     const reference = await app.reference.get();

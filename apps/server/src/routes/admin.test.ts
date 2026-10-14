@@ -140,7 +140,7 @@ describe.skipIf(!databaseUrl)("admin panel", () => {
     const audit = (await db().select().from(adminActions).where(eq(adminActions.adminUserId, admin.id))).find(
       (a) => a.action === "user_role_changed" && a.targetId === regular.id,
     );
-    expect(audit?.details).toEqual({ from: "user", to: "admin" });
+    expect(audit?.details).toEqual({ from: "user", to: "admin", username: expect.any(String) });
 
     expect(
       (await call("POST", `/v1/admin/users/${regular.id}/role`, admin.token, { role: "user" })).statusCode,

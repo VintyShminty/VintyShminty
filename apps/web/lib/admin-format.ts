@@ -97,13 +97,15 @@ export function describeAction(action: AdminAction, t: TFunction): string {
   const d = action.details;
   switch (action.action) {
     case "user_role_changed":
-      return d.to === "admin" ? t("admin.actions.madeAdmin") : t("admin.actions.removedAdmin");
+      return d.to === "admin"
+        ? t("admin.actions.madeAdmin", { name: asText(d.username) ?? t("admin.actions.aPerson") })
+        : t("admin.actions.removedAdmin", { name: asText(d.username) ?? t("admin.actions.aPerson") });
     case "user_deleted":
       return t("admin.actions.userDeleted", {
         name: asText(d.username) ?? asText(d.email) ?? t("admin.actions.aPerson"),
       });
     case "admin_granted":
-      return t("admin.actions.adminGranted");
+      return t("admin.actions.adminGranted", { name: asText(d.username) ?? t("admin.actions.aPerson") });
     case "expenses_config_saved":
       return t("admin.actions.expensesConfigSaved");
     case "expenses_month_saved":

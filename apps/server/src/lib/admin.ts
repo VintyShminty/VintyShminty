@@ -107,7 +107,7 @@ export async function loadDashboard(db: Db, now = new Date()): Promise<AdminDash
 const outerUserId = sql.raw('"users"."id"');
 
 /** Escapes % and _ so a search for them matches the characters themselves. */
-const likePattern = (q: string) => `%${q.replace(/[\\%_]/g, "\\$&")}%`;
+export const likePattern = (q: string) => `%${q.replace(/[\\%_]/g, "\\$&")}%`;
 
 export async function listUsers(db: Db, query: AdminUsersQuery): Promise<AdminUsersPage> {
   const filters: (SQL | undefined)[] = [olderThan(query.cursor, users.createdAt, users.id)];
@@ -311,4 +311,10 @@ export async function loadExpenses(db: Db, month: string, now = new Date()): Pro
 export function isForeignKeyViolation(err: unknown): boolean {
   const code = (e: unknown) => (e as { code?: string } | undefined)?.code;
   return code(err) === "23503" || code((err as { cause?: unknown } | undefined)?.cause) === "23503";
+}
+
+/** Whether a database error is a unique rule being broken (the same value already exists). */
+export function isUniqueViolation(err: unknown): boolean {
+  const code = (e: unknown) => (e as { code?: string } | undefined)?.code;
+  return code(err) === "23505" || code((err as { cause?: unknown } | undefined)?.cause) === "23505";
 }

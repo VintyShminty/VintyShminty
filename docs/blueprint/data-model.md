@@ -2024,9 +2024,9 @@ Used by: Expenses tab.
 
 ### `stand_in_sellers`
 
-Marks a public seller that admins created to hold uploaded clothes. These people cannot log in.
+Marks a public seller that admins created to hold uploaded clothes. These people cannot log in: the user row has an address ending in `@stand-in.invalid` (never receives mail), no `accounts` row (no password, no Google or Apple link), email and push switched off in `user_settings`, and `lib/auth.ts` refuses to create a session for anyone listed here. The listing upload page creates them (`POST /v1/admin/stand-ins`).
 
-Used by: Admin Users tab (the Stand in tag), admin uploads (a later phase).
+Used by: Admin Users tab (the Stand in tag), the Listing upload page.
 
 | Field | Type | Null | Notes |
 |---|---|---|---|
@@ -2037,9 +2037,9 @@ Used by: Admin Users tab (the Stand in tag), admin uploads (a later phase).
 
 ### `admin_uploads`
 
-Who really owns a listing that an admin uploaded for a stand in seller. The name is private, admins only, and is never sent to the app or the website.
+Who really owns a listing that an admin uploaded for a stand in seller. The name is private, admins only, and is never sent to the app or the website. It is stored per item, so one username can hold clothes of several owners and one owner's clothes can sit under several usernames. No public query reads this table (a test checks the public listing and profile answers for the name).
 
-Used by: admin uploads (a later phase).
+Used by: the Listing upload page and its Excel export (`/v1/admin/uploads`).
 
 | Field | Type | Null | Notes |
 |---|---|---|---|

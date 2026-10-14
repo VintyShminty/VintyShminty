@@ -1,13 +1,23 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { expo } from "@better-auth/expo";
 import { waitUntil } from "@vercel/functions";
-import { accounts, type Database, profiles, sessions, userSettings, users, verifications } from "@vinty/db";
+import {
+  accounts,
+  type Database,
+  profiles,
+  sessions,
+  standInSellers,
+  userSettings,
+  users,
+  verifications,
+} from "@vinty/db";
 import {
   LOCALES,
   type Locale,
   OTP_LENGTH,
   PASSWORD_MAX,
   PASSWORD_MIN,
+  STAND_IN_EMAIL_DOMAIN,
   USERNAME_MAX,
   USERNAME_MIN,
 } from "@vinty/shared";
@@ -59,6 +69,8 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
     code: string,
     acceptLanguage: string | null | undefined,
   ) => {
+    // A stand-in seller (admin panel, listing upload) has an address that can never receive mail. Nothing to send.
+    if (email.toLowerCase().endsWith(`@${STAND_IN_EMAIL_DOMAIN}`)) return;
     const [row] = await db
       .select({ language: userSettings.language })
       .from(users)
@@ -116,6 +128,20 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
       }),
     },
     databaseHooks: {
+      // Nobody can sign in as a stand-in seller, by any route. They have no password and no sign in method, and this
+      // refuses a session for them even if one were ever tried (a code sent to the unreachable address, a link).
+      session: {
+        create: {
+          before: async (session) => {
+            const [standIn] = await db
+              .select({ id: standInSellers.userId })
+              .from(standInSellers)
+              .where(eq(standInSellers.userId, session.userId))
+              .limit(1);
+            return standIn ? false : { data: session };
+          },
+        },
+      },
       user: {
         create: {
           // Sign up asks only for email and password (D-020). Everyone still needs a public username, so one is

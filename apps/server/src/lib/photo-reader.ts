@@ -183,7 +183,13 @@ const ESTIMATED_TOKENS_PER_IMAGE = 1600;
  * cap would be passed (the caller then treats it like any failure and answers with an empty suggestion), and every
  * call that used tokens is written to the cost log, failed ones included.
  */
-export function meteredPhotoReader(reader: PhotoReader, meter: AiMeter, model: string): PhotoReader {
+export function meteredPhotoReader(
+  reader: PhotoReader,
+  meter: AiMeter,
+  model: string,
+  /** The name the cost log and the Expenses page know this use by. */
+  action = "photo_check",
+): PhotoReader {
   return {
     get enabled() {
       return reader.enabled;
@@ -195,7 +201,7 @@ export function meteredPhotoReader(reader: PhotoReader, meter: AiMeter, model: s
         estimatedInputTokens:
           Math.ceil(input.catalog.length / 4) + input.images.length * ESTIMATED_TOKENS_PER_IMAGE,
       });
-      const base = { provider: "anthropic", model, action: "photo_check", userId: input.userId ?? null };
+      const base = { provider: "anthropic", model, action, userId: input.userId ?? null };
       try {
         const result = await reader.read(input);
         await meter.record({ ...base, usage: result.usage, ok: true });

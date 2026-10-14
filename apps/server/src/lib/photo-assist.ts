@@ -8,7 +8,8 @@ import {
   type ReferenceData,
 } from "@vinty/shared";
 import { eq } from "drizzle-orm";
-import type { RawReading } from "./photo-reader.js";
+import type { FastifyInstance } from "fastify";
+import type { PhotoMediaType, PhotoReader, RawReading } from "./photo-reader.js";
 
 type Db = NonNullable<Database["db"]>;
 
@@ -187,6 +188,75 @@ export async function resolveSuggestion(
     description: null,
   };
   return suggestion;
+}
+
+/** The API takes images up to 5 MB each. The app already shrinks photos to about 1 MB, so this is a safety net. */
+const MAX_IMAGE_BYTES = 5_000_000;
+const READ_TIMEOUT_MS = 15_000;
+
+const MEDIA_TYPES: Record<string, PhotoMediaType> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+
+/**
+ * Reads already uploaded photos with a (metered) photo reader and turns the answer into a suggestion. Shared by the
+ * sell form's helper (routes/photo-assist.ts) and the admin listing upload (routes/admin-uploads.ts). It checks nothing
+ * about who owns the keys, the caller does that first. Never throws: when the reader is off, refused by the AI meter,
+ * slow or wrong, the answer is the empty suggestion.
+ */
+export function createPhotoSuggester(
+  app: Pick<FastifyInstance, "db" | "storage" | "reference">,
+  reader: PhotoReader,
+) {
+  const brandMatcher = createBrandMatcher(app.db);
+  let catalog: { version: string; value: ReturnType<typeof buildCatalog> } | null = null;
+
+  return async function suggest(input: {
+    keys: string[];
+    language: "en" | "he";
+    userId: string;
+    log: { info: (o: object, m: string) => void; warn: (o: object, m: string) => void };
+  }): Promise<PhotoSuggestion> {
+    const { keys, language, userId, log } = input;
+    const startedAt = Date.now();
+    try {
+      const images = (
+        await Promise.all(
+          keys.map(async (key) => {
+            const mediaType = MEDIA_TYPES[key.split(".").pop()?.toLowerCase() ?? ""];
+            if (!mediaType) return null;
+            const data = await app.storage.read(key, MAX_IMAGE_BYTES);
+            return data ? { mediaType, data } : null;
+          }),
+        )
+      ).filter((image): image is NonNullable<typeof image> => image !== null);
+      if (images.length === 0) return EMPTY_PHOTO_SUGGESTION;
+
+      const reference = await app.reference.get();
+      if (catalog?.version !== reference.version) {
+        catalog = { version: reference.version, value: buildCatalog(reference) };
+      }
+      const { reading, usage } = await reader.read({
+        images,
+        catalog: catalog.value.text,
+        language,
+        userId,
+        signal: AbortSignal.timeout(READ_TIMEOUT_MS),
+      });
+      log.info({ photos: images.length, ms: Date.now() - startedAt, ...usage }, "photo helper read");
+      return await resolveSuggestion(reading, catalog.value, brandMatcher);
+    } catch (error) {
+      // Never a 500: the form works without help. The error text can name the model, never the key or the photos.
+      log.warn(
+        { ms: Date.now() - startedAt, error: error instanceof Error ? error.name : "unknown" },
+        "photo helper failed",
+      );
+      return EMPTY_PHOTO_SUGGESTION;
+    }
+  };
 }
 
 export { EMPTY_PHOTO_SUGGESTION };

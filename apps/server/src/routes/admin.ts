@@ -33,6 +33,8 @@ import {
 } from "../lib/admin.js";
 import type { AiMeter } from "../lib/ai-cost.js";
 import { ApiError } from "../lib/errors.js";
+import type { PhotoReader } from "../lib/photo-reader.js";
+import { registerAdminUploadRoutes } from "./admin-uploads.js";
 
 const errors = {
   400: errorResponseSchema,
@@ -48,7 +50,10 @@ const idParams = z.object({ id: idSchema });
  * in the database (never what the browser says). Every change writes an `admin_actions` row in the same
  * transaction. Docs: docs/blueprint/api.md, "Admin panel".
  */
-const adminRoutes: FastifyPluginAsyncZod<{ meter: AiMeter }> = async (app, { meter }) => {
+const adminRoutes: FastifyPluginAsyncZod<{ meter: AiMeter; reader: PhotoReader }> = async (
+  app,
+  { meter, reader },
+) => {
   const db = app.db;
 
   const requireAdmin = async (
@@ -67,6 +72,8 @@ const adminRoutes: FastifyPluginAsyncZod<{ meter: AiMeter }> = async (app, { met
     if (!request.session) throw ApiError.unauthenticated();
     return request.session.user.id;
   };
+
+  registerAdminUploadRoutes(app, { db, preHandler, adminIdOf, reader });
 
   app.get(
     "/v1/admin/dashboard",
@@ -106,10 +113,18 @@ const adminRoutes: FastifyPluginAsyncZod<{ meter: AiMeter }> = async (app, { met
         throw ApiError.conflict("You cannot remove your own admin access");
       }
       await db.transaction(async (tx) => {
-        const [before] = await tx.select({ role: users.role }).from(users).where(eq(users.id, id)).limit(1);
+        const [before] = await tx
+          .select({ role: users.role, username: users.username })
+          .from(users)
+          .where(eq(users.id, id))
+          .limit(1);
         if (!before) throw ApiError.notFound("No such person");
         await tx.update(users).set({ role }).where(eq(users.id, id));
-        await writeAudit(tx, adminId, "user_role_changed", "user", id, { from: before.role, to: role });
+        await writeAudit(tx, adminId, "user_role_changed", "user", id, {
+          from: before.role,
+          to: role,
+          username: before.username,
+        });
       });
       return { id, role };
     },

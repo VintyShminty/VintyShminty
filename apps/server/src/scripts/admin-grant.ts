@@ -47,7 +47,7 @@ try {
         action: "admin_granted",
         targetType: "user",
         targetId: user.id,
-        details: { from: user.role, to: "admin", via: "command line" },
+        details: { from: user.role, to: "admin", via: "command line", username: user.username },
       });
     });
     console.log(`${user.username ?? user.email} is now an admin on ${host}.`);
