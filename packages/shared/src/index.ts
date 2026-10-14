@@ -1,7 +1,9 @@
 export * from "./auth.js";
 export * from "./auth-errors.js";
+export * from "./bidi.js";
 export * from "./browse-tiles.js";
 export * from "./bumps.js";
+export * from "./chat-format.js";
 export * from "./common.js";
 export * from "./discovery.js";
 export * from "./enums.js";
@@ -14,6 +16,7 @@ export * from "./listings.js";
 export * from "./messaging.js";
 export * from "./money.js";
 export * from "./notification-settings.js";
+export * from "./notification-text.js";
 export * from "./orders.js";
 export * from "./photo-assist.js";
 export * from "./price-format.js";

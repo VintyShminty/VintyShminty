@@ -41,7 +41,7 @@ A separate website as important as the app, for laptops and phone browsers, matc
 | W1 | Foundation | An empty website online in both languages, in our colours and fonts. Colours, fonts, wording and server calls shared with the app. Logging in and live chat proven to work in the browser | Built, in review (branch feat/website-w1). Online once Eden adds the Vercel project (`docs/going-online.md`, The website on Vercel) |
 | W2 | Public pages | Home, Browse, search with filters, item page, seller page, help. Google can find them and shared links show a photo preview | Built, in review (branch feat/website-w2) |
 | W3 | Accounts | Sign up, log in, codes, Apple and Google, profile, settings, favourites, saved searches. The home feed learns from the website too | Built, in review (branch feat/website-w3). Apple on the website set up in Apple Developer and Vercel (2026-10-14) |
-| W4 | Messaging | Inbox and live chat, the order tracker card, notifications | Planned |
+| W4 | Messaging | Inbox and live chat, the order tracker card, notifications | Built, in review (branch feat/website-w4). Offers and order buttons in chat open the "works in the app for now" note until W5 |
 | W5 | Orders | Offers, simulated checkout, order timeline, reviews, pretend balance, bundles | Planned |
 | W6 | Selling | The sell form with photo uploads from the browser, drafts, own listings | Planned |
 | W7 | Finishing | Terms and privacy, every page checked at both sizes and in both languages, then shown | Planned |

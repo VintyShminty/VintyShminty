@@ -6,12 +6,14 @@ import { usePathname } from "next/navigation";
 import { type ReactNode, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useLogOut } from "@/components/auth/log-out";
+import { UnreadCount } from "@/components/inbox/inbox-link";
 import { LanguageSwitch } from "@/components/language-switch";
 import { SellButton } from "@/components/sell-button";
 import { useViewer } from "@/components/site-context";
 import { ACCOUNT_LINKS } from "@/lib/account-links";
 import type { Lang } from "@/lib/i18n";
 import { loginHref, signUpHref } from "@/lib/login-links";
+import { useUnread } from "@/lib/use-unread";
 
 /**
  * The phone browser menu (D-030): a menu button that opens a drawer from the end side with Sell, the Browse tiles
@@ -25,6 +27,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
   const dialog = useRef<HTMLDialogElement>(null);
   const pathname = usePathname();
   const { logOut, busy } = useLogOut(lang);
+  const unread = useUnread();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: closing when the page changes is the point
   useEffect(() => dialog.current?.close(), [pathname]);
@@ -70,6 +73,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
               <Link href={`/${lang}/inbox`} className={linkClass}>
                 <Inbox size={18} aria-hidden />
                 {t("tabs.inbox")}
+                <UnreadCount count={unread.messages + unread.notifications} className="ms-auto" />
               </Link>
               {ACCOUNT_LINKS.map(({ key, path, icon: Icon }) => (
                 <Link key={key} href={`/${lang}${path}`} className={linkClass}>

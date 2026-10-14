@@ -1,8 +1,9 @@
-import { Heart, Inbox } from "lucide-react";
+import { Heart } from "lucide-react";
 import Link from "next/link";
 import { AccountMenu } from "@/components/auth/account-menu";
 import { BrowsePanel } from "@/components/browse-panel";
 import { BrowseTiles } from "@/components/browse-tiles";
+import { InboxLink } from "@/components/inbox/inbox-link";
 import { LanguageSwitch } from "@/components/language-switch";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { SearchField } from "@/components/search-field";
@@ -57,9 +58,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
           />
           {viewer ? (
             <>
-              <Link href={`/${lang}/inbox`} aria-label={t("tabs.inbox")} className={iconLink}>
-                <Inbox size={20} aria-hidden />
-              </Link>
+              <InboxLink lang={lang} className={iconLink} />
               <Link href={`/${lang}/favourites`} aria-label={t("web.nav.favourites")} className={iconLink}>
                 <Heart size={20} aria-hidden />
               </Link>
