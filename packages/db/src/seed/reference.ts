@@ -295,7 +295,7 @@ export async function seedReference(db: SeedDb): Promise<ReferenceCounts> {
   counts.categories = flat.length;
   counts.category_size_groups = linkRows.length;
 
-  // A database that still has the old clothing tree gets its listings moved and the old rows removed (D-030).
+  // A database that still has the old clothing tree gets its listings moved and the old rows removed (D-033).
   // On a database that never had them this does nothing.
   const moved = await moveCategories(db, categoryId);
   counts.listings_moved = Object.values(moved.listings).reduce((a, b) => a + b, 0);
