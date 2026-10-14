@@ -38,7 +38,7 @@ A separate website as important as the app, for laptops and phone browsers, matc
 | # | Stage | What you can do at the end | Status |
 |---|---|---|---|
 | W0 | Brief and laptop look | One website brief (the spec with all our changes) and mockups of the main pages at phone and laptop width, in both languages. Eden picks, the picks become design decisions | Done (branch feat/website-w0, D-030) |
-| W1 | Foundation | An empty website online in both languages, in our colours and fonts. Colours, fonts, wording and server calls shared with the app. Logging in and live chat proven to work in the browser | Planned |
+| W1 | Foundation | An empty website online in both languages, in our colours and fonts. Colours, fonts, wording and server calls shared with the app. Logging in and live chat proven to work in the browser | Built, in review (branch feat/website-w1). Online once Eden adds the Vercel project (`docs/going-online.md`, The website on Vercel) |
 | W2 | Public pages | Home, Browse, search with filters, item page, seller page, help. Google can find them and shared links show a photo preview | Planned |
 | W3 | Accounts | Sign up, log in, codes, Apple and Google, profile, settings, favourites, saved searches. The home feed learns from the website too | Planned |
 | W4 | Messaging | Inbox and live chat, the order tracker card, notifications | Planned |
