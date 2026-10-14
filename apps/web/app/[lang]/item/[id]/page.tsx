@@ -1,5 +1,5 @@
 import { formatPrice, type ListingDetail } from "@vinty/shared";
-import { Check, Clock, EyeOff, Moon, Pencil } from "lucide-react";
+import { Check, Clock, EyeOff, Moon, Pencil, TrendingDown } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,7 +12,7 @@ import { ItemCard } from "@/components/item-card";
 import { ItemDwell } from "@/components/item-dwell";
 import { ItemGrid } from "@/components/item-grid";
 import { PhotoGallery } from "@/components/photo-gallery";
-import { PricePill } from "@/components/price-pill";
+import { CoveredLine } from "@/components/price-pill";
 import { ReportButton } from "@/components/report-dialog";
 import { SellerAvatar } from "@/components/seller-avatar";
 import { SellerStamp } from "@/components/seller-stamp";
@@ -225,7 +225,7 @@ export default async function ItemPage({
 
         {/* The card: it flows under the photos on a phone and stays in view beside them on a laptop (D-030, 4). */}
         <aside aria-label={listing.title} className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <div className="flex flex-col gap-lg lg:sticky lg:top-28 lg:rounded-window lg:border lg:border-border lg:p-xl">
+          <div className="flex flex-col gap-lg lg:rounded-window lg:border lg:border-border lg:p-xl">
             {isOwner ? (
               <>
                 {listing.status === "sold" ||
@@ -275,28 +275,47 @@ export default async function ItemPage({
               )}
             </div>
 
+            {/* The price reads like the item card (D-032): the seller price in espresso, a drop as the old price
+                struck and muted, then the Coverage price as a quiet line. No tinted backgrounds. */}
             <div className="flex flex-col gap-xs">
-              <p className={cn("text-title font-bold", sold ? "text-text-4 line-through" : "text-primary")}>
-                {formatPrice(price, listing.currency)}
-              </p>
-              {priceDrop && !sold ? (
-                <p className="text-body-sm text-text-3">
-                  {t("listing.was", {
-                    price: formatPrice(listing.previousPriceMinor as number, listing.currency),
-                  })}
-                  {` · ${t("listing.percentOff", { percent: percentOff })}`}
+              <div className="flex flex-wrap items-baseline gap-x-sm gap-y-xs">
+                <p className={cn("text-title font-bold", sold ? "text-text-4 line-through" : "text-primary")}>
+                  {formatPrice(price, listing.currency)}
                 </p>
-              ) : null}
-              <PricePill
-                className="mt-xs self-start"
+                {priceDrop && !sold ? (
+                  <>
+                    <span className="text-body text-text-4 line-through">
+                      {formatPrice(listing.previousPriceMinor as number, listing.currency)}
+                    </span>
+                    <Badge
+                      variant="accent"
+                      icon={TrendingDown}
+                      label={t("listing.percentOff", { percent: percentOff })}
+                    />
+                  </>
+                ) : null}
+              </div>
+              <CoveredLine
+                className="text-body-sm"
                 amountMinor={buyerPrice}
                 currency={listing.currency}
                 muted={sold}
               />
             </div>
 
+            {listing.description ? (
+              <section className="flex flex-col gap-xs">
+                <h2 className="text-section-label font-semibold uppercase tracking-wide text-text-3">
+                  {t("listing.description")}
+                </h2>
+                <p dir="auto" className="whitespace-pre-line text-body text-text-1">
+                  {listing.description}
+                </p>
+              </section>
+            ) : null}
+
             {sold ? null : (
-              <div className="rounded-control bg-accent-tint p-md">
+              <div className="border-t border-border-subtle pt-md">
                 <dl aria-label={t("web.item.breakdownLabel")}>
                   <BreakdownLine
                     label={t("item.breakdown.item")}
@@ -395,17 +414,6 @@ export default async function ItemPage({
         </aside>
 
         <div className="flex min-w-0 flex-col gap-xl lg:col-start-1 lg:row-start-2">
-          {listing.description ? (
-            <section className="flex flex-col gap-xs">
-              <h2 className="text-section-label font-semibold uppercase tracking-wide text-text-3">
-                {t("listing.description")}
-              </h2>
-              <p dir="auto" className="whitespace-pre-line text-body text-text-1">
-                {listing.description}
-              </p>
-            </section>
-          ) : null}
-
           <section>
             <h2 className="pb-xs text-section-label font-semibold uppercase tracking-wide text-text-3">
               {t("listing.details")}

@@ -40,7 +40,9 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
   };
 
   if (!current) {
-    return <div className="aspect-[3/4] rounded-control bg-pressed max-md:-mx-lg max-md:rounded-none" />;
+    return (
+      <div className="aspect-[3/4] rounded-control bg-pressed max-md:-mx-lg max-md:rounded-none lg:h-[min(78vh,720px)] lg:w-auto" />
+    );
   }
 
   const arrow = (direction: 1 | -1) => (
@@ -68,10 +70,10 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
       // biome-ignore lint/a11y/noNoninteractiveTabindex: the arrow keys step through the photos once the group has focus
       tabIndex={0}
       onKeyDown={onKeyDown}
-      className="flex flex-col gap-md rounded-control focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:flex-row-reverse"
+      className="flex flex-col gap-md rounded-control focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:flex-row-reverse lg:justify-end"
     >
       <div
-        className="relative min-w-0 flex-1 overflow-hidden rounded-control bg-pressed max-md:-mx-lg max-md:rounded-none lg:h-[min(78vh,720px)]"
+        className="relative aspect-[3/4] min-w-0 overflow-hidden rounded-control max-md:-mx-lg max-md:rounded-none lg:h-[min(78vh,720px)] lg:w-auto"
         onTouchStart={(e) => {
           touchStart.current = e.touches[0]?.clientX ?? null;
         }}
@@ -88,7 +90,7 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
           type="button"
           onClick={() => viewer.current?.showModal()}
           aria-label={`${t("web.item.openPhoto")}. ${t("listing.photoLabel", { n: index + 1, total })}`}
-          className="block aspect-[3/4] w-full cursor-zoom-in lg:aspect-auto lg:h-full"
+          className="block h-full w-full cursor-zoom-in"
         >
           {/* biome-ignore lint/performance/noImgElement: listing photos come ready sized, no image optimisation on purpose */}
           <img
@@ -98,7 +100,7 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
             alt={alt(index)}
             fetchPriority={index === 0 ? "high" : undefined}
             decoding="async"
-            className="h-full w-full object-contain"
+            className="h-full w-full object-cover"
           />
         </button>
         {sold ? <div className="pointer-events-none absolute inset-0 bg-background opacity-60" /> : null}
