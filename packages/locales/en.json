@@ -425,7 +425,7 @@
     "showLastSeen": "Show when I was last online",
     "showLastSeenHint": "Other people see Last seen on your About tab.",
     "tailorFeed": "Tailor Home to what I do",
-    "tailorFeedHint": "Home learns from what you heart, open and browse. Turning this off also clears what it learned"
+    "tailorFeedHint": "Home learns from your favourites, what you open and what you browse. Turning this off also clears what it learned"
   },
   "languages": {
     "en": "English",
@@ -439,8 +439,8 @@
     "types": {
       "new_message": "New messages",
       "review_received": "New reviews",
-      "favourite_price_drop": "Price drops on your hearts",
-      "listing_favourited": "Hearts on your pieces",
+      "favourite_price_drop": "Price drops on your favourites",
+      "listing_favourited": "Favourites on your pieces",
       "favourite_sold": "A saved piece sells",
       "new_follower": "New followers",
       "followed_seller_new_item": "New from people you follow"
@@ -609,7 +609,7 @@
     "title": "Favourites",
     "search": "Search your favourites",
     "empty": "No favourites yet",
-    "emptyNote": "Tap the heart on an item to keep it here",
+    "emptyNote": "Tap the bookmark on an item to keep it here",
     "noMatches": "Nothing in your favourites matches that search"
   },
   "buzz": {
@@ -1454,7 +1454,7 @@
     "scope_category": "Category",
     "undo": "Undo",
     "resetTitle": "Reset my recommendations",
-    "resetBody": "Home forgets what it learned from your hearts, opens and visits. Your hearts, sizes, follows and hidden items stay.",
+    "resetBody": "Home forgets what it learned from your favourites, opens and visits. Your favourites, sizes, follows and hidden items stay.",
     "resetAction": "Reset",
     "resetDone": "Home is starting fresh"
   },
@@ -1590,7 +1590,7 @@
       },
       "saveItems": {
         "title": "Saving items and searches",
-        "body": "Tap the heart on an item to save it. Saved items wait for you in Favourites, and you hear about it if the price drops or the item sells.\n\nAn item from a seller who is away can still be saved. You can also save a search, and we tell you when something new matches."
+        "body": "Tap the bookmark on an item to save it. Saved items wait for you in Favourites, and you hear about it if the price drops or the item sells.\n\nAn item from a seller who is away can still be saved. You can also save a search, and we tell you when something new matches."
       },
       "listAnItem": {
         "title": "Listing an item",
