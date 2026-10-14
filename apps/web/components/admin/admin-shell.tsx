@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { type ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ToastProvider } from "@/components/admin/toast";
-import { LanguageSwitch } from "@/components/language-switch";
+import { LanguageMenu } from "@/components/language-menu";
 import { ADMIN_NAV } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
 
@@ -52,11 +52,7 @@ export function AdminShell({ lang, children }: { lang: string; children: ReactNo
       <Link href={`/${lang}`} className="text-body-sm font-semibold text-text-2 hover:text-text-1">
         {t("admin.backToSite")}
       </Link>
-      <LanguageSwitch
-        lang={lang === "he" ? "he" : "en"}
-        label={t("web.nav.otherLanguage")}
-        title={t("web.nav.switchLanguage")}
-      />
+      <LanguageMenu lang={lang === "he" ? "he" : "en"} up />
     </div>
   );
 
