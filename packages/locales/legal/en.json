@@ -1,0 +1,338 @@
+{
+  "terms": {
+    "title": "Terms of use",
+    "description": "The rules for using Vinty, in plain words: your account, buying and selling, what is not allowed and how we handle problems.",
+    "intro": "These are the rules for using Vinty, written to be read. Please read them before you start. If you use Vinty, you agree to them.",
+    "sections": [
+      {
+        "id": "who",
+        "heading": "Who can use Vinty",
+        "blocks": [
+          "Vinty is for adults. You can use it if you are 18 or older. If you are 16 or 17, you can use it only with the permission of a parent or guardian, who agrees to these terms with you. [Lawyer: confirm the minimum age and the rule for minors under Israeli contract law]",
+          "Vinty is made for people in Israel. For now, prices are in shekels and items travel inside Israel."
+        ]
+      },
+      {
+        "id": "account",
+        "heading": "Your account",
+        "blocks": [
+          "You can sign in with an email and password, or with Apple or Google. Give us true details and keep them up to date. One person, one account.",
+          "Keep your password and your email codes to yourself. Vinty will never ask you for them in a chat. You are responsible for what happens in your account, so tell us quickly if you think someone else got in.",
+          "You can close your account any time in Settings. While you have an open order, you need to finish it first."
+        ]
+      },
+      {
+        "id": "practice",
+        "heading": "Practice mode: what is real today",
+        "blocks": [
+          "Vinty is in practice mode. Please read this part carefully.",
+          [
+            "No real money moves. Checkout, payments, your balance and withdrawals are simulated. Nobody is charged and nobody is paid.",
+            "Shipping is simulated too. No courier collects or delivers anything yet.",
+            "Boosts are free for now.",
+            "The fees you see (for example the Covered fee) are placeholders. They show how Vinty will work and may change before real payments start."
+          ],
+          "Do not send real money or items because of something you saw in Vinty. We will tell you clearly, in the app and on the website, on the day real payments start. [Lawyer: confirm wording for a practice service, and whether a notice is needed when it goes live]"
+        ]
+      },
+      {
+        "id": "selling",
+        "heading": "Selling on Vinty",
+        "blocks": [
+          "When you list an item, you promise that:",
+          [
+            "It is yours to sell, and nobody else has a claim on it.",
+            "Your description is honest. Say what the item really is, its condition, any flaws, its size and its brand.",
+            "The photos are real photos of the exact item you are selling, taken by you. Do not use pictures from other places.",
+            "You will keep the item for the buyer while the listing is active, and send it on time once it is sold.",
+            "You will follow the law, including tax rules that apply to you. [Lawyer: confirm what we should say about tax and about sellers who sell as a business]"
+          ],
+          "If you use the photo helper, a computer program reads your listing photos to suggest a category and details. You can change every suggestion. You are still responsible for what you publish."
+        ]
+      },
+      {
+        "id": "not-allowed",
+        "heading": "What you cannot sell",
+        "blocks": [
+          "You cannot list any of these on Vinty:",
+          [
+            "Fake or copied items that pretend to be a brand, and items you are not allowed to sell.",
+            "Weapons, ammunition, knives made for fighting, and anything made to hurt people.",
+            "Alcohol, tobacco, vapes, drugs and anything related to them.",
+            "Used underwear, used swimwear without a lining, and other used items that are unhygienic.",
+            "Live animals and animal products that are protected by law.",
+            "Stolen goods, and items that are recalled for safety.",
+            "Medicines, medical devices and cosmetics that were opened or are past their date.",
+            "Digital items, vouchers, gift cards and tickets.",
+            "Anything that is illegal in Israel, hateful, or sexual in nature.",
+            "Services, jobs, and listings that ask people to leave Vinty to pay or to chat."
+          ],
+          "We may add to this list when we learn something new. If you are not sure, ask us before you list. [Lawyer: confirm the list against Israeli law, including rules for children's items and second-hand electrical goods]"
+        ]
+      },
+      {
+        "id": "buying",
+        "heading": "Buying, offers and reservations",
+        "blocks": [
+          "You can buy an item at its price, make an offer, or add several items from one seller into a bundle. An offer is a promise: if the seller accepts it, you are expected to buy the item. Offers run out after a set time, and there is a daily limit on how many you can send.",
+          "When you start checkout, the item is held for you for a short time so that nobody else buys it. If you do not finish, it goes back on sale. A seller can also reserve an item for one person for a short time.",
+          "In practice mode, all of this works in the same way but no money is charged."
+        ]
+      },
+      {
+        "id": "covered",
+        "heading": "Covered, the buyer promise",
+        "blocks": [
+          "Covered is the name of Vinty's promise to buyers. When real payments start, the idea is this: the money you pay is held, and the seller is paid only after you receive the item. If the item is not as described, you can open a dispute within 2 days of it arriving, and we look at it. If you are right, you get your money back.",
+          "Covered adds a fee, today a placeholder of 5 percent, which the buyer pays. The exact rules, what is covered and what is not, and the timing will be written here before real payments start. [Lawyer: confirm the final Covered terms, the fee, and how payments are held, including any licence needed to hold customer money]"
+        ]
+      },
+      {
+        "id": "reviews",
+        "heading": "Reviews",
+        "blocks": [
+          "After an order, the buyer and the seller can rate each other. Reviews must be honest, based on your own experience of that order, and polite.",
+          "Do not write reviews for your own items, trade reviews, or promise a review in return for something. We may remove reviews that break these rules or the rules on conduct below. If no one reviews an order after a few days, Vinty may add a default review. [Lawyer: confirm the automatic review rule]"
+        ]
+      },
+      {
+        "id": "conduct",
+        "heading": "How to behave",
+        "blocks": [
+          "Be kind. Do not harass, threaten, scam, spam, or share other people's private details. Do not use Vinty to move a deal outside the app. Do not try to break the service, copy it in bulk, or get around its limits.",
+          "You can block someone at any time."
+        ]
+      },
+      {
+        "id": "reports",
+        "heading": "Reports and removal",
+        "blocks": [
+          "If you see a listing, message, review or person that breaks these terms, report it from the app or the website. We look at reports and may remove content, warn a person, or close an account. We do not promise to review everything, or to respond within a set time. [Lawyer: confirm our duties for reports of illegal content and for notices from rights holders]",
+          "If we remove something of yours, we will usually tell you why. You can write to us if you think we made a mistake."
+        ]
+      },
+      {
+        "id": "suspend",
+        "heading": "When we can suspend an account",
+        "blocks": [
+          "We can limit, suspend or close an account, or remove a listing, if you break these terms, if we think someone is at risk, if we suspect fraud, or if the law requires it. For serious breaches we may act without notice. If we close your account, open orders will be handled so that other people are treated fairly."
+        ]
+      },
+      {
+        "id": "liability",
+        "heading": "Our responsibility",
+        "blocks": [
+          "Vinty is a place where people meet to sell to each other. The sale is between the buyer and the seller. We do not own the items and we do not check each one, so we cannot promise that every listing is accurate or safe.",
+          "We work hard to keep the service running, but it may be interrupted, and this is a practice service that is still being built. To the extent the law allows, we are not responsible for indirect loss, or for what other users do. Nothing here limits rights that the law does not allow us to limit. [Lawyer: confirm the limits of liability, the disclaimer wording, and consumer law rules]"
+        ]
+      },
+      {
+        "id": "changes",
+        "heading": "Changes to these terms",
+        "blocks": [
+          "We may update these terms, for example when real payments start. When the change matters, we will tell you in the app or by email before it starts. If you keep using Vinty after that, you agree to the new terms. If you do not agree, you can close your account."
+        ]
+      },
+      {
+        "id": "law",
+        "heading": "Israeli law and courts",
+        "blocks": [
+          "These terms are governed by the laws of the State of Israel. Courts in Israel have the authority to decide disputes. [Lawyer: choose and confirm the district for the courts, and whether consumer rights give people a different place to sue]"
+        ]
+      },
+      {
+        "id": "contact",
+        "heading": "Contact",
+        "blocks": [
+          "Questions about these terms? Write to vintyshminty@gmail.com.",
+          "Vinty is run by: Vinty (the operator's legal name and address will be added before launch). [Lawyer: add the legal name, ID number and address]"
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "description": "What personal information Vinty keeps, why, who sees it, how long we keep it and how to see, fix or delete it.",
+    "intro": "This page explains what Vinty knows about you, why, and what you can do about it. It is written for people, not lawyers. It is meant to fit Israel's Protection of Privacy Law, including Amendment 13, and to follow the main ideas of the European GDPR.",
+    "sections": [
+      {
+        "id": "who",
+        "heading": "Who is responsible",
+        "blocks": [
+          "Vinty (the operator's legal name and address will be added before launch) decides why and how your information is used. [Lawyer: add the legal name and address, and say whether we must register a database, appoint a privacy protection officer or name an EU representative]",
+          "Questions about privacy go to vintyshminty@gmail.com."
+        ]
+      },
+      {
+        "id": "collect",
+        "heading": "What we collect and why",
+        "blocks": [
+          "We only collect what the service needs. Here is the full list, and the reason for each part.",
+          [
+            "Your account: email, username, a password kept in scrambled form, and which sign in method you use (Apple, Google or email). We need it to let you in and keep your account safe.",
+            "Your profile: display name, photo, a short bio, city and country, and the language you choose. Other people see it. We need it so buyers and sellers can recognise each other.",
+            "Your settings: notification choices, privacy choices and whether Home learns from what you do. We need them to follow your choices.",
+            "Your addresses: the names, street and phone number you save for delivery. We need them to complete an order, and the seller sees what a delivery needs.",
+            "What you list: photos, descriptions, prices, category, size and brand, and your drafts. We need them to run your sale. Listings are public.",
+            "Your messages and offers: what you write to other people, with photos you send. We need them to deliver the conversation and to look into reports.",
+            "Your orders: what you bought or sold, prices, the delivery address, status and any dispute. We need them to run the order and for records. In practice mode they are simulated.",
+            "Your balance and payouts: the practice balance and the history of it. We need it to show your sales. No bank or card details are collected today.",
+            "Reviews: ratings and what you wrote. Reviews are public.",
+            "Reports and blocks: who reported what, and who you blocked. We need them to keep the community safe.",
+            "Sessions and devices: where you are signed in, with the kind of phone or browser and the time you last used it. We need them to keep you signed in and to let you sign out of other devices.",
+            "Push tokens: a code that lets us send a notification to your phone, if you allow notifications.",
+            "What you do on the service, for Home: which items you open, favourite, search for and scroll past, and which sellers and sizes you follow. We use it to learn what you like and to build your Home.",
+            "Things you save: favourites, saved searches and follows.",
+            "Basic technical records: the time of requests and errors, and your approximate network address, so we can find faults and stop abuse."
+          ],
+          "Your face data never leaves your phone. If you use Face ID to unlock Vinty, the phone does the checking and we receive nothing about it."
+        ]
+      },
+      {
+        "id": "feed",
+        "heading": "The Home that learns",
+        "blocks": [
+          "Home shows items you may like. To do that, it notes what you open, favourite, search and browse. What you did a long time ago counts for less and less: a score halves after 7 days with no new action. The raw records of your actions are deleted after 180 days, and the records of items that only passed in front of you are deleted after 30 days.",
+          "You are in control. In Settings, Privacy, you can turn off Tailor Home to what I do, which also clears what Home learned. You can also use Reset to start fresh, or choose Not interested to hide items and categories from Home. We do not use this to show ads, and we do not sell it to anyone."
+        ]
+      },
+      {
+        "id": "share",
+        "heading": "Who sees your information",
+        "blocks": [
+          "Other people on Vinty:",
+          [
+            "Everyone can see your public profile, your listings and your reviews.",
+            "A buyer and a seller in an order see what the order needs, such as names, the delivery address and phone number, and the item.",
+            "Only the person you write to sees your messages (and Vinty, if someone reports a conversation)."
+          ],
+          "Companies that help us run Vinty. They process your information for us and only for that:",
+          [
+            "Vercel runs our servers, in the EU (Frankfurt).",
+            "Neon keeps our database, on Amazon servers in Frankfurt.",
+            "Cloudflare R2 stores photos.",
+            "Upstash (Redis) helps live chat reach you quickly, if it is switched on.",
+            "Resend sends our emails, such as your sign in codes.",
+            "Apple and Google, if you choose to sign in with them.",
+            "Expo sends push notifications to your phone.",
+            "Anthropic reads listing photos for the photo helper, only when a seller adds photos and uses it. We do not send your name or contact details with them."
+          ],
+          "We may also share information when the law or a court requires it, or to protect people from harm or fraud. We do not sell your personal information. [Lawyer: confirm this section, the processor agreements, and what to say about the photo helper provider]"
+        ]
+      },
+      {
+        "id": "where",
+        "heading": "Where your information is stored",
+        "blocks": [
+          "Our servers and database are in the European Union (Frankfurt). Some of the companies above, for example Anthropic, Expo, Apple, Google and Resend, may handle information in other countries such as the United States. Israel and the EU recognise each other's level of protection, and for other places we rely on suitable safeguards. [Lawyer: confirm the transfer basis for each provider and for transfers outside Israel and the EU]"
+        ]
+      },
+      {
+        "id": "keep",
+        "heading": "How long we keep it",
+        "blocks": [
+          [
+            "Home activity: 180 days for actions, 30 days for items that only passed in front of you. Taste scores fade by half every 7 days.",
+            "Your account, profile, listings and messages: until you close your account. [Lawyer: confirm]",
+            "After you close your account: we clear your personal details, hide your listings, and remove your Home activity and hidden items. Orders and reviews are kept under an anonymous name, because the other person in the order needs them, and records may be required by law. [Lawyer: confirm how long order records must be kept]",
+            "Sessions, push tokens and technical records: to confirm. [Lawyer: confirm the retention periods]",
+            "Reports and blocks: to confirm. [Lawyer: confirm the retention periods]"
+          ]
+        ]
+      },
+      {
+        "id": "rights",
+        "heading": "Your rights",
+        "blocks": [
+          "You can:",
+          [
+            "See the information we hold about you.",
+            "Fix information that is wrong. You can change your profile, addresses and settings yourself in the app and on the website.",
+            "Delete your account, in Settings. This clears your personal details as described above.",
+            "Turn off Home learning, reset it, or hide things from Home.",
+            "Ask us for a copy of your information, to limit how we use it, or to object to some uses. [Lawyer: confirm which of these rights we must offer under Israeli law and under the GDPR]"
+          ],
+          "To use any right that is not in Settings, write to vintyshminty@gmail.com. We may need to check that it is you. We will answer within a reasonable time. [Lawyer: confirm the response time]"
+        ]
+      },
+      {
+        "id": "cookies",
+        "heading": "Cookies",
+        "blocks": [
+          "On the website we use two small files. One keeps you signed in. The other remembers your language. We do not use advertising or tracking cookies, and no ad companies follow you from Vinty. [Lawyer: confirm no consent banner is needed for these two]"
+        ]
+      },
+      {
+        "id": "children",
+        "heading": "Children",
+        "blocks": [
+          "Vinty is not meant for children. You must be 18, or 16 to 17 with a parent or guardian's permission. If you think a younger child has an account, write to us and we will close it. [Lawyer: confirm the minimum age and parent consent rules]"
+        ]
+      },
+      {
+        "id": "security",
+        "heading": "Keeping it safe",
+        "blocks": [
+          "We protect information with encrypted connections, scrambled passwords, limited access for our team, and automatic checks of our code. No service is perfectly safe. If something happens that puts your information at risk, we will tell you and the authorities as the law requires. [Lawyer: confirm the breach notice duties and the information security rules for the database]"
+        ]
+      },
+      {
+        "id": "changes",
+        "heading": "Changes to this page",
+        "blocks": [
+          "If we change how we use your information in an important way, we will tell you in the app or by email before it starts. The date at the top shows when this page last changed."
+        ]
+      },
+      {
+        "id": "contact",
+        "heading": "Contact and complaints",
+        "blocks": [
+          "Write to vintyshminty@gmail.com for any privacy question or request.",
+          "If you think we handled your information wrongly, you can also complain to the Privacy Protection Authority in Israel's Ministry of Justice. You can find how on the Authority's page on gov.il. If you are in the EU, you can also contact your local data protection authority."
+        ]
+      }
+    ]
+  },
+  "about": {
+    "title": "About Vinty",
+    "description": "Vinty is a place in Israel to give good clothes and things a second life, between people who feel like neighbours.",
+    "intro": "Vinty is a place to give good things a second life.",
+    "sections": [
+      {
+        "id": "idea",
+        "heading": "The idea",
+        "blocks": [
+          "Think of it as a walk through friends' closets. The dress somebody wore twice. The jacket that never found its owner. The toy that is still in love with being played with. On Vinty, people sell what they no longer use to people who will.",
+          "It is warm, simple and made for real people. No noise, no pressure, just things worth keeping in use."
+        ]
+      },
+      {
+        "id": "who",
+        "heading": "Who it is for",
+        "blocks": [
+          "For anyone in Israel who wants to clear out a cupboard, find something special for less, or just enjoy a good hunt. Prices are in shekels, and Vinty works in Hebrew and English, in both directions."
+        ]
+      },
+      {
+        "id": "how",
+        "heading": "How it works",
+        "blocks": [
+          "Take photos, say what it is, set a price. Buyers can make an offer, ask a question or save it for later. Home learns your taste, and you decide how much, in Settings.",
+          "You can use Vinty in the app on your phone and on this website."
+        ]
+      },
+      {
+        "id": "practice",
+        "heading": "A note on practice mode",
+        "blocks": [
+          "We are still building. For now, Vinty is in practice mode: checkout and payments are simulated, shipping is simulated, and no money moves. It lets us make everything feel right before real orders start. We will tell you clearly when that changes."
+        ]
+      },
+      {
+        "id": "contact",
+        "heading": "Say hello",
+        "blocks": ["Ideas, questions or a problem? Write to vintyshminty@gmail.com. A real person reads it."]
+      }
+    ]
+  }
+}

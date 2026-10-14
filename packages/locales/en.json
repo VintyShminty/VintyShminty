@@ -1699,6 +1699,12 @@
       "privacy": "Privacy",
       "rights": "© {{year}} Vinty"
     },
+    "legal": {
+      "draftLine": "Draft, last updated {{date}}",
+      "draftNote": "This is a first draft. A lawyer will check it before real launch. Notes in square brackets show what still needs checking.",
+      "contents": "On this page",
+      "updated": "14 October 2026"
+    },
     "soon": "This page is coming soon.",
     "search": {
       "resultsFor": "Results for {{q}}",
