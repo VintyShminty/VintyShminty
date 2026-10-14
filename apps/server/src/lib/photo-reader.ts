@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import type { Env } from "../env.js";
+import type { AiMeter } from "./ai-cost.js";
 
 export type PhotoMediaType = "image/jpeg" | "image/png" | "image/webp" | "image/gif";
 
@@ -11,9 +12,27 @@ export type PhotoReadInput = {
   /** Unused by the prompt now (nothing is written in words), kept so the request stays the same. */
   language: "en" | "he";
   signal?: AbortSignal;
+  /** Who asked, for the AI cost log. */
+  userId?: string;
 };
 
-export type PhotoReadUsage = { inputTokens: number; outputTokens: number; cacheReadTokens: number };
+export type PhotoReadUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+};
+
+/** A failure after the model answered, so the tokens were still spent and must be counted. */
+export class PhotoReadError extends Error {
+  constructor(
+    message: string,
+    readonly usage: PhotoReadUsage,
+  ) {
+    super(message);
+    this.name = "PhotoReadError";
+  }
+}
 
 /**
  * What the model says, before the server checks it. Codes (C12, K3) stand for our real ids. Everything is
@@ -62,13 +81,15 @@ Rules:
 - colours: the codes of the 1 or 2 main colours of the item (codes look like K3), most dominant first. Empty if unclear.
 `;
 
-const MAX_TOKENS = 300;
+/** The most the model may write for one read. Also what the AI budget guard reserves for it. */
+export const PHOTO_READER_MAX_TOKENS = 300;
 
 function toUsage(u: Anthropic.Usage): PhotoReadUsage {
   return {
     inputTokens: u.input_tokens,
     outputTokens: u.output_tokens,
     cacheReadTokens: u.cache_read_input_tokens ?? 0,
+    cacheWriteTokens: u.cache_creation_input_tokens ?? 0,
   };
 }
 
@@ -82,7 +103,7 @@ export function anthropicPhotoReader(apiKey: string, model: string): PhotoReader
       const response = await client.messages.create(
         {
           model,
-          max_tokens: MAX_TOKENS,
+          max_tokens: PHOTO_READER_MAX_TOKENS,
           // The instructions and our lists come first and stay identical, so they are read from the cache.
           system: [
             { type: "text", text: `${INSTRUCTIONS}\n\n${catalog}`, cache_control: { type: "ephemeral" } },
@@ -111,12 +132,17 @@ export function anthropicPhotoReader(apiKey: string, model: string): PhotoReader
         },
         signal ? { signal } : undefined,
       );
+      const usage = toUsage(response.usage);
       if (response.stop_reason === "refusal" || response.stop_reason === "max_tokens") {
-        throw new Error(`photo reader stopped: ${response.stop_reason}`);
+        throw new PhotoReadError(`photo reader stopped: ${response.stop_reason}`, usage);
       }
       const text = response.content.find((b): b is Anthropic.TextBlock => b.type === "text")?.text;
-      if (!text) throw new Error("photo reader returned no text");
-      return { reading: rawReadingSchema.parse(JSON.parse(text)), usage: toUsage(response.usage) };
+      if (!text) throw new PhotoReadError("photo reader returned no text", usage);
+      try {
+        return { reading: rawReadingSchema.parse(JSON.parse(text)), usage };
+      } catch {
+        throw new PhotoReadError("photo reader returned an answer that could not be read", usage);
+      }
     },
   };
 }
@@ -138,7 +164,7 @@ export function fakePhotoReader(
       calls.push(input);
       if (answer === undefined) throw new Error("photo reader is off");
       const reading = typeof answer === "function" ? await answer() : answer;
-      return { reading, usage: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0 } };
+      return { reading, usage: { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 } };
     },
   };
 }
@@ -147,4 +173,44 @@ export function fakePhotoReader(
 export function createPhotoReader(env: Pick<Env, "ANTHROPIC_API_KEY" | "PHOTO_READER_MODEL">): PhotoReader {
   if (!env.ANTHROPIC_API_KEY) return fakePhotoReader();
   return anthropicPhotoReader(env.ANTHROPIC_API_KEY, env.PHOTO_READER_MODEL);
+}
+
+/** Rough size of one photo for the budget check. The real count comes back in the usage after the call. */
+const ESTIMATED_TOKENS_PER_IMAGE = 1600;
+
+/**
+ * Puts a reader behind the AI cost meter (lib/ai-cost.ts): the call is refused when the AI switch is off or a spend
+ * cap would be passed (the caller then treats it like any failure and answers with an empty suggestion), and every
+ * call that used tokens is written to the cost log, failed ones included.
+ */
+export function meteredPhotoReader(
+  reader: PhotoReader,
+  meter: AiMeter,
+  model: string,
+  /** The name the cost log and the Expenses page know this use by. */
+  action = "photo_check",
+): PhotoReader {
+  return {
+    get enabled() {
+      return reader.enabled;
+    },
+    async read(input) {
+      await meter.assertAllowed({
+        model,
+        maxOutputTokens: PHOTO_READER_MAX_TOKENS,
+        estimatedInputTokens:
+          Math.ceil(input.catalog.length / 4) + input.images.length * ESTIMATED_TOKENS_PER_IMAGE,
+      });
+      const base = { provider: "anthropic", model, action, userId: input.userId ?? null };
+      try {
+        const result = await reader.read(input);
+        await meter.record({ ...base, usage: result.usage, ok: true });
+        return result;
+      } catch (error) {
+        // A failure before the model answered (timeout, network) used nothing we can count.
+        if (error instanceof PhotoReadError) await meter.record({ ...base, usage: error.usage, ok: false });
+        throw error;
+      }
+    },
+  };
 }
