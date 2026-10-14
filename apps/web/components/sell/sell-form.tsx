@@ -96,7 +96,11 @@ function PickerRow({
         )}
       >
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="text-card-meta font-semibold text-text-3">{label}</span>
+          <span
+            className={value || hint ? "text-card-meta font-semibold text-text-3" : "text-body text-text-3"}
+          >
+            {label}
+          </span>
           {value ? (
             <span className="truncate text-body text-text-1">{value}</span>
           ) : hint ? (

@@ -44,7 +44,7 @@ export function Chip({
 }: ChipProps) {
   const text = count === undefined ? label : `${label} · ${count}`;
   const classes = cn(
-    "inline-flex h-[29px] shrink-0 items-center justify-center gap-xs whitespace-nowrap rounded-full border px-[13px]",
+    "inline-flex h-[29px] shrink-0 items-center justify-center gap-xs whitespace-nowrap rounded-full border px-[13px] text-body-sm",
     selected
       ? "border-primary bg-primary text-primary-foreground"
       : applied
@@ -52,9 +52,7 @@ export function Chip({
         : "border-text-4 bg-background text-text-1 hover:bg-pressed",
     disabled && "pointer-events-none opacity-40",
     className,
-  )
-    // Added after cn() on purpose: tailwind-merge does not know our type scale names and would drop the size as a clashing colour.
-    .concat(" text-body-sm");
+  );
   const content = (
     <>
       {text}
