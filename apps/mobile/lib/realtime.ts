@@ -14,6 +14,7 @@ import { authClient } from "@/lib/auth-client";
 import { API_URL } from "@/lib/config";
 import {
   bumpConversationRow,
+  type MessagesData,
   markConversationReadLocally,
   patchConversationRow,
   setUnread,
@@ -132,8 +133,22 @@ function connect(userId: string) {
 
   // An offer bubble changed state (accepted, declined, countered...). The chat header may change too: accepting an
   // offer reserves the item.
-  s.on("message:updated", ({ conversationId, offer }) => {
+  s.on("message:updated", ({ conversationId, offer, message }) => {
     if (offer) patchMessageOffer(queryClient, conversationId, offer.id, offer);
+    // The AI check put a warning on a message (D-039): swap it into the open chat.
+    if (message) {
+      queryClient.setQueryData<MessagesData>(
+        ["messages", conversationId],
+        (old) =>
+          old && {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              items: page.items.map((m) => (m.id === message.id ? message : m)),
+            })),
+          },
+      );
+    } else if (!offer) void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
     void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
     void queryClient.invalidateQueries({ queryKey: ["offer-quota"] });
   });

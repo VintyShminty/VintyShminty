@@ -1,8 +1,10 @@
 "use client";
 
-import { ArrowUp, HandCoins, ImagePlus } from "lucide-react";
+import { ArrowUp, HandCoins, ImagePlus, Sparkles } from "lucide-react";
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { withReply } from "@/lib/chat-assist";
+import { Chip } from "@/components/chip";
 import { sendTyping } from "@/lib/realtime";
 import { cn } from "@/lib/utils";
 
@@ -17,12 +19,15 @@ export function Composer({
   onSend,
   onPickPhoto,
   onOffer,
+  quickReplies = [],
 }: {
   conversationId: string;
   onSend: (text: string) => void;
   onPickPhoto: (file: File) => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
+  /** Suggested answers (D-039). Shown above the box while it is empty. A tap fills the box, it never sends. */
+  quickReplies?: string[];
 }) {
   const { t } = useTranslation();
   const [text, setText] = useState("");
@@ -69,6 +74,15 @@ export function Composer({
     stopTyping();
   };
 
+  const pickReply = (reply: string) => {
+    const next = withReply(text, reply);
+    setText(next);
+    const el = box.current;
+    el?.focus();
+    // The cursor goes to the end once the new text is in the box.
+    requestAnimationFrame(() => el?.setSelectionRange(next.length, next.length));
+  };
+
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     // Enter while choosing a character with an input method (Hebrew keyboards, emoji pickers) must not send.
     if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -83,61 +97,81 @@ export function Composer({
     if (chosen) onPickPhoto(chosen);
   };
 
+  const replies = text.trim() === "" ? quickReplies : [];
+
   return (
-    <div className="flex items-end gap-sm border-t border-border-subtle bg-background px-md py-sm">
-      <input
-        ref={file}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        onChange={picked}
-        className="hidden"
-      />
-      <button
-        type="button"
-        onClick={() => file.current?.click()}
-        aria-label={t("chat.addPhoto")}
-        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
-      >
-        <ImagePlus size={24} aria-hidden />
-      </button>
-      {onOffer ? (
+    <div className="border-t border-border-subtle bg-background">
+      {replies.length > 0 ? (
+        <fieldset
+          aria-label={t("chat.assist.quickReplies")}
+          className="m-0 flex min-w-0 items-center gap-sm overflow-x-auto border-0 px-md pb-0 pt-sm"
+        >
+          <Sparkles size={14} className="shrink-0 text-text-3" aria-hidden />
+          {replies.map((reply) => (
+            <Chip
+              key={reply}
+              label={reply}
+              onClick={() => pickReply(reply)}
+              className="max-w-full truncate"
+            />
+          ))}
+        </fieldset>
+      ) : null}
+      <div className="flex items-end gap-sm px-md py-sm">
+        <input
+          ref={file}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={picked}
+          className="hidden"
+        />
         <button
           type="button"
-          onClick={onOffer}
-          aria-label={t("offer.title")}
-          title={t("offer.title")}
+          onClick={() => file.current?.click()}
+          aria-label={t("chat.addPhoto")}
           className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
         >
-          <HandCoins size={24} aria-hidden />
+          <ImagePlus size={24} aria-hidden />
         </button>
-      ) : null}
-      <div className="flex min-h-11 flex-1 items-center rounded-bar border border-border bg-surface px-md focus-within:border-primary">
-        <textarea
-          ref={box}
-          value={text}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-          onBlur={stopTyping}
-          rows={1}
-          maxLength={4000}
-          dir="auto"
-          placeholder={t("chat.composerPlaceholder")}
-          aria-label={t("chat.composerPlaceholder")}
-          className="block max-h-36 w-full resize-none bg-transparent py-sm text-body text-text-1 outline-none placeholder:text-text-3"
-        />
+        {onOffer ? (
+          <button
+            type="button"
+            onClick={onOffer}
+            aria-label={t("offer.title")}
+            title={t("offer.title")}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
+          >
+            <HandCoins size={24} aria-hidden />
+          </button>
+        ) : null}
+        <div className="flex min-h-11 flex-1 items-center rounded-bar border border-border bg-surface px-md focus-within:border-primary">
+          <textarea
+            ref={box}
+            value={text}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+            onBlur={stopTyping}
+            rows={1}
+            maxLength={4000}
+            dir="auto"
+            placeholder={t("chat.composerPlaceholder")}
+            aria-label={t("chat.composerPlaceholder")}
+            className="block max-h-36 w-full resize-none bg-transparent py-sm text-body text-text-1 outline-none placeholder:text-text-3"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={send}
+          disabled={!canSend}
+          aria-label={t("chat.send")}
+          className={cn(
+            "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
+            canSend ? "bg-primary text-on-accent hover:opacity-90" : "bg-pressed text-text-4",
+          )}
+        >
+          <ArrowUp size={22} aria-hidden />
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={send}
-        disabled={!canSend}
-        aria-label={t("chat.send")}
-        className={cn(
-          "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
-          canSend ? "bg-primary text-on-accent hover:opacity-90" : "bg-pressed text-text-4",
-        )}
-      >
-        <ArrowUp size={22} aria-hidden />
-      </button>
     </div>
   );
 }

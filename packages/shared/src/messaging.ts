@@ -230,7 +230,13 @@ export type SocketAck<T = Record<string, never>> =
 export type ServerToClientEvents = {
   "message:new": (payload: { conversationId: string; message: Message }) => void;
   /** An offer bubble changed status. Also goes to both people's rooms, so a closed thread stays right. */
-  "message:updated": (payload: { conversationId: string; messageId: string; offer?: MessageOffer }) => void;
+  "message:updated": (payload: {
+    conversationId: string;
+    messageId: string;
+    offer?: MessageOffer;
+    /** The whole message again, sent only to the person who received it when the AI chat check adds a warning (D-039). */
+    message?: Message;
+  }) => void;
   /** An order moved. Goes to the buyer and the seller only. The app refetches the order. */
   "order:updated": (payload: { orderId: string; status: OrderStatus; conversationId: string | null }) => void;
   /** A listing was reserved, sold, released or repriced. Goes to people who favourited it or chat about it. */

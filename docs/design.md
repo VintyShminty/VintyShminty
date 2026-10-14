@@ -598,6 +598,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** shared shapes in `packages/shared/src/review.ts`, new report columns (`source`, `urgency`, `ai_reason`, `ai_summary`, a report without a reporter is an AI check). Server: `lib/listing-check.ts`, report sorting, `GET /v1/admin/review`, `POST /v1/admin/review/:id/action`. Website: `app/[lang]/admin/review`.
 - **References:** D-036, D-037, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
+### D-039 : Chat warns about likely scams and offers quick replies, and never sends anything itself
+
+- **Date:** 2026-10-14
+- **Area:** Chat, app and website
+- **Status:** Built on branch feat/ai-chat-helpers, waiting for Eden's review. The privacy policy's "AI helpers" section (PR #71) covers it.
+- **Decision:** Every text message is checked by Claude Haiku in the background after it is sent (Eden's choice), so sending never slows down. When it asks to pay outside Vinty, shares a link that may not be safe, moves the talk to WhatsApp or a phone number, or rushes the other person, the person who received it sees one quiet line under that bubble with a small warning sign, for example "Careful: paying outside Vinty is not protected. Keep payment in the app". The sender sees nothing new. Clear scams (a fake payment link, asking for card details or codes) also go to Eden's Review list (D-038). Quick replies: when someone opens a chat where the other person wrote last, up to 3 short replies in their language show as chips with a small sparkle above the typing box. A tap puts the words in the box to edit (Eden's choice), it never sends. The chips go away when the person starts typing or a new message comes in. Replies only use what is in the chat, never invent a price or a date, and never move the deal outside Vinty.
+- **Rationale:** Deals moved off the app are where people get cheated, and a warning at the right moment protects them without blocking anyone. Quick replies make answering a buyer one tap faster.
+- **Trade-off:** Reading every message costs about 0.006 cents each, but catches scams that are worded without the usual signs. Quick replies are made only when a chat is opened, so they appear a moment after it opens, and chats nobody opens cost nothing.
+- **Implementation:** shared shapes in `packages/shared/src/chat-assist.ts`, `warning` on messages. Server: `lib/chat-check.ts`, `lib/quick-replies.ts`, `POST /v1/conversations/:id/quick-replies`. App and website: the chat screen.
+- **References:** D-034, D-038, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

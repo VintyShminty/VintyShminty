@@ -3,10 +3,12 @@ import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
 import { type Env, parseEnv } from "./env.js";
+import type { ChatCheckReader } from "./lib/chat-check.js";
 import type { ListingCheckReader } from "./lib/listing-check.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
 import type { PhotoReader } from "./lib/photo-reader.js";
 import { type MemoryPusher, memoryPusher } from "./lib/push.js";
+import type { QuickRepliesReader } from "./lib/quick-replies.js";
 import type { ReportSortReader } from "./lib/report-sort.js";
 import type { SearchReader } from "./lib/search-reader.js";
 import type { Storage } from "./lib/storage.js";
@@ -67,6 +69,8 @@ export async function buildTestApp(
     searchReader?: SearchReader;
     listingCheckReader?: ListingCheckReader;
     reportSortReader?: ReportSortReader;
+    chatCheckReader?: ChatCheckReader;
+    quickRepliesReader?: QuickRepliesReader;
     storage?: Storage;
   } = {},
 ): Promise<TestContext> {
@@ -86,6 +90,8 @@ export async function buildTestApp(
     ...(extras.searchReader ? { searchReader: extras.searchReader } : {}),
     ...(extras.listingCheckReader ? { listingCheckReader: extras.listingCheckReader } : {}),
     ...(extras.reportSortReader ? { reportSortReader: extras.reportSortReader } : {}),
+    ...(extras.chatCheckReader ? { chatCheckReader: extras.chatCheckReader } : {}),
+    ...(extras.quickRepliesReader ? { quickRepliesReader: extras.quickRepliesReader } : {}),
   });
   await app.ready();
   return { app, mailer, pusher, database, close: () => app.close() };

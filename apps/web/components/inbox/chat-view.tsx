@@ -7,6 +7,8 @@ import {
   dayLabel,
   formatClock,
   type MessageOffer,
+  photoAssistStatusSchema,
+  quickRepliesSchema,
   type ThreadItem,
 } from "@vinty/shared";
 import { Archive, ArchiveRestore, ArrowLeft, Bell, BellOff, Loader2 } from "lucide-react";
@@ -27,6 +29,8 @@ import {
   sendNewMessage,
   usePendingMessages,
 } from "@/lib/chat-send";
+import { clientApi } from "@/lib/api-client";
+import { quickReplyTarget, visibleQuickReplies } from "@/lib/chat-assist";
 import { conversationQuery, messagesQuery, useArchive, useMute } from "@/lib/messaging-queries";
 import { useCounterOffer, useSendOffer } from "@/lib/order-flow-queries";
 import { joinThread, leaveThread, markThreadRead, useRealtime } from "@/lib/realtime";
@@ -116,6 +120,35 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
     return () => observer.disconnect();
   }, [ready, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // Quick replies (D-039): asked for once per newest message, kept per chat, message and language. A failure shows nothing.
+  const assistStatus = useQuery({
+    queryKey: ["photo-assist"],
+    queryFn: () => clientApi("/v1/sell/assist", { schema: photoAssistStatusSchema }),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const language = i18n.language === "he" ? "he" : "en";
+  const replyTarget = quickReplyTarget({
+    enabled: Boolean(assistStatus.data?.chatAssist),
+    newest: messages[0],
+    me,
+    hasPending: pending.length > 0,
+    blocked: Boolean(conversation?.blocked),
+  });
+  const quickReplies = useQuery({
+    queryKey: ["quick-replies", id, replyTarget, language],
+    queryFn: () =>
+      clientApi(`/v1/conversations/${id}/quick-replies`, {
+        method: "POST",
+        body: { language },
+        schema: quickRepliesSchema,
+      }),
+    enabled: replyTarget !== null,
+    staleTime: Number.POSITIVE_INFINITY,
+    retry: false,
+  });
+  const replies = visibleQuickReplies(quickReplies.data, replyTarget, "");
+
   const sendText = (text: string) => {
     if (!me) return;
     sendNewMessage({ conversationId: id, senderId: me, kind: "text", body: text });
@@ -176,6 +209,7 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
             role={conversation?.role ?? "buyer"}
             lang={lang}
             offersClosed={offersClosed}
+            me={me}
             onOpenPhoto={openPhoto}
             onCounter={(offer) => setOfferDialog({ open: true, counterOf: offer })}
           />
@@ -297,6 +331,7 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
             conversationId={id}
             onSend={sendText}
             onPickPhoto={sendPhoto}
+            quickReplies={replies}
             onOffer={canOffer ? () => setOfferDialog({ open: true, counterOf: null }) : undefined}
           />
         )}

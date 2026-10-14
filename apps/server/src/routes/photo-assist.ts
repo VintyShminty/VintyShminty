@@ -16,6 +16,7 @@ import { ApiError } from "../lib/errors.js";
 import { WindowLimiter } from "../lib/limiter.js";
 import { createPhotoChecker, createPhotoSuggester, createTextSuggester } from "../lib/photo-assist.js";
 import type { PhotoReader } from "../lib/photo-reader.js";
+import type { QuickRepliesReader } from "../lib/quick-replies.js";
 import type { SearchReader } from "../lib/search-reader.js";
 import { keyBelongsToUser } from "../lib/storage.js";
 import type { TextReader } from "../lib/text-reader.js";
@@ -34,9 +35,11 @@ const photoAssistRoutes: FastifyPluginAsyncZod<{
   reader: PhotoReader;
   textReader: TextReader;
   searchReader: SearchReader;
+  /** The chat helpers (D-039): quick replies and the chat check run on the same key and switch. */
+  chatReader: QuickRepliesReader;
   /** The AI cost meter, asked whether the master switch is on for the status answer. */
   meter: Pick<AiMeter, "switchState">;
-}> = async (app, { reader, textReader, searchReader, meter }) => {
+}> = async (app, { reader, textReader, searchReader, chatReader, meter }) => {
   const limiter = new WindowLimiter(SUGGESTIONS_PER_HOUR, 3_600_000);
   const checkLimiter = new WindowLimiter(PHOTO_CHECKS_PER_HOUR, 3_600_000);
   const textLimiter = new WindowLimiter(TEXT_SUGGESTIONS_PER_HOUR, 3_600_000);
@@ -72,6 +75,7 @@ const photoAssistRoutes: FastifyPluginAsyncZod<{
         photoAssist: reader.enabled && switchOn,
         textAssist: textReader.enabled && switchOn,
         searchAssist: searchReader.enabled && switchOn,
+        chatAssist: chatReader.enabled && switchOn,
       };
     },
   );

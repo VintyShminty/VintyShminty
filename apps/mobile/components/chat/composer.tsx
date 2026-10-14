@@ -1,10 +1,12 @@
-import { ArrowUp, HandCoins, ImagePlus } from "lucide-react-native";
+import { ArrowUp, HandCoins, ImagePlus, Sparkles } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { useKeyboardState } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Chip } from "@/components/ui/chip";
 import { Icon } from "@/components/ui/icon";
+import { putReplyInBox, visibleQuickReplies } from "@/lib/chat-assist";
 import { sendTyping } from "@/lib/realtime";
 import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
@@ -21,17 +23,23 @@ function Composer({
   onSend,
   onPickPhoto,
   onOffer,
+  quickReplies,
 }: {
   conversationId: string;
   onSend: (text: string) => void;
   onPickPhoto: () => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
+  /** Suggested answers to the newest message (D-039). A tap fills the box, it never sends. */
+  quickReplies?: { forMessageId: string | null; newestId: string; replies: string[] };
 }) {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const keyboardVisible = useKeyboardState((s) => s.isVisible);
   const [text, setText] = useState("");
+  const input = useRef<TextInput>(null);
+  // The message the suggestions were hidden for, once the person typed. Clearing the box does not bring them back.
+  const [dismissedFor, setDismissedFor] = useState<string | null>(null);
   const typing = useRef(false);
   const idle = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isHe = i18n.language === "he";
@@ -46,8 +54,17 @@ function Composer({
   // biome-ignore lint/correctness/useExhaustiveDependencies: only when the chat changes
   useEffect(() => stopTyping, [conversationId]);
 
+  const shown = visibleQuickReplies({
+    forMessageId: quickReplies?.forMessageId,
+    replies: quickReplies?.replies,
+    newestId: quickReplies?.newestId,
+    dismissedFor,
+    composerText: text,
+  });
+
   const onChange = (value: string) => {
     setText(value);
+    if (value !== "" && quickReplies) setDismissedFor(quickReplies.newestId);
     if (value.trim() === "") return stopTyping();
     if (!typing.current) {
       typing.current = true;
@@ -64,67 +81,90 @@ function Composer({
     stopTyping();
   };
 
+  const fillFromReply = (reply: string) => {
+    onChange(putReplyInBox(text, reply));
+    input.current?.focus();
+  };
+
   return (
-    <View
-      className="flex-row items-end gap-sm border-t border-border-subtle bg-background px-md pt-sm"
-      style={{ paddingBottom: keyboardVisible ? 8 : insets.bottom + 8 }}
-    >
-      <Pressable
-        onPress={onPickPhoto}
-        hitSlop={6}
-        role="button"
-        accessibilityLabel={t("chat.addPhoto")}
-        className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+    <View className="border-t border-border-subtle bg-background">
+      {shown.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          accessibilityLabel={t("chat.assist.quickReplies")}
+          className="grow-0"
+          contentContainerClassName="items-center gap-sm px-md pt-sm"
+        >
+          <Icon as={Sparkles} size={16} className="text-text-3" />
+          {shown.map((reply) => (
+            <Chip key={reply} label={reply} onPress={() => fillFromReply(reply)} />
+          ))}
+        </ScrollView>
+      ) : null}
+      <View
+        className="flex-row items-end gap-sm bg-background px-md pt-sm"
+        style={{ paddingBottom: keyboardVisible ? 8 : insets.bottom + 8 }}
       >
-        <Icon as={ImagePlus} size={24} className="text-text-2" />
-      </Pressable>
-      {onOffer ? (
         <Pressable
-          onPress={onOffer}
+          onPress={onPickPhoto}
           hitSlop={6}
           role="button"
-          accessibilityLabel={t("offer.title")}
+          accessibilityLabel={t("chat.addPhoto")}
           className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
         >
-          <Icon as={HandCoins} size={24} className="text-text-2" />
+          <Icon as={ImagePlus} size={24} className="text-text-2" />
         </Pressable>
-      ) : null}
-      <View className="min-h-11 flex-1 justify-center rounded-bar border border-border bg-surface px-md">
-        <TextInput
-          value={text}
-          onChangeText={onChange}
-          onBlur={stopTyping}
-          placeholder={t("chat.composerPlaceholder")}
-          placeholderTextColor={colors.text4}
-          selectionColor={colors.accent}
-          accessibilityLabel={t("chat.composerPlaceholder")}
-          multiline
-          maxLength={4000}
+        {onOffer ? (
+          <Pressable
+            onPress={onOffer}
+            hitSlop={6}
+            role="button"
+            accessibilityLabel={t("offer.title")}
+            className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+          >
+            <Icon as={HandCoins} size={24} className="text-text-2" />
+          </Pressable>
+        ) : null}
+        <View className="min-h-11 flex-1 justify-center rounded-bar border border-border bg-surface px-md">
+          <TextInput
+            ref={input}
+            value={text}
+            onChangeText={onChange}
+            onBlur={stopTyping}
+            placeholder={t("chat.composerPlaceholder")}
+            placeholderTextColor={colors.text4}
+            selectionColor={colors.accent}
+            accessibilityLabel={t("chat.composerPlaceholder")}
+            multiline
+            maxLength={4000}
+            className={cn(
+              "max-h-[120px] py-sm text-body text-text-1",
+              isHe ? "font-heebo-400" : "font-aileron-400",
+            )}
+            style={{
+              textAlign: isHe ? "right" : "left",
+              writingDirection: isHe ? "rtl" : "ltr",
+              paddingHorizontal: 0,
+            }}
+          />
+        </View>
+        <Pressable
+          onPress={send}
+          disabled={!canSend}
+          hitSlop={6}
+          role="button"
+          accessibilityLabel={t("chat.send")}
+          accessibilityState={{ disabled: !canSend }}
           className={cn(
-            "max-h-[120px] py-sm text-body text-text-1",
-            isHe ? "font-heebo-400" : "font-aileron-400",
+            "h-11 w-11 items-center justify-center rounded-full",
+            canSend ? "bg-primary active:opacity-90" : "bg-pressed",
           )}
-          style={{
-            textAlign: isHe ? "right" : "left",
-            writingDirection: isHe ? "rtl" : "ltr",
-            paddingHorizontal: 0,
-          }}
-        />
+        >
+          <Icon as={ArrowUp} size={22} className={canSend ? "text-primary-foreground" : "text-text-4"} />
+        </Pressable>
       </View>
-      <Pressable
-        onPress={send}
-        disabled={!canSend}
-        hitSlop={6}
-        role="button"
-        accessibilityLabel={t("chat.send")}
-        accessibilityState={{ disabled: !canSend }}
-        className={cn(
-          "h-11 w-11 items-center justify-center rounded-full",
-          canSend ? "bg-primary active:opacity-90" : "bg-pressed",
-        )}
-      >
-        <Icon as={ArrowUp} size={22} className={canSend ? "text-primary-foreground" : "text-text-4"} />
-      </Pressable>
     </View>
   );
 }
