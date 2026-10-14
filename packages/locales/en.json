@@ -1763,6 +1763,21 @@
     },
     "meta": {
       "homeDescription": "Second-hand finds from people near you. Buy, sell and make your price on Vinty."
+    },
+    "auth": {
+      "menu": {
+        "profile": "Profile",
+        "orders": "My orders",
+        "balance": "Balance",
+        "favourites": "Favourites",
+        "savedSearches": "Saved searches",
+        "settings": "Settings",
+        "help": "Help",
+        "logOut": "Log out"
+      },
+      "confirmSubtitle": "Enter the code to confirm your email.",
+      "confirmButton": "Confirm email",
+      "confirmLater": "Later"
     }
   }
 }

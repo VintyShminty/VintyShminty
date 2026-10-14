@@ -1782,6 +1782,21 @@
     },
     "meta": {
       "homeDescription": "מציאות יד שנייה מאנשים לידכם. קונים, מוכרים ומציעים מחיר ב-Vinty."
+    },
+    "auth": {
+      "menu": {
+        "profile": "פרופיל",
+        "orders": "ההזמנות שלי",
+        "balance": "יתרה",
+        "favourites": "מועדפים",
+        "savedSearches": "חיפושים שמורים",
+        "settings": "הגדרות",
+        "help": "עזרה",
+        "logOut": "התנתקות"
+      },
+      "confirmSubtitle": "הזינו את הקוד כדי לאשר את המייל.",
+      "confirmButton": "אישור המייל",
+      "confirmLater": "אחר כך"
     }
   }
 }

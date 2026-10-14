@@ -1,10 +1,10 @@
 "use client";
 
 import { signInInputSchema } from "@vinty/shared";
-import { createAuthClient } from "better-auth/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { io, type Socket } from "socket.io-client";
+import { getAuthClient } from "@/lib/auth-client";
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
 
@@ -15,13 +15,13 @@ export function ConnectionCheck() {
   // The website's own address is only known in the browser, so the check starts after the page has loaded.
   const [origin, setOrigin] = useState<string | null>(null);
   useEffect(() => setOrigin(window.location.origin), []);
-  return origin ? <Check origin={origin} /> : null;
+  return origin ? <Check /> : null;
 }
 
-function Check({ origin }: { origin: string }) {
+function Check() {
   const { t } = useTranslation();
-  // The website's own address, so the login cookie belongs to the website.
-  const authClient = useMemo(() => createAuthClient({ baseURL: origin, basePath: "/api/auth" }), [origin]);
+  // The shared website client (its address is the website's own, so the login cookie belongs to the website).
+  const authClient = getAuthClient();
   const { data: session, isPending } = authClient.useSession();
   const token = session?.session.token;
   const [chat, setChat] = useState<Chat>("idle");

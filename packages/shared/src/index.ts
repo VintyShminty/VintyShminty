@@ -1,4 +1,5 @@
 export * from "./auth.js";
+export * from "./auth-errors.js";
 export * from "./browse-tiles.js";
 export * from "./bumps.js";
 export * from "./common.js";
@@ -20,5 +21,6 @@ export * from "./recommendations.js";
 export * from "./reference-data.js";
 export * from "./referrals.js";
 export * from "./reviews.js";
+export * from "./size-steps.js";
 export * from "./state-machines.js";
 export * from "./users.js";
