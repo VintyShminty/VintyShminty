@@ -161,11 +161,12 @@ export async function buildApp({
     await app.register(referralRoutes, { env });
     await app.register(adminRoutes, {
       meter: aiMeter,
+      listingChecker,
       // The listing upload page reads photos too, counted as its own line in the cost log.
       reader: meteredPhotoReader(baseReader, aiMeter, env.PHOTO_READER_MODEL, ADMIN_UPLOAD_AI_ACTION),
     });
     await app.register(jobsPlugin);
-    await app.register(jobRoutes);
+    await app.register(jobRoutes, { listingChecker });
   }
 
   return app;

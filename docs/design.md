@@ -609,6 +609,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/web/components/top-bar.tsx`, `sell-button.tsx`, `home-greeting.tsx`, `home-feed.tsx`.
 - **References:** D-008, D-030, D-035, `docs/mockups/top-bar-options.html`
 
+### D-040 : Style tags teach Home what people like, behind the scenes only
+
+- **Date:** 2026-10-15
+- **Area:** Home feed, listings
+- **Status:** Built on branch feat/ai-style-tags, waiting for Eden's review.
+- **Decision:** Every listing gets up to 3 style tags from a fixed list of 20: Vintage, Y2K, Streetwear, Minimal, Classic, Quiet luxury, Boho, Cottagecore, Romantic, Sporty, Outdoor, Preppy, Grunge, Goth, Western, Evening and party, Workwear, Summer and beach, Modest, Everyday basics. Narrow trends fold into a broad tag (coquette and balletcore into Romantic, gorpcore into Outdoor, old money into Quiet luxury). Claude Haiku picks them in the same call that already checks each new or changed listing (D-038), and listings Eden uploads in the admin pages get them too. Existing listings are tagged a batch at a time (up to 100 a night). Home learns styles the way it learns brands and sizes, so someone who keeps opening and saving vintage pieces sees more vintage across brands and categories. Nobody sees the tags (Eden's choice): no chips, no "Because you like" line, nothing for sellers to edit.
+- **Rationale:** Brand and category alone miss taste: a vintage lover likes old Levi's and a 90s blazer alike. A fixed, broad list keeps enough items in each tag to learn from. The list was widened after looking at how resale sites and trend writers group styles, since none of the big resale sites publish an official list.
+- **Trade-off:** One AI call now does two jobs (safety and taste), which keeps the photo cost at once per listing. If the tags turn out weak, they can move to their own call. Changing the list later means tagging again.
+- **Implementation:** `LISTING_STYLES` in `packages/shared/src/enums.ts`, the "style" taste feature in `packages/shared/src/recommendations.ts`, `listings.styles`, the listing check (`lib/listing-check.ts`), the nightly catch up in the jobs.
+- **References:** D-038, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import { endFinishedBuzzes } from "../lib/bumps.js";
 import { cleanupFeedData, refreshPopularity } from "../lib/feed-jobs.js";
+import { type ListingChecker, tagUntaggedListings } from "../lib/listing-check.js";
 import { runOrderJobs } from "../lib/order-jobs.js";
 import { backfillPhotoVariants } from "../lib/photo-variants.js";
 
@@ -11,7 +12,7 @@ import { backfillPhotoVariants } from "../lib/photo-variants.js";
  * Every call needs `Authorization: Bearer <CRON_SECRET>` (Vercel Cron adds it by itself when the project has a
  * CRON_SECRET variable). Without CRON_SECRET in the environment they answer 404. Every job is safe to run twice.
  */
-const jobRoutes: FastifyPluginAsync = async (app) => {
+const jobRoutes: FastifyPluginAsync<{ listingChecker: ListingChecker }> = async (app, { listingChecker }) => {
   const secret = app.env.CRON_SECRET;
 
   const allowed = (request: FastifyRequest) => {
@@ -83,7 +84,9 @@ const jobRoutes: FastifyPluginAsync = async (app) => {
       const cleanup = await cleanupFeedData(app);
       const buzz = await endFinishedBuzzes(app);
       const photos = await backfillPhotoVariants(app, { budgetMs: 6000 });
-      return { ok: true, orders, cleanup, buzz, photos };
+      // Style tags for listings that were never tagged (D-040): up to 100 a night, stops when the AI is refused.
+      const styles = await tagUntaggedListings(app, listingChecker, app.log);
+      return { ok: true, orders, cleanup, buzz, photos, styles };
     },
   });
 };

@@ -194,6 +194,8 @@ export type Candidate = {
   viewCount: number;
   pop: number;
   colourIds: string[];
+  /** Style tags (D-040). Only used for scoring, never shown. */
+  styles: string[];
   explore: boolean;
 };
 
@@ -265,6 +267,7 @@ export function scoreCandidate(
     });
     personal += conf * W.priceBand * get("price_band", c.priceBand === null ? null : String(c.priceBand));
     personal += conf * W.colour * Math.max(0, ...c.colourIds.map((id) => get("colour", id)));
+    personal += conf * W.style * Math.max(0, ...c.styles.map((s) => get("style", s)));
     personal += conf * W.condition * get("condition", c.conditionId);
 
     const sizeTerm = Math.max(
@@ -329,6 +332,7 @@ const candidateColumns = {
   viewCount: listings.viewCount,
   pop: sql<number>`coalesce(${listingPopularity7d.pop}, 0)`,
   colours: sql<string>`coalesce((select string_agg(${listingColours.colourId}::text, ',') from ${listingColours} where ${listingColours.listingId} = ${listings.id}), '')`,
+  styles: listings.styles,
 };
 
 /** Everything the feed leaves out for this person, on top of the visibility rules. */
@@ -398,6 +402,7 @@ type CandidateRow = {
   viewCount: number;
   pop: number;
   colours: string;
+  styles: string[];
 };
 
 function toCandidate(r: CandidateRow, explore: boolean): Candidate {
@@ -418,6 +423,7 @@ function toCandidate(r: CandidateRow, explore: boolean): Candidate {
     viewCount: r.viewCount,
     pop: Number(r.pop),
     colourIds: r.colours ? r.colours.split(",") : [],
+    styles: r.styles ?? [],
     explore,
   };
 }

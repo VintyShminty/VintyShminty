@@ -8,6 +8,7 @@ import {
   orderItems,
   orders,
   profiles,
+  reports,
   standInSellers,
   userSettings,
   users,
@@ -16,6 +17,8 @@ import { type CategoryNode, ERROR_CODES, type ReferenceData } from "@vinty/share
 import { eq, inArray } from "drizzle-orm";
 import ExcelJS from "exceljs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { settleBackground } from "../lib/background.js";
+import { fakeListingCheckReader } from "../lib/listing-check.js";
 import { notifyUser } from "../lib/notify.js";
 import { fakePhotoReader } from "../lib/photo-reader.js";
 import {
@@ -49,11 +52,18 @@ describe.skipIf(!databaseUrl)("admin listing upload", () => {
     colours: ["K1"],
   });
 
+  // The listing check says "counterfeit" and two styles. For admin uploads only the styles may be used.
+  const checkReader = fakeListingCheckReader({
+    flags: [{ kind: "counterfeit", urgency: "high", summary: "Says AAA replica." }],
+    styles: ["vintage", "nonsense", "boho"],
+  });
+
   beforeAll(async () => {
     ctx = await buildTestApp(
       {},
       {
         photoReader: reader,
+        listingCheckReader: checkReader,
         // A storage that has a file at every key, so the photo helper has something to read.
         storage: { ...fakeStorage, read: async () => Buffer.from("not really a photo") },
       },
@@ -541,6 +551,24 @@ describe.skipIf(!databaseUrl)("admin listing upload", () => {
       expect(listed.items).toHaveLength(1);
       expect(listed.items[0]).toMatchObject({ status: "sold", saleTotalMinor: 13250 });
       expect(listed.items[0].soldAt).toEqual(expect.any(String));
+    });
+  });
+
+  describe("style tags (D-040)", () => {
+    it("tags uploaded listings with styles in the background and ignores the flags", async () => {
+      const before = checkReader.calls.length;
+      const res = await call("POST", `/v1/admin/stand-ins/${standIn.id}/listings`, admin.token, {
+        ownerFullName: OWNER,
+        items: [completeItem(`Styled dress ${stamp}`, 9)],
+      });
+      expect(res.statusCode).toBe(200);
+      const id = res.json().results[0].listingId as string;
+      await settleBackground();
+      expect(checkReader.calls.length).toBe(before + 1);
+      const [row] = await db().select().from(listings).where(eq(listings.id, id));
+      expect(row?.styles).toEqual(["vintage", "boho"]);
+      expect(row?.stylesTaggedAt).toBeInstanceOf(Date);
+      expect(await db().select().from(reports).where(eq(reports.targetId, id))).toHaveLength(0);
     });
   });
 });

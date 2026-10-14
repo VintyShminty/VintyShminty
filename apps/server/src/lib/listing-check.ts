@@ -1,17 +1,20 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { listingPhotos, listings, reports } from "@vinty/db";
+import { adminUploads, listingPhotos, listings, reports } from "@vinty/db";
 import {
   categoryTrail,
+  LISTING_STYLES,
+  LISTING_STYLES_MAX,
+  type ListingStyle,
   REPORT_URGENCIES,
   REVIEW_SUMMARY_MAX,
   type ReportReason,
   type ReportUrgency,
 } from "@vinty/shared";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { Env } from "../env.js";
-import type { AiMeter } from "./ai-cost.js";
+import { type AiMeter, AiRefusedError } from "./ai-cost.js";
 import { runInBackground } from "./background.js";
 import { loadImages } from "./photo-assist.js";
 import type { PhotoMediaType, PhotoReadUsage } from "./photo-reader.js";
@@ -19,7 +22,8 @@ import type { PhotoMediaType, PhotoReadUsage } from "./photo-reader.js";
 /**
  * The AI listing check (D-038). After a listing goes live, or a live listing changes in a way that matters, a model
  * reads its words and first photos and may flag it for the admin Review list. It never hides, removes or bans anything:
- * a flagged listing stays live until an admin acts.
+ * a flagged listing stays live until an admin acts. The same read also tags the listing with up to 3 style tags
+ * (D-040), which only the Home feed uses and nobody ever sees.
  */
 
 export type ListingCheckInput = {
@@ -70,6 +74,7 @@ export const rawListingCheckSchema = z.object({
       }),
     )
     .nullish(),
+  styles: z.array(z.string().nullish()).nullish(),
 });
 export type RawListingCheck = z.infer<typeof rawListingCheckSchema>;
 
@@ -97,8 +102,13 @@ const LISTING_CHECK_JSON_SCHEMA = {
         additionalProperties: false,
       },
     },
+    styles: {
+      type: "array",
+      items: { type: "string", enum: [...LISTING_STYLES] },
+      maxItems: LISTING_STYLES_MAX,
+    },
   },
-  required: ["flags"],
+  required: ["flags", "styles"],
   additionalProperties: false,
 } as const;
 
@@ -117,10 +127,32 @@ Kinds of problem (flag a kind at most once):
 For each flag give:
 - urgency: "high" for prohibited items and clear scams, "normal" for counterfeits and misleading listings, "low" for mild cases.
 - summary: one short plain English sentence for the moderator, 300 characters at most, that says what you saw. Example: Says 'AAA replica' and prices a Louis Vuitton bag at 150 ILS.
+
+Also give the listing up to ${LISTING_STYLES_MAX} style tags in "styles", most fitting first. These are only used to tune what each shopper sees, nobody reads them. Pick a tag only when it clearly fits, an empty list is fine. The tags:
+- vintage: clearly older or retro pieces
+- y2k: 2000s looks, low rise, baby tees, butterfly motifs
+- streetwear: hype brands, graphic hoodies, sneaker culture
+- minimal: plain, clean, neutral
+- classic: timeless tailored pieces
+- quiet_luxury: understated premium, old money
+- boho: flowy, fringe, festival
+- cottagecore: prairie, floral, countryside
+- romantic: bows, lace, ruffles, coquette, balletcore
+- sporty: athleisure, gym, sports brands
+- outdoor: gorpcore, fleece, hiking, technical
+- preppy: collegiate, academia, polo, pleats
+- grunge: indie, rock, band tees, distressed
+- goth: dark, black, edgy
+- western: cowboy boots, fringe suede, denim
+- evening: party, sequins, going out, formal
+- workwear: office wear, tailoring, blazers
+- summer: beach, swim, linen, sun
+- modest: long, loose, covered
+- basics: plain everyday essentials
 `;
 
 /** The most the model may write for one check. Also what the AI budget guard reserves for it. */
-export const LISTING_CHECK_MAX_TOKENS = 300;
+export const LISTING_CHECK_MAX_TOKENS = 400;
 
 /** The name the cost log and the Expenses page know this use by. */
 export const LISTING_CHECK_ACTION = "listing_check";
@@ -270,6 +302,23 @@ export function meteredListingCheckReader(
   };
 }
 
+/** The style tags from the model's answer: unknown values dropped, repeats removed, at most 3, order kept. */
+export function resolveListingStyles(raw: RawListingCheck): ListingStyle[] {
+  const found: ListingStyle[] = [];
+  for (const value of raw.styles ?? []) {
+    const style = LISTING_STYLES.find(
+      (s) =>
+        s ===
+        value
+          ?.trim()
+          .toLowerCase()
+          .replace(/[\s-]+/g, "_"),
+    );
+    if (style && !found.includes(style)) found.push(style);
+  }
+  return found.slice(0, LISTING_STYLES_MAX);
+}
+
 export type ListingCheckResult = {
   reason: ListingFlagKind;
   urgency: ReportUrgency;
@@ -349,6 +398,9 @@ export async function saveListingCheck(
   return "created";
 }
 
+/** How one check ended. "off" and "refused" mean the AI is not available, so a loop of checks should stop. */
+export type ListingCheckOutcome = "checked" | "skipped" | "off" | "refused" | "failed";
+
 type Log = { info: (o: object, m: string) => void; warn: (o: object, m: string) => void };
 
 /**
@@ -360,14 +412,22 @@ export function createListingChecker(
   app: Pick<FastifyInstance, "db" | "storage" | "reference">,
   reader: ListingCheckReader,
 ) {
-  return async function check(input: { listingId: string; log: Log }): Promise<void> {
-    if (!reader.enabled) return;
+  /**
+   * `flags: false` is for listings an admin uploaded: they are only tagged with styles, never flagged for review.
+   */
+  return async function check(input: {
+    listingId: string;
+    log: Log;
+    flags?: boolean;
+  }): Promise<ListingCheckOutcome> {
+    if (!reader.enabled) return "off";
     const { listingId, log } = input;
+    const withFlags = input.flags !== false;
     const startedAt = Date.now();
     try {
       const [row] = await app.db.select().from(listings).where(eq(listings.id, listingId)).limit(1);
       // Only a live listing is checked. Drafts, hidden, sold and removed ones are not.
-      if (!row || (row.status !== "active" && row.status !== "reserved")) return;
+      if (!row || (row.status !== "active" && row.status !== "reserved")) return "skipped";
       const reference = await app.reference.get();
       const category = row.categoryId
         ? categoryTrail(reference.categories, row.categoryId)
@@ -395,17 +455,31 @@ export function createListingChecker(
         userId: row.sellerId,
         signal: AbortSignal.timeout(20_000),
       });
-      const result = resolveListingCheck(reading);
+      const result = withFlags ? resolveListingCheck(reading) : null;
+      const styles = resolveListingStyles(reading);
       log.info(
-        { ms: Date.now() - startedAt, flagged: result !== null, photos: images.length, ...usage },
+        {
+          ms: Date.now() - startedAt,
+          flagged: result !== null,
+          styles: styles.length,
+          photos: images.length,
+          ...usage,
+        },
         "listing check read",
       );
+      // Styles are saved on every check, flags or not. updatedAt stays as it was: tagging is not an edit.
+      await app.db
+        .update(listings)
+        .set({ styles, stylesTaggedAt: new Date(), updatedAt: row.updatedAt })
+        .where(eq(listings.id, listingId));
       if (result) await saveListingCheck(app.db, listingId, result);
+      return "checked";
     } catch (error) {
       log.warn(
         { ms: Date.now() - startedAt, error: error instanceof Error ? error.name : "unknown" },
         "listing check failed",
       );
+      return error instanceof AiRefusedError ? "refused" : "failed";
     }
   };
 }
@@ -413,6 +487,43 @@ export function createListingChecker(
 export type ListingChecker = ReturnType<typeof createListingChecker>;
 
 /** Starts a check after the response has gone, so it never slows down or fails the seller's request. */
-export function checkListingInBackground(checker: ListingChecker, listingId: string, log: Log): void {
-  runInBackground(checker({ listingId, log }));
+export function checkListingInBackground(
+  checker: ListingChecker,
+  listingId: string,
+  log: Log,
+  options: { flags?: boolean } = {},
+): void {
+  runInBackground(checker({ listingId, log, ...options }));
+}
+
+/** How many untagged listings one nightly run tags (D-040). */
+export const STYLE_CATCH_UP_LIMIT = 100;
+
+/**
+ * The nightly catch-up (D-040): tags live listings that were never tagged, oldest first, one at a time through the same
+ * metered check. Listings an admin uploaded are only tagged, never flagged. Stops early when the AI is off or the meter
+ * refuses (switch or cap), the next night continues. A listing whose check fails is tried again the next night.
+ */
+export async function tagUntaggedListings(
+  app: Pick<FastifyInstance, "db">,
+  checker: ListingChecker,
+  log: Log,
+  limit = STYLE_CATCH_UP_LIMIT,
+): Promise<{ tagged: number; failed: number; stoppedEarly: boolean }> {
+  const rows = await app.db
+    .select({ id: listings.id, adminUpload: adminUploads.listingId })
+    .from(listings)
+    .leftJoin(adminUploads, eq(adminUploads.listingId, listings.id))
+    .where(and(isNull(listings.stylesTaggedAt), inArray(listings.status, ["active", "reserved"])))
+    .orderBy(asc(listings.createdAt), asc(listings.id))
+    .limit(limit);
+  let tagged = 0;
+  let failed = 0;
+  for (const row of rows) {
+    const outcome = await checker({ listingId: row.id, log, flags: row.adminUpload === null });
+    if (outcome === "off" || outcome === "refused") return { tagged, failed, stoppedEarly: true };
+    if (outcome === "checked") tagged += 1;
+    else if (outcome === "failed") failed += 1;
+  }
+  return { tagged, failed, stoppedEarly: false };
 }
