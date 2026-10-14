@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   type LucideIcon,
   ReceiptText,
+  ShieldAlert,
   ShieldCheck,
   Upload,
   Users,
@@ -15,6 +16,7 @@ import {
  */
 export const ADMIN_NAV: { key: string; path: string; icon: LucideIcon }[] = [
   { key: "dashboard", path: "", icon: LayoutDashboard },
+  { key: "review", path: "/review", icon: ShieldAlert },
   { key: "users", path: "/users", icon: Users },
   { key: "analytics", path: "/analytics", icon: BarChart3 },
   { key: "expenses", path: "/expenses", icon: ReceiptText },

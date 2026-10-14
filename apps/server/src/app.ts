@@ -3,10 +3,22 @@ import Fastify from "fastify";
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { Env } from "./env.js";
 import { AiMeter } from "./lib/ai-cost.js";
+import {
+  createListingChecker,
+  createListingCheckReader,
+  type ListingCheckReader,
+  meteredListingCheckReader,
+} from "./lib/listing-check.js";
 import { loggerOptions } from "./lib/logger.js";
 import { createMailer, type Mailer } from "./lib/mail.js";
 import { createPhotoReader, meteredPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
 import type { Pusher } from "./lib/push.js";
+import {
+  createReportSorter,
+  createReportSortReader,
+  meteredReportSortReader,
+  type ReportSortReader,
+} from "./lib/report-sort.js";
 import { createSearchReader, meteredSearchReader, type SearchReader } from "./lib/search-reader.js";
 import { createStorage, type Storage } from "./lib/storage.js";
 import { createTextReader, meteredTextReader, type TextReader } from "./lib/text-reader.js";
@@ -55,6 +67,10 @@ export type BuildAppOptions = {
   textReader?: TextReader;
   /** Same for search in plain words (D-037). Tests pass a fake. */
   searchReader?: SearchReader;
+  /** The AI listing check after a listing goes live (D-038). Tests pass a fake. */
+  listingCheckReader?: ListingCheckReader;
+  /** Sorting of member reports by urgency (D-038). Tests pass a fake. */
+  reportSortReader?: ReportSortReader;
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
 };
@@ -68,6 +84,8 @@ export async function buildApp({
   photoReader,
   textReader,
   searchReader,
+  listingCheckReader,
+  reportSortReader,
 }: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
@@ -95,10 +113,26 @@ export async function buildApp({
     await app.register(referencePlugin);
     await app.register(meRoutes);
     await app.register(referenceRoutes);
-    await app.register(listingRoutes);
-    await app.register(uploadRoutes);
     // Every AI call goes through this meter: the spend caps, the master switch and the cost log (lib/ai-cost.ts).
     const aiMeter = new AiMeter(database.db, { logger: app.log });
+    const listingChecker = createListingChecker(
+      app,
+      meteredListingCheckReader(
+        listingCheckReader ?? createListingCheckReader(env),
+        aiMeter,
+        env.PHOTO_READER_MODEL,
+      ),
+    );
+    const reportSorter = createReportSorter(
+      app,
+      meteredReportSortReader(
+        reportSortReader ?? createReportSortReader(env),
+        aiMeter,
+        env.PHOTO_READER_MODEL,
+      ),
+    );
+    await app.register(listingRoutes, { listingChecker });
+    await app.register(uploadRoutes);
     const baseReader = photoReader ?? createPhotoReader(env);
     const meteredSearch = meteredSearchReader(
       searchReader ?? createSearchReader(env),
@@ -114,7 +148,7 @@ export async function buildApp({
     await app.register(searchAssistRoutes, { searchReader: meteredSearch });
     await app.register(userRoutes);
     await app.register(discoveryRoutes);
-    await app.register(engagementRoutes);
+    await app.register(engagementRoutes, { reportSorter });
     await app.register(eventRoutes);
     await app.register(messageRoutes);
     await app.register(notificationRoutes);

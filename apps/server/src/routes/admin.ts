@@ -34,6 +34,7 @@ import {
 import type { AiMeter } from "../lib/ai-cost.js";
 import { ApiError } from "../lib/errors.js";
 import type { PhotoReader } from "../lib/photo-reader.js";
+import { registerAdminReviewRoutes } from "./admin-review.js";
 import { registerAdminUploadRoutes } from "./admin-uploads.js";
 
 const errors = {
@@ -74,6 +75,7 @@ const adminRoutes: FastifyPluginAsyncZod<{ meter: AiMeter; reader: PhotoReader }
   };
 
   registerAdminUploadRoutes(app, { db, preHandler, adminIdOf, reader });
+  registerAdminReviewRoutes(app, { db, preHandler, adminIdOf });
 
   app.get(
     "/v1/admin/dashboard",

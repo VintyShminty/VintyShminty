@@ -5,13 +5,16 @@ import {
   type AdminAnalytics,
   type AdminDashboard,
   type AdminExpenses,
+  type AdminReviewPage,
   type AdminSecurity,
   type AdminUsersPage,
   adminAnalyticsSchema,
   adminDashboardSchema,
   adminExpensesSchema,
+  adminReviewPageSchema,
   adminSecuritySchema,
   adminUsersPageSchema,
+  type ReviewFilter,
 } from "@vinty/shared";
 import type { TFunction } from "i18next";
 import { adminKeys } from "@/lib/admin-keys";
@@ -64,6 +67,32 @@ export function useAdminUsers(filter: string, q: string) {
     getNextPageParam: (last) => last.nextCursor,
   });
 }
+
+export function useAdminReview(filter: ReviewFilter) {
+  return useInfiniteQuery<
+    AdminReviewPage,
+    Error,
+    { pages: AdminReviewPage[] },
+    readonly unknown[],
+    string | null
+  >({
+    queryKey: adminKeys.review(filter),
+    initialPageParam: null,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams({ status: filter, limit: "20" });
+      if (pageParam) params.set("cursor", pageParam);
+      return clientApi(`/v1/admin/review?${params}`, { schema: adminReviewPageSchema });
+    },
+    getNextPageParam: (last) => last.nextCursor,
+  });
+}
+
+/** How many open items wait, and how many are urgent: the badge in the menu. One small request, refreshed after every action. */
+export const useAdminReviewCount = () =>
+  useQuery<AdminReviewPage>({
+    queryKey: adminKeys.reviewCount,
+    queryFn: () => clientApi("/v1/admin/review?status=open&limit=1", { schema: adminReviewPageSchema }),
+  });
 
 /** The words for a failed admin call. The server's own sentence for a refusal such as "ban them instead", else the usual wording. */
 export function adminErrorText(error: unknown, t: TFunction): string {

@@ -1,4 +1,10 @@
-import { REPORT_REASONS, REPORT_STATUSES, REPORT_TARGETS } from "@vinty/shared";
+import {
+  REPORT_REASONS,
+  REPORT_SOURCES,
+  REPORT_STATUSES,
+  REPORT_TARGETS,
+  REPORT_URGENCIES,
+} from "@vinty/shared";
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -22,6 +28,8 @@ import { notificationTypeEnum } from "./people.js";
 export const reportTargetEnum = pgEnum("report_target", REPORT_TARGETS);
 export const reportReasonEnum = pgEnum("report_reason", REPORT_REASONS);
 export const reportStatusEnum = pgEnum("report_status", REPORT_STATUSES);
+export const reportSourceEnum = pgEnum("report_source", REPORT_SOURCES);
+export const reportUrgencyEnum = pgEnum("report_urgency", REPORT_URGENCIES);
 
 /**
  * In app notifications (Inbox, Notifications tab). Text is not stored.
@@ -53,18 +61,28 @@ export const notifications = pgTable(
   ],
 );
 
-/** One generic table for reports. The target is a type plus an id. No foreign key, so a report outlives its target. */
+/**
+ * One generic table for reports. The target is a type plus an id. No foreign key, so a report outlives its target.
+ * D-038: the admin Review list also holds the AI listing check's flags (`source` 'ai_check', no reporter). The AI only
+ * fills `ai_reason`, `urgency` and `ai_summary` to sort and describe, it never changes a listing or a person.
+ */
 export const reports = pgTable(
   "reports",
   {
     id: pk(),
-    reporterId: uuid("reporter_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    /** Null for an AI check flag. */
+    reporterId: uuid("reporter_id").references(() => users.id, { onDelete: "cascade" }),
+    source: reportSourceEnum("source").notNull().default("member"),
     targetType: reportTargetEnum("target_type").notNull(),
     targetId: uuid("target_id").notNull(),
     reason: reportReasonEnum("reason").notNull(),
     details: text("details"),
+    /** The AI's own reading of the kind of problem. Null until it has looked, or when the AI is off. */
+    aiReason: reportReasonEnum("ai_reason"),
+    /** How soon someone should look. Null until the AI has sorted it, those come after high, normal and low. */
+    urgency: reportUrgencyEnum("urgency"),
+    /** One plain sentence for the admin. */
+    aiSummary: text("ai_summary"),
     status: reportStatusEnum("status").notNull().default("open"),
     handledById: uuid("handled_by_id").references(() => users.id, { onDelete: "set null" }),
     handledAt: ts("handled_at"),
@@ -74,8 +92,11 @@ export const reports = pgTable(
   },
   (t) => [
     index("reports_queue_idx").on(t.status, t.createdAt),
+    index("reports_review_idx").on(t.status, t.urgency, t.createdAt),
     index("reports_target_idx").on(t.targetType, t.targetId),
     check("reports_details_length", sql`${t.details} is null or char_length(${t.details}) <= 2000`),
+    check("reports_ai_summary_length", sql`${t.aiSummary} is null or char_length(${t.aiSummary}) <= 300`),
+    check("reports_member_has_reporter", sql`${t.source} <> 'member' or ${t.reporterId} is not null`),
   ],
 );
 

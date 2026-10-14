@@ -2160,7 +2160,7 @@
     },
     "review": {
       "title": "Review",
-      "intro": "Member reports and AI checks, most urgent first. The AI only sorts and flags, you decide.",
+      "intro": "Reports from users and AI checks, most urgent first. The AI only sorts and flags, you decide.",
       "filters": {
         "open": "Open",
         "handled": "Handled"
@@ -2176,7 +2176,7 @@
         "none": "Not sorted"
       },
       "source": {
-        "member": "Member report",
+        "member": "User report",
         "ai_check": "AI check"
       },
       "aiReads": "AI reads it as: {{reason}}",

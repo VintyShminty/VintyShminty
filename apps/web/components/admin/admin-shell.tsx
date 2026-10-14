@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { ToastProvider } from "@/components/admin/toast";
 import { LanguageMenu } from "@/components/language-menu";
 import { ADMIN_NAV } from "@/lib/admin-nav";
+import { useAdminReviewCount } from "@/lib/admin-queries";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,6 +20,7 @@ export function AdminShell({ lang, children }: { lang: string; children: ReactNo
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const base = `/${lang}/admin`;
+  const urgent = useAdminReviewCount().data?.openHighCount ?? 0;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: close the phone menu whenever the page changes
   useEffect(() => setOpen(false), [pathname]);
@@ -40,6 +42,14 @@ export function AdminShell({ lang, children }: { lang: string; children: ReactNo
             >
               <Icon size={18} aria-hidden />
               {t(`admin.nav.${key}`)}
+              {key === "review" && urgent > 0 ? (
+                <span
+                  className="ms-auto inline-flex min-w-5 items-center justify-center rounded-full bg-error px-xs text-badge font-semibold text-on-accent"
+                  title={t("admin.review.urgency.high")}
+                >
+                  {urgent}
+                </span>
+              ) : null}
             </Link>
           </li>
         );
