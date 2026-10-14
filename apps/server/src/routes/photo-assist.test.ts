@@ -130,9 +130,6 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
         { code: fourth, confidence: 0.1 },
       ],
       colours: ["K1", "K2", "K3", "K999"],
-      material: "M999",
-      title: "A dress",
-      description: "Nice.",
     };
     const t = await withApp(answer);
     contexts.push(t.ctx);
@@ -147,7 +144,8 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     ]);
     expect(body.colourIds).toEqual([catalog.colours.get("K1"), catalog.colours.get("K2")]);
     expect(body.materialId).toBeNull();
-    expect(body.title).toBe("A dress");
+    expect(body.title).toBeNull();
+    expect(body.description).toBeNull();
     expect(t.reader.calls).toHaveLength(1);
     expect(t.reader.calls[0]?.images).toHaveLength(2);
   });
@@ -198,7 +196,7 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
   });
 
   it("answers empty when none of the photos can be read from storage", async () => {
-    const reader = fakePhotoReader({ title: "Should not appear" });
+    const reader = fakePhotoReader({ colours: ["K1"] });
     const ctx = await buildTestApp({}, { photoReader: reader });
     contexts.push(ctx);
     const person = newPerson("assist");
@@ -225,7 +223,7 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
   });
 
   it("allows 20 reads an hour per person, then asks to wait", async () => {
-    const t = await withApp({ title: "ok" });
+    const t = await withApp({ colours: ["K1"] });
     contexts.push(t.ctx);
     for (let i = 0; i < 20; i++) expect((await t.suggest()).statusCode).toBe(200);
     const over = await t.suggest();

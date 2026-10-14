@@ -25,7 +25,6 @@ import { ConditionSlider } from "@/components/sell/condition-slider";
 import { type Option, OptionListSheet } from "@/components/sell/option-list-sheet";
 import { ParcelSizes } from "@/components/sell/parcel-sizes";
 import { PhotoUploader } from "@/components/sell/photo-uploader";
-import { UseItChip } from "@/components/sell/use-it-chip";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -274,7 +273,7 @@ export default function SellForm() {
         <Section title={t("sell.about")}>
           <Input
             label={t("sell.titleLabel")}
-            placeholder={(!values.title.trim() && suggestion?.title) || t("sell.titlePlaceholder")}
+            placeholder={t("sell.titlePlaceholder")}
             value={values.title}
             onChangeText={(title) => {
               set({ title });
@@ -283,21 +282,11 @@ export default function SellForm() {
             maxLength={LISTING_TITLE_MAX}
             footerEnd={`${values.title.length}/${LISTING_TITLE_MAX}`}
             error={err("title")}
-            labelEnd={
-              !values.title.trim() && suggestion?.title ? (
-                <UseItChip
-                  label={t("sell.assist.useIt")}
-                  onPress={() => set({ title: suggestion.title ?? "" })}
-                />
-              ) : undefined
-            }
             returnKeyType="next"
           />
           <Input
             label={t("sell.descriptionLabel")}
-            placeholder={
-              (!values.description.trim() && suggestion?.description) || t("sell.descriptionPlaceholder")
-            }
+            placeholder={t("sell.descriptionPlaceholder")}
             value={values.description}
             onChangeText={(description) => {
               set({ description });
@@ -307,14 +296,6 @@ export default function SellForm() {
             maxLength={LISTING_DESCRIPTION_MAX}
             footerEnd={`${values.description.length}/${LISTING_DESCRIPTION_MAX}`}
             error={err("description")}
-            labelEnd={
-              !values.description.trim() && suggestion?.description ? (
-                <UseItChip
-                  label={t("sell.assist.useIt")}
-                  onPress={() => set({ description: suggestion.description ?? "" })}
-                />
-              ) : undefined
-            }
           />
         </Section>
 
@@ -494,7 +475,6 @@ export default function SellForm() {
         mode="single"
         options={ref.materials.map((m) => ({ id: m.id, label: name(m.name) }))}
         selected={values.materialId ? [values.materialId] : []}
-        suggestedIds={shown?.materialId ? [shown.materialId] : undefined}
         clearable={mode("material") === "optional"}
         onChange={([materialId]) => {
           set({ materialId: materialId ?? null });

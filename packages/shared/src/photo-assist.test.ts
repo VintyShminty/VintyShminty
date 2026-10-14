@@ -32,7 +32,7 @@ describe("photo helper schemas", () => {
 
   it("knows when a suggestion has something to show", () => {
     expect(photoSuggestionHasContent(EMPTY_PHOTO_SUGGESTION)).toBe(false);
-    expect(photoSuggestionHasContent({ ...EMPTY_PHOTO_SUGGESTION, title: "Blue dress" })).toBe(true);
+    expect(photoSuggestionHasContent({ ...EMPTY_PHOTO_SUGGESTION, title: "Blue dress" })).toBe(false);
     expect(photoSuggestionHasContent({ ...EMPTY_PHOTO_SUGGESTION, brand: { id: null, name: "Zara" } })).toBe(
       true,
     );

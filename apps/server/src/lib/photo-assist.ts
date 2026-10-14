@@ -3,8 +3,6 @@ import {
   type CategoryNode,
   EMPTY_PHOTO_SUGGESTION,
   LISTING_COLOURS_MAX,
-  LISTING_DESCRIPTION_MAX,
-  LISTING_TITLE_MAX,
   PHOTO_ASSIST_MAX_CATEGORIES,
   type PhotoSuggestion,
   type ReferenceData,
@@ -56,17 +54,15 @@ export type CatalogCodes = {
   text: string;
   categories: Map<string, string>;
   colours: Map<string, string>;
-  materials: Map<string, string>;
 };
 
 /**
- * Writes our leaf categories, colours and materials as text. The model answers with short codes (C12, K3, M2) and the
+ * Writes our leaf categories and colours as text. The model answers with short codes (C12, K3) and the
  * server turns them back into ids. Codes are cheaper than ids, and a made up code simply matches nothing.
  */
 export function buildCatalog(reference: ReferenceData): CatalogCodes {
   const categories = new Map<string, string>();
   const colours = new Map<string, string>();
-  const materials = new Map<string, string>();
 
   const lines: string[] = ["CATEGORIES (code: path)"];
   let n = 0;
@@ -90,12 +86,7 @@ export function buildCatalog(reference: ReferenceData): CatalogCodes {
     colours.set(`K${i + 1}`, c.id);
     lines.push(`K${i + 1}: ${c.name.en}`);
   });
-  lines.push("", "MATERIALS (code: name)");
-  reference.materials.forEach((m, i) => {
-    materials.set(`M${i + 1}`, m.id);
-    lines.push(`M${i + 1}: ${m.name.en}`);
-  });
-  return { text: lines.join("\n"), categories, colours, materials };
+  return { text: lines.join("\n"), categories, colours };
 }
 
 /** Lower case, no accents, no spaces or punctuation: "Ralph Lauren", "ralph-lauren" and "RÅLPH LAUREN" all match. */
@@ -179,8 +170,6 @@ export async function resolveSuggestion(
     if (colourIds.length >= LISTING_COLOURS_MAX) break;
   }
 
-  const materialId = catalog.materials.get(code(raw.material)) ?? null;
-
   let brand: PhotoSuggestion["brand"] = null;
   const brandText = cleanText(raw.brandText, 80);
   if (brandText) {
@@ -192,9 +181,10 @@ export async function resolveSuggestion(
     categories,
     brand,
     colourIds,
-    materialId,
-    title: cleanText(raw.title, LISTING_TITLE_MAX),
-    description: cleanText(raw.description, LISTING_DESCRIPTION_MAX),
+    // Retired guesses, null for older app builds that still expect the keys.
+    materialId: null,
+    title: null,
+    description: null,
   };
   return suggestion;
 }

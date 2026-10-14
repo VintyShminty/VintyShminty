@@ -54,7 +54,7 @@ describe("buildCatalog", () => {
     expect(a.text).not.toContain("Women\n");
     expect(a.categories.get("C2")).toBe("cat-jeans");
     expect(a.colours.get("K2")).toBe("col-red");
-    expect(a.materials.get("M1")).toBe("mat-cotton");
+    expect(a.text).not.toContain("MATERIALS");
     expect(buildCatalog(reference).text).toBe(a.text);
   });
 });
@@ -113,9 +113,6 @@ describe("resolveSuggestion", () => {
         ],
         brandText: "ZARA",
         colours: ["K1", "K3"],
-        material: "M1",
-        title: "  Black   dress ",
-        description: "A dress.",
       },
       catalog,
       matcher,
@@ -126,8 +123,10 @@ describe("resolveSuggestion", () => {
     ]);
     expect(s.brand).toEqual({ id: "brand-zara", name: "Zara" });
     expect(s.colourIds).toEqual(["col-black", "col-blue"]);
-    expect(s.materialId).toBe("mat-cotton");
-    expect(s.title).toBe("Black dress");
+    // The retired guesses are always null, so older app builds still parse the answer.
+    expect(s.materialId).toBeNull();
+    expect(s.title).toBeNull();
+    expect(s.description).toBeNull();
   });
 
   it("drops codes that are not in our lists, repeats and a third colour", async () => {
@@ -140,8 +139,6 @@ describe("resolveSuggestion", () => {
           { code: "C2" },
         ],
         colours: ["K9", "K2", "K2", "K3", "K1"],
-        material: "M7",
-        title: "",
       },
       catalog,
       matcher,

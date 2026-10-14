@@ -32,8 +32,6 @@ type OptionListSheetProps = {
   clearable?: boolean;
   /** Content above the list, such as a hint. */
   header?: ReactNode;
-  /** The photo helper's guesses (ids from `options`). Listed first under "Looks like", never ticked for the seller. */
-  suggestedIds?: string[];
 };
 
 /** A sheet with a flat list of options (docs/components.md, OptionListSheet). */
@@ -47,31 +45,13 @@ function OptionListSheet({
   onChange,
   clearable,
   header,
-  suggestedIds,
 }: OptionListSheetProps) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [draft, setDraft] = useState<string[]>(selected);
   useEffect(() => setDraft(selected), [selected]);
 
-  const rows = useMemo(() => {
-    const guesses = (suggestedIds ?? [])
-      .map((id) => options.find((o) => o.id === id))
-      .filter((o): o is Option => Boolean(o));
-    if (guesses.length === 0) return options.map((o) => ({ ...o, rowKey: o.id }));
-    return [
-      ...guesses.map((o, i) => ({
-        ...o,
-        section: i === 0 ? t("sell.assist.looksLike") : undefined,
-        rowKey: `guess-${o.id}`,
-      })),
-      ...options.map((o, i) => ({
-        ...o,
-        section: i === 0 ? (o.section ?? t("sell.assist.allOptions")) : o.section,
-        rowKey: o.id,
-      })),
-    ];
-  }, [options, suggestedIds, t]);
+  const rows = useMemo(() => options.map((o) => ({ ...o, rowKey: o.id })), [options]);
 
   const close = () => (typeof ref === "object" && ref ? ref.current?.dismiss() : undefined);
   const full = max !== undefined && draft.length >= max;
