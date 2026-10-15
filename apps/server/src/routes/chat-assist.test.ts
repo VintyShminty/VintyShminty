@@ -401,7 +401,16 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)"
             clientMessageId: crypto.randomUUID(),
             createdAt: new Date(Date.now() + i),
           });
-        last = (await quick(limSeller.token, "en", limChat)).json();
+        // A new address every 25 calls, so the 30 a minute limit per address does not answer first.
+        last = (
+          await ctx.app.inject({
+            method: "POST",
+            url: `/v1/conversations/${limChat}/quick-replies`,
+            headers: { authorization: `Bearer ${limSeller.token}` },
+            remoteAddress: `10.9.0.${Math.floor(i / 25) + 1}`,
+            payload: { language: "en" },
+          })
+        ).json();
         if (i < 60) expect(last.replies.length, `answer ${i}`).toBeGreaterThan(0);
       }
       expect(last).toEqual({ forMessageId: null, replies: [] });
