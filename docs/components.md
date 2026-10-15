@@ -363,9 +363,9 @@ Shows the seller price and what the buyer pays, with the buyer protection shield
 
 ### SearchBar
 
-The big rounded search box at the top of Browse (Home uses a round search button beside the greeting since D-019), with a camera for photo search.
+The big rounded search box at the top of Browse (Home shows it full width under the wordmark since D-047), with a camera for photo search.
 
-- **Variants and states:** States: idle (tap opens search), focused, filled with clear, busy (Searching...). Camera icon on the right. 32px radius.
+- **Variants and states:** States: idle (tap opens the Search page on Browse, on Home it starts the search in place with Cancel, D-047), focused, filled with clear, busy (Searching...). Camera icon on the right. 32px radius.
 - **Screens:** Home feed, Browse, Search and results
 - **Source:** Custom (Composed from TextField styling, Icon and Pressable)
 - **Phase:** First flows
