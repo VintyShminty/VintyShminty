@@ -12,7 +12,7 @@ import { MoreMenu } from "@/components/item/more-menu";
 import { ListingGrid } from "@/components/listing-grid";
 import { OfferSheet } from "@/components/offer/offer-sheet";
 import { PhotoCarousel } from "@/components/photo-carousel";
-import { PriceBreakdownCard } from "@/components/price-pill";
+import { PriceBlock, PriceBreakdownCard } from "@/components/price-pill";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,6 @@ import { useSendOffer } from "@/lib/order-flow-queries";
 import { useLocalName } from "@/lib/reference";
 import { timeAgo } from "@/lib/time";
 import { useDwell } from "@/lib/use-dwell";
-import { cn } from "@/lib/utils";
 
 /** A paragraph cut after three lines with a "Show more" link (docs/components.md, ExpandableText). */
 function ExpandableText({ text }: { text: string }) {
@@ -147,8 +146,6 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   // A published listing always has a price. Only the owner's drafts can lack one.
   const price = listing.priceMinor ?? 0;
   const buyerPrice = listing.buyerPriceMinor ?? price;
-  const priceDrop = listing.previousPriceMinor !== null && listing.previousPriceMinor > price;
-  const percentOff = priceDrop ? Math.round((1 - price / (listing.previousPriceMinor as number)) * 100) : 0;
   const seller = listing.seller;
   const sellerName = seller.username ?? t("profile.closedAccount");
 
@@ -181,23 +178,13 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                 {sold ? null : <FavouritePill listing={listing} />}
               </View>
 
-              <View className="gap-xs">
-                <Text
-                  variant="title"
-                  className={cn(sold ? "text-text-4 line-through" : "text-primary")}
-                  accessibilityLabel={formatMoney(price, listing.currency)}
-                >
-                  {formatMoney(price, listing.currency)}
-                </Text>
-                {priceDrop && !sold ? (
-                  <Text variant="bodySmall" className="text-text-3">
-                    {t("listing.was", {
-                      price: formatMoney(listing.previousPriceMinor as number, listing.currency),
-                    })}
-                    {` · ${t("listing.percentOff", { percent: percentOff })}`}
-                  </Text>
-                ) : null}
-              </View>
+              <PriceBlock
+                priceMinor={price}
+                previousPriceMinor={listing.previousPriceMinor}
+                buyerPriceMinor={buyerPrice}
+                currency={listing.currency}
+                sold={sold}
+              />
 
               {sold ? null : (
                 <PriceBreakdownCard
