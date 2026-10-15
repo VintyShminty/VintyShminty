@@ -1680,6 +1680,15 @@
         "title": "Reporting and blocking",
         "body": "See something wrong on an item or a profile? Open the more menu and choose Report, then pick a reason. Our team takes a look, and the person is not told it was you.\n\nTo stop talking to someone, block them from their profile. You will not see each other's items and cannot message each other."
       }
+    },
+    "ask": {
+      "title": "Ask a question",
+      "placeholder": "Ask in your own words, for example how do I get paid",
+      "button": "Ask",
+      "thinking": "Looking through our help pages",
+      "label": "Answer written by AI from our help pages",
+      "readMore": "Read more",
+      "noAnswer": "We could not find this in our help pages. Write to us and we will help"
     }
   },
   "web": {
@@ -1915,7 +1924,8 @@
       "search_understand": "Search in plain words",
       "listing_check": "Listing check",
       "report_sort": "Report sorting",
-      "chat_check": "Chat warnings"
+      "chat_check": "Chat warnings",
+      "help_answer": "Help answers"
     },
     "dashboard": {
       "totalUsers": "Users",
