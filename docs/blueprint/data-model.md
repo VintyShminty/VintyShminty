@@ -1770,7 +1770,7 @@ Notification types: new_message, new_offer, offer_accepted, offer_declined, offe
 
 ### `reports`
 
-A report of a listing, a member, a message or a review. One generic table: the target is a type plus an id with no foreign key, so a report outlives what it reports.
+A report of a listing, a member, a message or a review, or the AI's row for an order a buyer opened a problem on (D-044, `target_type` 'order', `source` 'ai_check', no reporter, reason 'other'; members cannot report an order). One generic table: the target is a type plus an id with no foreign key, so a report outlives what it reports.
 
 Used by: Item page (... menu, Report), Profile (... menu), the admin Review list (D-038). Besides member reports the table holds the AI listing check's flags (`source` = 'ai_check', no reporter). The AI only sorts and describes (`ai_reason`, `urgency`, `ai_summary`), it never hides, removes or bans anything: only an admin action changes a listing.
 
@@ -1779,13 +1779,13 @@ Used by: Item page (... menu, Report), Profile (... menu), the admin Review list
 | `id` | uuid | no | primary key. default gen_random_uuid() |
 | `reporter_id` | uuid | yes | refers to users.id, on delete cascade. Null for an AI check flag |
 | `source` | report_source | no | default 'member'. member or ai_check |
-| `target_type` | report_target | no | listing, user, message or review |
+| `target_type` | report_target | no | listing, user, message, review or order (order only from the AI order summary, D-044) |
 | `target_id` | uuid | no |  |
 | `reason` | report_reason | no | counterfeit, prohibited_item, misleading, inappropriate, spam, harassment, scam_off_platform or other |
 | `details` | text | yes | the member's own note |
 | `ai_reason` | report_reason | yes | the AI's reading of the kind of problem. Null until sorted or when the AI is off |
 | `urgency` | report_urgency | yes | high, normal or low. Null until sorted, those list after low |
-| `ai_summary` | text | yes | one plain sentence for the admin, 300 characters at most |
+| `ai_summary` | text | yes | the AI's summary for the admin, 600 characters at most (300 until D-044 made order summaries longer) |
 | `status` | report_status | no | default 'open'. open, reviewing, actioned or dismissed |
 | `handled_by_id` | uuid | yes | refers to users.id, on delete set null |
 | `handled_at` | timestamptz | yes |  |
@@ -1796,7 +1796,7 @@ Used by: Item page (... menu, Report), Profile (... menu), the admin Review list
 Constraints:
 
 - Check `reports_details_length`: ((details IS NULL) OR (char_length(details) <= 2000))
-- Check `reports_ai_summary_length`: ((ai_summary IS NULL) OR (char_length(ai_summary) <= 300))
+- Check `reports_ai_summary_length`: ((ai_summary IS NULL) OR (char_length(ai_summary) <= 600))
 - Check `reports_member_has_reporter`: ((source <> 'member') OR (reporter_id IS NOT NULL))
 
 Indexes:

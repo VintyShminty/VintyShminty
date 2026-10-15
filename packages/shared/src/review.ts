@@ -16,7 +16,7 @@ import {
  */
 
 /** The AI's one line for Eden. */
-export const REVIEW_SUMMARY_MAX = 300;
+export const REVIEW_SUMMARY_MAX = 600;
 
 /** Open means waiting for a look. Handled covers actioned and dismissed. */
 export const REVIEW_FILTERS = ["open", "handled"] as const;
@@ -49,6 +49,8 @@ export const reviewTargetSchema = z.discriminatedUnion("kind", [
     kind: z.literal("order"),
     id: idSchema,
     status: z.enum(ORDER_STATUSES),
+    /** So the title can link to the item page. */
+    listingId: idSchema,
     listingTitle: z.string(),
     photoUrl: z.string().nullable(),
     totalMinor: z.number().int(),

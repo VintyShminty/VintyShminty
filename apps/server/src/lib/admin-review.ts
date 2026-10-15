@@ -1,12 +1,24 @@
-import { listingPhotos, listings, messages, reports, reviews, users } from "@vinty/db";
+import {
+  listingPhotos,
+  listings,
+  messages,
+  orderEvents,
+  orderItems,
+  orders,
+  reports,
+  reviews,
+  users,
+} from "@vinty/db";
 import type {
   AdminReviewItem,
   AdminReviewPage,
   AdminReviewQuery,
+  OrderEvent,
   ReviewAction,
   ReviewTarget,
 } from "@vinty/shared";
-import { and, count, eq, inArray, type SQL, sql } from "drizzle-orm";
+import { and, asc, count, eq, inArray, type SQL, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { type Db, type Writer, writeAudit } from "./admin.js";
 import { decodeCursor, encodeCursor } from "./cursor.js";
 import { ApiError } from "./errors.js";
@@ -73,6 +85,61 @@ async function loadTargets(db: Db, storage: Storage, rows: { targetType: string;
         priceMinor: l.priceMinor,
         currency: l.currency,
         seller: { id: l.sellerId, username: l.sellerName ?? "" },
+      });
+    }
+  }
+
+  const orderIds = idsOf("order");
+  if (orderIds.length > 0) {
+    const buyers = alias(users, "buyers");
+    const sellers = alias(users, "sellers");
+    const found = await db
+      .select({
+        id: orders.id,
+        status: orders.status,
+        totalMinor: orders.totalMinor,
+        currency: orders.currency,
+        buyerId: orders.buyerId,
+        sellerId: orders.sellerId,
+        buyerName: buyers.username,
+        sellerName: sellers.username,
+      })
+      .from(orders)
+      .innerJoin(buyers, eq(buyers.id, orders.buyerId))
+      .innerJoin(sellers, eq(sellers.id, orders.sellerId))
+      .where(inArray(orders.id, orderIds));
+    const items = await db
+      .select({
+        orderId: orderItems.orderId,
+        listingId: orderItems.listingId,
+        title: orderItems.titleSnapshot,
+        photoKey: orderItems.photoKeySnapshot,
+      })
+      .from(orderItems)
+      .where(inArray(orderItems.orderId, orderIds))
+      .orderBy(asc(orderItems.createdAt), asc(orderItems.id));
+    const notes = await db
+      .select({ orderId: orderEvents.orderId, note: orderEvents.note })
+      .from(orderEvents)
+      .where(and(inArray(orderEvents.orderId, orderIds), eq(orderEvents.event, "open_dispute")))
+      .orderBy(asc(orderEvents.createdAt), asc(orderEvents.id));
+    for (const o of found) {
+      const first = items.find((i) => i.orderId === o.id);
+      // Without a listing there is nothing to link to, so the target counts as gone.
+      if (!first?.listingId) continue;
+      const note = notes.filter((n) => n.orderId === o.id).at(-1)?.note ?? null;
+      targets.set(key("order", o.id), {
+        kind: "order",
+        id: o.id,
+        status: o.status,
+        listingId: first.listingId,
+        listingTitle: first.title,
+        photoUrl: first.photoKey ? storage.publicUrl(first.photoKey) : null,
+        totalMinor: o.totalMinor,
+        currency: o.currency,
+        buyer: { id: o.buyerId, username: o.buyerName ?? "" },
+        seller: { id: o.sellerId, username: o.sellerName ?? "" },
+        problemNote: note,
       });
     }
   }
@@ -270,7 +337,16 @@ const ACTION_AUDIT: Record<ReviewAction, string> = {
   remove_listing: "review_remove_listing",
   dismiss: "review_dismiss",
   handled: "review_handled",
+  refund_buyer: "review_refund_buyer",
+  release_seller: "review_release_seller",
 };
+
+/** Moves a disputed order with the existing support move (actor admin). Given by the route, which owns the app. */
+export type MoveOrder = (
+  orderId: string,
+  event: Extract<OrderEvent, "refund" | "release">,
+  note?: string,
+) => Promise<void>;
 
 /**
  * Listings an admin may hide (a hidden one stays hidden) and remove. A sold or draft listing is left alone, and so is a
@@ -290,7 +366,13 @@ export async function applyReviewAction(
   id: string,
   action: ReviewAction,
   note: string | undefined,
+  moveOrder?: MoveOrder,
 ): Promise<void> {
+  if (action === "refund_buyer" || action === "release_seller") {
+    if (!moveOrder) throw new Error("moveOrder is needed for an order decision");
+    await applyOrderDecision(db, adminId, id, action, note, moveOrder);
+    return;
+  }
   let sellerId: string | null = null;
   await db.transaction(async (tx) => {
     const [report] = await tx.select().from(reports).where(eq(reports.id, id)).limit(1).for("update");
@@ -374,4 +456,76 @@ export async function applyReviewAction(
     await writeAudit(tx as Writer, adminId, ACTION_AUDIT[action], "report", id, details);
   });
   if (sellerId) await refreshSellerCounts(db, sellerId);
+}
+
+/**
+ * Refund the buyer or release to the seller (D-044) for a disputed order. The move itself is the same one the support
+ * routes run (`transitionOrder`, actor admin), and it has its own transaction (money, listing, thread and timeline), so
+ * it cannot share ours. The order is therefore moved first, then ONE transaction closes this report and every other
+ * open report on the order and writes the audit row. If the move fails nothing is closed. If only the closing step
+ * failed, the order has moved and the row stays open: Mark handled finishes it.
+ */
+async function applyOrderDecision(
+  db: Db,
+  adminId: string,
+  id: string,
+  action: "refund_buyer" | "release_seller",
+  note: string | undefined,
+  moveOrder: MoveOrder,
+): Promise<void> {
+  const [report] = await db.select().from(reports).where(eq(reports.id, id)).limit(1);
+  if (!report) throw ApiError.notFound("No such report");
+  if (!(OPEN_STATUSES as readonly string[]).includes(report.status)) {
+    throw ApiError.conflict("This report has already been handled");
+  }
+  if (report.targetType !== "order") {
+    throw ApiError.invalid("Only an order can be refunded or released", { action: "not_an_order" });
+  }
+  const [order] = await db
+    .select({ id: orders.id, status: orders.status })
+    .from(orders)
+    .where(eq(orders.id, report.targetId))
+    .limit(1);
+  if (!order) throw ApiError.conflict("This order no longer exists. Use Mark handled");
+  const notWaiting = () => ApiError.conflict("This order is not waiting for a decision");
+  if (order.status !== "disputed") throw notWaiting();
+
+  try {
+    await moveOrder(order.id, action === "refund_buyer" ? "refund" : "release", note);
+  } catch (err) {
+    // Two admins at once: the second finds the order already moved.
+    if (err instanceof ApiError && err.statusCode === 409) throw notWaiting();
+    throw err;
+  }
+
+  await db.transaction(async (tx) => {
+    const closed = await tx
+      .update(reports)
+      .set({
+        status: "actioned",
+        handledById: adminId,
+        handledAt: sql`now()`,
+        resolutionNote: note || null,
+        updatedAt: sql`now()`,
+      })
+      .where(
+        and(
+          eq(reports.targetType, "order"),
+          eq(reports.targetId, order.id),
+          inArray(reports.status, [...OPEN_STATUSES]),
+        ),
+      )
+      .returning({ id: reports.id });
+    const details: Record<string, unknown> = {
+      reportId: id,
+      source: report.source,
+      reason: report.reason,
+      orderId: order.id,
+      from: "disputed",
+      to: action === "refund_buyer" ? "refunded" : "completed",
+      closedReports: closed.length,
+    };
+    if (note) details.note = note;
+    await writeAudit(tx as Writer, adminId, ACTION_AUDIT[action], "report", id, details);
+  });
 }

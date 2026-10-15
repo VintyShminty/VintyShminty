@@ -1,0 +1,1 @@
+ALTER TYPE "public"."report_target" ADD VALUE 'order';

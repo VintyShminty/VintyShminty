@@ -2,7 +2,14 @@ import en from "@vinty/locales/en.json";
 import he from "@vinty/locales/he.json";
 import { REVIEW_ACTIONS } from "@vinty/shared";
 import { describe, expect, it } from "vitest";
-import { cleanNote, reviewActionsFor, sellerHref, URGENCY_CLASS, urgencyTone } from "../lib/admin-review";
+import {
+  CONFIRM_BODY,
+  cleanNote,
+  reviewActionsFor,
+  sellerHref,
+  URGENCY_CLASS,
+  urgencyTone,
+} from "../lib/admin-review";
 
 const listing = {
   kind: "listing",
@@ -28,6 +35,44 @@ describe("admin review buttons", () => {
       "handled",
     ]);
     expect(reviewActionsFor({ status: "open", target: null })).toEqual(["dismiss", "handled"]);
+  });
+
+  it("offers refund and release only for a disputed order", () => {
+    const order = {
+      kind: "order",
+      id: "o1",
+      listingId: "l1",
+      status: "disputed",
+      listingTitle: "Dress",
+      photoUrl: null,
+      totalMinor: 4500,
+      currency: "ILS",
+      buyer: { id: "u2", username: "noa" },
+      seller: { id: "u1", username: "tamar" },
+      problemNote: null,
+    } as const;
+    expect(reviewActionsFor({ status: "open", target: order })).toEqual([
+      "refund_buyer",
+      "release_seller",
+      "dismiss",
+      "handled",
+    ]);
+    expect(reviewActionsFor({ status: "open", target: { ...order, status: "refunded" } })).toEqual([
+      "dismiss",
+      "handled",
+    ]);
+    expect(reviewActionsFor({ status: "dismissed", target: order })).toEqual([]);
+  });
+
+  it("asks before refunding or releasing, with wording in both languages", () => {
+    for (const key of [CONFIRM_BODY.refund_buyer, CONFIRM_BODY.release_seller]) {
+      for (const lang of [en, he]) {
+        const found = (key ?? "")
+          .split(".")
+          .reduce<unknown>((o, k) => (o as Record<string, unknown>)?.[k], lang);
+        expect(found).toBeTruthy();
+      }
+    }
   });
 
   it("offers nothing once handled", () => {

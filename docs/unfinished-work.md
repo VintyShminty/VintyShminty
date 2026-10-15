@@ -4,7 +4,7 @@ Things that were started or decided but not finished. Each item says where it st
 
 ## AI features with Claude Haiku
 
-Decided 2026-10-14 (Eden). Step 1 merged (D-036, PR #66), step 2 merged (D-037, PR #68). Step 3 merged (D-038, PR #69). Step 4 merged (D-041, PR #74). Step 5 merged (D-042, PR #75). Step 6 built on branch `feat/ai-help-answers` (D-043), waiting for Eden's review.
+Decided 2026-10-14 (Eden). Step 1 merged (D-036, PR #66), step 2 merged (D-037, PR #68). Step 3 merged (D-038, PR #69). Step 4 merged (D-041, PR #74). Step 5 merged (D-042, PR #75). Step 6 merged (D-043, PR #76). Step 7 built on branch `feat/ai-order-summaries` (D-044), waiting for Eden's review.
 
 - **The choice:** Claude Haiku 5.5 powers every AI feature in the app. It tied GPT-6 Luna on a 60-listing test, scored best on Hebrew categories (97%) and is already set up. Results and the reasoning are in `docs/log/2026-10-14.md`.
 - **Approved features:**
@@ -24,8 +24,9 @@ Decided 2026-10-14 (Eden). Step 1 merged (D-036, PR #66), step 2 merged (D-037, 
 - **Step 3, merged (D-038):** listing checks (words and the first 2 photos) and report sorting, in one Review list in the admin pages. Flagged listings stay live until Eden decides.
 - **Step 4, merged (D-041):** chat warnings on every text message (shown to the person who received it, clear scams also go to the Review list). Quick replies were left aside. The privacy policy has its "AI helpers" section (PR #71).
 - **Step 5, merged (D-042):** style tags for the Home feed, up to 3 of 20 styles per listing, behind the scenes only, picked in the listing check and caught up 100 a night for older listings.
-- **Step 6, built (D-043):** help answers: an "Ask a question" box on the Help page, answered only from our help articles, labelled as AI, for signed out visitors too.
-- **Next step:** order problem summaries.
+- **Step 6, merged (D-043):** help answers: an "Ask a question" box on the Help page, answered only from our help articles, labelled as AI, for signed out visitors too.
+- **Step 7, built (D-044):** order problem summaries: a facts only summary of each order problem in Eden's Review list, with Refund the buyer and Release to the seller buttons. This is the last approved step.
+- **Next step:** none in this plan. Parked: translating listings, chat quick replies.
 - **Keys:** the Claude key is in `apps/server/.env`. Keys for Jev (TypeSafe AI) and OpenAI are there too, unused. OpenAI's free photo safety filter could be added later.
 
 ## Overlaps in the category tree
