@@ -8,6 +8,10 @@ import {
 import type { FastifyInstance } from "fastify";
 import { type BrandMatcher, createBrandMatcher } from "./photo-assist.js";
 import type { RawSearchReading, SearchReader } from "./search-reader.js";
+import { searchMentionsSize, shekelsToMinor } from "./search-rules.js";
+
+/** A condition meaning longer than this many characters is left out of the list. */
+const SHORT_MEANING = 30;
 
 export type SearchCatalogCodes = {
   /** The lists as text for the prompt. Identical until the reference data changes, so the prompt cache holds. */
@@ -22,10 +26,13 @@ export type SearchCatalogCodes = {
 
 /**
  * Writes our lists as text for the search reader. Unlike the sell helpers it lists EVERY category, groups included,
- * because "dresses" means the whole Dresses group. Names come in English and Hebrew ("C12: Women > Dresses | נשים >
- * שמלות") because shoppers type either. The model answers with short codes and the server turns them back into ids.
+ * because "dresses" means the whole Dresses group. One line per category as an indented tree, with its own English
+ * and Hebrew name only ("    C3 Dresses | שמלות" under Women and Clothing), because shoppers type either language and
+ * repeating whole paths made the list huge. The model answers with short codes and the server turns them back into ids.
+ * The size lists are only written when `withSizes` is true (the words mention a size). Both variants are identical
+ * text every time, so both stay in the prompt cache.
  */
-export function buildSearchCatalog(reference: ReferenceData): SearchCatalogCodes {
+export function buildSearchCatalog(reference: ReferenceData, withSizes = true): SearchCatalogCodes {
   const categories = new Map<string, string>();
   const colours = new Map<string, string>();
   const conditions = new Map<string, string>();
@@ -33,19 +40,19 @@ export function buildSearchCatalog(reference: ReferenceData): SearchCatalogCodes
   const patterns = new Map<string, string>();
   const sizes = new Map<string, string>();
 
-  const lines: string[] = ["CATEGORIES (code: path in English | path in Hebrew)"];
+  const lines: string[] = [
+    "CATEGORIES (code name in English | name in Hebrew, indented under the group it belongs to)",
+  ];
   let n = 0;
-  const walk = (nodes: CategoryNode[], en: string[], he: string[]) => {
+  const walk = (nodes: CategoryNode[], depth: number) => {
     for (const node of nodes) {
-      const pathEn = [...en, node.name.en];
-      const pathHe = [...he, node.name.he];
       n += 1;
       categories.set(`C${n}`, node.id);
-      lines.push(`C${n}: ${pathEn.join(" > ")} | ${pathHe.join(" > ")}`);
-      walk(node.children, pathEn, pathHe);
+      lines.push(`${"  ".repeat(depth)}C${n} ${node.name.en} | ${node.name.he}`);
+      walk(node.children, depth + 1);
     }
   };
-  walk(reference.categories, [], []);
+  walk(reference.categories, 0);
 
   const simple = (
     title: string,
@@ -61,13 +68,13 @@ export function buildSearchCatalog(reference: ReferenceData): SearchCatalogCodes
   };
   simple("COLOURS (code: English | Hebrew)", "K", reference.colours, colours);
 
-  lines.push("", "CONDITIONS (code: name, meaning, in English | Hebrew)");
+  // Names only, plus the English meaning when it is short. Long meanings cost more than they help.
+  lines.push("", "CONDITIONS (code: name, short meaning | Hebrew)");
   reference.conditions.forEach((c, i) => {
     conditions.set(`Q${i + 1}`, c.id);
-    const meaningEn = c.description?.en?.trim();
-    const meaningHe = c.description?.he?.trim();
+    const meaning = c.description?.en?.trim();
     lines.push(
-      `Q${i + 1}: ${c.name.en}${meaningEn ? `, ${meaningEn}` : ""} | ${c.name.he}${meaningHe ? `, ${meaningHe}` : ""}`,
+      `Q${i + 1}: ${c.name.en}${meaning && meaning.length <= SHORT_MEANING ? `, ${meaning}` : ""} | ${c.name.he}`,
     );
   });
 
@@ -75,11 +82,15 @@ export function buildSearchCatalog(reference: ReferenceData): SearchCatalogCodes
   simple("PATTERNS (code: English | Hebrew)", "P", reference.patterns, patterns);
 
   // Sizes by group, answered as "G6: 42". Codes per size (S120 next to a label 41) made the model pick a neighbour.
-  lines.push("", "SIZE GROUPS (code: group: the sizes in it)");
-  reference.sizeGroups.forEach((group, i) => {
-    for (const size of group.sizes) sizes.set(sizeKey(`G${i + 1}`, size.label), size.id);
-    lines.push(`G${i + 1}: ${group.name.en}: ${group.sizes.map((size) => size.label).join(", ")}`);
-  });
+  if (withSizes) {
+    lines.push("", "SIZE GROUPS (code: group: the sizes in it)");
+    reference.sizeGroups.forEach((group, i) => {
+      for (const size of group.sizes) sizes.set(sizeKey(`G${i + 1}`, size.label), size.id);
+      lines.push(`G${i + 1}: ${group.name.en}: ${group.sizes.map((size) => size.label).join(", ")}`);
+    });
+  } else {
+    lines.push("", "SIZES: no size list this time, so leave sizes empty.");
+  }
   return { text: lines.join("\n"), categories, colours, conditions, materials, patterns, sizes };
 }
 
@@ -119,13 +130,6 @@ function pickSizes(answers: string[] | null | undefined, map: Map<string, string
     if (ids.length >= max) break;
   }
   return ids;
-}
-
-/** Whole shekels from the model to minor units (agorot). Negative, odd or too large numbers are dropped. */
-function shekelsToMinor(value: number | null | undefined): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return null;
-  const minor = Math.round(value) * 100;
-  return minor <= 2_000_000_000 ? minor : null;
 }
 
 /** Turns the model's raw answer into filters the app can trust. Anything not in our lists is dropped. */
@@ -203,9 +207,14 @@ export function normaliseSearchText(text: string): string {
 export function createSearchUnderstander(
   app: Pick<FastifyInstance, "db" | "reference">,
   reader: SearchReader,
+  brandMatcher: BrandMatcher = createBrandMatcher(app.db),
 ) {
-  const brandMatcher = createBrandMatcher(app.db);
-  let catalog: { version: string; value: SearchCatalogCodes } | null = null;
+  // Two variants of the list, each built once per reference version: with the size groups and without.
+  let catalogs: {
+    version: string;
+    withSizes?: SearchCatalogCodes;
+    withoutSizes?: SearchCatalogCodes;
+  } | null = null;
 
   return async function understand(input: {
     text: string;
@@ -216,23 +225,28 @@ export function createSearchUnderstander(
     const startedAt = Date.now();
     try {
       const reference = await app.reference.get();
-      if (catalog?.version !== reference.version) {
-        catalog = { version: reference.version, value: buildSearchCatalog(reference) };
-      }
+      if (catalogs?.version !== reference.version) catalogs = { version: reference.version };
+      const withSizes = searchMentionsSize(text);
+      const slot = withSizes ? "withSizes" : "withoutSizes";
+      const catalog = catalogs[slot] ?? buildSearchCatalog(reference, withSizes);
+      catalogs[slot] = catalog;
       const { reading, usage } = await reader.read({
         text,
-        catalog: catalog.value.text,
+        catalog: catalog.text,
         ...(userId ? { userId } : {}),
         signal: AbortSignal.timeout(SEARCH_TIMEOUT_MS),
       });
-      log.info({ ms: Date.now() - startedAt, ...usage }, "search helper read");
+      log.info(
+        { ms: Date.now() - startedAt, source: "ai", sizes: withSizes, ...usage },
+        "search helper read",
+      );
       return {
-        understanding: await resolveSearchUnderstanding(reading, catalog.value, brandMatcher),
+        understanding: await resolveSearchUnderstanding(reading, catalog, brandMatcher),
         ok: true,
       };
     } catch (error) {
       log.warn(
-        { ms: Date.now() - startedAt, error: error instanceof Error ? error.name : "unknown" },
+        { ms: Date.now() - startedAt, source: "ai", error: error instanceof Error ? error.name : "unknown" },
         "search helper failed",
       );
       return { understanding: EMPTY_SEARCH_UNDERSTANDING, ok: false };

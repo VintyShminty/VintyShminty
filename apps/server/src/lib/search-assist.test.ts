@@ -82,16 +82,18 @@ describe("buildSearchCatalog", () => {
   const catalog = buildSearchCatalog(reference);
 
   it("lists groups as well as leaves, in English and Hebrew", () => {
-    expect(catalog.text).toContain("C1: Women | נשים");
-    expect(catalog.text).toContain("C2: Women > Dresses | נשים > שמלות");
-    expect(catalog.text).toContain("C3: Women > Dresses > Mini dresses | נשים > שמלות > שמלות קצרות");
+    expect(catalog.text).toContain("\nC1 Women | נשים\n");
+    expect(catalog.text).toContain("\n  C2 Dresses | שמלות\n");
+    expect(catalog.text).toContain("\n    C3 Mini dresses | שמלות קצרות\n");
+    expect(catalog.text).not.toContain(">");
     expect(catalog.categories.get("C2")).toBe("cat-dresses");
     expect(catalog.categories.size).toBe(4);
   });
 
   it("lists colours, conditions, materials, patterns and sizes with their group", () => {
     expect(catalog.text).toContain("K1: Red | אדום");
-    expect(catalog.text).toContain("Q1: New, Never worn | חדש, לא נלבש");
+    expect(catalog.text).toContain("Q1: New, Never worn | חדש");
+    expect(catalog.text).not.toContain("לא נלבש");
     expect(catalog.text).toContain("M1: Linen | פשתן");
     expect(catalog.text).toContain("P1: Striped | פסים");
     expect(catalog.text).toContain("G1: Women's tops: M, L");
@@ -100,6 +102,28 @@ describe("buildSearchCatalog", () => {
 
   it("writes the same text for the same data, so the prompt cache holds", () => {
     expect(buildSearchCatalog(reference).text).toBe(catalog.text);
+    expect(buildSearchCatalog(reference, false).text).toBe(buildSearchCatalog(reference, false).text);
+  });
+
+  it("leaves the long meaning of a condition out", () => {
+    const long = {
+      ...reference,
+      conditions: [
+        { id: "q1", slug: "x", name: name("Good", "טוב"), description: name("x".repeat(80), "y"), rank: 1 },
+      ],
+    } as unknown as ReferenceData;
+    expect(buildSearchCatalog(long).text).toContain("Q1: Good | טוב");
+  });
+
+  it("has no size lines in the variant without sizes, and its size codes resolve to nothing", () => {
+    const without = buildSearchCatalog(reference, false);
+    expect(without.text).not.toContain("G1");
+    expect(without.text).not.toContain("SIZE GROUPS");
+    expect(without.text).toContain("\n  C2 Dresses | שמלות\n");
+    expect(without.text).toContain("K1: Red | אדום");
+    expect(without.sizes.size).toBe(0);
+    expect(without.text.length).toBeLessThan(catalog.text.length);
+    expect(catalog.text).toContain("SIZE GROUPS");
   });
 });
 
