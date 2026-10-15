@@ -155,6 +155,8 @@ function MessageBubble({
         />
       );
     }
+    // The offer card above already shows how the offer ended, a second line would only repeat it.
+    if (message.systemEvent?.startsWith("offer_")) return null;
     return (
       <View className="items-center px-xl pb-xs pt-lg">
         <Text variant="cardDesc" className="text-center text-text-3">
