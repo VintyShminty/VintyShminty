@@ -129,6 +129,7 @@ export async function loadMe(deps: Deps, userId: string): Promise<Me | null> {
     locale: (row.language ?? "he") as Locale,
     profile,
     needsOnboarding: !row.user.username,
+    isAdmin: row.user.role === "admin",
   };
 }
 

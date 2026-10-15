@@ -1,21 +1,35 @@
 import {
   type AdminListingItemInput,
   type AdminPublishResult,
-  allowedSizeIds,
-  attributeMode,
-  type CategoryNode,
+  buildPublishItem,
   findCategory,
   LISTING_COLOURS_MAX,
   type ListingField,
   type ListingFieldErrors,
   listingLimits,
+  listingValuesOf,
   OWNER_NAME_MIN,
   type PhotoSuggestion,
   type ReferenceData,
-  stripHiddenAttributes,
+  sizeOptionsFor,
+  splitIntoGroups,
+  type UploadItemFields,
   validateListing,
 } from "@vinty/shared";
 import { parseMinor } from "./admin-format";
+
+// The reading and grouping helpers live in the shared package so the phone app uses the same ones.
+export {
+  type LeafOption,
+  leafOptions,
+  parcelSizeFor,
+  searchLeaves,
+  sizeOptionsFor,
+  splitIntoGroups,
+} from "@vinty/shared";
+
+/** Splits a list into batches of at most `size`. */
+export const chunk = splitIntoGroups;
 
 /**
  * The listing upload table, without any screen in it: what a row holds, what makes it complete (the same shared
@@ -95,59 +109,6 @@ export function newRow(photos: UploadPhoto[]): UploadRow {
 
 // Reading the reference data
 
-export type LeafOption = { id: string; path: string; node: CategoryNode; search: string };
-
-/** Every category you can list in, with its path in the page language and a text to search in (both languages). */
-export function leafOptions(reference: ReferenceData, lang: "en" | "he"): LeafOption[] {
-  const out: LeafOption[] = [];
-  const walk = (nodes: CategoryNode[], trail: CategoryNode[]) => {
-    for (const node of nodes) {
-      const next = [...trail, node];
-      if (node.isLeaf) {
-        out.push({
-          id: node.id,
-          node,
-          path: next.map((n) => n.name[lang]).join(" > "),
-          search: next
-            .flatMap((n) => [n.name.en, n.name.he])
-            .join(" ")
-            .toLowerCase(),
-        });
-      } else {
-        walk(node.children, next);
-      }
-    }
-  };
-  walk(reference.categories, []);
-  return out;
-}
-
-/** Leaf categories that match every word typed, in either language. */
-export function searchLeaves(options: LeafOption[], query: string, limit = 60): LeafOption[] {
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return options.slice(0, limit);
-  return options.filter((o) => words.every((w) => o.search.includes(w))).slice(0, limit);
-}
-
-/** The sizes this category accepts, grouped as the reference data groups them. Empty when the category hides size. */
-export function sizeOptionsFor(
-  reference: ReferenceData,
-  category: CategoryNode | null,
-): { id: string; label: string }[] {
-  if (!category || attributeMode(category, "size") === "hidden") return [];
-  const allowed = allowedSizeIds(reference, category);
-  const out: { id: string; label: string }[] = [];
-  for (const group of reference.sizeGroups) {
-    for (const size of group.sizes) if (allowed.has(size.id)) out.push({ id: size.id, label: size.label });
-  }
-  return out;
-}
-
-/** The parcel size every uploaded item gets: the category's usual one, else the first. */
-export function parcelSizeFor(reference: ReferenceData, category: CategoryNode | null): string | null {
-  return category?.defaultParcelSizeId ?? reference.parcelSizes[0]?.id ?? null;
-}
-
 // Is a row complete
 
 export type RowProblems = {
@@ -166,25 +127,21 @@ export function priceMinorOf(row: Pick<UploadRow, "priceText">): number | null {
 
 /** The values the listing rules look at, with rows the category hides cleared (as the server does). */
 function valuesOf(row: UploadRow, reference: ReferenceData) {
-  const category = row.categoryId ? findCategory(reference.categories, row.categoryId) : null;
-  const done = row.photos.filter((p) => p.status === "done").length;
-  const values = stripHiddenAttributes(
-    {
-      title: row.title,
-      description: row.description,
-      categoryId: row.categoryId,
-      brandId: row.brandId,
-      brandName: row.brandId ? null : row.brandText.trim() || null,
-      sizeId: row.sizeId,
-      conditionId: row.conditionId,
-      colourIds: row.colourIds,
-      parcelSizeId: parcelSizeFor(reference, category),
-      priceMinor: priceMinorOf(row),
-      photoCount: done,
-    },
-    category,
-  );
-  return { values, category };
+  return listingValuesOf(fieldsOf(row), row.photos.filter((p) => p.status === "done").length, reference);
+}
+
+function fieldsOf(row: UploadRow): UploadItemFields {
+  return {
+    title: row.title,
+    description: row.description,
+    categoryId: row.categoryId,
+    brandId: row.brandId,
+    brandText: row.brandText,
+    sizeId: row.sizeId,
+    conditionId: row.conditionId,
+    colourIds: row.colourIds,
+    priceMinor: priceMinorOf(row),
+  };
 }
 
 export function rowProblems(row: UploadRow, reference: ReferenceData): RowProblems {
@@ -226,35 +183,15 @@ export function missingFieldNames(problems: RowProblems): string[] {
 
 /** One row as the server wants it. The row must be complete. */
 export function toPublishItem(row: UploadRow, reference: ReferenceData): AdminListingItemInput {
-  const { values, category } = valuesOf(row, reference);
-  return {
+  const photos = row.photos.flatMap((p) =>
+    p.status === "done" && p.key && p.width && p.height
+      ? [{ key: p.key, width: p.width, height: p.height }]
+      : [],
+  );
+  return buildPublishItem(fieldsOf(row), photos, reference, {
     clientId: row.id,
     ...(row.ownerOverride.trim() ? { ownerFullName: row.ownerOverride.trim() } : {}),
-    title: row.title.trim(),
-    description: row.description.trim(),
-    categoryId: row.categoryId as string,
-    brandId: values.brandId ?? null,
-    brandName: values.brandId ? null : (values.brandName ?? null),
-    sizeId: values.sizeId ?? null,
-    conditionId: values.conditionId ?? null,
-    colourIds: [...(values.colourIds ?? [])],
-    parcelSizeId: parcelSizeFor(reference, category),
-    priceMinor: priceMinorOf(row) as number,
-    photos: row.photos
-      .filter((p) => p.status === "done" && p.key && p.width && p.height)
-      .map((p) => ({
-        key: p.key as string,
-        width: p.width as number,
-        height: p.height as number,
-        contentType: "image/jpeg" as const,
-      })),
-  };
-}
-
-export function chunk<T>(items: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
-  return out;
+  });
 }
 
 /** Only the pictures from a drop or a file picker. */
