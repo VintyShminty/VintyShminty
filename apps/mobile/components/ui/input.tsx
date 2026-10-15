@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, TextInput, View } from "react-native";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
 
@@ -49,6 +50,8 @@ function Input({
   const [focused, setFocused] = React.useState(false);
   const [revealed, setRevealed] = React.useState(false);
   const isSecure = Boolean(secureTextEntry) && !revealed;
+  // Follows what is typed, so Hebrew in an English app runs right to left (and the other way round).
+  const direction = inputDirectionStyle(props.value ?? props.defaultValue, isHe);
 
   return (
     <View className={cn("gap-xs", containerClassName)}>
@@ -98,14 +101,13 @@ function Input({
             multiline ? "text-body" : "text-[16px]",
             "flex-1 text-text-1",
             isHe ? "font-heebo-400" : "font-aileron-400",
-            isHe ? "text-right" : "text-left",
+            direction.textAlign === "right" ? "text-right" : "text-left",
             multiline && "min-h-[96px] pt-xs",
             className,
           )}
           textAlignVertical={multiline ? "top" : "center"}
           style={{
-            writingDirection: isHe ? "rtl" : "ltr",
-            textAlign: isHe ? "right" : "left",
+            ...direction,
             paddingHorizontal: 0,
           }}
           {...props}

@@ -1323,9 +1323,16 @@
       "username": "Public username",
       "choose": "Choose a username",
       "search": "Search usernames",
-      "none": "No usernames yet. Create the first one on the website",
+      "none": "No usernames yet. Create the first one above",
       "noMatch": "No username matches",
       "counts": "{{active}} active, {{sold}} sold",
+      "new": "New username",
+      "newTitle": "New username",
+      "newUsername": "Username",
+      "usernameHint": "Letters, numbers, dots and underscores, 3 to 24 characters",
+      "displayName": "Display name (optional)",
+      "create": "Create",
+      "createFailed": "Could not create the username. Try again",
       "ownerLabel": "Owner's full name",
       "ownerHint": "Private. Only admins see it, never buyers",
       "locked": "Post or delete the items below to change the username"
@@ -1378,7 +1385,8 @@
     },
     "category": {
       "search": "Search categories",
-      "none": "No category matches"
+      "none": "No category matches",
+      "suggested": "Suggested"
     },
     "chooseCategoryFirst": "Choose a category first",
     "sizeNotNeeded": "Not needed",

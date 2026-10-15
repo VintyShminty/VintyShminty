@@ -17,6 +17,7 @@ import { TopBar } from "@/components/ui/top-bar";
 import { minorToPriceText, priceTextToMinor } from "@/lib/money";
 import { brandsQuery } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { type Scope, type SearchState, useSearchStore } from "@/lib/search-store";
 import { useDebounced } from "@/lib/use-debounced";
 import { colors } from "@/theme";
@@ -212,7 +213,7 @@ function BrandBody({ scope }: { scope: Scope }) {
             returnKeyType="search"
             accessibilityLabel={t("filters.searchBrands")}
             className={`flex-1 text-[16px] text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
-            style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+            style={inputDirectionStyle(text, isHe)}
           />
         </View>
       </View>

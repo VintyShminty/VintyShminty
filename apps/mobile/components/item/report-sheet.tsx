@@ -14,6 +14,7 @@ import { Text } from "@/components/ui/text";
 import { ApiClientError } from "@/lib/api";
 import { describeApiError } from "@/lib/auth-errors";
 import { useReport } from "@/lib/item-queries";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { colors } from "@/theme";
 
 // Which reasons make sense for what is being reported. The server accepts any of them for any target.
@@ -131,7 +132,7 @@ function ReportSheet({ ref, targetType, targetId }: ReportSheetProps) {
                 accessibilityLabel={t("report.details")}
                 className={`min-h-[80px] text-body text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
                 textAlignVertical="top"
-                style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+                style={inputDirectionStyle(details, isHe)}
               />
             </View>
           </View>

@@ -49,3 +49,25 @@ export function ensureNativeLtr() {
     if (__DEV__) DevSettings.reload();
   }
 }
+
+const HEBREW = /[֐-׿]/;
+const LATIN = /[A-Za-z]/;
+
+/**
+ * True when typed text should run right to left. The first letter decides (Hebrew or Latin), the way a
+ * person reads it, so Hebrew typed into an English app sits on the right. No letters yet (empty, only
+ * numbers or emoji) follows the app language, so placeholders and prices stay where they were.
+ */
+export function isRtlText(text: string | undefined, appIsRtl: boolean): boolean {
+  for (const char of text ?? "") {
+    if (HEBREW.test(char)) return true;
+    if (LATIN.test(char)) return false;
+  }
+  return appIsRtl;
+}
+
+/** Alignment and writing direction for a text box, from what is typed in it (see isRtlText). */
+export function inputDirectionStyle(text: string | undefined, appIsRtl: boolean) {
+  const rtl = isRtlText(text, appIsRtl);
+  return { textAlign: rtl ? "right" : "left", writingDirection: rtl ? "rtl" : "ltr" } as const;
+}

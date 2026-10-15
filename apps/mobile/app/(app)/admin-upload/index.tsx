@@ -1,5 +1,5 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ADMIN_UPLOAD_BATCH_MAX,
   findCategory,
@@ -11,10 +11,10 @@ import {
   splitIntoGroups,
 } from "@vinty/shared";
 import { useFocusEffect, useRouter } from "expo-router";
-import { ImagePlus } from "lucide-react-native";
+import { ImagePlus, Plus } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, BackHandler, ScrollView, useWindowDimensions, View } from "react-native";
+import { Alert, BackHandler, Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CategorySheet } from "@/components/admin-upload/category-sheet";
 import { ItemCard, type PickerKind } from "@/components/admin-upload/item-card";
@@ -42,7 +42,14 @@ import {
   uploadReducer,
   wantsSuggestion,
 } from "@/lib/admin-upload";
-import { publishItems, standInsQuery, suggestForItem, uploadStandInPhoto } from "@/lib/admin-upload-queries";
+import {
+  createStandIn,
+  publishItems,
+  standInsQuery,
+  suggestForItem,
+  uploadStandInPhoto,
+} from "@/lib/admin-upload-queries";
+import { ApiClientError } from "@/lib/api";
 import { pickListingPhotos } from "@/lib/listing-photos";
 import { useLocalName, useReference } from "@/lib/reference";
 
@@ -84,6 +91,27 @@ export default function AdminUploadScreen() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  // The "New username" form under the username row.
+  const [creating, setCreating] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [newDisplayName, setNewDisplayName] = useState("");
+  const [createProblem, setCreateProblem] = useState<string | null>(null);
+
+  const create = useMutation({
+    mutationFn: () => createStandIn(newUsername.trim(), newDisplayName.trim()),
+    onSuccess: (created) => {
+      void client.invalidateQueries({ queryKey: standInsQuery().queryKey });
+      setStandInId(created.id);
+      setCreating(false);
+      setNewUsername("");
+      setNewDisplayName("");
+      setCreateProblem(null);
+    },
+    onError: (error) => {
+      const key = error instanceof ApiClientError ? error.fields?.username : undefined;
+      setCreateProblem(key?.startsWith("validation.") ? t(key) : t("adminUpload.who.createFailed"));
+    },
+  });
 
   const standInRef = useRef<BottomSheetModal>(null);
   const categoryRef = useRef<BottomSheetModal>(null);
@@ -311,6 +339,50 @@ export default function AdminUploadScreen() {
               {t("adminUpload.who.locked")}
             </Text>
           ) : null}
+          {creating && !hasWork ? (
+            <View className="gap-md rounded-control border border-border p-md">
+              <Text variant="heading">{t("adminUpload.who.newTitle")}</Text>
+              <Input
+                label={t("adminUpload.who.newUsername")}
+                hint={t("adminUpload.who.usernameHint")}
+                error={createProblem ?? undefined}
+                value={newUsername}
+                onChangeText={(text) => {
+                  setNewUsername(text);
+                  setCreateProblem(null);
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoFocus
+                returnKeyType="next"
+              />
+              <Input
+                label={t("adminUpload.who.displayName")}
+                value={newDisplayName}
+                onChangeText={setNewDisplayName}
+                returnKeyType="done"
+              />
+              <View className="flex-row gap-sm">
+                <Button
+                  variant="ghost"
+                  onPress={() => {
+                    setCreating(false);
+                    setCreateProblem(null);
+                  }}
+                >
+                  <Text>{t("common.cancel")}</Text>
+                </Button>
+                <Button
+                  className="flex-1"
+                  loading={create.isPending}
+                  disabled={newUsername.trim().length === 0}
+                  onPress={() => create.mutate()}
+                >
+                  <Text>{t("adminUpload.who.create")}</Text>
+                </Button>
+              </View>
+            </View>
+          ) : null}
           <Input
             label={t("adminUpload.who.ownerLabel")}
             hint={t("adminUpload.who.ownerHint")}
@@ -465,11 +537,27 @@ export default function AdminUploadScreen() {
         }))}
         selected={standInId ? [standInId] : []}
         header={
-          standIns.isPending ? (
-            <Spinner />
-          ) : (standIns.data?.items.length ?? 0) === 0 ? (
-            <Text className="text-text-3">{t("adminUpload.who.none")}</Text>
-          ) : undefined
+          <View className="gap-sm">
+            <Pressable
+              onPress={() => {
+                standInRef.current?.dismiss();
+                setCreating(true);
+              }}
+              role="button"
+              accessibilityLabel={t("adminUpload.who.new")}
+              className="min-h-12 flex-row items-center gap-sm active:opacity-60"
+            >
+              <Icon as={Plus} size={20} className="text-primary" />
+              <Text weight={600} className="text-primary">
+                {t("adminUpload.who.new")}
+              </Text>
+            </Pressable>
+            {standIns.isPending ? (
+              <Spinner />
+            ) : (standIns.data?.items.length ?? 0) === 0 ? (
+              <Text className="text-text-3">{t("adminUpload.who.none")}</Text>
+            ) : null}
+          </View>
         }
         onChange={([id]) => setStandInId(id ?? null)}
       />
@@ -477,6 +565,7 @@ export default function AdminUploadScreen() {
         ref={categoryRef}
         options={options}
         selectedId={active?.categoryId ?? null}
+        suggestedIds={active?.categoryGuesses ?? []}
         onChange={(categoryId) => patchActive({ categoryId })}
       />
       <OptionListSheet
