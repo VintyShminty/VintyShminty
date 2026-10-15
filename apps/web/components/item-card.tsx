@@ -50,8 +50,12 @@ export function ItemCard({
   useEffect(() => setFavourited(listing.isFavourited ?? false), [listing.isFavourited]);
   const photos = listing.photos && listing.photos.length > 1 ? listing.photos : null;
   const [photoIndex, setPhotoIndex] = useState(0);
-  // The slot of a photo is rendered only once it was shown, so later photos load lazily.
+  // Only the cover is rendered until the card is hovered or touched. Then all photos load at once, so switching
+  // never shows the empty grey block while a photo is still arriving.
   const [seen, setSeen] = useState(1);
+  const warmUp = () => {
+    if (photos) setSeen(photos.length);
+  };
   const showArrows = !preview && photos !== null;
   const goTo = (e: MouseEvent, next: number) => {
     e.preventDefault();
@@ -85,6 +89,8 @@ export function ItemCard({
       className="group relative min-w-0"
       data-card-id={feedPosition === undefined ? undefined : listing.id}
       data-position={feedPosition}
+      onPointerEnter={warmUp}
+      onFocus={warmUp}
     >
       {/* The link covers the whole card. The bookmark sits above it, so it stays its own button. */}
       {preview ? null : (
@@ -113,10 +119,10 @@ export function ItemCard({
               width={p.width}
               height={p.height}
               alt={i === photoIndex ? listing.title : ""}
-              loading={i === 0 && priority ? "eager" : "lazy"}
+              loading={i === 0 && !priority ? "lazy" : "eager"}
               fetchPriority={i === 0 && priority ? "high" : undefined}
               decoding="async"
-              className={cn("absolute inset-0 h-full w-full object-cover", i === photoIndex ? "" : "hidden")}
+              className={cn("absolute inset-0 h-full w-full object-cover", i === photoIndex ? "" : "opacity-0")}
             />
           ))
         ) : listing.cover ? (
