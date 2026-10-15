@@ -287,7 +287,12 @@ function OfferBubble({
   }
 
   return (
-    <div className="w-full self-stretch overflow-hidden rounded-control border border-border bg-background">
+    <div
+      className={cn(
+        "w-full max-w-[420px] overflow-hidden rounded-control border border-border bg-background",
+        mine ? "self-end" : "self-start",
+      )}
+    >
       <div className="flex items-center gap-md px-[14px] py-md">
         <span
           aria-hidden
