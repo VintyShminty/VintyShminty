@@ -7,6 +7,7 @@ import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
 
@@ -104,7 +105,7 @@ export function NoteSheet({
                   isHe ? "font-heebo-400" : "font-aileron-400",
                 )}
                 textAlignVertical="top"
-                style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+                style={inputDirectionStyle(text, isHe)}
               />
             </View>
             <Text variant="cardDesc" className="self-end text-text-3">

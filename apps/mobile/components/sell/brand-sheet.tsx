@@ -11,6 +11,7 @@ import { Radio } from "@/components/ui/radio";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
 import { brandsQuery, useRequestBrand } from "@/lib/queries";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { colors } from "@/theme";
 
 /** Waits until typing pauses before searching. */
@@ -90,7 +91,7 @@ function BrandSheet({ ref, selected, onChange, fromTag, fromSource }: BrandSheet
             returnKeyType="search"
             accessibilityLabel={t("sell.searchBrands")}
             className={`flex-1 text-body text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
-            style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+            style={inputDirectionStyle(text, isHe)}
           />
           {brands.isFetching ? <ActivityIndicator size="small" color={colors.accent} /> : null}
         </View>

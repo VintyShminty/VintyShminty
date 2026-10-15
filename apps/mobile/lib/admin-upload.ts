@@ -48,6 +48,8 @@ export type UploadItem = {
   /** The price as typed, in shekels. */
   priceText: string;
   suggestion: SuggestionState;
+  /** Every category the AI guessed, best first. Shown at the top of the category list. */
+  categoryGuesses: string[];
   /** Fields the AI filled in that nobody edited yet. */
   suggested: { category: boolean; brand: boolean; colours: boolean };
   state: "draft" | "publishing" | "failed" | "published";
@@ -84,6 +86,7 @@ export function newItem(photos: UploadPhoto[]): UploadItem {
     colourIds: [],
     priceText: "",
     suggestion: "idle",
+    categoryGuesses: [],
     suggested: { category: false, brand: false, colours: false },
     state: "draft",
     error: null,
@@ -188,10 +191,13 @@ export function applySuggestion(
         ? "done"
         : "none",
     suggested: { ...item.suggested },
+    categoryGuesses: suggestion.categories
+      .map((c) => c.id)
+      .filter((id) => findCategory(reference.categories, id)?.isLeaf),
   };
-  const first = suggestion.categories[0];
-  if (!item.categoryId && first && findCategory(reference.categories, first.id)?.isLeaf) {
-    next.categoryId = first.id;
+  const first = next.categoryGuesses[0];
+  if (!item.categoryId && first) {
+    next.categoryId = first;
     next.suggested.category = true;
   }
   if (!item.brandId && !item.brandText.trim() && suggestion.brand) {

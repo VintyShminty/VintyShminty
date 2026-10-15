@@ -20,6 +20,13 @@ export function splitIntoGroups<T>(items: readonly T[], size: number): T[][] {
 
 export type LeafOption = { id: string; path: string; node: CategoryNode; search: string };
 
+/** Lower case, with anything that is not a letter or digit turned into a space, so "T-shirts" is the words "t shirts". */
+const searchWords = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+
 /** Every category you can list in, with its path in the page language and a text to search in (both languages). */
 export function leafOptions(reference: ReferenceData, lang: "en" | "he"): LeafOption[] {
   const out: LeafOption[] = [];
@@ -31,10 +38,7 @@ export function leafOptions(reference: ReferenceData, lang: "en" | "he"): LeafOp
           id: node.id,
           node,
           path: next.map((n) => n.name[lang]).join(" > "),
-          search: next
-            .flatMap((n) => [n.name.en, n.name.he])
-            .join(" ")
-            .toLowerCase(),
+          search: searchWords(next.flatMap((n) => [n.name.en, n.name.he]).join(" ")),
         });
       } else {
         walk(node.children, next);
@@ -45,11 +49,14 @@ export function leafOptions(reference: ReferenceData, lang: "en" | "he"): LeafOp
   return out;
 }
 
-/** Leaf categories that match every word typed, in either language. */
+/**
+ * Leaf categories that match every word typed, in either language. Each typed word must start a word of the
+ * category, so "jea" finds Jeans and "men" finds Men but not Women.
+ */
 export function searchLeaves(options: LeafOption[], query: string, limit = 60): LeafOption[] {
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const words = searchWords(query).split(" ").filter(Boolean);
   if (words.length === 0) return options.slice(0, limit);
-  return options.filter((o) => words.every((w) => o.search.includes(w))).slice(0, limit);
+  return options.filter((o) => words.every((w) => ` ${o.search}`.includes(` ${w}`))).slice(0, limit);
 }
 
 /** The sizes this category accepts, grouped as the reference data groups them. Empty when the category hides size. */

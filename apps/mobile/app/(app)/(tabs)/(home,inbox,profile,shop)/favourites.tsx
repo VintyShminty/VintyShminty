@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { TopBar } from "@/components/ui/top-bar";
 import { favouritesQuery } from "@/lib/item-queries";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { colors } from "@/theme";
 
 /** Waits until typing pauses before searching. */
@@ -45,7 +46,7 @@ export default function Favourites() {
             returnKeyType="search"
             accessibilityLabel={t("favourites.search")}
             className={`flex-1 text-[16px] text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
-            style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+            style={inputDirectionStyle(text, isHe)}
           />
           {text ? (
             <Pressable
