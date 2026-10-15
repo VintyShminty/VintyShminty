@@ -23,6 +23,7 @@ import {
   Receipt,
   Settings as SettingsIcon,
   Sparkles,
+  Upload,
   Wallet,
   Zap,
 } from "lucide-react-native";
@@ -49,6 +50,7 @@ import { Tabs } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import {
+  meQuery,
   myListingsQuery,
   profileQuery,
   userListingsQuery,
@@ -122,6 +124,8 @@ function ProfileHeader({
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const lang = i18n.language === "he" ? "he" : "en";
+  // Only admins see the upload entry. The server checks the role again on every admin call.
+  const me = useQuery(meQuery());
   const location = [
     profile.city,
     t(`countries.${profile.countryCode}`, { defaultValue: profile.countryCode }),
@@ -193,7 +197,20 @@ function ProfileHeader({
           <SettingsRow icon={Receipt} label={t("orders.title")} onPress={() => router.push("/orders")} />
           <SettingsRow icon={Zap} label={t("buzz.yourBuzzes")} onPress={() => router.push("/buzzes")} />
           <SettingsRow icon={Wallet} label={t("balance.title")} onPress={() => router.push("/balance")} />
-          <SettingsRow icon={Gift} label={t("invite.title")} onPress={() => router.push("/invite")} last />
+          <SettingsRow
+            icon={Gift}
+            label={t("invite.title")}
+            onPress={() => router.push("/invite")}
+            last={!me.data?.isAdmin}
+          />
+          {me.data?.isAdmin ? (
+            <SettingsRow
+              icon={Upload}
+              label={t("adminUpload.entry")}
+              onPress={() => router.push("/admin-upload")}
+              last
+            />
+          ) : null}
         </View>
       ) : null}
 

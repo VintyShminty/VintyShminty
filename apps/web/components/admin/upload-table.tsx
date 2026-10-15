@@ -5,9 +5,11 @@ import {
   ADMIN_UPLOAD_BATCH_MAX,
   type AdminPublishInput,
   adminPublishResultSchema,
+  listingLimits,
   OWNER_NAME_MIN,
   photoSuggestionSchema,
   type ReferenceData,
+  splitIntoGroups,
 } from "@vinty/shared";
 import { Loader2, UploadCloud } from "lucide-react";
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
@@ -39,7 +41,7 @@ import { cn } from "@/lib/utils";
 const PARALLEL_UPLOADS = 4;
 
 /**
- * Step 2: the fast table. Drop many photos (each becomes an item), fill in the few fields, publish what is complete.
+ * Step 2: the fast table. Drop the photos of one item (one drop is one item), fill in the few fields, publish what is complete.
  * Photos go up as they are dropped, then the AI reads each item's photos and suggests category, brand and colours.
  */
 export function UploadTable({
@@ -124,10 +126,12 @@ export function UploadTable({
       return photo;
     });
 
-  /** Each dropped photo is its own item. */
+  /** One drop (or one file picker choice) is one item. Photos past the photo maximum start further items. */
   const addAsRows = (list: File[]) => {
     if (!standInId || list.length === 0) return;
-    const created = makePhotos(list).map((photo) => newRow([photo]));
+    const created = splitIntoGroups(makePhotos(list), listingLimits(reference).maxPhotos).map((photos) =>
+      newRow(photos),
+    );
     dispatch({ type: "addRows", rows: created });
     for (const row of created) for (const photo of row.photos) enqueueUpload(row.id, photo.id);
   };
@@ -250,7 +254,7 @@ export function UploadTable({
         {t("admin.upload.step2")}
       </h2>
 
-      {/* Photos dropped here (not on a row) each start a new item. */}
+      {/* Photos dropped here (not on a row) make one new item together. */}
       <fieldset
         onDragOver={(e) => {
           if (!canDrop || !Array.from(e.dataTransfer.types).includes("Files")) return;

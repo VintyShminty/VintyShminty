@@ -69,6 +69,7 @@ describe.skipIf(!databaseUrl)("accounts", () => {
         email: person.email,
         username: person.username,
         needsOnboarding: false,
+        isAdmin: false,
       });
     });
 

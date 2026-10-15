@@ -58,6 +58,8 @@ export const meSchema = z.object({
   profile: publicProfileSchema,
   /** True until the person has picked a username. The app then shows the onboarding step. */
   needsOnboarding: z.boolean(),
+  /** True when the account has the admin role. The app only uses it to show or hide admin entries, the server still checks every admin route. */
+  isAdmin: z.boolean(),
 });
 export type Me = z.infer<typeof meSchema>;
 

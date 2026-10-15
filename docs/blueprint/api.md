@@ -101,7 +101,7 @@ Configuration: Drizzle adapter on Postgres with `usePlural: true` and `generateI
 |---|---|---|---|---|---|
 | GET | `/v1/reference` | Public | none | `referenceDataSchema` | Categories tree with attribute rules, size groups, conditions, colours, materials, patterns, parcel sizes, currencies, fee rules and a few settings. Returns an `ETag` and `Cache-Control: max-age=3600`. The app caches it and sends `If-None-Match` |
 | GET | `/v1/brands` | Public | `?q=<text>&cursor&limit` | page of `brandSchema` | Prefix search for the brand picker. Empty `q` returns the most popular |
-| GET | `/v1/me` | Required | none | `meSchema` | The signed in person with profile. `needsOnboarding` is true until a username is chosen |
+| GET | `/v1/me` | Required | none | `meSchema` | The signed in person with profile. `needsOnboarding` is true until a username is chosen. `isAdmin` is true for the admin role (the app only uses it to show the admin upload entry, the admin routes still check on the server) |
 | PATCH | `/v1/me/profile` | Required | `updateProfileInputSchema` | `meSchema` | Username (checked for uniqueness), bio, city, country, avatar key from an upload |
 | GET | `/v1/me/settings` | Required | none | `userSettingsSchema` | |
 | PATCH | `/v1/me/settings` | Required | `updateUserSettingsInputSchema` | `userSettingsSchema` | Language, push master switch and daily limit, email, personalisation, last seen, ship from options |
