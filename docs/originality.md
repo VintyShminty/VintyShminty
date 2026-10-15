@@ -26,7 +26,7 @@ Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `doc
 | 4 | Home screen top | Large greeting ("Good morning, Noa") with a small round search button beside it, then the mood chips (For you, New today, Under ₪50, Your sizes, Near you) and the grid (round 2) | None |
 | 5 | Browse | Photo tiles grouped by item type (Dresses, Jeans, Sneakers, Bags...) | Final list and order of tiles |
 | 6 | Search and "members" | "Sellers": "Search clothes, brands or sellers", tabs Items and Sellers | None |
-| 7 | Paid boost | "Buzz" for now (Eden): button "Give it buzz", badge "Buzzing" | Trademark check with the app name |
+| 7 | Paid boost | "Boost" (Eden, 2026-10-15, replaces the "Buzz" placeholder): button "Boost this listing", badge "Boosted". Hebrew "להקפיץ את המודעה", badge "מוקפצת" | None |
 | 8 | Item page actions | One Buy button, "Or make your price" as a link, "Message" on the seller row. The protection stays as a concept in the same places, with a new name and new text, and reminds the buyer how they are covered and what they pay for | Write the protection copy (depends on 2) |
 | 9 | Sell form | Same long form, every heading, hint and button rewritten in our words | Write the copy in the new voice |
 | 10 | Condition | A slider with five stops (Eden): Unworn with tags, Unworn, Like new, Worn, Well loved. Tags become the first stop, so no separate switch. Five levels match today's data, so only the names change | Eden to confirm the five names |
@@ -97,7 +97,7 @@ Tick an item when it is changed in both English and Hebrew.
 - [x] **"Buyer Protection".** A new name for the fee and the promise behind it (temporary: "Covered", one key `protectionName`, Eden still to choose)
 - [x] **The shield and "incl." line** under every price. The "incl." text is gone from cards and the chat strip (wording done). The price pill is built (`components/price-pill.tsx`)
 - [x] **"Buyer pays ₪X incl. Buyer Protection"** on the sell form and item page. Rewrite with the new name
-- [x] **"Bumped" badge** and the boost feature. A new word for both ("Buzz", placeholder, trademark check pending)
+- [x] **"Bumped" badge** and the boost feature. A new word for both ("Boost", Hebrew "הקפצה", 2026-10-15)
 - [x] **Search bar text** "Search for items or members". Rewrite
 - [x] **"Members"** as the word for users (search, results tabs, "From members"). Pick our own word
 
