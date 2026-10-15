@@ -13,7 +13,7 @@ export function SellButton({ lang, className }: { lang: string; className?: stri
   const viewer = useViewer();
   const { ask } = useLoginPrompt();
   const classes = cn(
-    "inline-flex h-[34px] items-center justify-center gap-xs rounded-[8px] bg-primary px-[14px] text-body-sm font-semibold text-on-accent hover:opacity-90",
+    "inline-flex h-[34px] items-center justify-center gap-xs rounded-full bg-primary px-[16px] text-body-sm font-semibold text-on-accent hover:opacity-90",
     className,
   );
   const content = (

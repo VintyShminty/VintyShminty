@@ -1837,6 +1837,8 @@
     "inbox": {
       "iconUnread_one": "Inbox, {{count}} unread",
       "iconUnread_other": "Inbox, {{count}} unread",
+      "bellUnread_one": "Notifications, {{count}} unread",
+      "bellUnread_other": "Notifications, {{count}} unread",
       "backToInbox": "Back to inbox",
       "pickTitle": "Pick a chat",
       "pickNote": "Your messages open here",
