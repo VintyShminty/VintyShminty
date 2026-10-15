@@ -677,6 +677,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `PriceBlock` in `apps/mobile/components/price-pill.tsx`, used by `own-listing-view.tsx` and `buyer-view.tsx`.
 - **References:** D-032, D-040
 
+### D-046 : The logo is a gently tilted price tag with a bold Y
+
+- **Date:** 2026-10-15
+- **Area:** Brand, app icon, website header
+- **Status:** Built on branch feat/tag-logo, waiting for Eden's review. A first logo "for now", while the name Yadii is not final.
+- **Decision:** A price tag outline hanging from its string, tilted a little (8 degrees), with a bold Y inside, drawn in espresso. The app icon is the cream tag on an espresso square. Android uses the same cream tag on espresso, a white one for themed icons. The splash shows the espresso tag on white. The website header and the phone menu put the tag in front of the word Yadii, and the sharing preview shows both.
+- **Choice:** Eden picked the price tag from six directions (two hands, a Y shaped hand, the ii as two people, a hanger with a Y hook, a price tag, a plain wordmark), then the tilt of one tag draft with the bold Y of another, and the gentle tilt over the swinging one.
+- **Rationale:** A tag reads as second hand clothes at a glance, matches the price pills on our cards, and looks nothing like Vinted's plain word logo (docs/originality.md).
+- **Implementation:** The master drawing is `packages/design/brand/logo-mark.svg`. App images in `apps/mobile/assets/images/` (icon, android icon layers, splash, favicon), iOS uses `icon.png` (the Expo placeholder icon file is gone). Website: `apps/web/components/logo-mark.tsx`, `app/icon.png`, `app/apple-icon.png`, `app/opengraph-image.tsx`.
+- **References:** D-019, D-040
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.
