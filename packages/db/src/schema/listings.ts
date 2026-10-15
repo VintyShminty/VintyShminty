@@ -1,4 +1,4 @@
-import { BUNDLE_STATUSES, LISTING_STATUSES } from "@vinty/shared";
+import { BUNDLE_STATUSES, LISTING_STATUSES, LISTING_STYLES } from "@vinty/shared";
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -32,6 +32,7 @@ import {
 } from "./reference.js";
 
 export const listingStatusEnum = pgEnum("listing_status", LISTING_STATUSES);
+export const listingStyleEnum = pgEnum("listing_style", LISTING_STYLES);
 export const bundleStatusEnum = pgEnum("bundle_status", BUNDLE_STATUSES);
 
 export const listings = pgTable(
@@ -60,6 +61,10 @@ export const listings = pgTable(
     currency: currencyCol().references(() => currencies.code),
     /** Price before the latest drop. Set only when the price went down. Drives the "Price drop" badge. */
     previousPriceMinor: integer("previous_price_minor"),
+    /** Up to 3 style tags from the AI listing check (D-042). Behind the scenes only: never in any API answer. */
+    styles: listingStyleEnum("styles").array().notNull().default(sql`'{}'::listing_style[]`),
+    /** When the styles were last read. Null means never tagged, the nightly catch-up picks those up. */
+    stylesTaggedAt: ts("styles_tagged_at"),
     usedAiPhotos: boolean("used_ai_photos").notNull().default(false),
     countryCode: char("country_code", { length: 2 }).notNull().default("IL"),
     city: text("city"),

@@ -85,6 +85,15 @@ describe("affinityDeltas", () => {
     expect(get("colour", "red")).toBeCloseTo(1.2);
     expect(get("condition", "good")).toBeCloseTo(1.2);
   });
+  it("adds one delta per style tag, worth 0.6 of the action (D-042)", () => {
+    const deltas = affinityDeltas(4, { styles: ["vintage", "y2k"] });
+    expect(deltas).toEqual([
+      { feature: "style", key: "vintage", delta: expect.closeTo(2.4) },
+      { feature: "style", key: "y2k", delta: expect.closeTo(2.4) },
+    ]);
+    expect(affinityDeltas(4, { styles: [] })).toEqual([]);
+    expect(affinityDeltas(-3, { styles: ["goth"] })[0]?.delta).toBeCloseTo(-1.8);
+  });
   it("turns negative for an unfavourite and skips missing features", () => {
     const deltas = affinityDeltas(-4, { categoryId: "dress" });
     expect(deltas).toEqual([{ feature: "category", key: "dress", delta: -4 }]);

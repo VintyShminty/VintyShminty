@@ -30,6 +30,7 @@ import {
   publishBatch,
 } from "../lib/admin-uploads.js";
 import { ApiError } from "../lib/errors.js";
+import { checkListingInBackground, type ListingChecker } from "../lib/listing-check.js";
 import { createListingWriter } from "../lib/listing-write.js";
 import { createPhotoSuggester } from "../lib/photo-assist.js";
 import type { PhotoReader } from "../lib/photo-reader.js";
@@ -50,6 +51,8 @@ type Deps = {
   adminIdOf: (request: { session: { user: { id: string } } | null }) => string;
   /** The photo reader behind the AI meter, counted under the action "admin_upload_photo_check". */
   reader: PhotoReader;
+  /** Tags uploaded listings with styles in the background (D-042). Flags are ignored for admin uploads. */
+  listingChecker: ListingChecker;
 };
 
 /**
@@ -57,7 +60,10 @@ type Deps = {
  * routes/admin.ts, so it shares the admin guard. Every answer here can contain the private owner full name or lets an
  * admin create public listings, so nothing in this file is reachable without the admin check.
  */
-export function registerAdminUploadRoutes(app: FastifyInstance, { db, preHandler, adminIdOf, reader }: Deps) {
+export function registerAdminUploadRoutes(
+  app: FastifyInstance,
+  { db, preHandler, adminIdOf, reader, listingChecker }: Deps,
+) {
   const rateLimit = { rateLimit: { max: 120, timeWindow: "1 minute" } };
   // A pile of 50 photos starts 50 upload requests and as many photo reads within a minute.
   const busyLimit = { rateLimit: { max: 600, timeWindow: "1 minute" } };
@@ -155,6 +161,8 @@ export function registerAdminUploadRoutes(app: FastifyInstance, { db, preHandler
         ownerFullName: request.body.ownerFullName,
         items: request.body.items,
         log: request.log,
+        onPublished: (listingId) =>
+          checkListingInBackground(listingChecker, listingId, request.log, { flags: false }),
       });
     },
   );

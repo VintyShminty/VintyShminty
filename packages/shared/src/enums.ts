@@ -240,6 +240,7 @@ export const AFFINITY_FEATURES = [
   "price_band",
   "colour",
   "condition",
+  "style",
 ] as const;
 export type AffinityFeature = (typeof AFFINITY_FEATURES)[number];
 
@@ -258,3 +259,35 @@ export type ExpenseCurrency = (typeof EXPENSE_CURRENCIES)[number];
 /** A fixed cost is either a subscription (a plan we pay for) or a configured amount (a number we typed in). */
 export const EXPENSE_KINDS = ["subscription", "configured"] as const;
 export type ExpenseKind = (typeof EXPENSE_KINDS)[number];
+
+/**
+ * Style tags (D-042). Claude Haiku gives each listing up to 3 of these, behind the scenes only: nobody sees them, Home
+ * learns from them like it learns brands and sizes. Narrow trends fold into a broad tag (coquette into romantic,
+ * gorpcore into outdoor) so each tag holds enough items to learn from. Changing the list means tagging again.
+ */
+export const LISTING_STYLES = [
+  "vintage",
+  "y2k",
+  "streetwear",
+  "minimal",
+  "classic",
+  "quiet_luxury",
+  "boho",
+  "cottagecore",
+  "romantic",
+  "sporty",
+  "outdoor",
+  "preppy",
+  "grunge",
+  "goth",
+  "western",
+  "evening",
+  "workwear",
+  "summer",
+  "modest",
+  "basics",
+] as const;
+export type ListingStyle = (typeof LISTING_STYLES)[number];
+
+/** The most style tags one listing gets. */
+export const LISTING_STYLES_MAX = 3;

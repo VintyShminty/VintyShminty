@@ -64,6 +64,13 @@
       "when": 1792014893285,
       "tag": "0008_thin_stryfe",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792047934396,
+      "tag": "0009_elite_the_anarchist",
+      "breakpoints": true
     }
   ]
 }

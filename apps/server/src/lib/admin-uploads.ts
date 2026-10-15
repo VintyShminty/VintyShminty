@@ -182,8 +182,10 @@ export async function publishBatch(input: {
   ownerFullName: string;
   items: AdminListingItem[];
   log: { warn: (o: object, m: string) => void };
+  /** Called once for each listing that went live, after the batch is saved. */
+  onPublished?: (listingId: string) => void;
 }): Promise<AdminPublishResult> {
-  const { db, writer, reference, adminId, standIn, ownerFullName, items, log } = input;
+  const { db, writer, reference, adminId, standIn, ownerFullName, items, log, onPublished } = input;
   const batchId = randomUUID();
   const [profile] = await db
     .select({ city: profiles.city, countryCode: profiles.countryCode })
@@ -266,6 +268,7 @@ export async function publishBatch(input: {
     count: createdCount,
     failed: results.length - createdCount,
   });
+  for (const r of results) if (r.ok && r.listingId) onPublished?.(r.listingId);
   return {
     batchId,
     username: standIn.username,

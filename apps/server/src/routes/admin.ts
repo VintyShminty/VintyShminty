@@ -33,6 +33,7 @@ import {
 } from "../lib/admin.js";
 import type { AiMeter } from "../lib/ai-cost.js";
 import { ApiError } from "../lib/errors.js";
+import type { ListingChecker } from "../lib/listing-check.js";
 import type { PhotoReader } from "../lib/photo-reader.js";
 import { registerAdminReviewRoutes } from "./admin-review.js";
 import { registerAdminUploadRoutes } from "./admin-uploads.js";
@@ -51,10 +52,11 @@ const idParams = z.object({ id: idSchema });
  * in the database (never what the browser says). Every change writes an `admin_actions` row in the same
  * transaction. Docs: docs/blueprint/api.md, "Admin panel".
  */
-const adminRoutes: FastifyPluginAsyncZod<{ meter: AiMeter; reader: PhotoReader }> = async (
-  app,
-  { meter, reader },
-) => {
+const adminRoutes: FastifyPluginAsyncZod<{
+  meter: AiMeter;
+  reader: PhotoReader;
+  listingChecker: ListingChecker;
+}> = async (app, { meter, reader, listingChecker }) => {
   const db = app.db;
 
   const requireAdmin = async (
@@ -74,7 +76,7 @@ const adminRoutes: FastifyPluginAsyncZod<{ meter: AiMeter; reader: PhotoReader }
     return request.session.user.id;
   };
 
-  registerAdminUploadRoutes(app, { db, preHandler, adminIdOf, reader });
+  registerAdminUploadRoutes(app, { db, preHandler, adminIdOf, reader, listingChecker });
   registerAdminReviewRoutes(app, { db, preHandler, adminIdOf });
 
   app.get(

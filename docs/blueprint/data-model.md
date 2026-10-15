@@ -989,6 +989,8 @@ Used by: Home feed, Search, Catalog, Brand page, Item page, Favourites, Sell for
 | `price_minor` | integer | yes | Item price in minor units. The buyer fee is added at display time and is not stored |
 | `currency` | char(3) | no | refers to currencies.code, on delete no action. default 'ILS' |
 | `previous_price_minor` | integer | yes | Set only when the price went down. Drives the Price drop badge and the struck-through Was line |
+| `styles` | listing_style[] | no | default empty. Up to 3 style tags (D-042) from the fixed list `LISTING_STYLES` in `packages/shared/src/enums.ts`: vintage, y2k, streetwear, minimal, classic, quiet_luxury, boho, cottagecore, romantic, sporty, outdoor, preppy, grunge, goth, western, evening, workwear, summer, modest, basics. Set by the AI listing check, most fitting first. Behind the scenes only: never in any API answer, only the Home feed reads it |
+| `styles_tagged_at` | timestamptz | yes | When the styles were last read by the AI. Null means never tagged, the nightly catch-up tags those |
 | `used_ai_photos` | boolean | no | default false. The AI photo disclosure checkbox on the sell form |
 | `country_code` | char(2) | no | default 'IL' |
 | `city` | text | yes |  |
@@ -1847,8 +1849,8 @@ A short summary sheet per person: how much they like Dresses, Zara, a size or a 
 | Field | Type | Null | Notes |
 |---|---|---|---|
 | `user_id` | uuid | no | primary key (with feature and feature_key). refers to users.id, on delete cascade |
-| `feature` | affinity_feature | no | category, parent_category, brand, seller, size, price_band, colour or condition |
-| `feature_key` | text | no | A category, brand, seller, size, colour or condition id, or a price band "0" to "5" |
+| `feature` | affinity_feature | no | category, parent_category, brand, seller, size, price_band, colour, condition or style (D-042) |
+| `feature_key` | text | no | A category, brand, seller, size, colour or condition id, a style slug, or a price band "0" to "5" |
 | `score` | real | no | The score at `scored_at`. Never below 0 |
 | `scored_at` | timestamptz | no | default now() |
 | `event_count` | integer | no | default 0 |
