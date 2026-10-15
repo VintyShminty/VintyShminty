@@ -53,7 +53,11 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
   const confirm = (kind: "decline" | "withdraw") =>
     Alert.alert(t(`offer.confirm.${kind}Title`), t(`offer.confirm.${kind}Note`), [
       { text: t("common.cancel"), style: "cancel" },
-      { text: t(`offer.${kind}`), style: "destructive", onPress: () => run(kind) },
+      {
+        text: t(`offer.${kind}`),
+        style: "destructive",
+        onPress: () => run(kind),
+      },
     ]);
 
   const busy = answer.isPending;
@@ -69,7 +73,13 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
         minute: "2-digit",
       });
 
-  const cells: { key: string; label: string; strong?: boolean; spin?: boolean; onPress: () => void }[] = [];
+  const cells: {
+    key: string;
+    label: string;
+    strong?: boolean;
+    spin?: boolean;
+    onPress: () => void;
+  }[] = [];
   if (canAnswer && !mine) {
     cells.push(
       {
@@ -78,7 +88,11 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
         spin: tapped === "decline",
         onPress: () => confirm("decline"),
       },
-      { key: "counter", label: t("offer.counter"), onPress: () => onCounter(offer) },
+      {
+        key: "counter",
+        label: t("offer.counter"),
+        onPress: () => onCounter(offer),
+      },
       {
         key: "accept",
         label: t("offer.accept"),
@@ -97,7 +111,9 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
   } else if (status === "accepted" && role === "buyer" && !closed) {
     cells.push({
       key: "buy",
-      label: t("offer.buyNow", { amount: formatMoney(offer.amountMinor, offer.currency) }),
+      label: t("offer.buyNow", {
+        amount: formatMoney(offer.amountMinor, offer.currency),
+      }),
       strong: true,
       onPress: () => onBuy(offer),
     });
@@ -105,46 +121,56 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
 
   return (
     <View
-      className="self-stretch overflow-hidden rounded-control border border-border bg-background"
+      className={cn(
+        "max-w-[76%] overflow-hidden rounded-control",
+        cells.length > 0 && "min-w-[64%]",
+        mine ? "self-end bg-primary" : "self-start border border-border bg-background",
+      )}
       data-conversation={conversationId}
     >
-      <View className="flex-row items-center gap-md px-[14px] py-md">
-        <View className={cn("w-[3px] self-stretch rounded-full", mine ? "bg-primary" : "bg-border")} />
-        <View className="flex-1 gap-px">
-          <Text variant="sectionLabel">{mine ? t("offer.bubble.yours") : t("offer.bubble.theirs")}</Text>
-          <Text
-            className={cn(
-              "text-[13px] leading-[18px]",
-              status === "accepted" ? "text-success" : "text-text-2",
-            )}
-          >
-            {status === "pending"
-              ? t(`offer.bubble.pending_${mine ? "mine" : "theirs"}`)
-              : t(`chat.offerStatus.${status}`)}
-          </Text>
-        </View>
-        <View className="items-end">
-          <Text variant="heading" className="text-end text-text-1">
+      <View className="gap-px px-md py-sm">
+        <View className="flex-row items-baseline gap-sm">
+          <Text variant="heading" className={mine ? "text-primary-foreground" : "text-text-1"}>
             {formatMoney(offer.amountMinor, offer.currency)}
           </Text>
           {lower ? (
-            <Text variant="cardDesc" className="text-end text-text-3 line-through">
+            <Text
+              variant="cardDesc"
+              className={cn("line-through", mine ? "text-primary-foreground/60" : "text-text-3")}
+            >
               {formatMoney(offer.listingPriceMinor, offer.currency)}
             </Text>
           ) : null}
         </View>
+        <Text
+          variant="cardDesc"
+          className={cn(
+            mine ? "text-primary-foreground/80" : status === "accepted" ? "text-success" : "text-text-2",
+          )}
+        >
+          {`${mine ? t("offer.bubble.yours") : t("offer.bubble.theirs")} · ${
+            status === "pending"
+              ? t(`offer.bubble.pending_${mine ? "mine" : "theirs"}`)
+              : t(`chat.offerStatus.${status}`)
+          }`}
+        </Text>
+        {status === "accepted" ? (
+          <Text variant="cardDesc" className={mine ? "text-primary-foreground/70" : "text-text-3"}>
+            {role === "buyer"
+              ? t("offer.bubble.reservedForYou", { time: until })
+              : t("offer.bubble.reservedForThem", { time: until })}
+          </Text>
+        ) : null}
       </View>
 
-      {status === "accepted" ? (
-        <Text variant="cardDesc" className="ps-[29px] pe-[14px] pb-md text-text-3">
-          {role === "buyer"
-            ? t("offer.bubble.reservedForYou", { time: until })
-            : t("offer.bubble.reservedForThem", { time: until })}
-        </Text>
-      ) : null}
-
       {cells.length > 0 ? (
-        <View className={cn("flex-row border-t border-border-subtle", busy && "opacity-60")}>
+        <View
+          className={cn(
+            "flex-row border-t",
+            mine ? "border-background/20" : "border-border-subtle",
+            busy && "opacity-60",
+          )}
+        >
           {cells.map((cell, index) => (
             <Pressable
               key={cell.key}
@@ -153,15 +179,22 @@ function OfferBubble({ offer, conversationId, mine, role, closed, onCounter, onB
               role="button"
               accessibilityLabel={cell.label}
               className={cn(
-                "h-11 flex-1 items-center justify-center active:bg-pressed",
-                index > 0 && "border-s border-border-subtle",
+                "h-11 flex-1 items-center justify-center",
+                mine ? "active:bg-background/10" : "active:bg-pressed",
+                index > 0 && cn("border-s", mine ? "border-background/20" : "border-border-subtle"),
               )}
             >
               {cell.spin && busy ? (
-                <ActivityIndicator size="small" color={cell.strong ? colors.accent : colors.text2} />
+                <ActivityIndicator
+                  size="small"
+                  color={mine ? colors.onAccent : cell.strong ? colors.accent : colors.text2}
+                />
               ) : (
                 <Text
-                  className={cn("text-[14px]", cell.strong ? "text-primary" : "text-text-1")}
+                  className={cn(
+                    "text-[14px]",
+                    mine ? "text-primary-foreground" : cell.strong ? "text-primary" : "text-text-1",
+                  )}
                   weight={cell.strong ? 700 : 600}
                 >
                   {cell.label}

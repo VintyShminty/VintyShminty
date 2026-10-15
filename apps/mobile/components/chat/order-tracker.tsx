@@ -59,22 +59,22 @@ function OrderTracker({ orderId }: { orderId: string }) {
   const hasButtons = has("pay") || has("ship") || has("confirm_received") || (canTrack && !stopped);
 
   return (
-    <View className="border-b border-border-subtle bg-surface">
+    <View className="bg-primary">
       <Pressable
         onPress={openOrder}
         role="button"
         accessibilityLabel={`${t("chat.order.number", { number: order.orderNumber })}. ${statusLabel}. ${t("chat.order.view")}`}
-        className="gap-md px-lg pt-md pb-sm active:bg-pressed"
+        className="gap-md px-lg pt-md pb-sm active:bg-background/10"
       >
         <View className="flex-row items-center gap-sm">
-          <Text variant="cardDesc" weight={600} className="flex-1" numberOfLines={1}>
+          <Text variant="cardDesc" weight={600} className="flex-1 text-primary-foreground" numberOfLines={1}>
             {t("chat.order.number", { number: order.orderNumber })}
           </Text>
-          <Icon as={look.icon} size={14} className={stopped ? "text-error" : "text-text-2"} />
-          <Text variant="cardMeta" weight={600} className={stopped ? "text-error" : "text-text-2"}>
+          <Icon as={look.icon} size={14} className="text-primary-foreground/80" />
+          <Text variant="cardMeta" weight={600} className="text-primary-foreground/80">
             {statusLabel}
           </Text>
-          <ForwardIcon />
+          <ForwardIcon className="text-primary-foreground/60" />
         </View>
         {stopped ? null : (
           <View className="flex-row" accessibilityLabel={t("orders.progress")}>
@@ -88,19 +88,23 @@ function OrderTracker({ orderId }: { orderId: string }) {
                     <View
                       className={cn(
                         "h-px flex-1",
-                        i === 0 ? "bg-transparent" : prevReached && reached ? "bg-primary" : "bg-border",
+                        i === 0
+                          ? "bg-transparent"
+                          : prevReached && reached
+                            ? "bg-background"
+                            : "bg-background/25",
                       )}
                     />
                     <View
                       className={cn(
                         "h-8 w-8 items-center justify-center rounded-full border",
-                        reached ? "border-primary bg-primary" : "border-border bg-background",
+                        reached ? "border-background bg-background" : "border-background/30 bg-transparent",
                       )}
                     >
                       <Icon
                         as={s.icon}
                         size={16}
-                        className={reached ? "text-primary-foreground" : "text-text-4"}
+                        className={reached ? "text-primary" : "text-primary-foreground/50"}
                       />
                     </View>
                     <View
@@ -109,19 +113,19 @@ function OrderTracker({ orderId }: { orderId: string }) {
                         i === STEPS.length - 1
                           ? "bg-transparent"
                           : reached && at[STEPS[i + 1]?.key as StepKey] !== null
-                            ? "bg-primary"
-                            : "bg-border",
+                            ? "bg-background"
+                            : "bg-background/25",
                       )}
                     />
                   </View>
                   <Text
                     variant="cardMeta"
                     weight={reached ? 600 : 400}
-                    className={reached ? "text-text-1" : "text-text-3"}
+                    className={reached ? "text-primary-foreground" : "text-primary-foreground/60"}
                   >
                     {t(`chat.tracker.${s.key}`)}
                   </Text>
-                  <Text variant="cardMeta" className="text-text-3 min-h-4">
+                  <Text variant="cardMeta" className="min-h-4 text-primary-foreground/60">
                     {date
                       ? new Date(date).toLocaleDateString(i18n.language, { day: "numeric", month: "short" })
                       : ""}
@@ -133,9 +137,11 @@ function OrderTracker({ orderId }: { orderId: string }) {
         )}
       </Pressable>
       {showCode && code ? (
-        <View className="mx-lg mb-sm rounded-control bg-background p-md">
-          <Text variant="cardMeta">{t("orders.tracking")}</Text>
-          <Text weight={700} selectable>
+        <View className="mx-lg mb-sm rounded-control bg-background/15 p-md">
+          <Text variant="cardMeta" className="text-primary-foreground/70">
+            {t("orders.tracking")}
+          </Text>
+          <Text weight={700} selectable className="text-primary-foreground">
             {code}
           </Text>
         </View>
@@ -145,6 +151,7 @@ function OrderTracker({ orderId }: { orderId: string }) {
           {has("pay") ? (
             <Button
               size="sm"
+              variant="secondary"
               className="flex-1"
               onPress={() => router.push({ pathname: "/checkout", params: { orderId: order.id } })}
             >
@@ -154,6 +161,7 @@ function OrderTracker({ orderId }: { orderId: string }) {
           {has("ship") ? (
             <Button
               size="sm"
+              variant="secondary"
               className="flex-1"
               loading={step.isPending}
               onPress={() =>
@@ -168,7 +176,7 @@ function OrderTracker({ orderId }: { orderId: string }) {
           {canTrack ? (
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               className="flex-1"
               onPress={() => (code ? setShowCode((v) => !v) : openOrder())}
             >
@@ -178,6 +186,7 @@ function OrderTracker({ orderId }: { orderId: string }) {
           {has("confirm_received") ? (
             <Button
               size="sm"
+              variant="secondary"
               className="flex-1"
               loading={step.isPending}
               onPress={() =>
