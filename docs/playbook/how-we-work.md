@@ -56,6 +56,7 @@ The working method for any developer or agent on Vinty. Each rule exists because
 | It builds or typechecks | It works for a user |
 | Tests pass | The test actually ran (check the runner lists it) |
 | Works in the iOS Simulator | Works on a real phone |
+| Works on iPhone | Works on Android (back button, rounded shapes, swipes and right to left behave differently) |
 | Works with English | Works in Hebrew right to left |
 | Merged to a branch | In `main`, or live for users |
 | Server returns 401 to a stranger | It works for a signed in user |
@@ -76,6 +77,15 @@ Report unproven things as unproven. Never write "done" over a gap.
 - For each change work out whether it applies to the app, the server, the database, shared types, and both languages. Apply it everywhere and say which.
 - The same logic copied in two places drifts. Count copies by what they do, not by their name.
 - Where the app and the server both touch the same data, compare the two sides field by field. Prefer one shared schema in `packages/shared`.
+
+## Check both phones
+
+The app is one codebase, so every change reaches iPhone and Android together. The phones still draw and behave differently, so a change can look right on one and wrong on the other (Android QA, 2026-10-15: square highlights, back closing the whole sell form, photos that would not swipe in Hebrew).
+
+- Before a PR that changes anything a user can see or touch, check it in the iOS Simulator and in the Android emulator. Look at both languages where layout or swiping is involved.
+- On Android also press the hardware back button on the screens you changed, including with a sheet or picker open.
+- Say in the PR body which phones were checked ("Checked: iPhone, Android"). An unchecked phone is listed under Not checked.
+- The Android test copy is a development build: `cd apps/mobile && npx expo run:android` (the first build takes about 20 minutes, rebuild only after a native change). It talks to the local server, so the dev test users work. Close heavy apps first, the emulator freezes on a busy Mac.
 
 ## Delegating to subagents
 

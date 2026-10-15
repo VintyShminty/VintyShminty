@@ -94,6 +94,7 @@ Before committing run `pnpm typecheck`, `pnpm lint` and `pnpm test`. `pnpm forma
 - Install native or Expo packages with `npx expo install` so versions match SDK 57. Plain JavaScript packages use `pnpm add`.
 - Run pnpm commands with output redirected to a file, not piped into `tail` (a background helper process keeps the pipe open and the command appears to hang).
 - Never commit `.env` files or secrets. Only `.env.example` files are committed.
+- Every visible app change is checked on both iPhone (iOS Simulator) and Android (emulator) before its PR, and the PR says which phones were checked (`docs/playbook/how-we-work.md`, Check both phones).
 - Server data goes through TanStack Query and never blanks a screen while reloading (see `lib/query-client.ts`). Zustand is for small app state only.
 
 ## Design tokens and the Reusables mapping
