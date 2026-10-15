@@ -150,8 +150,13 @@ describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
     const id = await createListing(`Catch off ${stamp}`);
     await reset([id], 6);
     await db().insert(killSwitches).values({ name: "ai", enabled: false, reason: "Paused" });
+    // A fresh server copy: each copy remembers the switch for 30 seconds, and the shared one saw it on.
+    const fresh = await buildTestApp(
+      { CRON_SECRET: SECRET },
+      { listingCheckReader: checkReader, storage: { ...fakeStorage, read: async () => Buffer.from("jpeg") } },
+    );
     // The app's own checker is behind the meter, so this goes through the job route.
-    const res = await ctx.app.inject({
+    const res = await fresh.app.inject({
       method: "GET",
       url: "/v1/jobs/all",
       headers: { authorization: `Bearer ${SECRET}` },
@@ -159,6 +164,7 @@ describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
     expect(res.statusCode).toBe(200);
     expect(res.json().styles).toMatchObject({ tagged: 0, stoppedEarly: true });
     expect((await row(id)).stylesTaggedAt).toBeNull();
+    await fresh.close();
     await db().delete(killSwitches).where(eq(killSwitches.name, "ai"));
   });
 });

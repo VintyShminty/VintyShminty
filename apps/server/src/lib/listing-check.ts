@@ -104,8 +104,8 @@ const LISTING_CHECK_JSON_SCHEMA = {
     },
     styles: {
       type: "array",
+      // No maxItems: Claude's answer format refuses it. The server keeps the first 3 (resolveListingStyles).
       items: { type: "string", enum: [...LISTING_STYLES] },
-      maxItems: LISTING_STYLES_MAX,
     },
   },
   required: ["flags", "styles"],

@@ -174,7 +174,7 @@ describe.skipIf(!databaseUrl)("admin Review list: AI listing check, report sorti
 
     it("never shows the style tags in any listing answer", async () => {
       checkAnswer = { flags: [], styles: ["vintage", "y2k"] };
-      const id = await createListing(`Secret styles ${stamp}`);
+      const id = await createListing(`Secret tags ${stamp}`);
       const [row] = await db().select().from(listings).where(eq(listings.id, id));
       expect(row?.styles).toEqual(["vintage", "y2k"]);
       const urls = [
