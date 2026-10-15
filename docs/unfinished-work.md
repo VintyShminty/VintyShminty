@@ -4,7 +4,7 @@ Things that were started or decided but not finished. Each item says where it st
 
 ## AI features with Claude Haiku
 
-Decided 2026-10-14 (Eden). Step 1 merged (D-036, PR #66), step 2 merged (D-037, PR #68). Step 3 built on branch `feat/ai-listing-checks` (D-038), waiting for Eden's review.
+Decided 2026-10-14 (Eden). Step 1 merged (D-036, PR #66), step 2 merged (D-037, PR #68). Step 3 merged (D-038, PR #69).
 
 - **The choice:** Claude Haiku 5.5 powers every AI feature in the app. It tied GPT-6 Luna on a 60-listing test, scored best on Hebrew categories (97%) and is already set up. Results and the reasoning are in `docs/log/2026-10-14.md`.
 - **Approved features:**

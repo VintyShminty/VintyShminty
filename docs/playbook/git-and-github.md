@@ -86,6 +86,8 @@ Several agents or sessions must never share one working folder.
 - Pipe or silence the output of a `git checkout` you depend on.
 - Skip hooks or checks to get something through.
 - Delete a branch with unmerged work.
+- Send more work to a PR's branch without checking it is not merged yet. If it is, open a new PR from a fresh branch.
+- Call a PR that adds a database column or table ready before the online database step is done (`pnpm db:migrate:online`), or the live app breaks on merge.
 
 ## CI
 
