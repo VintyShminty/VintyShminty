@@ -1722,6 +1722,9 @@
     }
   },
   "web": {
+    "places": {
+      "suggestions": "הצעות למקום"
+    },
     "nav": {
       "languageShort": "עב",
       "mainNavigation": "ראשי",

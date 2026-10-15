@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Field, Notice, SubmitButton, TextButton } from "@/components/auth/fields";
+import { PlaceField } from "@/components/place-field";
 import { SellerAvatar } from "@/components/seller-avatar";
 import { clientApi } from "@/lib/api-client";
 import { uploadAvatar } from "@/lib/avatar-upload";
@@ -167,7 +168,8 @@ export function EditProfileForm({
         </p>
         {errors.bio ? <p className="text-body-sm text-error">{t(errors.bio)}</p> : null}
       </div>
-      <Field
+      <PlaceField
+        kind="city"
         label={t("fields.city")}
         name="city"
         autoComplete="address-level2"

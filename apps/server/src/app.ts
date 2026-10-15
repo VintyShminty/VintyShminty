@@ -25,6 +25,7 @@ import {
   type OrderSummaryReader,
 } from "./lib/order-summary.js";
 import { createPhotoReader, meteredPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
+import { createPlacesClient } from "./lib/places.js";
 import type { Pusher } from "./lib/push.js";
 import {
   createReportSorter,
@@ -61,6 +62,7 @@ import notificationRoutes from "./routes/notifications.js";
 import offerRoutes from "./routes/offers.js";
 import orderRoutes from "./routes/orders.js";
 import photoAssistRoutes from "./routes/photo-assist.js";
+import placesRoutes from "./routes/places.js";
 import referenceRoutes from "./routes/reference.js";
 import referralRoutes from "./routes/referrals.js";
 import reviewRoutes from "./routes/reviews.js";
@@ -208,6 +210,7 @@ export async function buildApp({
     await app.register(messageRoutes);
     await app.register(notificationRoutes);
     await app.register(addressRoutes);
+    await app.register(placesRoutes, { places: createPlacesClient(env) });
     await app.register(offerRoutes);
     await app.register(bundleRoutes);
     await app.register(bumpRoutes);

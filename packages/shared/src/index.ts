@@ -22,6 +22,7 @@ export * from "./notification-text.js";
 export * from "./order-flow.js";
 export * from "./orders.js";
 export * from "./photo-assist.js";
+export * from "./places.js";
 export * from "./price-format.js";
 export * from "./recommendations.js";
 export * from "./reference-data.js";

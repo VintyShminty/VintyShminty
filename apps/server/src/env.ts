@@ -114,6 +114,9 @@ const envSchema = z
     ANTHROPIC_API_KEY: optionalText,
     PHOTO_READER_MODEL: optionalText,
 
+    // Google Places (API New) for city and address suggestions. Empty key means no suggestions, typing works as before.
+    GOOGLE_MAPS_API_KEY: optionalText,
+
     // Object storage (MinIO in development, Cloudflare R2 online)
     S3_ENDPOINT: z.string().url().default("http://localhost:9000"),
     S3_REGION: z.string().default("us-east-1"),
