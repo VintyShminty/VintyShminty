@@ -186,7 +186,7 @@ export function UploadTable({
       event.preventDefault();
       event.returnValue = "";
     };
-    // Links inside the site (the admin sidebar, Back to Vinty) do not fire beforeunload, so ask before following one.
+    // Links inside the site (the admin sidebar, Back to Yadii) do not fire beforeunload, so ask before following one.
     const guardLinks = (event: MouseEvent) => {
       const link = (event.target as Element | null)?.closest?.("a[href]");
       if (!link || link.getAttribute("target") === "_blank") return;

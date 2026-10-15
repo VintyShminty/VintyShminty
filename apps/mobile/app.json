@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Shminty",
+    "name": "Yadii",
     "slug": "vinty",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -55,7 +55,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow Vinty to use Face ID to unlock the app."
+          "faceIDPermission": "Allow Yadii to use Face ID to unlock the app."
         }
       ],
       "expo-font",

@@ -28,18 +28,18 @@ export async function generateMetadata({
   searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
   const { lang, id } = await params;
-  if (!isLang(lang)) return { title: "Vinty" };
+  if (!isLang(lang)) return { title: "Yadii" };
   const t = getT(lang);
   let profile: PublicProfile;
   try {
     profile = await getProfile(lang, id);
   } catch (error) {
-    if (error instanceof ApiClientError) return { title: "Vinty", robots: { index: false } };
+    if (error instanceof ApiClientError) return { title: "Yadii", robots: { index: false } };
     throw error;
   }
   const sp = await searchParams;
   const name = profile.username ?? profile.name;
-  const title = `${name} · Vinty`;
+  const title = `${name} · Yadii`;
   const description = t("web.seller.metaDescription", { name, count: profile.activeListingCount });
   const path = `/seller/${id}`;
   return {
@@ -52,7 +52,7 @@ export async function generateMetadata({
       title,
       description,
       url: `/${lang}${path}`,
-      siteName: "Vinty",
+      siteName: "Yadii",
       type: "profile",
       images: profile.avatarUrl ? [{ url: profile.avatarUrl, alt: name }] : undefined,
       locale: lang === "he" ? "he_IL" : "en_US",

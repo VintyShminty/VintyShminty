@@ -14,7 +14,7 @@ export async function displayNameFor(app: Pick<App, "db">, userId: string): Prom
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-  return row?.displayUsername ?? row?.username ?? row?.name ?? "Vinty";
+  return row?.displayUsername ?? row?.username ?? row?.name ?? "Yadii";
 }
 
 const text = (data: Record<string, unknown>, key: string) => {
@@ -64,7 +64,7 @@ export function pushCopy(
       };
     case "offer_expired":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body: he ? `ההצעה עבור ${title} פגה` : `The offer for ${title} has expired`,
       };
     case "order_paid":
@@ -73,15 +73,15 @@ export function pushCopy(
         body: he ? `${title} מחכה למשלוח` : `${title} is waiting to be shipped`,
       };
     case "order_shipped":
-      return { title: "Vinty", body: he ? `${title} יצא לדרך` : `${title} is on the way to you` };
+      return { title: "Yadii", body: he ? `${title} יצא לדרך` : `${title} is on the way to you` };
     case "order_delivered":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body: he ? `${title} הגיע. אשרו שהוא אצלכם` : `${title} has arrived. Tap to say it reached you`,
       };
     case "order_completed":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body:
           text(data, "role") === "buyer"
             ? he
@@ -93,12 +93,12 @@ export function pushCopy(
       };
     case "balance_released":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body: he ? `${amount} זמינים עכשיו ביתרה שלך` : `${amount} is now available in your balance`,
       };
     case "order_cancelled":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body: he ? `ההזמנה עבור ${title} בוטלה` : `The order for ${title} was cancelled`,
       };
     case "review_received": {
@@ -110,7 +110,7 @@ export function pushCopy(
     }
     case "review_reminder":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body: he ? `איך היה? אפשר להשאיר משוב על ${title}` : `How did it go? Leave feedback for ${title}`,
       };
     case "referral_rewarded":
@@ -127,12 +127,12 @@ export function pushCopy(
       };
     case "favourite_sold":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body: he ? `פריט שאהבת נמכר: ${title}` : `An item you liked was sold: ${title}`,
       };
     case "bump_ended":
       return {
-        title: "Vinty",
+        title: "Yadii",
         body: he ? `הבאז על ${title} הסתיים` : `The buzz on ${title} has ended`,
       };
     default:
@@ -146,7 +146,7 @@ export async function notifyEvent(
   input: Omit<NotifyInput, "push"> & { actorName?: string },
 ): Promise<void> {
   const { actorName, ...rest } = input;
-  const name = actorName ?? (input.actorId ? await displayNameFor(app, input.actorId) : "Vinty");
+  const name = actorName ?? (input.actorId ? await displayNameFor(app, input.actorId) : "Yadii");
   await notifyUser(app, {
     ...rest,
     push: (locale) => pushCopy(input.type, input.data ?? {}, locale, name),

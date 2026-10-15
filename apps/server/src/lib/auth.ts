@@ -81,7 +81,7 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
   };
 
   return betterAuth({
-    appName: "Vinty",
+    appName: "Yadii",
     baseURL: env.BETTER_AUTH_URL,
     basePath: "/api/auth",
     secret: env.BETTER_AUTH_SECRET,

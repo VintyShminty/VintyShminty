@@ -27,10 +27,10 @@ describe("GET /v1/auth/error", () => {
     const res = await get("/v1/auth/error?error=account_not_linked");
     expect(res.statusCode).toBe(200);
     expect(res.headers["content-type"]).toContain("text/html");
-    expect(res.body).toContain("This email already has a Vinty account");
+    expect(res.body).toContain("This email already has a Yadii account");
     expect(res.body).toContain("confirm your email with the code");
     expect(res.body).toContain('dir="rtl"');
-    expect(res.body).toContain("לכתובת האימייל הזו כבר יש חשבון Vinty");
+    expect(res.body).toContain("לכתובת האימייל הזו כבר יש חשבון Yadii");
   });
 
   it("shows a fixed message for every known code", async () => {

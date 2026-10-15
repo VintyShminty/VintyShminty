@@ -15,7 +15,7 @@ type Pair = { en: Message; he: Message };
 const GENERIC: Pair = {
   en: {
     title: "Something went wrong",
-    body: "We could not finish logging you in. Please go back to Vinty and try again.",
+    body: "We could not finish logging you in. Please go back to Yadii and try again.",
   },
   he: {
     title: "משהו השתבש",
@@ -28,11 +28,11 @@ const MESSAGES = new Map<string, Pair>([
     "account_not_linked",
     {
       en: {
-        title: "This email already has a Vinty account",
+        title: "This email already has a Yadii account",
         body: "Log in with your email and password, then confirm your email with the code we send you. After that, Google or Apple will connect to the same account.",
       },
       he: {
-        title: "לכתובת האימייל הזו כבר יש חשבון Vinty",
+        title: "לכתובת האימייל הזו כבר יש חשבון Yadii",
         body: "התחברו עם האימייל והסיסמה, ואשרו את האימייל עם הקוד שנשלח אליכם. אחרי זה גוגל או אפל יתחברו לאותו חשבון.",
       },
     },
@@ -42,11 +42,11 @@ const MESSAGES = new Map<string, Pair>([
     {
       en: {
         title: "This login belongs to another account",
-        body: "That Google or Apple login is already connected to a different Vinty account. Log in with the email you used for that account.",
+        body: "That Google or Apple login is already connected to a different Yadii account. Log in with the email you used for that account.",
       },
       he: {
         title: "ההתחברות הזו שייכת לחשבון אחר",
-        body: "ההתחברות עם גוגל או אפל כבר מחוברת לחשבון Vinty אחר. התחברו עם האימייל שבו השתמשתם בחשבון הזה.",
+        body: "ההתחברות עם גוגל או אפל כבר מחוברת לחשבון Yadii אחר. התחברו עם האימייל שבו השתמשתם בחשבון הזה.",
       },
     },
   ],
@@ -68,7 +68,7 @@ const MESSAGES = new Map<string, Pair>([
     {
       en: {
         title: "Login cancelled",
-        body: "No problem. Go back to Vinty and try again whenever you are ready.",
+        body: "No problem. Go back to Yadii and try again whenever you are ready.",
       },
       he: {
         title: "ההתחברות בוטלה",
@@ -113,7 +113,7 @@ function safeScheme(scheme: string): string {
 
 function block(lang: "en" | "he", message: Message, href: string): string {
   const he = lang === "he";
-  return `<section lang="${lang}"${he ? ' dir="rtl"' : ""}><h1>${message.title}</h1><p>${message.body}</p><a class="btn" href="${href}">${he ? "חזרה לאפליקציה" : "Back to Vinty"}</a></section>`;
+  return `<section lang="${lang}"${he ? ' dir="rtl"' : ""}><h1>${message.title}</h1><p>${message.body}</p><a class="btn" href="${href}">${he ? "חזרה לאפליקציה" : "Back to Yadii"}</a></section>`;
 }
 
 /** Builds the page. `code` is only a lookup key, unknown codes (and anything hostile) get the generic message. */
@@ -126,12 +126,12 @@ export function authErrorPage(code: unknown, appScheme: string): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Vinty</title>
+<title>Yadii</title>
 <style>${PAGE_STYLE}</style>
 </head>
 <body>
 <main>
-<p class="brand">Vinty</p>
+<p class="brand">Yadii</p>
 ${block("en", pair.en, href)}
 ${block("he", pair.he, href)}
 </main>

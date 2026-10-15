@@ -33,7 +33,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
           aria-label={t("web.nav.homeLink")}
           className="text-[23px] font-bold tracking-tight text-text-1"
         >
-          Vinty
+          Yadii
         </Link>
         <div className="hidden md:block">
           <BrowsePanel>

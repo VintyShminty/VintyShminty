@@ -1,7 +1,7 @@
 import { colors } from "@vinty/design/tokens";
 import { ImageResponse } from "next/og";
 
-export const alt = "Vinty";
+export const alt = "Yadii";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -22,7 +22,7 @@ export default function OpenGraphImage() {
         letterSpacing: -6,
       }}
     >
-      Vinty
+      Yadii
     </div>,
     size,
   );

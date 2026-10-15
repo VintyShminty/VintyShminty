@@ -9,10 +9,10 @@ const TILE_SIZE = "aspect-[4/5]";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLang(lang)) return { title: "Vinty" };
+  if (!isLang(lang)) return { title: "Yadii" };
   const t = getT(lang);
   return {
-    title: `${t("tabs.browse")} | Vinty`,
+    title: `${t("tabs.browse")} | Yadii`,
     description: t("web.browse.metaDescription"),
     alternates: alternatesFor(lang, "/browse"),
   };
