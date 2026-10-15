@@ -26,6 +26,16 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **Face ID and forced right to left do nothing or crash in Expo Go** (the quick preview app). Use a development build: `npx expo run:ios`, which needs CocoaPods. Source: `CLAUDE.md`, log 2026-10-12 evening.
 - **Missing font weights.** Aileron has no 200 or 500, Heebo no 100 or 200. They map to the nearest file. Source: `CLAUDE.md`.
 
+- **Home fails online right after a merge.** A PR added a database column and was merged before the online database got it. Run the online migration first (`pnpm db:migrate:online`). Source: log 2026-10-14, memory `migrate-before-merge`.
+- **A saved feed is thrown away every time.** It was checked against the owner before the app knew who was logged in. Check ownership only once the user is known. Source: log 2026-10-14 (#41).
+- **A test or search looks wrong after another session switched the folder's branch.** The category list changed mid test (273 became 387). Freeze the data a test reads before starting. Source: log 2026-10-14.
+- **The AI helper stays off online after the key was added.** The redeploy ran before the key was saved. Redeploy again. Source: log 2026-10-14.
+- **Plain word search picks the wrong size or too narrow a type.** Give the AI sizes as written inside their group and tell it to pick the whole group unless a kind is named. "MK bag" still misses, known gap. Source: log 2026-10-14 (#68).
+- **The simulator shows a red error after an update.** An old dev server does not know the new parts. Restart it. Source: log 2026-10-14.
+- **Mockups time out on the test iPhone.** Open Expo Go first, then the link. Source: log 2026-10-14.
+- **Apple and Google buttons are missing on a helper simulator.** Not a bug, the local server has no sign in keys. Source: log 2026-10-14.
+- **Close animation looks fine in stills but wrong to Eden.** Two guesses did not fix it, a frame by frame video showed the real cause. Record video for motion bugs. Source: log 2026-10-14 (#38).
+
 ## Libraries and CI
 
 - **Installing a very new library version fails.** Versions younger than 7 days are refused on purpose. Wait, or add a temporary exception in `pnpm-workspace.yaml` with a date to remove it. Exceptions due: 2026-10-13 (overdue, still in the file on 2026-10-13 night) and 2026-10-19. Source: `docs/playbook/security-and-safety.md`, log 2026-10-12 evening.
@@ -40,6 +50,14 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **A setting "looks right" but fails** (cron password refused, Google "OAuth client was not found"). The pasted value ends with an invisible line break. The server trims optional settings. Source: commit `bda40d6`.
 - **Deploy refused: more than 15000 files.** The main folder holds local build files. Deploy from the clean copy, see `docs/going-online.md`. Source: log 2026-10-13 night.
 - **Production settings cannot be read back.** Vercel's Neon values are sensitive. Copy the direct address from the Neon page's quickstart (Show secret) instead. Source: log 2026-10-13 late evening.
+
+## Website
+
+- **An item page opens scrolled down with its top cut off.** The grey loading placeholder in Next.js keeps the old scroll position. `apps/web/components/scroll-to-top.tsx` sits in the item page's `loading.tsx` and jumps to the top. Removing the placeholder also fixes it but makes clicks feel slow. Source: log 2026-10-15, D-040.
+- **A card photo does nothing when clicked.** The card's invisible full-card link is covered by the later positioned photo block. Give the photo `pointer-events-none` and its buttons (bookmark, arrows) `pointer-events-auto` (`apps/web/components/item-card.tsx`). Source: log 2026-10-15.
+- **The local website shows empty cards.** Docker (the app that runs the local database) is not running. Open Docker Desktop, then `pnpm db:up`. Source: log 2026-10-15.
+- **Website search acts like a plain search when tested.** The Browser pane was hidden, which stops the search box from waking up. Open the pane before testing interactions. Source: log 2026-10-14, memory `browser-pane-hidden-hydration`.
+- **"I see no difference" in review.** Two branches reviewed one after the other, and the local website showed the other one. Say which branch is on screen. Source: log 2026-10-15.
 
 ## Sign in
 

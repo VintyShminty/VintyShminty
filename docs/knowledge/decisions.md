@@ -1,6 +1,6 @@
 # Decisions index
 
-Last compiled: 2026-10-13. Logs covered: `docs/log/2026-10-12.md` (all sections), `docs/log/2026-10-13.md` (all sections, through the night entry).
+Last compiled: 2026-10-15. Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md`.
 
 An index only. The full text and reasoning live where the link points. When a decision is replaced, mark it "Superseded by" and keep the line.
 
@@ -14,7 +14,7 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-004 | Component library is React Native Reusables | Approved |
 | D-005 | Phone-app adaptations of the earlier rules | Approved |
 | D-006 | Colour palette: Espresso and cream | Approved |
-| D-007 | ItemCard is Option C, Badge forward | Approved |
+| D-007 | ItemCard is Option C, Badge forward | Superseded in part by D-019 and D-032 |
 | D-008 | Chips and badges are Option B, hairline outline | Approved |
 | D-009 | Navigation is the bottom tab bar, with a Browse grid and pushed panels | Approved |
 | D-010 | Category selection is always a full-screen push panel | Approved |
@@ -31,9 +31,27 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-021 | Welcome, log in and sign up use one strong photo | Approved, 2026-10-13 |
 | D-022 | The home feed explains itself and asks two questions after sign up | Approved, 2026-10-13 |
 | D-023 | Continue with Apple and Google (Google through the browser sheet, one Web key) | Approved, 2026-10-13 |
+| D-024 | Invite friends is a profile row, a friend's code is typed on that screen | Implemented, 2026-10-13 |
+| D-025 | Away mode screen, return date chips, banner on your profile | Merged, 2026-10-14 (#30) |
+| D-026 | Welcome turns into Log in and Sign up, the photo travels with the form | Merged, 2026-10-14 (#38) |
+| D-028 | The photo helper shows best guesses first inside pickers and never fills anything | Merged, 2026-10-14 (#36). Replaces the auto-fill version of #35 |
+| D-029 | Sizes question is a hand-drawn ink figure, one picture per step | Merged, 2026-10-14 (#37). Replaces the code-drawn figure |
+| D-030 | Website layout on laptops and phone browsers | Approved, 2026-10-14 |
+| D-031 | Colours picker is a grid of round swatches | Merged, 2026-10-14 (#46) |
+| D-032 | Item card is a price tag on the photo, saving is a bookmark | Merged, 2026-10-14 (#51). Supersedes the item card of D-007 and D-019 |
+| D-033 | Clothing categories say what the garment is | Merged, 2026-10-14 (#45) |
+| D-034 | Chat: ledger line offers and smaller bubbles | Approved, 2026-10-14 |
+| D-035 | Website polish after the first laptop review | Approved, 2026-10-14 |
+| D-036 | Sell form also reads the seller's words, plus gentle photo tips | Merged, 2026-10-14 (#66) |
+| D-037 | Search in plain words turns into filters with an easy way back | Merged, 2026-10-14 (#68) |
+| D-038 | One Review list in the admin pages, AI flags, Eden decides | Merged, 2026-10-14 (#69) |
+| D-039 | A calmer top of the website (direction C, round search bar) | Merged, 2026-10-15 (#72) |
+| D-040 | Website item page is quieter, cards flip through photos, honest Coverage note | Merged, 2026-10-15 (#70) |
 | O-003 | Hebrew font pairing | Closed by D-011 |
 
 General rule: where a design question is not decided, follow the product spec (the Vinted UX deconstruction) for how things work only, never its names, wording, icons or looks. Source: `docs/design.md`, D-019, `docs/originality.md`.
+
+Note: D-027 was never used. Two sessions once both took D-030, the categories decision became D-033 (log 2026-10-14).
 
 ## Product and data (`docs/blueprint/data-model.md`, section "Open decisions", and `docs/roadmap.md`)
 
@@ -57,6 +75,18 @@ General rule: where a design question is not decided, follow the product spec (t
 | Working name on the App Store and home screen: Shminty, changeable. Text inside the app still says Vinty | 2026-10-13 | Decided (Eden), PR #26 |
 | Google login lives in its own Google Cloud project (vintyshminty@gmail.com), testing mode with named test users | 2026-10-13 | Decided (Eden) |
 | An account with an unconfirmed email is never linked to Google or Apple automatically | 2026-10-13 | Kept on purpose (safety), D-023 |
+| Milestone 9 defaults: Buzz free with no daily cap, invite reward 50 shekels each, away mode at most 90 days ahead | 2026-10-14 | Decided (Claude defaults, Eden did not change), `docs/blueprint/api.md`, D-024, D-025 |
+| Claude Haiku 5.5 powers every AI feature (60 listing test against Luna, GPT-5 nano, Jev) | 2026-10-14 | Decided (Eden), `docs/unfinished-work.md` |
+| AI features in: plain word search, Home style tags, photo check, chat quick replies and warnings, listing checks, report sorting, help answers, order problem summaries. Parked: translating listings. Out: AI-written descriptions | 2026-10-14 | Decided (Eden), `docs/unfinished-work.md` |
+| The AI never moves money, changes an order or bans anyone. It suggests and warns, a person or fixed rules decide. Automatic text is labelled. Chat reading is stated in the privacy policy | 2026-10-14 | Decided (Eden), privacy policy "AI helpers" section approved for now, lawyer check later |
+| A flagged listing stays live until Eden decides. A reserved listing cannot be hidden mid order. A listing the team hid stays hidden for the seller | 2026-10-14 | Decided, D-038 |
+| Browse tile photos ship inside the app, not online | 2026-10-14 | Decided (Eden) |
+| Speed: remember the last feed, card photo copies with colour blur, no splash wait for logged in users | 2026-10-14 | Decided (Eden), done (#41, #42) |
+| Fonts stay as they are after comparing four alternatives | 2026-10-14 | Decided (Eden and partner) |
+| Keep the word "Favourites", no "heart" wording anywhere | 2026-10-14 | Decided (Eden), #52 |
+| Category tree overlaps (running shoes, backpacks, designer bags sit in two places) | 2026-10-14 | Open, first check whether #45 already fixed them, `docs/unfinished-work.md` |
+| Should sellers be told when Eden hides or removes their listing? | 2026-10-14 | Open, default not yet |
+| Filter buttons on other website pages get the Home pill look? Sell, Sign up and Log in stay soft cornered? | 2026-10-15 | Open, defaults yes and no (log 2026-10-15) |
 | Items 5 to 8, 11 to 19 (photo search, saved searches, brands, disputes, withdrawals, account deletion, seed passwords and more) | | Open, see data model |
 
 ## Process (`docs/playbook/`)
@@ -74,6 +104,9 @@ General rule: where a design question is not decided, follow the product spec (t
 | Merges into `main` go live by themselves (Vercel is connected to GitHub). To try a branch live before merging, deploy it by hand from a clean copy (`VintyShminty-copies/deploy`) | 2026-10-13 | Active, `docs/going-online.md` |
 | Eden pastes every secret himself. Claude never types passwords, keys or Apple or Google logins | 2026-10-13 | Active, `docs/playbook/security-and-safety.md` |
 | The product spec stays in `docs/` and is never committed | 2026-10-13 | Active, `.gitignore` |
+| TestFlight builds are made with local Xcode, not EAS. Next build number is 4 | 2026-10-14 | Active (Eden), memory |
+| Use Sonnet helpers for work that does not need Opus | 2026-10-14 | Active (Eden), memory |
+| Run the online database step before calling a schema PR ready | 2026-10-14 | Active, memory `migrate-before-merge` |
 
 ## Superseded
 
@@ -81,4 +114,6 @@ General rule: where a design question is not decided, follow the product spec (t
 - O-003 as an open proposal: closed by D-011 on 2026-10-12.
 - "Installing on Eden's own phone waits until more milestones are built" (2026-10-12): superseded on 2026-10-13, the first TestFlight build is on his iPhone.
 - "Follow the product spec where nothing is decided" without limits: narrowed by D-019 on 2026-10-13 to how things work only.
+- The auto-fill photo helper (PR #35) and the code-drawn sizes figure (PR #34): superseded by D-028 and D-029 on 2026-10-14.
+- "Eden prefers EAS for TestFlight builds" (2026-10-13): superseded on 2026-10-14, builds come from local Xcode.
 - "The app ID waits for the final name" (2026-10-13 evening): superseded the same night by `com.secondhand.marketplace`.
