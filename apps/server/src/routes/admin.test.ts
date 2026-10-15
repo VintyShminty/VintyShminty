@@ -2,6 +2,7 @@ import {
   adminActions,
   aiCalls,
   expenseConfig,
+  expenseItems,
   expenseMonths,
   killSwitches,
   standInSellers,
@@ -45,12 +46,14 @@ describe.skipIf(!databaseUrl)("admin panel", () => {
       .where(inArray(users.id, [admin.id, other.id]));
     // Start from a known state for the shared admin tables.
     await db().delete(killSwitches).where(eq(killSwitches.name, "ai"));
+    await db().delete(expenseItems);
     await db().delete(expenseMonths);
     await db().delete(expenseConfig);
   });
   afterAll(async () => {
     await db().delete(aiCalls).where(eq(aiCalls.action, TEST_ACTION));
     await db().delete(killSwitches).where(eq(killSwitches.name, "ai"));
+    await db().delete(expenseItems);
     await db().delete(expenseMonths);
     await db().delete(expenseConfig);
     await db().delete(adminActions).where(inArray(adminActions.adminUserId, createdIds));
@@ -245,6 +248,70 @@ describe.skipIf(!databaseUrl)("admin panel", () => {
       expect(actions).toEqual(
         expect.arrayContaining(["expenses_config_saved", "expenses_month_saved", "expenses_month_cleared"]),
       );
+    });
+
+    it("counts a yearly cost as 1/12 and a one time cost once, and remembers who paid", async () => {
+      const before = (await call("GET", "/v1/admin/expenses", admin.token)).json();
+      const yearly = await call("POST", "/v1/admin/expenses/items", admin.token, {
+        cadence: "yearly",
+        name: "Apple Developer",
+        amountMinor: 120000,
+        currency: "ILS",
+        paidBy: "Eden",
+        paidOn: `${thisMonth}-01`,
+      });
+      expect(yearly.statusCode).toBe(200);
+      const once = await call("POST", "/v1/admin/expenses/items", admin.token, {
+        cadence: "one_time",
+        name: "Play Store",
+        amountMinor: 9000,
+        currency: "ILS",
+        paidBy: "Yuval",
+        paidOn: `${thisMonth}-02`,
+      });
+      expect(once.statusCode).toBe(200);
+
+      const after = (await call("GET", "/v1/admin/expenses", admin.token)).json();
+      expect(after.yearly).toHaveLength(1);
+      expect(after.oneTime).toHaveLength(1);
+      expect(after.paidByNames).toEqual(expect.arrayContaining(["Eden", "Yuval"]));
+      // 1200 / 12 = 100 shekels plus 90 shekels, in agorot.
+      expect(after.totalIlsMinor - before.totalIlsMinor).toBe(10000 + 9000);
+
+      // A month before the yearly cost started has neither.
+      const [y, m] = thisMonth.split("-").map(Number) as [number, number];
+      const earlier = new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 7);
+      const old = (await call("GET", `/v1/admin/expenses?month=${earlier}`, admin.token)).json();
+      expect(old.yearly).toHaveLength(0);
+      expect(old.oneTime).toHaveLength(0);
+
+      const changed = await call("PUT", `/v1/admin/expenses/items/${once.json().id}`, admin.token, {
+        cadence: "one_time",
+        name: "Play Store",
+        amountMinor: 10000,
+        currency: "ILS",
+        paidBy: "Eden",
+        paidOn: `${thisMonth}-02`,
+      });
+      expect(changed.json().paidBy).toBe("Eden");
+      expect(
+        (await call("DELETE", `/v1/admin/expenses/items/${once.json().id}`, admin.token)).statusCode,
+      ).toBe(200);
+      expect(
+        (await call("DELETE", `/v1/admin/expenses/items/${once.json().id}`, admin.token)).statusCode,
+      ).toBe(404);
+      await call("DELETE", `/v1/admin/expenses/items/${yearly.json().id}`, admin.token);
+    });
+
+    it("keeps who paid on monthly costs", async () => {
+      const own = [
+        { name: "Vercel", amountMinor: 2000, currency: "USD", kind: "subscription", paidBy: "Dima" },
+      ];
+      const saved = await call("PUT", `/v1/admin/expenses/months/${thisMonth}`, admin.token, {
+        fixedCosts: own,
+      });
+      expect(saved.json().fixed[0].paidBy).toBe("Dima");
+      await call("DELETE", `/v1/admin/expenses/months/${thisMonth}`, admin.token);
     });
 
     it("rejects bad rows", async () => {

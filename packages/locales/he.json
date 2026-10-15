@@ -1954,7 +1954,9 @@
       "expensesMonthCleared": "חזר לעלויות ברירת המחדל של {{month}}",
       "switchedOn": "הפעיל את {{name}}",
       "switchedOff": "כיבה את {{name}}",
-      "aiAutoDisabled": "ה-AI כבה את עצמו: {{reason}}"
+      "aiAutoDisabled": "ה-AI כבה את עצמו: {{reason}}",
+      "expensesItemSaved": "העלות {{name}} נשמרה",
+      "expensesItemDeleted": "העלות {{name}} הוסרה"
     },
     "aiActions": {
       "photo_check": "עוזר התמונות (טופס המכירה)",
@@ -2037,7 +2039,9 @@
       "kind": {
         "subscription": "מנוי",
         "auto": "אוטומטי",
-        "configured": "מוגדר"
+        "configured": "מוגדר",
+        "yearly": "שנתי",
+        "one_time": "חד פעמי"
       },
       "byAction": "עלות AI לפי פעולה",
       "byModel": "לפי מודל",
@@ -2067,7 +2071,26 @@
       "saveDefaults": "שמור כברירת מחדל",
       "savedMonth": "העלויות של החודש נשמרו",
       "clearedMonth": "החודש הזה משתמש עכשיו בברירת המחדל",
-      "savedDefaults": "נשמר כברירת מחדל"
+      "savedDefaults": "נשמר כברירת מחדל",
+      "paidBy": "שולם על ידי",
+      "paidByName": "שולם על ידי {{name}}",
+      "perMonth": "לחודש",
+      "yearlyDetails": "{{amount}} לשנה, נספר 1/12 בכל חודש",
+      "extraTitle": "עלויות שנתיות וחד פעמיות",
+      "extraNote": "עלות שנתית, כמו דומיין או חשבון המפתחים של אפל, נספרת 1/12 בכל חודש מתאריך ההתחלה. עלות חד פעמית, כמו האגרה של חנות Play, נספרת בחודש שבו שולמה",
+      "cadence": {
+        "yearly": "שנתי",
+        "one_time": "חד פעמי"
+      },
+      "startsOn": "מתחיל ב",
+      "paidOn": "שולם ב",
+      "addItem": "הוסף עלות",
+      "saveItem": "שמור שינויים",
+      "cancelEdit": "ביטול",
+      "editItem": "ערוך עלות",
+      "fixItem": "לכל עלות צריך שם, סכום של אפס ומעלה ותאריך",
+      "savedItem": "העלות נשמרה",
+      "removedItem": "העלות הוסרה"
     },
     "security": {
       "spendTitle": "הוצאות AI",

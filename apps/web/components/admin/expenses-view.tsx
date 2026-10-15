@@ -12,6 +12,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ExtraCostsEditor, PaidByInput, PaidByNames } from "@/components/admin/extra-costs-editor";
 import { useToast } from "@/components/admin/toast";
 import {
   Card,
@@ -41,16 +42,23 @@ import { adminErrorText, useAdminExpenses } from "@/lib/admin-queries";
 import { clientApi } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
-type Draft = { name: string; amount: string; currency: ExpenseCurrency; kind: ExpenseKind };
+type Draft = { name: string; amount: string; currency: ExpenseCurrency; kind: ExpenseKind; paidBy: string };
 
 const toDraft = (row: AdminExpenses["fixed"][number]): Draft => ({
   name: row.name,
   amount: (row.amountMinor / 100).toFixed(2),
   currency: row.currency,
   kind: row.kind,
+  paidBy: row.paidBy,
 });
 
-function Tag({ kind }: { kind: "subscription" | "auto" | "configured" }) {
+function PaidByLine({ name }: { name: string }) {
+  const { t } = useTranslation();
+  if (!name) return null;
+  return <span className="text-card-meta text-text-3">{t("admin.expenses.paidByName", { name })}</span>;
+}
+
+function Tag({ kind }: { kind: "subscription" | "auto" | "configured" | "yearly" | "one_time" }) {
   const { t } = useTranslation();
   return (
     <span
@@ -91,7 +99,13 @@ function CostEditor({ data }: { data: AdminExpenses }) {
         setProblem(t("admin.expenses.fixRows"));
         return null;
       }
-      out.push({ name: row.name.trim(), amountMinor, currency: row.currency, kind: row.kind });
+      out.push({
+        name: row.name.trim(),
+        amountMinor,
+        currency: row.currency,
+        kind: row.kind,
+        paidBy: row.paidBy.trim(),
+      });
     }
     setProblem(null);
     return out;
@@ -144,13 +158,14 @@ function CostEditor({ data }: { data: AdminExpenses }) {
 
   return (
     <Card title={t("admin.expenses.editTitle")}>
+      <PaidByNames names={data.paidByNames} />
       <p className="mb-md text-body-sm text-text-3">
         {data.usesOverride ? t("admin.expenses.usesOwn") : t("admin.expenses.usesDefaults")}
       </p>
       <ul className="flex flex-col gap-sm">
         {rows.map((row, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: rows have no id and are edited in place
-          <li key={i} className="grid grid-cols-2 gap-sm md:grid-cols-[1fr_7rem_5.5rem_9rem_auto]">
+          <li key={i} className="grid grid-cols-2 gap-sm md:grid-cols-[1fr_7rem_5.5rem_9rem_9rem_auto]">
             <input
               aria-label={t("admin.expenses.name")}
               placeholder={t("admin.expenses.name")}
@@ -185,6 +200,7 @@ function CostEditor({ data }: { data: AdminExpenses }) {
               <option value="subscription">{t("admin.expenses.kind.subscription")}</option>
               <option value="configured">{t("admin.expenses.kind.configured")}</option>
             </select>
+            <PaidByInput value={row.paidBy} onChange={(paidBy) => update(i, { paidBy })} />
             <button
               type="button"
               aria-label={t("admin.expenses.removeRow")}
@@ -200,7 +216,10 @@ function CostEditor({ data }: { data: AdminExpenses }) {
         type="button"
         disabled={rows.length >= 50}
         onClick={() =>
-          setRows((list) => [...list, { name: "", amount: "", currency: "ILS", kind: "subscription" }])
+          setRows((list) => [
+            ...list,
+            { name: "", amount: "", currency: "ILS", kind: "subscription", paidBy: "" },
+          ])
         }
         className={cn(quietButton, "mt-md gap-xs")}
       >
@@ -262,9 +281,50 @@ function ExpensesBody({ data, lang }: { data: AdminExpenses; lang: string }) {
           {data.fixed.map((row, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: names can repeat
             <li key={i} className="flex flex-wrap items-center justify-between gap-sm py-sm">
-              <span className="flex items-center gap-sm">
-                <span className="text-body-sm font-semibold text-text-1">{row.name}</span>
-                <Tag kind={row.kind} />
+              <span className="flex flex-col gap-xs">
+                <span className="flex items-center gap-sm">
+                  <span className="text-body-sm font-semibold text-text-1">{row.name}</span>
+                  <Tag kind={row.kind} />
+                </span>
+                <PaidByLine name={row.paidBy} />
+              </span>
+              <span className="text-body-sm text-text-1" dir="ltr">
+                {formatMoney(row.amountMinor, row.currency, lang)}
+              </span>
+            </li>
+          ))}
+          {data.yearly.map((row) => (
+            <li key={row.id} className="flex flex-wrap items-center justify-between gap-sm py-sm">
+              <span className="flex flex-col gap-xs">
+                <span className="flex items-center gap-sm">
+                  <span className="text-body-sm font-semibold text-text-1">{row.name}</span>
+                  <Tag kind="yearly" />
+                </span>
+                <span className="text-card-meta text-text-3">
+                  {t("admin.expenses.yearlyDetails", {
+                    amount: formatMoney(row.amountMinor, row.currency, lang),
+                  })}
+                </span>
+                <PaidByLine name={row.paidBy} />
+              </span>
+              <span className="text-end text-body-sm text-text-1">
+                <span dir="ltr">{formatMoney(Math.round(row.amountMinor / 12), row.currency, lang)}</span>
+                <br />
+                <span className="text-card-meta text-text-3">{t("admin.expenses.perMonth")}</span>
+              </span>
+            </li>
+          ))}
+          {data.oneTime.map((row) => (
+            <li key={row.id} className="flex flex-wrap items-center justify-between gap-sm py-sm">
+              <span className="flex flex-col gap-xs">
+                <span className="flex items-center gap-sm">
+                  <span className="text-body-sm font-semibold text-text-1">{row.name}</span>
+                  <Tag kind="one_time" />
+                </span>
+                <span className="text-card-meta text-text-3" dir="ltr">
+                  {row.paidOn}
+                </span>
+                <PaidByLine name={row.paidBy} />
               </span>
               <span className="text-body-sm text-text-1" dir="ltr">
                 {formatMoney(row.amountMinor, row.currency, lang)}
@@ -295,7 +355,7 @@ function ExpensesBody({ data, lang }: { data: AdminExpenses; lang: string }) {
               </span>
             </li>
           ))}
-          {data.fixed.length === 0 && data.auto.length === 0 ? (
+          {data.fixed.length + data.yearly.length + data.oneTime.length + data.auto.length === 0 ? (
             <li className="py-sm text-body-sm text-text-3">{t("admin.expenses.noCosts")}</li>
           ) : null}
         </ul>
@@ -362,6 +422,8 @@ function ExpensesBody({ data, lang }: { data: AdminExpenses; lang: string }) {
           </DataTable>
         )}
       </Card>
+
+      <ExtraCostsEditor key={`${data.month}:extra`} data={data} />
 
       <CostEditor key={editorKey} data={data} />
     </div>

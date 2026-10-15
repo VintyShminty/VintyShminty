@@ -1,4 +1,4 @@
-import { expenseConfig, expenseMonths, killSwitches, users, verifications } from "@vinty/db";
+import { expenseConfig, expenseItems, expenseMonths, killSwitches, users, verifications } from "@vinty/db";
 import {
   adminAnalyticsSchema,
   adminDashboardSchema,
@@ -11,6 +11,9 @@ import {
   expenseConfigInputSchema,
   expenseMonthInputSchema,
   expenseMonthParamsSchema,
+  extraCostInputSchema,
+  extraCostParamsSchema,
+  extraCostSchema,
   idSchema,
   KILL_SWITCH_NAMES,
   type KillSwitch,
@@ -246,6 +249,88 @@ const adminRoutes: FastifyPluginAsyncZod<{
         await writeAudit(tx, adminId, "expenses_month_saved", "expenses", month, { rows: fixedCosts.length });
       });
       return loadExpenses(db, month);
+    },
+  );
+
+  app.post(
+    "/v1/admin/expenses/items",
+    {
+      preHandler,
+      config: rateLimit,
+      schema: { body: extraCostInputSchema, response: { 200: extraCostSchema, ...errors } },
+    },
+    async (request) => {
+      const adminId = adminIdOf(request);
+      const body = request.body;
+      return db.transaction(async (tx) => {
+        const [row] = await tx
+          .insert(expenseItems)
+          .values({ ...body, createdBy: adminId })
+          .returning();
+        if (!row) throw ApiError.invalid("Could not save the cost", {});
+        await writeAudit(tx, adminId, "expenses_item_saved", "expenses", row.id, {
+          name: row.name,
+          cadence: row.cadence,
+        });
+        return { ...body, id: row.id };
+      });
+    },
+  );
+
+  app.put(
+    "/v1/admin/expenses/items/:id",
+    {
+      preHandler,
+      config: rateLimit,
+      schema: {
+        params: extraCostParamsSchema,
+        body: extraCostInputSchema,
+        response: { 200: extraCostSchema, ...errors },
+      },
+    },
+    async (request) => {
+      const adminId = adminIdOf(request);
+      const { id } = request.params;
+      const body = request.body;
+      return db.transaction(async (tx) => {
+        const [row] = await tx.update(expenseItems).set(body).where(eq(expenseItems.id, id)).returning();
+        if (!row) throw ApiError.notFound("That cost does not exist");
+        await writeAudit(tx, adminId, "expenses_item_saved", "expenses", id, {
+          name: row.name,
+          cadence: row.cadence,
+        });
+        return { ...body, id };
+      });
+    },
+  );
+
+  app.delete(
+    "/v1/admin/expenses/items/:id",
+    {
+      preHandler,
+      config: rateLimit,
+      schema: { params: extraCostParamsSchema, response: { 200: extraCostSchema, ...errors } },
+    },
+    async (request) => {
+      const adminId = adminIdOf(request);
+      const { id } = request.params;
+      return db.transaction(async (tx) => {
+        const [row] = await tx.delete(expenseItems).where(eq(expenseItems.id, id)).returning();
+        if (!row) throw ApiError.notFound("That cost does not exist");
+        await writeAudit(tx, adminId, "expenses_item_deleted", "expenses", id, {
+          name: row.name,
+          cadence: row.cadence,
+        });
+        return {
+          id,
+          cadence: row.cadence as "yearly" | "one_time",
+          name: row.name,
+          amountMinor: row.amountMinor,
+          currency: row.currency as "ILS" | "USD",
+          paidBy: row.paidBy,
+          paidOn: row.paidOn,
+        };
+      });
     },
   );
 

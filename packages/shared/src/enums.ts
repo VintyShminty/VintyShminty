@@ -261,6 +261,9 @@ export type ExpenseCurrency = (typeof EXPENSE_CURRENCIES)[number];
 export const EXPENSE_KINDS = ["subscription", "configured"] as const;
 export type ExpenseKind = (typeof EXPENSE_KINDS)[number];
 
+/** Costs that are not monthly: a yearly cost is spread over 12 months, a one time cost counts in the month it was paid. */
+export const EXPENSE_CADENCES = ["yearly", "one_time"] as const;
+export type ExpenseCadence = (typeof EXPENSE_CADENCES)[number];
 /**
  * Style tags (D-042). Claude Haiku gives each listing up to 3 of these, behind the scenes only: nobody sees them, Home
  * learns from them like it learns brands and sizes. Narrow trends fold into a broad tag (coquette into romantic,

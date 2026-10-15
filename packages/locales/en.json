@@ -1919,7 +1919,9 @@
       "expensesMonthCleared": "Went back to the default costs for {{month}}",
       "switchedOn": "Switched {{name}} on",
       "switchedOff": "Switched {{name}} off",
-      "aiAutoDisabled": "AI switched itself off: {{reason}}"
+      "aiAutoDisabled": "AI switched itself off: {{reason}}",
+      "expensesItemSaved": "Saved the cost {{name}}",
+      "expensesItemDeleted": "Removed the cost {{name}}"
     },
     "aiActions": {
       "photo_check": "Photo helper (sell form)",
@@ -2001,7 +2003,9 @@
       "kind": {
         "subscription": "Subscription",
         "auto": "Auto",
-        "configured": "Configured"
+        "configured": "Configured",
+        "yearly": "Yearly",
+        "one_time": "One time"
       },
       "byAction": "AI cost by action",
       "byModel": "By model",
@@ -2031,7 +2035,26 @@
       "saveDefaults": "Save as defaults",
       "savedMonth": "Saved the costs for this month",
       "clearedMonth": "This month now uses the defaults",
-      "savedDefaults": "Saved as the defaults"
+      "savedDefaults": "Saved as the defaults",
+      "paidBy": "Paid by",
+      "paidByName": "Paid by {{name}}",
+      "perMonth": "a month",
+      "yearlyDetails": "{{amount}} a year, counted 1/12 each month",
+      "extraTitle": "Yearly and one time costs",
+      "extraNote": "A yearly cost, like a domain or the Apple Developer account, counts 1/12 in every month from its start date. A one time cost, like the Play Store fee, counts in the month it was paid",
+      "cadence": {
+        "yearly": "Yearly",
+        "one_time": "One time"
+      },
+      "startsOn": "Starts on",
+      "paidOn": "Paid on",
+      "addItem": "Add this cost",
+      "saveItem": "Save changes",
+      "cancelEdit": "Cancel",
+      "editItem": "Edit this cost",
+      "fixItem": "Every cost needs a name, an amount of zero or more and a date",
+      "savedItem": "Saved the cost",
+      "removedItem": "Removed the cost"
     },
     "security": {
       "spendTitle": "AI spend",

@@ -30,7 +30,7 @@ Version 1 covers everything in the Vinted app spec except real payments and real
 | Money | `wallet_entries` |
 | Engagement and safety | `notifications`, `reports` |
 | Recommendations (Milestone 7) | `user_events`, `user_affinities`, `feed_hidden`, `feed_snapshots`, view `listing_popularity_7d` |
-| Admin panel | `ai_calls`, `admin_actions`, `kill_switches`, `expense_config`, `expense_months`, `stand_in_sellers`, `admin_uploads` |
+| Admin panel | `ai_calls`, `admin_actions`, `kill_switches`, `expense_config`, `expense_months`, `expense_items`, `stand_in_sellers`, `admin_uploads` |
 
 ## Overview diagram
 
@@ -2014,7 +2014,7 @@ Used by: Expenses tab.
 | Field | Type | Null | Notes |
 |---|---|---|---|
 | `id` | integer | no | primary key. default 1 |
-| `fixed_costs` | jsonb | no | default '[]'. List of `{ name, amountMinor, currency (ILS or USD), kind (subscription or configured) }`, amounts in minor units |
+| `fixed_costs` | jsonb | no | default '[]'. List of `{ name, amountMinor, currency (ILS or USD), kind (subscription or configured), paidBy }`, amounts in minor units. `paidBy` is a free text name and can be missing on older rows |
 | `usd_to_ils_rate_x10000` | integer | no | default 36000. Shekels per dollar times 10000, so 3.6 is stored as 36000 |
 | `updated_at` | timestamptz | no | default now() |
 | `updated_by` | uuid | yes | refers to users.id, on delete set null |
@@ -2031,6 +2031,24 @@ Used by: Expenses tab.
 | `fixed_costs` | jsonb | no | Same shape as `expense_config.fixed_costs` |
 | `updated_at` | timestamptz | no | default now() |
 | `updated_by` | uuid | yes | refers to users.id, on delete set null |
+
+### `expense_items`
+
+Yearly and one time costs. A yearly cost counts 1/12 of its amount in every month from the month of `paid_on`, a one time cost counts in full in the month of `paid_on` only.
+
+Used by: Expenses tab.
+
+| Field | Type | Null | Notes |
+|---|---|---|---|
+| `id` | uuid | no | primary key |
+| `created_at` | timestamptz | no | default now() |
+| `cadence` | text | no | `yearly` or `one_time` (check constraint) |
+| `name` | text | no | Up to 80 characters |
+| `amount_minor` | integer | no | Minor units of `currency`, zero or more |
+| `currency` | char(3) | no | default ILS. ILS or USD |
+| `paid_by` | text | no | default ''. Free text, who paid. Empty when not filled in |
+| `paid_on` | date | no | Start date for yearly, payment date for one time. Index `expense_items_paid_on_idx` |
+| `created_by` | uuid | yes | refers to users.id, on delete set null |
 
 ### `stand_in_sellers`
 
