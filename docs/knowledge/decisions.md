@@ -1,6 +1,6 @@
 # Decisions index
 
-Last compiled: 2026-10-15. Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md`.
+Last compiled: 2026-10-15 (second pass, night). Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections, through the new Home top).
 
 An index only. The full text and reasoning live where the link points. When a decision is replaced, mark it "Superseded by" and keep the line.
 
@@ -47,6 +47,13 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-038 | One Review list in the admin pages, AI flags, Eden decides | Merged, 2026-10-14 (#69) |
 | D-039 | A calmer top of the website (direction C, round search bar) | Merged, 2026-10-15 (#72) |
 | D-040 | Website item page is quieter, cards flip through photos, honest Coverage note | Merged, 2026-10-15 (#70) |
+| D-041 | Chat warns about likely scams | Merged, 2026-10-15 (#74) |
+| D-042 | Style tags teach Home what people like, behind the scenes only | Merged, 2026-10-15 (#75) |
+| D-043 | Help page answers questions only from our help articles | Merged, 2026-10-15 (#76) |
+| D-044 | Order problems reach the Review list with a facts only summary | Merged, 2026-10-15 (#77) |
+| D-045 | The app item page speaks the card's language | Merged, 2026-10-15 (#79) |
+| D-046 | The logo is a gently tilted price tag with a bold Y (for now, name not final) | Merged, 2026-10-15 (#89) |
+| D-047 | Home top is the wordmark, a bell and a bookmark, then a full width search that works in place | Merged, 2026-10-15 (#93) |
 | O-003 | Hebrew font pairing | Closed by D-011 |
 
 General rule: where a design question is not decided, follow the product spec (the Vinted UX deconstruction) for how things work only, never its names, wording, icons or looks. Source: `docs/design.md`, D-019, `docs/originality.md`.
@@ -87,6 +94,13 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Category tree overlaps (running shoes, backpacks, designer bags sit in two places) | 2026-10-14 | Open, first check whether #45 already fixed them, `docs/unfinished-work.md` |
 | Should sellers be told when Eden hides or removes their listing? | 2026-10-14 | Open, default not yet |
 | Filter buttons on other website pages get the Home pill look? Sell, Sign up and Log in stay soft cornered? | 2026-10-15 | Open, defaults yes and no (log 2026-10-15) |
+| The paid boost is "Boost" ("Boost this listing", badge "Boosted"), Hebrew "להקפיץ את המודעה" (badge "מוקפצת"). Replaces the Buzz placeholder. Code names stay buzz and bump | 2026-10-15 | Decided (Eden), `docs/originality.md` row 7, #94 |
+| App name "Yadii", Hebrew spelling "יאדי" as lead candidate. A trademark lawyer checks the Yad2 question first | 2026-10-15 | Open, `docs/originality.md` G10, log 2026-10-15 |
+| Expenses: yearly costs spread over 12 months, one time costs in their month, "Paid by" is free text with suggestions | 2026-10-15 | Decided (Eden), `docs/blueprint/data-model.md` (`expense_items`), #85 |
+| Address and city suggestions go through our server (one secret key, Israel only, signed in only, 300 an hour each) | 2026-10-15 | Decided, `docs/blueprint/api.md`, #86 |
+| The offer button reads "Send your offer", Hebrew "תשלח/י הצעה" | 2026-10-15 | Decided (Eden), #84 |
+| Admin batch upload: on the phone you tap photos then "Make item". The website keeps one drop is one item. The stand-in username is created on the spot per batch | 2026-10-15 | Decided (Eden), #88, #91 |
+| Builds are iPhone only, no iPad. Apple's reviewer gets a normal account, never an admin | 2026-10-15 | Decided (Eden), log 2026-10-15 |
 | Items 5 to 8, 11 to 19 (photo search, saved searches, brands, disputes, withdrawals, account deletion, seed passwords and more) | | Open, see data model |
 
 ## Process (`docs/playbook/`)
@@ -104,7 +118,7 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Merges into `main` go live by themselves (Vercel is connected to GitHub). To try a branch live before merging, deploy it by hand from a clean copy (`VintyShminty-copies/deploy`) | 2026-10-13 | Active, `docs/going-online.md` |
 | Eden pastes every secret himself. Claude never types passwords, keys or Apple or Google logins | 2026-10-13 | Active, `docs/playbook/security-and-safety.md` |
 | The product spec stays in `docs/` and is never committed | 2026-10-13 | Active, `.gitignore` |
-| TestFlight builds are made with local Xcode, not EAS. Next build number is 4 | 2026-10-14 | Active (Eden), memory |
+| TestFlight builds are made with local Xcode, not EAS. Build 6 went up on 2026-10-15, next is 7 | 2026-10-14 | Active (Eden), memory, `CLAUDE.md` |
 | Use Sonnet helpers for work that does not need Opus | 2026-10-14 | Active (Eden), memory |
 | Run the online database step before calling a schema PR ready | 2026-10-14 | Active, memory `migrate-before-merge` |
 
@@ -117,3 +131,5 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 - The auto-fill photo helper (PR #35) and the code-drawn sizes figure (PR #34): superseded by D-028 and D-029 on 2026-10-14.
 - "Eden prefers EAS for TestFlight builds" (2026-10-13): superseded on 2026-10-14, builds come from local Xcode.
 - "The app ID waits for the final name" (2026-10-13 evening): superseded the same night by `com.secondhand.marketplace`.
+- "Buzz" as the name of the paid boost (2026-10-13, placeholder): superseded by "Boost" on 2026-10-15 (#94).
+- "The Home top is a large greeting" (D-019, Home): superseded by D-047 on 2026-10-15.
