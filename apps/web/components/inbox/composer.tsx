@@ -84,60 +84,62 @@ export function Composer({
   };
 
   return (
-    <div className="flex items-end gap-sm border-t border-border-subtle bg-background px-md py-sm">
-      <input
-        ref={file}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        onChange={picked}
-        className="hidden"
-      />
-      <button
-        type="button"
-        onClick={() => file.current?.click()}
-        aria-label={t("chat.addPhoto")}
-        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
-      >
-        <ImagePlus size={24} aria-hidden />
-      </button>
-      {onOffer ? (
+    <div className="border-t border-border-subtle bg-background">
+      <div className="flex items-end gap-sm px-md py-sm">
+        <input
+          ref={file}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={picked}
+          className="hidden"
+        />
         <button
           type="button"
-          onClick={onOffer}
-          aria-label={t("offer.title")}
-          title={t("offer.title")}
+          onClick={() => file.current?.click()}
+          aria-label={t("chat.addPhoto")}
           className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
         >
-          <HandCoins size={24} aria-hidden />
+          <ImagePlus size={24} aria-hidden />
         </button>
-      ) : null}
-      <div className="flex min-h-11 flex-1 items-center rounded-bar border border-border bg-surface px-md focus-within:border-primary">
-        <textarea
-          ref={box}
-          value={text}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-          onBlur={stopTyping}
-          rows={1}
-          maxLength={4000}
-          dir="auto"
-          placeholder={t("chat.composerPlaceholder")}
-          aria-label={t("chat.composerPlaceholder")}
-          className="block max-h-36 w-full resize-none bg-transparent py-sm text-body text-text-1 outline-none placeholder:text-text-3"
-        />
+        {onOffer ? (
+          <button
+            type="button"
+            onClick={onOffer}
+            aria-label={t("offer.title")}
+            title={t("offer.title")}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
+          >
+            <HandCoins size={24} aria-hidden />
+          </button>
+        ) : null}
+        <div className="flex min-h-11 flex-1 items-center rounded-bar border border-border bg-surface px-md focus-within:border-primary">
+          <textarea
+            ref={box}
+            value={text}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+            onBlur={stopTyping}
+            rows={1}
+            maxLength={4000}
+            dir="auto"
+            placeholder={t("chat.composerPlaceholder")}
+            aria-label={t("chat.composerPlaceholder")}
+            className="block max-h-36 w-full resize-none bg-transparent py-sm text-body text-text-1 outline-none placeholder:text-text-3"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={send}
+          disabled={!canSend}
+          aria-label={t("chat.send")}
+          className={cn(
+            "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
+            canSend ? "bg-primary text-on-accent hover:opacity-90" : "bg-pressed text-text-4",
+          )}
+        >
+          <ArrowUp size={22} aria-hidden />
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={send}
-        disabled={!canSend}
-        aria-label={t("chat.send")}
-        className={cn(
-          "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
-          canSend ? "bg-primary text-on-accent hover:opacity-90" : "bg-pressed text-text-4",
-        )}
-      >
-        <ArrowUp size={22} aria-hidden />
-      </button>
     </div>
   );
 }

@@ -179,6 +179,7 @@ function ConversationScreen() {
             offersClosed={offersClosed}
             onCounter={openOfferSheet}
             onBuy={buyAtOffer}
+            me={me}
           />
         );
       }

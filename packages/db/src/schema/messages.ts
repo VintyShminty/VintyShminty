@@ -1,4 +1,4 @@
-import { MESSAGE_KINDS, SYSTEM_MESSAGE_EVENTS } from "@vinty/shared";
+import { CHAT_WARNING_KINDS, MESSAGE_KINDS, SYSTEM_MESSAGE_EVENTS } from "@vinty/shared";
 import { sql } from "drizzle-orm";
 import { check, index, integer, jsonb, pgEnum, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { createdAt, pk, ts } from "./_helpers.js";
@@ -7,6 +7,7 @@ import { conversations, offers } from "./conversations.js";
 import { orders } from "./orders.js";
 
 export const messageKindEnum = pgEnum("message_kind", MESSAGE_KINDS);
+export const chatWarningEnum = pgEnum("chat_warning", CHAT_WARNING_KINDS);
 export const systemMessageEventEnum = pgEnum("system_message_event", SYSTEM_MESSAGE_EVENTS);
 
 /**
@@ -38,6 +39,8 @@ export const messages = pgTable(
     payload: jsonb("payload"),
     /** Set by the app so a retry after a bad network does not send twice. */
     clientMessageId: uuid("client_message_id"),
+    /** D-041: what the AI chat check warned about. Shown quietly to the recipient only. Null when nothing was found. */
+    warning: chatWarningEnum("warning"),
     deletedAt: ts("deleted_at"),
     createdAt: createdAt(),
   },

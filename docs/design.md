@@ -620,6 +620,18 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/web/app/[lang]/item/[id]/page.tsx`, `components/photo-gallery.tsx`, `components/item-card.tsx`, the optional `photos` on `listingCardSchema` filled in `toCards` (`apps/server/src/lib/discovery.ts`), key `item.breakdown.note`.
 - **References:** D-030, D-032, D-035
 
+### D-041 : Chat warns about likely scams
+
+- **Date:** 2026-10-14
+- **Area:** Chat, app and website
+- **Status:** Built on branch feat/ai-chat-helpers, waiting for Eden's review. Numbered D-041 because D-039 and D-040 went to website changes while this was built. The privacy policy's "AI helpers" section (PR #71) covers it.
+- **Decision:** Every text message is checked by Claude Haiku in the background after it is sent (Eden's choice), so sending never slows down. When it asks to pay outside Vinty, shares a link that may not be safe, moves the talk to WhatsApp or a phone number, or rushes the other person, the person who received it sees one quiet line under that bubble with a small warning sign, for example "Careful: paying outside Vinty is not protected. Keep payment in the app". The sender sees nothing new. Clear scams (a fake payment link, asking for card details or codes) also go to Eden's Review list (D-038).
+- **Rationale:** Deals moved off the app are where people get cheated, and a warning at the right moment protects them without blocking anyone.
+- **Trade-off:** Reading every message costs about 0.006 cents each, but catches scams that are worded without the usual signs.
+- **Implementation:** `warning` on messages. Server: `lib/chat-check.ts`. App and website: the chat screen.
+- **References:** D-034, D-038, `docs/unfinished-work.md` (AI features with Claude Haiku)
+- **Note:** Quick replies were built and tried, then left aside by Eden on 2026-10-15.
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

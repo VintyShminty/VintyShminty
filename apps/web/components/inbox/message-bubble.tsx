@@ -13,6 +13,7 @@ import {
   ReceiptText,
   RotateCcw,
   Star,
+  TriangleAlert,
   Truck,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +21,7 @@ import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ApiClientError } from "@/lib/api-error";
+import { warningFor } from "@/lib/chat-assist";
 import type { PendingMessage } from "@/lib/chat-send";
 import { type OfferAnswer, useAnswerOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
@@ -368,6 +370,7 @@ export function MessageBubble({
   role,
   lang,
   offersClosed,
+  me,
   onOpenPhoto,
   onCounter,
 }: {
@@ -379,10 +382,13 @@ export function MessageBubble({
   role: "buyer" | "seller";
   lang: string;
   offersClosed: boolean;
+  /** Who is looking, for the warning line (only the receiver sees it). */
+  me?: string;
   onOpenPhoto: (url: string) => void;
   onCounter: (offer: MessageOffer) => void;
 }) {
   const { t } = useTranslation();
+  const warning = warningFor(message, me);
   const side: Side = mine ? "mine" : "theirs";
 
   if (message.kind === "system") {
@@ -435,6 +441,17 @@ export function MessageBubble({
   return (
     <div className={cn("flex flex-col px-lg", tight ? "pt-xs" : "pt-md")}>
       {body}
+      {warning ? (
+        <span
+          className={cn(
+            "flex max-w-[76%] items-start gap-xs px-xs pt-xs text-card-meta text-text-3",
+            mine ? "self-end" : "self-start",
+          )}
+        >
+          <TriangleAlert size={14} className="mt-px shrink-0 text-warning" aria-hidden />
+          <span>{t(`chat.assist.warning.${warning}`)}</span>
+        </span>
+      ) : null}
       {statusLine ? (
         <span className={cn("px-xs pt-xs text-card-meta text-text-3", mine ? "self-end" : "self-start")}>
           {statusLine}

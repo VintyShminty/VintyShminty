@@ -1,12 +1,13 @@
 import type { Message, MessageOffer } from "@vinty/shared";
 import { Image } from "expo-image";
-import { AlertCircle } from "lucide-react-native";
+import { AlertCircle, TriangleAlert } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, useWindowDimensions, View } from "react-native";
 import { OfferBubble } from "@/components/chat/offer-bubble";
 import { isOrderDivider, OrderDivider } from "@/components/chat/order-divider";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { shouldShowWarning } from "@/lib/chat-assist";
 import type { PendingMessage } from "@/lib/chat-send";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -124,7 +125,10 @@ function MessageBubble({
   offersClosed,
   onCounter,
   onBuy,
+  me,
 }: {
+  /** My user id, so a warning shows only on messages I received. */
+  me?: string;
   message: Message;
   mine: boolean;
   tight: boolean;
@@ -193,6 +197,16 @@ function MessageBubble({
   return (
     <View className={cn("px-lg", tight ? "pt-xs" : "pt-md")}>
       {body}
+      {message.warning && shouldShowWarning(message, me) ? (
+        <View
+          className={cn("max-w-[76%] flex-row items-start gap-xs pt-xs", mine ? "self-end" : "self-start")}
+        >
+          <Icon as={TriangleAlert} size={14} className="mt-[1px] text-warning" />
+          <Text variant="cardMeta" className="shrink text-warning">
+            {t(`chat.assist.warning.${message.warning}`)}
+          </Text>
+        </View>
+      ) : null}
       {statusLine ? (
         <Text variant="cardMeta" className={cn("px-xs pt-xs", mine ? "self-end" : "self-start")}>
           {statusLine}
