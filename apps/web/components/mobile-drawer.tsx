@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useLogOut } from "@/components/auth/log-out";
 import { UnreadCount } from "@/components/inbox/inbox-link";
 import { LanguageMenu } from "@/components/language-menu";
+import { LogoMark } from "@/components/logo-mark";
 import { SellButton } from "@/components/sell-button";
 import { useViewer } from "@/components/site-context";
 import { ACCOUNT_LINKS } from "@/lib/account-links";
@@ -56,7 +57,10 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
         className="me-0 ms-auto mb-0 mt-0 h-dvh max-h-dvh w-[min(88vw,360px)] overflow-y-auto border-0 bg-background p-lg text-text-1 backdrop:bg-backdrop md:hidden"
       >
         <div className="flex items-center justify-between pb-md">
-          <span className="text-[22px] font-extrabold tracking-tight text-primary">Yadii</span>
+          <span className="inline-flex items-center gap-xs text-[22px] font-extrabold tracking-tight text-primary">
+            <LogoMark className="h-[28px] w-auto" />
+            Yadii
+          </span>
           <button
             type="button"
             aria-label={t("common.close")}

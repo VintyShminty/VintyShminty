@@ -4,6 +4,7 @@ import { AccountMenu } from "@/components/auth/account-menu";
 import { BrowsePanel } from "@/components/browse-panel";
 import { BrowseTiles } from "@/components/browse-tiles";
 import { BellLink, InboxLink } from "@/components/inbox/inbox-link";
+import { LogoMark } from "@/components/logo-mark";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { SearchField } from "@/components/search-field";
 import { SellButton } from "@/components/sell-button";
@@ -31,8 +32,9 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
         <Link
           href={`/${lang}`}
           aria-label={t("web.nav.homeLink")}
-          className="text-[23px] font-bold tracking-tight text-text-1"
+          className="inline-flex items-center gap-xs text-[23px] font-bold tracking-tight text-text-1"
         >
+          <LogoMark className="h-[30px] w-auto text-primary" />
           Yadii
         </Link>
         <div className="hidden md:block">
