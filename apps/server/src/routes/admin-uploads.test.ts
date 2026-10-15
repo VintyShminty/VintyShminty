@@ -554,7 +554,7 @@ describe.skipIf(!databaseUrl)("admin listing upload", () => {
     });
   });
 
-  describe("style tags (D-040)", () => {
+  describe("style tags (D-042)", () => {
     it("tags uploaded listings with styles in the background and ignores the flags", async () => {
       const before = checkReader.calls.length;
       const res = await call("POST", `/v1/admin/stand-ins/${standIn.id}/listings`, admin.token, {

@@ -23,7 +23,7 @@ import type { PhotoMediaType, PhotoReadUsage } from "./photo-reader.js";
  * The AI listing check (D-038). After a listing goes live, or a live listing changes in a way that matters, a model
  * reads its words and first photos and may flag it for the admin Review list. It never hides, removes or bans anything:
  * a flagged listing stays live until an admin acts. The same read also tags the listing with up to 3 style tags
- * (D-040), which only the Home feed uses and nobody ever sees.
+ * (D-042), which only the Home feed uses and nobody ever sees.
  */
 
 export type ListingCheckInput = {
@@ -496,11 +496,11 @@ export function checkListingInBackground(
   runInBackground(checker({ listingId, log, ...options }));
 }
 
-/** How many untagged listings one nightly run tags (D-040). */
+/** How many untagged listings one nightly run tags (D-042). */
 export const STYLE_CATCH_UP_LIMIT = 100;
 
 /**
- * The nightly catch-up (D-040): tags live listings that were never tagged, oldest first, one at a time through the same
+ * The nightly catch-up (D-042): tags live listings that were never tagged, oldest first, one at a time through the same
  * metered check. Listings an admin uploaded are only tagged, never flagged. Stops early when the AI is off or the meter
  * refuses (switch or cap), the next night continues. A listing whose check fails is tried again the next night.
  */

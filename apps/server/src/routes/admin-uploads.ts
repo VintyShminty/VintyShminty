@@ -51,7 +51,7 @@ type Deps = {
   adminIdOf: (request: { session: { user: { id: string } } | null }) => string;
   /** The photo reader behind the AI meter, counted under the action "admin_upload_photo_check". */
   reader: PhotoReader;
-  /** Tags uploaded listings with styles in the background (D-040). Flags are ignored for admin uploads. */
+  /** Tags uploaded listings with styles in the background (D-042). Flags are ignored for admin uploads. */
   listingChecker: ListingChecker;
 };
 

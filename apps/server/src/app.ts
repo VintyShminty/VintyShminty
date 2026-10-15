@@ -4,6 +4,12 @@ import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fas
 import type { Env } from "./env.js";
 import { AiMeter } from "./lib/ai-cost.js";
 import {
+  type ChatCheckReader,
+  createChatChecker,
+  createChatCheckReader,
+  meteredChatCheckReader,
+} from "./lib/chat-check.js";
+import {
   createListingChecker,
   createListingCheckReader,
   type ListingCheckReader,
@@ -71,6 +77,9 @@ export type BuildAppOptions = {
   listingCheckReader?: ListingCheckReader;
   /** Sorting of member reports by urgency (D-038). Tests pass a fake. */
   reportSortReader?: ReportSortReader;
+  /** The background chat check that adds warnings to messages (D-041). Tests pass a fake. */
+  chatCheckReader?: ChatCheckReader;
+  /** Suggested replies in a chat (D-041). Tests pass a fake. */
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
 };
@@ -86,6 +95,7 @@ export async function buildApp({
   searchReader,
   listingCheckReader,
   reportSortReader,
+  chatCheckReader,
 }: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
@@ -129,6 +139,18 @@ export async function buildApp({
         reportSortReader ?? createReportSortReader(env),
         aiMeter,
         env.PHOTO_READER_MODEL,
+      ),
+    );
+    // D-041: sendMessage starts this after a new text message is stored.
+    app.decorate(
+      "chatChecker",
+      createChatChecker(
+        app,
+        meteredChatCheckReader(
+          chatCheckReader ?? createChatCheckReader(env),
+          aiMeter,
+          env.PHOTO_READER_MODEL,
+        ),
       ),
     );
     await app.register(listingRoutes, { listingChecker });

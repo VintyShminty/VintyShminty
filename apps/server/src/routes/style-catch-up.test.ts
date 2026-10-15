@@ -21,7 +21,7 @@ const log = { info: () => undefined, warn: () => undefined };
 
 // Runs only when DATABASE_URL points at a migrated local database. The listings it makes are dated 1970 so they come
 // first in "oldest first", whatever else is in the database.
-describe.skipIf(!databaseUrl)("the nightly style catch-up (D-040)", () => {
+describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
   let ctx: TestContext;
   let call: ReturnType<typeof apiCaller>;
   let seller: TestPerson;

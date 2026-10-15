@@ -68,7 +68,7 @@ export type ItemFeatures = {
   priceMinor?: number | null | undefined;
   colourIds?: readonly string[] | undefined;
   conditionId?: string | null | undefined;
-  /** Style tags (D-040), up to 3, behind the scenes only. */
+  /** Style tags (D-042), up to 3, behind the scenes only. */
   styles?: readonly string[] | undefined;
 };
 

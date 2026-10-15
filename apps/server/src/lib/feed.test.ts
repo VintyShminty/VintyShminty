@@ -122,7 +122,7 @@ describe("scoreCandidate", () => {
     expect(withTaste - without).toBeCloseTo(0.1 * 1, 1);
   });
 
-  it("lifts an item whose style the person likes, using the best matching style (D-040)", () => {
+  it("lifts an item whose style the person likes, using the best matching style (D-042)", () => {
     const learned = taste({
       ...buildTaste(
         [line("category", "shoes", 40), line("style", "vintage", 40), line("style", "y2k", 10)],

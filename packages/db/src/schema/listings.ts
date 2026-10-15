@@ -61,7 +61,7 @@ export const listings = pgTable(
     currency: currencyCol().references(() => currencies.code),
     /** Price before the latest drop. Set only when the price went down. Drives the "Price drop" badge. */
     previousPriceMinor: integer("previous_price_minor"),
-    /** Up to 3 style tags from the AI listing check (D-040). Behind the scenes only: never in any API answer. */
+    /** Up to 3 style tags from the AI listing check (D-042). Behind the scenes only: never in any API answer. */
     styles: listingStyleEnum("styles").array().notNull().default(sql`'{}'::listing_style[]`),
     /** When the styles were last read. Null means never tagged, the nightly catch-up picks those up. */
     stylesTaggedAt: ts("styles_tagged_at"),

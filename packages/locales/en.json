@@ -979,6 +979,14 @@
         "item_unavailable": "The item was not available",
         "other": ""
       }
+    },
+    "assist": {
+      "warning": {
+        "off_platform_payment": "Careful: paying outside Vinty is not protected. Keep payment in the app",
+        "suspicious_link": "Careful: this link may not be safe. Never enter your details through a link in chat",
+        "off_platform_contact": "Careful: deals moved outside Vinty are not protected. Keep the chat here",
+        "pressure": "Take your time. A real buyer or seller will not rush you"
+      }
     }
   },
   "push": {
@@ -1906,7 +1914,8 @@
       "photo_tips": "Photo tips (sell form)",
       "search_understand": "Search in plain words",
       "listing_check": "Listing check",
-      "report_sort": "Report sorting"
+      "report_sort": "Report sorting",
+      "chat_check": "Chat warnings"
     },
     "dashboard": {
       "totalUsers": "Users",

@@ -205,7 +205,7 @@
             "Selling: it reads the photos and words of your listing to suggest a category, brand and condition, and to give photo tips.",
             "Searching: it turns what you type in search into filters.",
             "Safety: it checks new and changed listings for items that are not allowed, fakes and scams, and helps us sort reports. Anything it finds goes to a person on our team.",
-            "Chat: it reads the messages in your conversations to suggest quick replies and to warn you about likely scams, such as someone asking you to pay or talk outside Vinty. If it sees a likely scam, our team may look at that conversation."
+            "Chat: it reads the messages in your conversations to warn you about likely scams, such as someone asking you to pay or talk outside Vinty. If it sees a likely scam, our team may look at that conversation."
           ],
           "We do not send your name, email or phone number with what the AI reads. Anthropic may not use it to train its models. [Lawyer: confirm the Anthropic terms and the legal basis for automated checks of messages]"
         ]

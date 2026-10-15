@@ -85,7 +85,7 @@ describe("affinityDeltas", () => {
     expect(get("colour", "red")).toBeCloseTo(1.2);
     expect(get("condition", "good")).toBeCloseTo(1.2);
   });
-  it("adds one delta per style tag, worth 0.6 of the action (D-040)", () => {
+  it("adds one delta per style tag, worth 0.6 of the action (D-042)", () => {
     const deltas = affinityDeltas(4, { styles: ["vintage", "y2k"] });
     expect(deltas).toEqual([
       { feature: "style", key: "vintage", delta: expect.closeTo(2.4) },

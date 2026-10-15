@@ -84,7 +84,7 @@ const jobRoutes: FastifyPluginAsync<{ listingChecker: ListingChecker }> = async 
       const cleanup = await cleanupFeedData(app);
       const buzz = await endFinishedBuzzes(app);
       const photos = await backfillPhotoVariants(app, { budgetMs: 6000 });
-      // Style tags for listings that were never tagged (D-040): up to 100 a night, stops when the AI is refused.
+      // Style tags for listings that were never tagged (D-042): up to 100 a night, stops when the AI is refused.
       const styles = await tagUntaggedListings(app, listingChecker, app.log);
       return { ok: true, orders, cleanup, buzz, photos, styles };
     },

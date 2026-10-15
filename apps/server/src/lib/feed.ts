@@ -194,7 +194,7 @@ export type Candidate = {
   viewCount: number;
   pop: number;
   colourIds: string[];
-  /** Style tags (D-040). Only used for scoring, never shown. */
+  /** Style tags (D-042). Only used for scoring, never shown. */
   styles: string[];
   explore: boolean;
 };

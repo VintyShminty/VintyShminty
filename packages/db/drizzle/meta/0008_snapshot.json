@@ -1,5 +1,5 @@
 {
-  "id": "7d717651-84a9-4dad-9425-079d9f6b6fa8",
+  "id": "c3bc9619-8e8a-48e5-93cc-b21b08664302",
   "prevId": "052f5f79-1d61-40fe-9fc5-3c0783e4b6d5",
   "version": "7",
   "dialect": "postgresql",
@@ -3132,20 +3132,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "styles": {
-          "name": "styles",
-          "type": "listing_style[]",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::listing_style[]"
-        },
-        "styles_tagged_at": {
-          "name": "styles_tagged_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
         "used_ai_photos": {
           "name": "used_ai_photos",
           "type": "boolean",
@@ -3867,6 +3853,13 @@
         "client_message_id": {
           "name": "client_message_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "warning": {
+          "name": "warning",
+          "type": "chat_warning",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -8653,30 +8646,14 @@
         "removed"
       ]
     },
-    "public.listing_style": {
-      "name": "listing_style",
+    "public.chat_warning": {
+      "name": "chat_warning",
       "schema": "public",
       "values": [
-        "vintage",
-        "y2k",
-        "streetwear",
-        "minimal",
-        "classic",
-        "quiet_luxury",
-        "boho",
-        "cottagecore",
-        "romantic",
-        "sporty",
-        "outdoor",
-        "preppy",
-        "grunge",
-        "goth",
-        "western",
-        "evening",
-        "workwear",
-        "summer",
-        "modest",
-        "basics"
+        "off_platform_payment",
+        "suspicious_link",
+        "off_platform_contact",
+        "pressure"
       ]
     },
     "public.message_kind": {
@@ -8896,8 +8873,7 @@
         "size",
         "price_band",
         "colour",
-        "condition",
-        "style"
+        "condition"
       ]
     },
     "public.feed_hide_scope": {

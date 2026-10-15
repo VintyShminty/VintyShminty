@@ -1,0 +1,2 @@
+CREATE TYPE "public"."chat_warning" AS ENUM('off_platform_payment', 'suspicious_link', 'off_platform_contact', 'pressure');--> statement-breakpoint
+ALTER TABLE "messages" ADD COLUMN "warning" "chat_warning";

@@ -90,6 +90,18 @@ export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
 export const MESSAGE_KINDS = ["text", "photo", "offer", "system"] as const;
 export type MessageKind = (typeof MESSAGE_KINDS)[number];
 
+/**
+ * What the AI chat check warns about (D-041), the most serious first. The person who receives the message sees a quiet
+ * warning under it. The AI never blocks or deletes a message.
+ */
+export const CHAT_WARNING_KINDS = [
+  "off_platform_payment",
+  "suspicious_link",
+  "off_platform_contact",
+  "pressure",
+] as const;
+export type ChatWarningKind = (typeof CHAT_WARNING_KINDS)[number];
+
 export const SYSTEM_MESSAGE_EVENTS = [
   "order_paid",
   "order_shipped",
@@ -249,7 +261,7 @@ export const EXPENSE_KINDS = ["subscription", "configured"] as const;
 export type ExpenseKind = (typeof EXPENSE_KINDS)[number];
 
 /**
- * Style tags (D-040). Claude Haiku gives each listing up to 3 of these, behind the scenes only: nobody sees them, Home
+ * Style tags (D-042). Claude Haiku gives each listing up to 3 of these, behind the scenes only: nobody sees them, Home
  * learns from them like it learns brands and sizes. Narrow trends fold into a broad tag (coquette into romantic,
  * gorpcore into outdoor) so each tag holds enough items to learn from. Changing the list means tagging again.
  */

@@ -11,7 +11,7 @@ import {
   tagUntaggedListings,
 } from "./listing-check.js";
 
-describe("resolving the style tags of the listing check (D-040)", () => {
+describe("resolving the style tags of the listing check (D-042)", () => {
   it("is empty when the model gives none, or nothing usable", () => {
     expect(resolveListingStyles({ flags: [] })).toEqual([]);
     expect(resolveListingStyles({ styles: [] })).toEqual([]);
@@ -44,7 +44,7 @@ const dbWith = (rows: { id: string; adminUpload: string | null }[]) => {
 };
 const log = { info: () => undefined, warn: () => undefined };
 
-describe("the nightly style catch-up (D-040)", () => {
+describe("the nightly style catch-up (D-042)", () => {
   it("checks each untagged listing once, with flags on for members and off for admin uploads", async () => {
     const { app, limit } = dbWith([
       { id: "a", adminUpload: null },

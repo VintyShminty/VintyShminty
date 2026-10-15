@@ -3,6 +3,7 @@ import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
 import { type Env, parseEnv } from "./env.js";
+import type { ChatCheckReader } from "./lib/chat-check.js";
 import type { ListingCheckReader } from "./lib/listing-check.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
 import type { PhotoReader } from "./lib/photo-reader.js";
@@ -67,6 +68,7 @@ export async function buildTestApp(
     searchReader?: SearchReader;
     listingCheckReader?: ListingCheckReader;
     reportSortReader?: ReportSortReader;
+    chatCheckReader?: ChatCheckReader;
     storage?: Storage;
   } = {},
 ): Promise<TestContext> {
@@ -86,6 +88,7 @@ export async function buildTestApp(
     ...(extras.searchReader ? { searchReader: extras.searchReader } : {}),
     ...(extras.listingCheckReader ? { listingCheckReader: extras.listingCheckReader } : {}),
     ...(extras.reportSortReader ? { reportSortReader: extras.reportSortReader } : {}),
+    ...(extras.chatCheckReader ? { chatCheckReader: extras.chatCheckReader } : {}),
   });
   await app.ready();
   return { app, mailer, pusher, database, close: () => app.close() };
