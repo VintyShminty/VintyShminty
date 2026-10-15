@@ -9,6 +9,7 @@ import {
   createChatCheckReader,
   meteredChatCheckReader,
 } from "./lib/chat-check.js";
+import { createHelpReader, type HelpReader, meteredHelpReader } from "./lib/help-answer.js";
 import {
   createListingChecker,
   createListingCheckReader,
@@ -45,6 +46,7 @@ import discoveryRoutes from "./routes/discovery.js";
 import engagementRoutes from "./routes/engagement.js";
 import eventRoutes from "./routes/events.js";
 import healthRoutes from "./routes/health.js";
+import helpAssistRoutes from "./routes/help-assist.js";
 import jobRoutes from "./routes/jobs.js";
 import listingRoutes from "./routes/listings.js";
 import meRoutes from "./routes/me.js";
@@ -73,6 +75,8 @@ export type BuildAppOptions = {
   textReader?: TextReader;
   /** Same for search in plain words (D-037). Tests pass a fake. */
   searchReader?: SearchReader;
+  /** Help answers from our own articles (D-043). Tests pass a fake. */
+  helpReader?: HelpReader;
   /** The AI listing check after a listing goes live (D-038). Tests pass a fake. */
   listingCheckReader?: ListingCheckReader;
   /** Sorting of member reports by urgency (D-038). Tests pass a fake. */
@@ -93,6 +97,7 @@ export async function buildApp({
   photoReader,
   textReader,
   searchReader,
+  helpReader,
   listingCheckReader,
   reportSortReader,
   chatCheckReader,
@@ -161,13 +166,20 @@ export async function buildApp({
       aiMeter,
       env.PHOTO_READER_MODEL,
     );
+    const meteredHelp = meteredHelpReader(
+      helpReader ?? createHelpReader(env),
+      aiMeter,
+      env.PHOTO_READER_MODEL,
+    );
     await app.register(photoAssistRoutes, {
       reader: meteredPhotoReader(baseReader, aiMeter, env.PHOTO_READER_MODEL),
       textReader: meteredTextReader(textReader ?? createTextReader(env), aiMeter, env.PHOTO_READER_MODEL),
       searchReader: meteredSearch,
+      helpReader: meteredHelp,
       meter: aiMeter,
     });
     await app.register(searchAssistRoutes, { searchReader: meteredSearch });
+    await app.register(helpAssistRoutes, { helpReader: meteredHelp });
     await app.register(userRoutes);
     await app.register(discoveryRoutes);
     await app.register(engagementRoutes, { reportSorter });

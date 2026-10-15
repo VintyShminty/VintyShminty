@@ -11,6 +11,7 @@ export * from "./enums.js";
 export * from "./events.js";
 export * from "./fees.js";
 export * from "./health.js";
+export * from "./help-assist.js";
 export * from "./help-topics.js";
 export * from "./listing-rules.js";
 export * from "./listings.js";

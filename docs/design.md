@@ -643,6 +643,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `LISTING_STYLES` in `packages/shared/src/enums.ts`, the "style" taste feature in `packages/shared/src/recommendations.ts`, `listings.styles`, the listing check (`lib/listing-check.ts`), the nightly catch up in the jobs.
 - **References:** D-038, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
+### D-043 : Ask a question on the Help page, answered only from our help articles
+
+- **Date:** 2026-10-15
+- **Area:** Help page, app and website
+- **Status:** Built on branch feat/ai-help-answers, waiting for Eden's review.
+- **Decision:** At the top of the Help page an "Ask a question" box takes a question in the person's own words, in English or Hebrew. Claude Haiku answers in 2 to 4 short sentences using only our own help articles, and links up to 2 of them ("Read more"). Every answer carries a small sparkle and the line "Answer written by AI from our help pages". The AI cannot see anyone's account, orders or messages (Eden's choice): a question like "where is my order" gets a general answer and the right article. When the articles do not cover the question it says so, and the page points to "Write to us". Signed out visitors can ask too, at most 20 new questions an hour per person or internet address, and a repeated question is remembered at no cost. The box sits only on the Help page (Eden's choice). It never invents rules, fees or times, never asks for personal details and never moves anything off the app.
+- **Rationale:** People rarely read a list of articles to find one answer. Answering only from our own pages keeps it honest, and a "not in our help pages" answer is better than a guess.
+- **Trade-off:** About 0.01 cents a question. It is only as good as our articles, so a common question it cannot answer is a sign an article is missing.
+- **Implementation:** shared shapes in `packages/shared/src/help-assist.ts`. Server: `lib/help-answer.ts`, `POST /v1/help/ask`. App and website: the Help page.
+- **References:** Milestone 9 Help pages, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.
