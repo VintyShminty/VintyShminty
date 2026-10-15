@@ -2,6 +2,7 @@ import { z } from "zod";
 import { idSchema, isoDateTimeSchema, pageSchema } from "./common.js";
 import {
   LISTING_STATUSES,
+  ORDER_STATUSES,
   REPORT_REASONS,
   REPORT_SOURCES,
   REPORT_STATUSES,
@@ -43,6 +44,20 @@ export const reviewTargetSchema = z.discriminatedUnion("kind", [
     seller: z.object({ id: idSchema, username: z.string() }),
   }),
   z.object({ kind: z.literal("user"), id: idSchema, username: z.string() }),
+  /** An order a buyer opened a problem on (D-044). The AI summary says what happened, it suggests no outcome. */
+  z.object({
+    kind: z.literal("order"),
+    id: idSchema,
+    status: z.enum(ORDER_STATUSES),
+    listingTitle: z.string(),
+    photoUrl: z.string().nullable(),
+    totalMinor: z.number().int(),
+    currency: z.string(),
+    buyer: z.object({ id: idSchema, username: z.string() }),
+    seller: z.object({ id: idSchema, username: z.string() }),
+    /** What the buyer wrote when opening the problem. */
+    problemNote: z.string().nullable(),
+  }),
   /** Messages and reviews: who wrote it. The message text is never shown here (privacy policy). */
   z.object({
     kind: z.enum(["message", "review"]),
@@ -88,7 +103,15 @@ export type AdminReviewPage = z.infer<typeof adminReviewPageSchema>;
  * POST /v1/admin/review/:id/action. Hiding or removing works only for a listing. Every open report about the same
  * thing is closed with it.
  */
-export const REVIEW_ACTIONS = ["hide_listing", "remove_listing", "dismiss", "handled"] as const;
+/** `refund_buyer` and `release_seller` work only for a disputed order (D-044) and use the existing support moves. */
+export const REVIEW_ACTIONS = [
+  "hide_listing",
+  "remove_listing",
+  "refund_buyer",
+  "release_seller",
+  "dismiss",
+  "handled",
+] as const;
 export type ReviewAction = (typeof REVIEW_ACTIONS)[number];
 export const adminReviewActionInputSchema = z.object({
   action: z.enum(REVIEW_ACTIONS),

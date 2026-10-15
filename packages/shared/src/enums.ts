@@ -153,7 +153,8 @@ export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
 export const PUSH_PLATFORMS = ["ios", "android"] as const;
 export type PushPlatform = (typeof PUSH_PLATFORMS)[number];
 
-export const REPORT_TARGETS = ["listing", "user", "message", "review"] as const;
+/** `order` is only written by the AI order summary (D-044): members cannot report an order, they open a problem on it. */
+export const REPORT_TARGETS = ["listing", "user", "message", "review", "order"] as const;
 export type ReportTarget = (typeof REPORT_TARGETS)[number];
 
 export const REPORT_REASONS = [
