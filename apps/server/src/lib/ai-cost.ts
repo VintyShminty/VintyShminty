@@ -10,6 +10,8 @@ export type AiUsage = {
   outputTokens: number;
   cacheReadTokens: number;
   cacheWriteTokens: number;
+  /** Of `cacheWriteTokens`, how many went into the 1 hour cache (written at 2x the input price, not 1.25x). */
+  cacheWrite1hTokens?: number;
 };
 
 /** US dollars per million tokens. One dollar per million tokens is exactly one micro dollar per token. */
@@ -69,12 +71,14 @@ function priceFor(model: string, totalInputTokens: number, logger: AiLogger) {
 /** What a call costs, in millionths of a dollar, rounded up so that a call with tokens never costs 0. */
 export function costOf(model: string, usage: Partial<AiUsage>, logger: AiLogger = quietLogger): number {
   const u = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, ...usage };
+  const writes1h = Math.min(u.cacheWriteTokens, Math.max(0, usage.cacheWrite1hTokens ?? 0));
   const price = priceFor(model, u.inputTokens + u.cacheReadTokens + u.cacheWriteTokens, logger);
   const micros =
     u.inputTokens * price.input +
     u.outputTokens * price.output +
     u.cacheReadTokens * price.cacheRead +
-    u.cacheWriteTokens * price.cacheWrite;
+    (u.cacheWriteTokens - writes1h) * price.cacheWrite +
+    writes1h * price.input * 2;
   // toFixed removes float noise such as 100.00000000000001 before rounding up.
   return Math.ceil(Number(micros.toFixed(6)));
 }

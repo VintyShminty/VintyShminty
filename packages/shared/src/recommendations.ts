@@ -28,6 +28,7 @@ export const FEATURE_SHARES: Record<AffinityFeature, number> = {
   price_band: 0.5,
   colour: 0.3,
   condition: 0.3,
+  style: 0.6,
 };
 
 /** A taste score drops to half after this many days without a new action (Eden chose 7). */
@@ -67,6 +68,8 @@ export type ItemFeatures = {
   priceMinor?: number | null | undefined;
   colourIds?: readonly string[] | undefined;
   conditionId?: string | null | undefined;
+  /** Style tags (D-042), up to 3, behind the scenes only. */
+  styles?: readonly string[] | undefined;
 };
 
 export type AffinityDelta = { feature: AffinityFeature; key: string; delta: number };
@@ -95,6 +98,7 @@ export function affinityDeltas(weight: number, item: ItemFeatures): AffinityDelt
   if (band !== null) add("price_band", String(band));
   for (const id of item.colourIds ?? []) add("colour", id);
   add("condition", item.conditionId);
+  for (const style of item.styles ?? []) add("style", style);
   return [...sums.values()];
 }
 
@@ -107,6 +111,7 @@ export const PERSONAL_WEIGHTS = {
   priceBand: 0.5,
   colour: 0.3,
   condition: 0.3,
+  style: 0.6,
   seller: 1,
   followsSeller: 1,
   pickedBrand: 0.6,

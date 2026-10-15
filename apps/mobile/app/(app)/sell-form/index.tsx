@@ -14,11 +14,11 @@ import {
   stripHiddenAttributes,
   validateListing,
 } from "@vinty/shared";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Sparkles } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { Alert, BackHandler, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PricePill } from "@/components/price-pill";
 import { BrandSheet } from "@/components/sell/brand-sheet";
@@ -150,6 +150,19 @@ export default function SellForm() {
   const colourRef = useRef<BottomSheetModal>(null);
   const materialRef = useRef<BottomSheetModal>(null);
 
+  // Android back asks the same question as the close cross, so typed work is never lost without asking. Only while
+  // the form itself is showing: the category panels pushed on top handle back themselves.
+  const closeRef = useRef<() => void>(() => router.back());
+  useFocusEffect(
+    useCallback(() => {
+      const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+        closeRef.current();
+        return true;
+      });
+      return () => sub.remove();
+    }, []),
+  );
+
   const ref = reference.data;
   if (!ref || !ready) {
     return (
@@ -269,6 +282,7 @@ export default function SellForm() {
       { text: t("common.cancel"), style: "cancel" },
     ]);
   };
+  closeRef.current = onClose;
 
   const openSheet = (sheet: React.RefObject<BottomSheetModal | null>) => {
     setShown(currentGuesses());

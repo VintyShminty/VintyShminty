@@ -1,0 +1,2 @@
+ALTER TABLE "reports" DROP CONSTRAINT "reports_ai_summary_length";--> statement-breakpoint
+ALTER TABLE "reports" ADD CONSTRAINT "reports_ai_summary_length" CHECK ("reports"."ai_summary" is null or char_length("reports"."ai_summary") <= 600);

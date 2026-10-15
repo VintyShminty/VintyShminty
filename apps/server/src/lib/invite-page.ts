@@ -32,14 +32,14 @@ export function invitePage(raw: unknown, appScheme: string): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Vinty</title>
+<title>Yadii</title>
 <style>${PAGE_STYLE}</style>
 </head>
 <body>
 <main>
-<p class="brand">Vinty</p>
-<section lang="en"><h1>A friend invited you to Vinty</h1><p>Get the Vinty app, create your account, then open Profile, Invite friends and enter this code. When your first order is done, you both get a voucher.</p>${codeBox}<a class="btn" href="${href}">Open Vinty</a></section>
-<section lang="he" dir="rtl"><h1>חבר/ה הזמינו אתכם ל-Vinty</h1><p>הורידו את האפליקציה, פתחו חשבון, ואז היכנסו לפרופיל, הזמנת חבר/ה, והזינו את הקוד. כשההזמנה הראשונה שלכם תושלם, שניכם תקבלו שובר.</p>${codeBox}<a class="btn" href="${href}">פתיחת Vinty</a></section>
+<p class="brand">Yadii</p>
+<section lang="en"><h1>A friend invited you to Yadii</h1><p>Get the Yadii app, create your account, then open Profile, Invite friends and enter this code. When your first order is done, you both get a voucher.</p>${codeBox}<a class="btn" href="${href}">Open Yadii</a></section>
+<section lang="he" dir="rtl"><h1>חבר/ה הזמינו אתכם ל-Yadii</h1><p>הורידו את האפליקציה, פתחו חשבון, ואז היכנסו לפרופיל, הזמנת חבר/ה, והזינו את הקוד. כשההזמנה הראשונה שלכם תושלם, שניכם תקבלו שובר.</p>${codeBox}<a class="btn" href="${href}">פתיחת Yadii</a></section>
 </main>
 </body>
 </html>`;

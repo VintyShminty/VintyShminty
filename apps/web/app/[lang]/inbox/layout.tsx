@@ -8,7 +8,7 @@ import { requireViewer } from "@/lib/require-viewer";
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) return {};
-  return { title: `${getT(lang)("tabs.inbox")} | Vinty`, robots: { index: false } };
+  return { title: `${getT(lang)("tabs.inbox")} | Yadii`, robots: { index: false } };
 }
 
 /** The inbox for a logged in person: the chat list stays put while the chat on its side changes. */

@@ -18,7 +18,15 @@ import { inputClass, LoadFailed, Loading, PageTitle, quietButton } from "@/compo
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { adminKeys } from "@/lib/admin-keys";
 import { adminErrorText, useAdminReview } from "@/lib/admin-queries";
-import { cleanNote, reviewActionsFor, sellerHref, URGENCY_CLASS, urgencyTone } from "@/lib/admin-review";
+import {
+  CONFIRM_BODY,
+  cleanNote,
+  DESTRUCTIVE_ACTIONS,
+  reviewActionsFor,
+  sellerHref,
+  URGENCY_CLASS,
+  urgencyTone,
+} from "@/lib/admin-review";
 import { clientApi } from "@/lib/api-client";
 import { ApiClientError } from "@/lib/api-error";
 import { formatDateTime, timeAgo } from "@/lib/time";
@@ -95,6 +103,49 @@ function TargetBlock({ item, lang }: { item: AdminReviewItem; lang: string }) {
       </div>
     );
   }
+  if (target.kind === "order") {
+    const status = t(`orders.status.${target.status}.buyer`);
+    return (
+      <div className="flex flex-col gap-sm">
+        <div className="flex gap-md">
+          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-control bg-pressed">
+            {target.photoUrl ? (
+              // biome-ignore lint/performance/noImgElement: a tiny admin thumbnail from the photo store
+              <img src={target.photoUrl} alt="" className="h-full w-full object-cover" />
+            ) : null}
+          </div>
+          <div className="min-w-0">
+            <Link
+              href={`/${lang}/item/${target.listingId}`}
+              className="line-clamp-2 text-body font-semibold text-text-1 underline"
+            >
+              {target.listingTitle}
+            </Link>
+            <p className="text-body-sm text-text-2">{formatPrice(target.totalMinor, target.currency)}</p>
+            <p className="text-body-sm text-text-2">
+              <Sentence
+                text={(name) => t("admin.review.order.buyer", { name })}
+                lang={lang}
+                person={target.buyer}
+              />
+              {" · "}
+              <Sentence
+                text={(name) => t("admin.review.order.sellerOf", { name })}
+                lang={lang}
+                person={target.seller}
+              />
+            </p>
+            <p className="text-card-meta text-text-3">{t("admin.review.order.orderStatus", { status })}</p>
+          </div>
+        </div>
+        {target.problemNote ? (
+          <p className="text-body-sm text-text-1" dir="auto">
+            {t("admin.review.order.problemNote", { note: `“${target.problemNote}”` })}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
   if (target.kind === "user") {
     return (
       <p className="text-body-sm text-text-2">
@@ -114,11 +165,12 @@ function ReviewCard({ item, lang }: { item: AdminReviewItem; lang: string }) {
   const toast = useToast();
   const client = useQueryClient();
   const [note, setNote] = useState("");
-  const [confirming, setConfirming] = useState(false);
+  const [confirming, setConfirming] = useState<ReviewAction | null>(null);
   const tone = urgencyTone(item.urgency);
   const isAi = item.source === "ai_check";
   const actions = reviewActionsFor(item);
-  const reason = t(`report.reasons.${item.reason}`);
+  const reason =
+    item.target?.kind === "order" ? t("admin.review.order.kind") : t(`report.reasons.${item.reason}`);
 
   const act = useMutation({
     mutationFn: (action: ReviewAction) =>
@@ -139,11 +191,11 @@ function ReviewCard({ item, lang }: { item: AdminReviewItem; lang: string }) {
       }
       toast(adminErrorText(error, t), "error");
     },
-    onSettled: () => setConfirming(false),
+    onSettled: () => setConfirming(null),
   });
 
   const run = (action: ReviewAction) => {
-    if (action === "remove_listing") setConfirming(true);
+    if (CONFIRM_BODY[action]) setConfirming(action);
     else act.mutate(action);
   };
 
@@ -214,7 +266,7 @@ function ReviewCard({ item, lang }: { item: AdminReviewItem; lang: string }) {
                 type="button"
                 disabled={act.isPending}
                 onClick={() => run(action)}
-                className={cn(rowButton, action === "remove_listing" ? "text-error" : "text-text-1")}
+                className={cn(rowButton, DESTRUCTIVE_ACTIONS.includes(action) ? "text-error" : "text-text-1")}
               >
                 {t(`admin.review.actions.${action}`)}
               </button>
@@ -236,14 +288,14 @@ function ReviewCard({ item, lang }: { item: AdminReviewItem; lang: string }) {
       )}
 
       <ConfirmDialog
-        open={confirming}
-        title={t("admin.review.actions.remove_listing")}
-        body={t("admin.review.confirmRemove")}
-        confirmLabel={t("admin.review.actions.remove_listing")}
-        destructive
+        open={confirming !== null}
+        title={confirming ? t(`admin.review.actions.${confirming}`) : ""}
+        body={confirming ? t(CONFIRM_BODY[confirming] ?? "") : ""}
+        confirmLabel={confirming ? t(`admin.review.actions.${confirming}`) : ""}
+        destructive={confirming !== null && DESTRUCTIVE_ACTIONS.includes(confirming)}
         busy={act.isPending}
-        onConfirm={() => act.mutate("remove_listing")}
-        onCancel={() => setConfirming(false)}
+        onConfirm={() => confirming && act.mutate(confirming)}
+        onCancel={() => setConfirming(null)}
       />
     </li>
   );

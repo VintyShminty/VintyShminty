@@ -260,6 +260,7 @@ export const RESERVED_USERNAMES = [
   "root",
   "team",
   "vinty",
+  "yadii",
   "shminty",
   "vintyshminty",
   "null",

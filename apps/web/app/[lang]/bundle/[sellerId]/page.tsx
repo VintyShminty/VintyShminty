@@ -8,7 +8,7 @@ type Params = Promise<{ lang: string; sellerId: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLang(lang)) return { title: "Vinty" };
+  if (!isLang(lang)) return { title: "Yadii" };
   return { title: getT(lang)("bundle.title"), robots: { index: false } };
 }
 

@@ -90,6 +90,18 @@ export type ShipmentStatus = (typeof SHIPMENT_STATUSES)[number];
 export const MESSAGE_KINDS = ["text", "photo", "offer", "system"] as const;
 export type MessageKind = (typeof MESSAGE_KINDS)[number];
 
+/**
+ * What the AI chat check warns about (D-041), the most serious first. The person who receives the message sees a quiet
+ * warning under it. The AI never blocks or deletes a message.
+ */
+export const CHAT_WARNING_KINDS = [
+  "off_platform_payment",
+  "suspicious_link",
+  "off_platform_contact",
+  "pressure",
+] as const;
+export type ChatWarningKind = (typeof CHAT_WARNING_KINDS)[number];
+
 export const SYSTEM_MESSAGE_EVENTS = [
   "order_paid",
   "order_shipped",
@@ -141,7 +153,8 @@ export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
 export const PUSH_PLATFORMS = ["ios", "android"] as const;
 export type PushPlatform = (typeof PUSH_PLATFORMS)[number];
 
-export const REPORT_TARGETS = ["listing", "user", "message", "review"] as const;
+/** `order` is only written by the AI order summary (D-044): members cannot report an order, they open a problem on it. */
+export const REPORT_TARGETS = ["listing", "user", "message", "review", "order"] as const;
 export type ReportTarget = (typeof REPORT_TARGETS)[number];
 
 export const REPORT_REASONS = [
@@ -228,6 +241,7 @@ export const AFFINITY_FEATURES = [
   "price_band",
   "colour",
   "condition",
+  "style",
 ] as const;
 export type AffinityFeature = (typeof AFFINITY_FEATURES)[number];
 
@@ -250,3 +264,34 @@ export type ExpenseKind = (typeof EXPENSE_KINDS)[number];
 /** Costs that are not monthly: a yearly cost is spread over 12 months, a one time cost counts in the month it was paid. */
 export const EXPENSE_CADENCES = ["yearly", "one_time"] as const;
 export type ExpenseCadence = (typeof EXPENSE_CADENCES)[number];
+/**
+ * Style tags (D-042). Claude Haiku gives each listing up to 3 of these, behind the scenes only: nobody sees them, Home
+ * learns from them like it learns brands and sizes. Narrow trends fold into a broad tag (coquette into romantic,
+ * gorpcore into outdoor) so each tag holds enough items to learn from. Changing the list means tagging again.
+ */
+export const LISTING_STYLES = [
+  "vintage",
+  "y2k",
+  "streetwear",
+  "minimal",
+  "classic",
+  "quiet_luxury",
+  "boho",
+  "cottagecore",
+  "romantic",
+  "sporty",
+  "outdoor",
+  "preppy",
+  "grunge",
+  "goth",
+  "western",
+  "evening",
+  "workwear",
+  "summer",
+  "modest",
+  "basics",
+] as const;
+export type ListingStyle = (typeof LISTING_STYLES)[number];
+
+/** The most style tags one listing gets. */
+export const LISTING_STYLES_MAX = 3;

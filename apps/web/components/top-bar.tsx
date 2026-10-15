@@ -3,8 +3,7 @@ import Link from "next/link";
 import { AccountMenu } from "@/components/auth/account-menu";
 import { BrowsePanel } from "@/components/browse-panel";
 import { BrowseTiles } from "@/components/browse-tiles";
-import { InboxLink } from "@/components/inbox/inbox-link";
-import { LanguageMenu } from "@/components/language-menu";
+import { BellLink, InboxLink } from "@/components/inbox/inbox-link";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { SearchField } from "@/components/search-field";
 import { SellButton } from "@/components/sell-button";
@@ -34,7 +33,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
           aria-label={t("web.nav.homeLink")}
           className="text-[23px] font-bold tracking-tight text-text-1"
         >
-          Vinty
+          Yadii
         </Link>
         <div className="hidden md:block">
           <BrowsePanel>
@@ -51,9 +50,9 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
           <SearchField lang={lang} />
         </search>
         <div className="ms-auto hidden items-center gap-sm md:flex">
-          <LanguageMenu lang={lang} />
           {viewer ? (
             <>
+              <BellLink lang={lang} className={iconLink} />
               <InboxLink lang={lang} className={iconLink} />
               <Link href={`/${lang}/favourites`} aria-label={t("web.nav.favourites")} className={iconLink}>
                 <Bookmark size={20} aria-hidden />
@@ -70,13 +69,13 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
               </Link>
               <Link
                 href={signUpHref(lang)}
-                className="inline-flex h-[34px] items-center rounded-[8px] border border-border px-[14px] text-body-sm font-semibold text-text-1 hover:border-text-1"
+                className="inline-flex h-[34px] items-center rounded-full border border-border px-[16px] text-body-sm font-semibold text-text-1 hover:border-text-1"
               >
                 {t("welcome.signUp")}
               </Link>
             </>
           )}
-          <SellButton lang={lang} />
+          <SellButton lang={lang} className="ms-sm" />
         </div>
         <div className="ms-auto md:hidden">
           <MobileDrawer lang={lang}>

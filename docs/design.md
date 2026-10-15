@@ -585,6 +585,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Rationale:** A plain word search for a sentence finds almost nothing, because every word must match. Turning it into filters finds the items, and the chips show exactly what was understood, so nothing is hidden.
 - **Trade-off:** A sentence waits 1 to 2 seconds for the AI before the results show. Unlike the sell form (D-028, D-036) the filters switch on without a tap, Eden chose that because the undo is one tap and the plain search would be empty anyway.
 - **Implementation:** shared shapes and `applyUnderstanding` in `packages/shared/src/search-assist.ts`. Server: `lib/search-reader.ts`, `POST /v1/search/understand`. App: the search screen. Website: the search field and the results page.
+- **Note (2026-10-15, Eden asked for speed):** Simple searches are now answered instantly by fixed rules (`apps/server/src/lib/search-rules.ts`, English and Hebrew): a price phrase, our colour names, a category name, a gender word, a brand written exactly, "cheapest" or "newest". The rules answer only when every word was understood and fall through to the AI otherwise (a size, a condition, a material, an unknown word, or a category name that exists in several branches with no gender word). A rules answer costs nothing, does not use the 20 an hour limit and is not logged as an AI call. The AI gets a shorter list: each category line has the English path and only the Hebrew name of the node, conditions are names only, and the size groups are sent only when the words mention a size. The prompt is asked to stay cached for 1 hour instead of 5 minutes.
 - **References:** D-036, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
 ### D-038 : One Review list in the admin pages, sorted and flagged by the AI, decided by Eden
@@ -619,6 +620,62 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Trade-off:** Photos that are not 3:4 lose their edges on the item page. Cards carry a few more photo addresses, one extra database query per page of cards.
 - **Implementation:** `apps/web/app/[lang]/item/[id]/page.tsx`, `components/photo-gallery.tsx`, `components/item-card.tsx`, the optional `photos` on `listingCardSchema` filled in `toCards` (`apps/server/src/lib/discovery.ts`), key `item.breakdown.note`.
 - **References:** D-030, D-032, D-035
+
+### D-041 : Chat warns about likely scams
+
+- **Date:** 2026-10-14
+- **Area:** Chat, app and website
+- **Status:** Built on branch feat/ai-chat-helpers, waiting for Eden's review. Numbered D-041 because D-039 and D-040 went to website changes while this was built. The privacy policy's "AI helpers" section (PR #71) covers it.
+- **Decision:** Every text message is checked by Claude Haiku in the background after it is sent (Eden's choice), so sending never slows down. When it asks to pay outside Vinty, shares a link that may not be safe, moves the talk to WhatsApp or a phone number, or rushes the other person, the person who received it sees one quiet line under that bubble with a small warning sign, for example "Careful: paying outside Vinty is not protected. Keep payment in the app". The sender sees nothing new. Clear scams (a fake payment link, asking for card details or codes) also go to Eden's Review list (D-038).
+- **Rationale:** Deals moved off the app are where people get cheated, and a warning at the right moment protects them without blocking anyone.
+- **Trade-off:** Reading every message costs about 0.006 cents each, but catches scams that are worded without the usual signs.
+- **Implementation:** `warning` on messages. Server: `lib/chat-check.ts`. App and website: the chat screen.
+- **References:** D-034, D-038, `docs/unfinished-work.md` (AI features with Claude Haiku)
+- **Note:** Quick replies were built and tried, then left aside by Eden on 2026-10-15.
+
+### D-042 : Style tags teach Home what people like, behind the scenes only
+
+- **Date:** 2026-10-15
+- **Area:** Home feed, listings
+- **Status:** Built on branch feat/ai-style-tags, waiting for Eden's review. Numbered D-042 because D-040 and D-041 went to the website item page and chat warnings while this was built.
+- **Decision:** Every listing gets up to 3 style tags from a fixed list of 20: Vintage, Y2K, Streetwear, Minimal, Classic, Quiet luxury, Boho, Cottagecore, Romantic, Sporty, Outdoor, Preppy, Grunge, Goth, Western, Evening and party, Workwear, Summer and beach, Modest, Everyday basics. Narrow trends fold into a broad tag (coquette and balletcore into Romantic, gorpcore into Outdoor, old money into Quiet luxury). Claude Haiku picks them in the same call that already checks each new or changed listing (D-038), and listings Eden uploads in the admin pages get them too. Existing listings are tagged a batch at a time (up to 100 a night). Home learns styles the way it learns brands and sizes, so someone who keeps opening and saving vintage pieces sees more vintage across brands and categories. Nobody sees the tags (Eden's choice): no chips, no "Because you like" line, nothing for sellers to edit.
+- **Rationale:** Brand and category alone miss taste: a vintage lover likes old Levi's and a 90s blazer alike. A fixed, broad list keeps enough items in each tag to learn from. The list was widened after looking at how resale sites and trend writers group styles, since none of the big resale sites publish an official list.
+- **Trade-off:** One AI call now does two jobs (safety and taste), which keeps the photo cost at once per listing. If the tags turn out weak, they can move to their own call. Changing the list later means tagging again.
+- **Implementation:** `LISTING_STYLES` in `packages/shared/src/enums.ts`, the "style" taste feature in `packages/shared/src/recommendations.ts`, `listings.styles`, the listing check (`lib/listing-check.ts`), the nightly catch up in the jobs.
+- **References:** D-038, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
+### D-043 : Ask a question on the Help page, answered only from our help articles
+
+- **Date:** 2026-10-15
+- **Area:** Help page, app and website
+- **Status:** Built on branch feat/ai-help-answers, waiting for Eden's review.
+- **Decision:** At the top of the Help page an "Ask a question" box takes a question in the person's own words, in English or Hebrew. Claude Haiku answers in 2 to 4 short sentences using only our own help articles, and links up to 2 of them ("Read more"). Every answer carries a small sparkle and the line "Answer written by AI from our help pages". The AI cannot see anyone's account, orders or messages (Eden's choice): a question like "where is my order" gets a general answer and the right article. When the articles do not cover the question it says so, and the page points to "Write to us". Signed out visitors can ask too, at most 20 new questions an hour per person or internet address, and a repeated question is remembered at no cost. The box sits only on the Help page (Eden's choice). It never invents rules, fees or times, never asks for personal details and never moves anything off the app.
+- **Rationale:** People rarely read a list of articles to find one answer. Answering only from our own pages keeps it honest, and a "not in our help pages" answer is better than a guess.
+- **Trade-off:** About 0.01 cents a question. It is only as good as our articles, so a common question it cannot answer is a sign an article is missing.
+- **Implementation:** shared shapes in `packages/shared/src/help-assist.ts`. Server: `lib/help-answer.ts`, `POST /v1/help/ask`. App and website: the Help page.
+- **References:** Milestone 9 Help pages, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
+### D-044 : Order problems reach Eden's Review list with a facts only summary
+
+- **Date:** 2026-10-15
+- **Area:** Orders, admin pages (website)
+- **Status:** Built on branch feat/ai-order-summaries, waiting for Eden's review.
+- **Decision:** When a buyer reports a problem with an order, Claude Haiku reads the order's timeline (paid, shipped, arrived, problem opened), the listing, the buyer's note and the chat between buyer and seller about it, and writes a short summary for Eden: what happened when, what each side says and what is worth checking. It never suggests an outcome (Eden's choice): no "refund", no "the buyer is right". The order lands in the Review list (D-038) as an urgent "Order problem" with the summary, both people, the amount and the buyer's note. If the AI is off or fails, the order still lands there, without a summary. On the card Eden has "Refund the buyer" and "Release to the seller" (each asks first, both use the support moves the server already had), plus Dismiss and Mark handled. The AI never moves money. The privacy policy's "AI helpers" section says the AI reads an order's details and its chat for this (Eden approved the line).
+- **Rationale:** Order problems could be opened but nobody could see them or decide them in the admin pages. A summary saves reading a whole chat, and leaving out a verdict keeps the decision with a person.
+- **Trade-off:** About 0.03 cents per problem. Facts only means Eden still weighs each case himself, which is slower than a suggested answer but cannot be nudged by a confident wrong one.
+- **Implementation:** the `order` report target and the two actions in `packages/shared/src/review.ts`. Server: `lib/order-summary.ts`, the Review actions in `lib/admin-review.ts`. Website: order cards on the Review page.
+- **References:** D-038, D-041, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
+### D-045 : The app item page speaks the card's language
+
+- **Date:** 2026-10-15
+- **Area:** App item page
+- **Status:** Built on branch feat/app-listing-page, waiting for Eden's review.
+- **Decision:** Both the buyer's and the seller's item page show the price like the card and the website (D-040): the seller price in espresso, a drop shows the old price muted and struck with a "% off" badge, and the Coverage price is a quiet line with a BadgeCheck (no cream pill). The buyer's price breakdown has no cream fill: it sits under a hairline with the same content.
+- **Description first:** the description sits right under the price in both views, among the first things anyone reads, before the details list (Eden).
+- **Rationale:** Eden found the listing page did not match the updated card.
+- **Implementation:** `PriceBlock` in `apps/mobile/components/price-pill.tsx`, used by `own-listing-view.tsx` and `buyer-view.tsx`.
+- **References:** D-032, D-040
 
 ## Open decisions
 

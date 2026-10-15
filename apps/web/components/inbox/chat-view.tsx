@@ -176,6 +176,7 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
             role={conversation?.role ?? "buyer"}
             lang={lang}
             offersClosed={offersClosed}
+            me={me}
             onOpenPhoto={openPhoto}
             onCounter={(offer) => setOfferDialog({ open: true, counterOf: offer })}
           />

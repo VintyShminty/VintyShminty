@@ -45,7 +45,7 @@ function TopBar({ title, leading = "back", onBack, trailing, wideSides, classNam
             hitSlop={8}
             role="button"
             accessibilityLabel={leading === "close" ? t("common.close") : t("common.back")}
-            className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+            className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
           >
             {leading === "close" ? <Icon as={X} size={24} /> : <BackIcon />}
           </Pressable>

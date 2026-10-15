@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { idSchema, isoDateTimeSchema, pageSchema, paginationQuerySchema } from "./common.js";
 import {
+  CHAT_WARNING_KINDS,
   LISTING_STATUSES,
   type ListingStatus,
   MESSAGE_KINDS,
@@ -86,6 +87,11 @@ export const messageSchema = z.object({
   /** Echoed back so the app can match its pending bubble. Null on messages written by the server. */
   clientMessageId: idSchema.nullable(),
   createdAt: isoDateTimeSchema,
+  /**
+   * The AI chat check's warning (D-041), shown only to the person who received the message. Set a moment after the
+   * message arrives (a `message:updated` event follows). Optional because older servers do not send it.
+   */
+  warning: z.enum(CHAT_WARNING_KINDS).nullable().optional(),
 });
 export type Message = z.infer<typeof messageSchema>;
 
@@ -224,7 +230,13 @@ export type SocketAck<T = Record<string, never>> =
 export type ServerToClientEvents = {
   "message:new": (payload: { conversationId: string; message: Message }) => void;
   /** An offer bubble changed status. Also goes to both people's rooms, so a closed thread stays right. */
-  "message:updated": (payload: { conversationId: string; messageId: string; offer?: MessageOffer }) => void;
+  "message:updated": (payload: {
+    conversationId: string;
+    messageId: string;
+    offer?: MessageOffer;
+    /** The whole message again, sent only to the person who received it when the AI chat check adds a warning (D-041). */
+    message?: Message;
+  }) => void;
   /** An order moved. Goes to the buyer and the seller only. The app refetches the order. */
   "order:updated": (payload: { orderId: string; status: OrderStatus; conversationId: string | null }) => void;
   /** A listing was reserved, sold, released or repriced. Goes to people who favourited it or chat about it. */

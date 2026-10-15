@@ -12,11 +12,11 @@ export async function generateMetadata({
   params: Promise<{ lang: string; topic: string }>;
 }): Promise<Metadata> {
   const { lang, topic } = await params;
-  if (!isLang(lang) || !HELP_ARTICLE_IDS.includes(topic)) return { title: "Vinty" };
+  if (!isLang(lang) || !HELP_ARTICLE_IDS.includes(topic)) return { title: "Yadii" };
   const t = getT(lang);
   const body = t(`help.articles.${topic}.body`);
   return {
-    title: `${t(`help.articles.${topic}.title`)} | ${t("help.title")} | Vinty`,
+    title: `${t(`help.articles.${topic}.title`)} | ${t("help.title")} | Yadii`,
     description: body.split("\n\n")[0],
     alternates: alternatesFor(lang, `/help/${topic}`),
   };

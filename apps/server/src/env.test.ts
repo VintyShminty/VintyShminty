@@ -59,7 +59,7 @@ describe("parseEnv in production", () => {
 
   it("accepts a complete setup and fills the online defaults", () => {
     const env = parseEnv(good);
-    expect(env.MAIL_FROM).toBe("Vinty <onboarding@resend.dev>");
+    expect(env.MAIL_FROM).toBe("Yadii <onboarding@resend.dev>");
     expect(env.DATABASE_PREPARED_STATEMENTS).toBe(false);
     expect(env.IN_PROCESS_JOBS).toBe(true);
   });

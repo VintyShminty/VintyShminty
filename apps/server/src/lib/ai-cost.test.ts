@@ -5,6 +5,13 @@ import { databaseUrl } from "../test-helpers.js";
 import { AiMeter, AiRefusedError, costOf, MODEL_PRICES } from "./ai-cost.js";
 
 describe("costOf", () => {
+  it("prices 1 hour cache writes at 2x the input price and 5 minute writes at 1.25x", () => {
+    // Haiku 5.5: input 0.1 per million, so 10,000 tokens: 5 minute write 1,250, 1 hour write 2,000, mixed 1,625.
+    expect(costOf("claude-haiku-5-5", { cacheWriteTokens: 10_000 })).toBe(1250);
+    expect(costOf("claude-haiku-5-5", { cacheWriteTokens: 10_000, cacheWrite1hTokens: 10_000 })).toBe(2000);
+    expect(costOf("claude-haiku-5-5", { cacheWriteTokens: 10_000, cacheWrite1hTokens: 5_000 })).toBe(1625);
+  });
+
   it("prices Haiku 5.5 input and output per million tokens", () => {
     // $0.10 and $0.50 per million tokens: 1 token costs 0.1 and 0.5 micro dollars.
     expect(costOf("claude-haiku-5-5", { inputTokens: 1000, outputTokens: 500 })).toBe(350);

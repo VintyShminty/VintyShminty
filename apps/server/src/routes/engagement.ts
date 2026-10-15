@@ -428,6 +428,11 @@ const engagementRoutes: FastifyPluginAsyncZod<{ reportSorter: ReportSorter }> = 
       const { targetType, targetId, reason, details } = request.body;
       const own = () => ApiError.invalid("You cannot report yourself", { targetId: "validation.report.own" });
 
+      // D-044: an order problem is opened by the buyer on the order itself, never as a report.
+      if (targetType === "order") {
+        throw ApiError.invalid("An order cannot be reported", { targetType: "validation.report.order" });
+      }
+
       if (targetType === "listing") {
         const [row] = await db
           .select({ sellerId: listings.sellerId, status: listings.status })

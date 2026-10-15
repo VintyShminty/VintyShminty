@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BuzzSheet } from "@/components/item/buzz-sheet";
 import { DetailRow } from "@/components/item/detail-row";
 import { PhotoCarousel } from "@/components/photo-carousel";
-import { PricePill } from "@/components/price-pill";
+import { PriceBlock } from "@/components/price-pill";
 import { Badge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { describeApiError } from "@/lib/auth-errors";
-import { formatMoney } from "@/lib/money";
 import { ownListingQuery, useDeleteListing, useListingStatus } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
 import { formatDateTime, timeAgo } from "@/lib/time";
@@ -89,10 +88,6 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
   }
   const listing = query.data;
   const parcel = reference.data?.parcelSizes.find((p) => p.id === listing.parcelSizeId);
-  const priceDrop =
-    listing.previousPriceMinor !== null &&
-    listing.priceMinor !== null &&
-    listing.previousPriceMinor > listing.priceMinor;
   const busy = status.isPending || remove.isPending;
 
   const move = (next: "active" | "hidden" | "reserved" | "sold") => {
@@ -151,27 +146,21 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
             </Text>
           </View>
 
-          <View className="gap-xs">
-            <Text variant="title" className="text-primary">
-              {listing.priceMinor === null
-                ? t("listing.noPrice")
-                : formatMoney(listing.priceMinor, listing.currency)}
-            </Text>
-            {priceDrop ? (
-              <Text variant="bodySmall" className="text-text-3 line-through">
-                {t("listing.was", {
-                  price: formatMoney(listing.previousPriceMinor as number, listing.currency),
-                })}
-              </Text>
-            ) : null}
-            {listing.buyerPriceMinor !== null ? (
-              <PricePill
-                className="self-start"
-                amountMinor={listing.buyerPriceMinor}
-                currency={listing.currency}
-              />
-            ) : null}
-          </View>
+          <PriceBlock
+            priceMinor={listing.priceMinor}
+            previousPriceMinor={listing.previousPriceMinor}
+            buyerPriceMinor={listing.buyerPriceMinor}
+            currency={listing.currency}
+            noPriceLabel={t("listing.noPrice")}
+          />
+
+          {/* The description comes right under the price, like buyers see it (Eden). */}
+          {listing.description ? (
+            <View className="gap-xs">
+              <Text variant="sectionLabel">{t("listing.description")}</Text>
+              <Text>{listing.description}</Text>
+            </View>
+          ) : null}
 
           {listing.status !== "draft" ? (
             <View className="flex-row gap-xl">
@@ -270,13 +259,6 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
               value={listing.publishedAt ? timeAgo(listing.publishedAt, t) : null}
             />
           </View>
-
-          {listing.description ? (
-            <View className="gap-xs">
-              <Text variant="sectionLabel">{t("listing.description")}</Text>
-              <Text>{listing.description}</Text>
-            </View>
-          ) : null}
         </View>
       </ScrollView>
       {listing.status === "active" ? <BuzzSheet ref={buzzSheet} listingId={listing.id} /> : null}

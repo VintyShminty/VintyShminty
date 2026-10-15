@@ -3,8 +3,11 @@ import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { inArray, like, or } from "drizzle-orm";
 import { buildApp } from "./app.js";
 import { type Env, parseEnv } from "./env.js";
+import type { ChatCheckReader } from "./lib/chat-check.js";
+import type { HelpReader } from "./lib/help-answer.js";
 import type { ListingCheckReader } from "./lib/listing-check.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
+import type { OrderSummaryReader } from "./lib/order-summary.js";
 import type { PhotoReader } from "./lib/photo-reader.js";
 import { type MemoryPusher, memoryPusher } from "./lib/push.js";
 import type { ReportSortReader } from "./lib/report-sort.js";
@@ -65,8 +68,11 @@ export async function buildTestApp(
     photoReader?: PhotoReader;
     textReader?: TextReader;
     searchReader?: SearchReader;
+    helpReader?: HelpReader;
     listingCheckReader?: ListingCheckReader;
     reportSortReader?: ReportSortReader;
+    orderSummaryReader?: OrderSummaryReader;
+    chatCheckReader?: ChatCheckReader;
     storage?: Storage;
   } = {},
 ): Promise<TestContext> {
@@ -84,8 +90,11 @@ export async function buildTestApp(
     ...(extras.photoReader ? { photoReader: extras.photoReader } : {}),
     ...(extras.textReader ? { textReader: extras.textReader } : {}),
     ...(extras.searchReader ? { searchReader: extras.searchReader } : {}),
+    ...(extras.helpReader ? { helpReader: extras.helpReader } : {}),
     ...(extras.listingCheckReader ? { listingCheckReader: extras.listingCheckReader } : {}),
     ...(extras.reportSortReader ? { reportSortReader: extras.reportSortReader } : {}),
+    ...(extras.orderSummaryReader ? { orderSummaryReader: extras.orderSummaryReader } : {}),
+    ...(extras.chatCheckReader ? { chatCheckReader: extras.chatCheckReader } : {}),
   });
   await app.ready();
   return { app, mailer, pusher, database, close: () => app.close() };

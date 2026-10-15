@@ -327,8 +327,8 @@ describe("files", () => {
   });
 
   it("reads the file name of the download", () => {
-    expect(fileNameFromDisposition('attachment; filename="vinty-uploads-2026-10-14.xlsx"', "x.xlsx")).toBe(
-      "vinty-uploads-2026-10-14.xlsx",
+    expect(fileNameFromDisposition('attachment; filename="yadii-uploads-2026-10-14.xlsx"', "x.xlsx")).toBe(
+      "yadii-uploads-2026-10-14.xlsx",
     );
     expect(fileNameFromDisposition(null, "x.xlsx")).toBe("x.xlsx");
   });

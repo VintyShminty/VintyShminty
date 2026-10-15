@@ -65,7 +65,7 @@
     "subtitle": "Log in to pick up where you left off.",
     "submit": "Log in",
     "forgot": "Forgot your password?",
-    "noAccount": "New to Vinty?",
+    "noAccount": "New to Yadii?",
     "signUp": "Sign up",
     "passwordChanged": "Your password is changed. Log in with the new one."
   },
@@ -217,11 +217,11 @@
   },
   "errors": {
     "socialFailed": "We could not sign you in with {{provider}}. Please try again.",
-    "socialNoEmail": "{{provider}} did not share your email, so we could not make your account. Allow Vinty to see your email and try again.",
+    "socialNoEmail": "{{provider}} did not share your email, so we could not make your account. Allow Yadii to see your email and try again.",
     "socialBlocked": "There is already an account with that email. Log in with your password.",
     "socialUnavailable": "{{provider}} sign in is not available right now.",
     "general": "Something went wrong. Please try again.",
-    "network": "Could not reach Vinty. Check your connection and try again.",
+    "network": "Could not reach Yadii. Check your connection and try again.",
     "wrongLogin": "That email and password do not match.",
     "wrongPassword": "That password is not right.",
     "emailTaken": "There is already an account with that email",
@@ -242,17 +242,17 @@
     "generic": "biometrics"
   },
   "lock": {
-    "title": "Vinty is locked",
+    "title": "Yadii is locked",
     "subtitle": "Use {{method}} to open the app.",
     "failed": "{{method}} did not work. Try again or log in with your password.",
     "unlock": "Unlock with {{method}}",
     "usePassword": "Log in with password",
-    "prompt": "Unlock Vinty",
-    "confirmEnable": "Turn on {{method}} for Vinty"
+    "prompt": "Unlock Yadii",
+    "confirmEnable": "Turn on {{method}} for Yadii"
   },
   "faceId": {
-    "offerTitle": "Use {{method}} to unlock Vinty",
-    "offerBody": "Skip typing your password. Vinty asks for {{method}} when you open it.",
+    "offerTitle": "Use {{method}} to unlock Yadii",
+    "offerBody": "Skip typing your password. Yadii asks for {{method}} when you open it.",
     "turnOn": "Turn on {{method}}",
     "notNow": "Not now",
     "turnOnFailed": "We could not turn on {{method}}. You can try again in Settings, Security."
@@ -360,13 +360,13 @@
     "removePhoto": "Remove photo",
     "removePhotoTitle": "Remove your photo?",
     "uploading": "Uploading...",
-    "photosDenied": "Vinty needs access to your photos. You can allow it in your phone settings.",
+    "photosDenied": "Yadii needs access to your photos. You can allow it in your phone settings.",
     "uploadFailed": "The photo did not upload. Please try again."
   },
   "settings": {
     "title": "Settings",
     "promoTitle": "Safer, and quicker to open",
-    "promoBody": "Use {{method}} to unlock Vinty on this phone.",
+    "promoBody": "Use {{method}} to unlock Yadii on this phone.",
     "promoButton": "Set up {{method}}",
     "profileDetails": "Your profile",
     "account": "Your account",
@@ -378,7 +378,7 @@
     "appLanguage": "Your app's language",
     "language": "Language",
     "logOut": "Log out",
-    "logOutTitle": "Log out of Vinty?"
+    "logOutTitle": "Log out of Yadii?"
   },
   "account": {
     "title": "Your account",
@@ -411,7 +411,7 @@
   "security": {
     "title": "Sign in and safety",
     "faceId": "Unlock with {{method}}",
-    "faceIdHint": "Vinty asks for {{method}} when you open it or come back after a while.",
+    "faceIdHint": "Yadii asks for {{method}} when you open it or come back after a while.",
     "sessions": "Where you are logged in",
     "unknownDevice": "Unknown device",
     "activeNow": "Active now",
@@ -450,7 +450,7 @@
     "dailyLimit": "Cap alerts per day",
     "noLimit": "No limit",
     "upTo": "Up to {{count}} a day",
-    "dailyLimitHint": "The most phone alerts Vinty sends you in a day.",
+    "dailyLimitHint": "The most phone alerts Yadii sends you in a day.",
     "enablePush": "Allow alerts on this phone",
     "enableEmail": "Allow alerts by email",
     "notSentYet": "Your choices are saved. These alerts start arriving as the features behind them launch."
@@ -559,7 +559,7 @@
       "viewerClose": "Close photo",
       "remove": "Remove photo",
       "deniedTitle": "No access to photos",
-      "denied": "Allow Vinty to use your photos or camera in the phone's Settings"
+      "denied": "Allow Yadii to use your photos or camera in the phone's Settings"
     },
     "conditionStop": "{{name}}, {{n}} of {{total}}",
     "conditionAdjustHint": "Swipe up or down to change the condition",
@@ -599,7 +599,7 @@
     "away": "{{name}} is away until {{date}}. You can still save it.",
     "awayNoDate": "{{name}} is away for now. You can still save it.",
     "buyFor": "Buy for {{amount}}",
-    "orMakeYourPrice": "Or make your price",
+    "orMakeYourPrice": "Send your offer",
     "message": "Message",
     "breakdown": {
       "item": "Item",
@@ -685,7 +685,7 @@
       "inappropriate": "Inappropriate or offensive",
       "spam": "Spam or advertising",
       "harassment": "Harassment or abuse",
-      "scam_off_platform": "Asked me to pay or chat outside Vinty",
+      "scam_off_platform": "Asked me to pay or chat outside Yadii",
       "other": "Something else"
     }
   },
@@ -885,9 +885,9 @@
       "referral_rewarded_invitee": "Your first order is done. You earned a voucher",
       "listing_removed": "{{title}} was removed by our team",
       "bump_ended": "The buzz on {{title}} has ended",
-      "platform_message": "A message from Vinty",
-      "platform_welcome": "Welcome to Vinty. Start by browsing, or list your first item",
-      "platform_welcome_back": "Welcome back to Vinty",
+      "platform_message": "A message from Yadii",
+      "platform_welcome": "Welcome to Yadii. Start by browsing, or list your first item",
+      "platform_welcome_back": "Welcome back to Yadii",
       "andMore_one": "{{title}} and {{count}} more",
       "andMore_other": "{{title}} and {{count}} more",
       "offer_acceptedAmount": "Your offer of {{amount}} on {{title}} was accepted",
@@ -978,6 +978,14 @@
         "shipping_timeout": "It was not shipped in time",
         "item_unavailable": "The item was not available",
         "other": ""
+      }
+    },
+    "assist": {
+      "warning": {
+        "off_platform_payment": "Careful: paying outside Yadii is not protected. Keep payment in the app",
+        "suspicious_link": "Careful: this link may not be safe. Never enter your details through a link in chat",
+        "off_platform_contact": "Careful: deals moved outside Yadii are not protected. Keep the chat here",
+        "pressure": "Take your time. A real buyer or seller will not rush you"
       }
     }
   },
@@ -1311,10 +1319,10 @@
     "heroTitle": "Bring a friend and you both get {{amount}}",
     "yourCode": "Your code",
     "share": "Share your code",
-    "shareMessage": "Come browse closets with me on Vinty. Use my code {{code}} when you join: {{link}}",
+    "shareMessage": "Come browse closets with me on Yadii. Use my code {{code}} when you join: {{link}}",
     "howTitle": "How it works",
     "how1": "Share your code with a friend",
-    "how2": "They join Vinty and add your code",
+    "how2": "They join Yadii and add your code",
     "how3": "When their first order of {{minimum}} or more is done, you each get {{amount}}",
     "friendsTitle": "Friends who joined",
     "friendsEmpty": "No friends yet",
@@ -1404,7 +1412,7 @@
     "summary": "Price",
     "holdNote": "We hold the item for you for {{minutes}} minutes while you pay",
     "simulatedTitle": "Practice mode, no real money moves",
-    "simulatedNote": "Paying here is pretend while Vinty is being built. We never ask for card details and nothing is charged.",
+    "simulatedNote": "Paying here is pretend while Yadii is being built. We never ask for card details and nothing is charged.",
     "simulatedDone": "No real money moved. This is practice mode.",
     "needAddress": "Add an address for home delivery",
     "pay": "Pay {{amount}}",
@@ -1577,7 +1585,7 @@
   },
   "help": {
     "title": "Help",
-    "intro": "Quick answers about how Vinty works",
+    "intro": "Quick answers about how Yadii works",
     "groups": {
       "buying": "Buying",
       "selling": "Selling",
@@ -1588,7 +1596,7 @@
     "stillStuck": {
       "title": "Still stuck?",
       "button": "Write to us",
-      "subject": "Help with Vinty",
+      "subject": "Help with Yadii",
       "note": "Tell us what happened and we will get back to you"
     },
     "articles": {
@@ -1598,7 +1606,7 @@
       },
       "makeAnOffer": {
         "title": "Making an offer",
-        "body": "Not sure about the price? Tap \"Or make your price\" on the item and send an offer lower than the listed price. You can send up to 15 offers a day, and one at a time in each chat.\n\nThe seller can accept, decline or answer with a new price. If nobody answers, the offer closes after 48 hours.\n\nWhen an offer is accepted the item is held for you for 24 hours, so you can check out at the agreed price."
+        "body": "Not sure about the price? Tap \"Send your offer\" on the item and send an offer lower than the listed price. You can send up to 15 offers a day, and one at a time in each chat.\n\nThe seller can accept, decline or answer with a new price. If nobody answers, the offer closes after 48 hours.\n\nWhen an offer is accepted the item is held for you for 24 hours, so you can check out at the agreed price."
       },
       "covered": {
         "title": "What Coverage is",
@@ -1666,12 +1674,21 @@
       },
       "stayInside": {
         "title": "Staying safe",
-        "body": "Keep chatting and paying inside Vinty. We can only look into orders made in the app, so if someone asks you to pay or talk somewhere else, say no and report them.\n\nNever share your password or a 6 digit code with anyone, including people who say they work for us.\n\nIf an offer looks too good to be true, it usually is. Check the photos and the seller's reviews first."
+        "body": "Keep chatting and paying inside Yadii. We can only look into orders made in the app, so if someone asks you to pay or talk somewhere else, say no and report them.\n\nNever share your password or a 6 digit code with anyone, including people who say they work for us.\n\nIf an offer looks too good to be true, it usually is. Check the photos and the seller's reviews first."
       },
       "reportAndBlock": {
         "title": "Reporting and blocking",
         "body": "See something wrong on an item or a profile? Open the more menu and choose Report, then pick a reason. Our team takes a look, and the person is not told it was you.\n\nTo stop talking to someone, block them from their profile. You will not see each other's items and cannot message each other."
       }
+    },
+    "ask": {
+      "title": "Ask a question",
+      "placeholder": "Ask in your own words, for example how do I get paid",
+      "button": "Ask",
+      "thinking": "Looking through our help pages",
+      "label": "Answer written by AI from our help pages",
+      "readMore": "Read more",
+      "noAnswer": "We could not find this in our help pages. Write to us and we will help"
     }
   },
   "web": {
@@ -1683,7 +1700,7 @@
       "favourites": "Favourites",
       "account": "Your account",
       "browseTitle": "Browse by type",
-      "homeLink": "Vinty, home"
+      "homeLink": "Yadii, home"
     },
     "dev": {
       "title": "Connection check",
@@ -1709,7 +1726,7 @@
       "help": "Help",
       "terms": "Terms",
       "privacy": "Privacy",
-      "rights": "© {{year}} Vinty"
+      "rights": "© {{year}} Yadii"
     },
     "legal": {
       "draftLine": "Draft, last updated {{date}}",
@@ -1733,8 +1750,8 @@
     "browse": {
       "breadcrumb": "You are here",
       "typesLabel": "Item types",
-      "metaDescription": "Browse second hand pieces on Vinty by type: dresses, tops, jeans, coats, shoes and more.",
-      "tileMetaDescription": "{{name}} on Vinty: second hand pieces from sellers in Israel. Make an offer or buy in a few taps."
+      "metaDescription": "Browse second hand pieces on Yadii by type: dresses, tops, jeans, coats, shoes and more.",
+      "tileMetaDescription": "{{name}} on Yadii: second hand pieces from sellers in Israel. Make an offer or buy in a few taps."
     },
     "filters": {
       "sort": "Sort",
@@ -1756,7 +1773,7 @@
       "seeAll": "See all",
       "similar": "Similar items",
       "report": "Report this item",
-      "metaFallback": "{{details}} for sale on Vinty",
+      "metaFallback": "{{details}} for sale on Yadii",
       "loadFailed": "We could not load this item",
       "breakdownLabel": "Price breakdown"
     },
@@ -1769,14 +1786,14 @@
       "unfollowLabel": "Stop following {{name}}",
       "you": "This is you",
       "moreReviews": "Show more reviews",
-      "metaDescription_one": "{{name}} has {{count}} item for sale on Vinty",
-      "metaDescription_other": "{{name}} has {{count}} items for sale on Vinty",
+      "metaDescription_one": "{{name}} has {{count}} item for sale on Yadii",
+      "metaDescription_other": "{{name}} has {{count}} items for sale on Yadii",
       "statusGroup": "Item status",
       "rating": "{{rating}} out of 5",
       "loadFailed": "We could not load this seller"
     },
     "help": {
-      "metaDescription": "Quick answers about how Vinty works",
+      "metaDescription": "Quick answers about how Yadii works",
       "allTopics": "All help topics",
       "breadcrumb": "You are here"
     },
@@ -1786,7 +1803,7 @@
       "home": "Back to Home"
     },
     "meta": {
-      "homeDescription": "Second-hand finds from people near you. Buy, sell and make your price on Vinty."
+      "homeDescription": "Second-hand finds from people near you. Buy, sell and make your price on Yadii."
     },
     "auth": {
       "menu": {
@@ -1812,7 +1829,7 @@
       "deviceOn": "{{browser}} on {{system}}",
       "onlyThisBrowser": "You are only logged in on this browser.",
       "logOutOthersBody": "You stay logged in here.",
-      "phoneAlertsNote": "Alerts on your phone are set in the Vinty app. Here you choose which ones reach you by email."
+      "phoneAlertsNote": "Alerts on your phone are set in the Yadii app. Here you choose which ones reach you by email."
     },
     "lists": {
       "favouritesEmptyNote": "Tap the bookmark on an item to keep it here"
@@ -1820,6 +1837,8 @@
     "inbox": {
       "iconUnread_one": "Inbox, {{count}} unread",
       "iconUnread_other": "Inbox, {{count}} unread",
+      "bellUnread_one": "Notifications, {{count}} unread",
+      "bellUnread_other": "Notifications, {{count}} unread",
       "backToInbox": "Back to inbox",
       "pickTitle": "Pick a chat",
       "pickNote": "Your messages open here",
@@ -1864,7 +1883,7 @@
   "admin": {
     "title": "Back office",
     "menu": "Menu",
-    "backToSite": "Back to Vinty",
+    "backToSite": "Back to Yadii",
     "loading": "Loading",
     "nav": {
       "dashboard": "Dashboard",
@@ -1877,7 +1896,7 @@
     },
     "adminsOnly": {
       "title": "Admins only",
-      "message": "This area is for the Vinty team. If you should have access, ask an admin to switch it on for you"
+      "message": "This area is for the Yadii team. If you should have access, ask an admin to switch it on for you"
     },
     "checkFailed": {
       "title": "We could not check your access",
@@ -1908,7 +1927,10 @@
       "photo_tips": "Photo tips (sell form)",
       "search_understand": "Search in plain words",
       "listing_check": "Listing check",
-      "report_sort": "Report sorting"
+      "report_sort": "Report sorting",
+      "chat_check": "Chat warnings",
+      "help_answer": "Help answers",
+      "order_summary": "Order problem summaries"
     },
     "dashboard": {
       "totalUsers": "Users",
@@ -2216,14 +2238,18 @@
         "hide_listing": "Hide listing",
         "remove_listing": "Remove listing",
         "dismiss": "Dismiss",
-        "handled": "Mark handled"
+        "handled": "Mark handled",
+        "refund_buyer": "Refund the buyer",
+        "release_seller": "Release to the seller"
       },
       "confirmRemove": "Remove this listing for good? The seller cannot bring it back",
       "done": {
         "hide_listing": "Listing hidden",
         "remove_listing": "Listing removed",
         "dismiss": "Dismissed",
-        "handled": "Marked handled"
+        "handled": "Marked handled",
+        "refund_buyer": "Buyer refunded",
+        "release_seller": "Released to the seller"
       },
       "status": {
         "open": "Open",
@@ -2231,7 +2257,16 @@
         "actioned": "Actioned",
         "dismissed": "Dismissed"
       },
-      "loadMore": "Show more"
+      "loadMore": "Show more",
+      "order": {
+        "kind": "Order problem",
+        "buyer": "Buyer {{name}}",
+        "sellerOf": "Seller {{name}}",
+        "problemNote": "The buyer wrote: {{note}}",
+        "orderStatus": "Order is {{status}}",
+        "confirmRefund": "Refund the buyer? The order closes as refunded",
+        "confirmRelease": "Release the money to the seller? The order closes as complete"
+      }
     }
   }
 }

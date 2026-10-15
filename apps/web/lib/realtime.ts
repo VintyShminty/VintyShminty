@@ -148,8 +148,12 @@ function connect(userId: string) {
   });
 
   // An offer bubble changed state. The chat header may change too: accepting an offer reserves the item.
-  s.on("message:updated", ({ conversationId, offer }) => {
-    if (offer) patchMessageOffer(queryClient, conversationId, offer.id, offer);
+  // A message can also change because the chat check added a warning (D-041): swap the cached copy, or read the
+  // messages again when the event carries no copy.
+  s.on("message:updated", ({ conversationId, offer, message }) => {
+    if (message) upsertMessage(queryClient, message);
+    else if (offer) patchMessageOffer(queryClient, conversationId, offer.id, offer);
+    else void queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
     void queryClient.invalidateQueries({ queryKey: ["conversation", conversationId] });
   });
 

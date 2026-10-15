@@ -25,11 +25,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang, tile } = await params;
   const found = findBrowseTile(tile);
-  if (!isLang(lang) || !found) return { title: "Vinty" };
+  if (!isLang(lang) || !found) return { title: "Yadii" };
   const t = getT(lang);
   const name = t(`browse.tiles.${found.key}`);
   return {
-    title: `${name} | Vinty`,
+    title: `${name} | Yadii`,
     description: t("web.browse.tileMetaDescription", { name }),
     // Filters and types in the address are views of the same page, so the canonical address has none of them.
     alternates: alternatesFor(lang, `/browse/${found.key}`),

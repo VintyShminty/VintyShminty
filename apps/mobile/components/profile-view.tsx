@@ -478,7 +478,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
               hitSlop={8}
               role="button"
               accessibilityLabel={t("settings.title")}
-              className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+              className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
             >
               <Icon as={SettingsIcon} size={22} />
             </Pressable>

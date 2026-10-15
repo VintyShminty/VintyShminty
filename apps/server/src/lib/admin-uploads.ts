@@ -182,8 +182,10 @@ export async function publishBatch(input: {
   ownerFullName: string;
   items: AdminListingItem[];
   log: { warn: (o: object, m: string) => void };
+  /** Called once for each listing that went live, after the batch is saved. */
+  onPublished?: (listingId: string) => void;
 }): Promise<AdminPublishResult> {
-  const { db, writer, reference, adminId, standIn, ownerFullName, items, log } = input;
+  const { db, writer, reference, adminId, standIn, ownerFullName, items, log, onPublished } = input;
   const batchId = randomUUID();
   const [profile] = await db
     .select({ city: profiles.city, countryCode: profiles.countryCode })
@@ -266,6 +268,7 @@ export async function publishBatch(input: {
     count: createdCount,
     failed: results.length - createdCount,
   });
+  for (const r of results) if (r.ok && r.listingId) onPublished?.(r.listingId);
   return {
     batchId,
     username: standIn.username,
@@ -415,8 +418,8 @@ export const EXPORT_COLUMNS = [
   "Link",
 ] as const;
 
-/** `vinty-uploads-YYYY-MM-DD.xlsx`, the date in UTC. */
-export const exportFileName = (now = new Date()) => `vinty-uploads-${now.toISOString().slice(0, 10)}.xlsx`;
+/** `yadii-uploads-YYYY-MM-DD.xlsx`, the date in UTC. */
+export const exportFileName = (now = new Date()) => `yadii-uploads-${now.toISOString().slice(0, 10)}.xlsx`;
 
 /** Shekels from agorot. Other currencies are written as a plain number too, the column says shekels for ILS items. */
 const major = (minor: number | null) => (minor === null ? null : Math.round(minor) / 100);
@@ -424,7 +427,7 @@ const major = (minor: number | null) => (minor === null ? null : Math.round(mino
 /** A real .xlsx: a bold frozen header row, sensible widths, dates as dates, prices as numbers, a clickable link. */
 export async function buildUploadsWorkbook(rows: AdminUploadRow[], siteBase: string): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Vinty admin";
+  workbook.creator = "Yadii admin";
   const sheet = workbook.addWorksheet("Uploaded items", { views: [{ state: "frozen", ySplit: 1 }] });
   const widths = [18, 38, 26, 22, 36, 38, 18, 12, 18, 12, 12, 18, 14, 52];
   sheet.columns = EXPORT_COLUMNS.map((header, i) => ({ header, width: widths[i] ?? 16 }));

@@ -5,7 +5,7 @@ import { getT, type Lang } from "@/lib/i18n";
 export function StillStuck({ lang, outline = false }: { lang: Lang; outline?: boolean }) {
   const t = getT(lang);
   return (
-    <section className="mt-2xl flex flex-col gap-sm rounded-control bg-surface p-lg">
+    <section id="still-stuck" className="mt-2xl flex flex-col gap-sm rounded-control bg-surface p-lg">
       <h2 className="text-body font-bold text-text-1">{t("help.stillStuck.title")}</h2>
       <p className="text-body-sm text-text-2">{t("help.stillStuck.note")}</p>
       <a

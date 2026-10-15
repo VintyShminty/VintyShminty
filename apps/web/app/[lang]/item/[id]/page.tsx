@@ -44,18 +44,18 @@ function detailsLine(listing: ListingDetail, lang: Lang) {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { lang, id } = await params;
-  if (!isLang(lang)) return { title: "Vinty" };
+  if (!isLang(lang)) return { title: "Yadii" };
   const t = getT(lang);
   let listing: ListingDetail;
   try {
     listing = await getListing(lang, id);
   } catch (error) {
     // A missing item is Next's own not found page (notFound throws). Any other failure keeps a plain title.
-    if (error instanceof ApiClientError) return { title: "Vinty", robots: { index: false } };
+    if (error instanceof ApiClientError) return { title: "Yadii", robots: { index: false } };
     throw error;
   }
   const price = formatPrice(listing.priceMinor ?? 0, listing.currency);
-  const title = `${listing.title} · ${price} · Vinty`;
+  const title = `${listing.title} · ${price} · Yadii`;
   const description =
     listing.description.trim().replace(/\s+/g, " ").slice(0, 200) ||
     t("web.item.metaFallback", {
@@ -79,7 +79,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       title,
       description,
       url: `/${lang}${path}`,
-      siteName: "Vinty",
+      siteName: "Yadii",
       images,
       locale: lang === "he" ? "he_IL" : "en_US",
     },

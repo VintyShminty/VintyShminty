@@ -1,9 +1,18 @@
 import type { AdminReviewItem, ReportUrgency, ReviewAction } from "@vinty/shared";
 
-/** The buttons an open item gets. Hide and remove only make sense when the target is a listing that still exists. */
+/**
+ * The buttons an open item gets. Hide and remove only make sense when the target is a listing that still exists.
+ * Refund and release only make sense for an order that is still disputed.
+ */
 export function reviewActionsFor(item: Pick<AdminReviewItem, "target" | "status">): ReviewAction[] {
   if (item.status !== "open" && item.status !== "reviewing") return [];
-  const isListing = item.target?.kind === "listing";
+  const target = item.target;
+  if (target?.kind === "order") {
+    return target.status === "disputed"
+      ? ["refund_buyer", "release_seller", "dismiss", "handled"]
+      : ["dismiss", "handled"];
+  }
+  const isListing = target?.kind === "listing";
   return isListing ? ["hide_listing", "remove_listing", "dismiss", "handled"] : ["dismiss", "handled"];
 }
 
@@ -30,3 +39,13 @@ export function cleanNote(note: string): string | undefined {
 
 /** The profile page of a person on the website. */
 export const sellerHref = (lang: string, id: string) => `/${lang}/seller/${id}`;
+
+/** Actions that ask "are you sure?" first, with the wording key of their question. */
+export const CONFIRM_BODY: Partial<Record<ReviewAction, string>> = {
+  remove_listing: "admin.review.confirmRemove",
+  refund_buyer: "admin.review.order.confirmRefund",
+  release_seller: "admin.review.order.confirmRelease",
+};
+
+/** Actions that cannot be undone get the red look. */
+export const DESTRUCTIVE_ACTIONS: readonly ReviewAction[] = ["remove_listing", "refund_buyer"];

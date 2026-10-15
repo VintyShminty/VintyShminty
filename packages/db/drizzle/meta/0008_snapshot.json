@@ -1,5 +1,5 @@
 {
-  "id": "f26e10fa-cc9e-4903-978a-d897fb50eda4",
+  "id": "c3bc9619-8e8a-48e5-93cc-b21b08664302",
   "prevId": "052f5f79-1d61-40fe-9fc5-3c0783e4b6d5",
   "version": "7",
   "dialect": "postgresql",
@@ -397,116 +397,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.expense_items": {
-      "name": "expense_items",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "cadence": {
-          "name": "cadence",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "amount_minor": {
-          "name": "amount_minor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "currency": {
-          "name": "currency",
-          "type": "char(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'ILS'"
-        },
-        "paid_by": {
-          "name": "paid_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "''"
-        },
-        "paid_on": {
-          "name": "paid_on",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "expense_items_paid_on_idx": {
-          "name": "expense_items_paid_on_idx",
-          "columns": [
-            {
-              "expression": "paid_on",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "expense_items_created_by_users_id_fk": {
-          "name": "expense_items_created_by_users_id_fk",
-          "tableFrom": "expense_items",
-          "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "expense_items_cadence_valid": {
-          "name": "expense_items_cadence_valid",
-          "value": "\"expense_items\".\"cadence\" in ('yearly', 'one_time')"
-        },
-        "expense_items_amount_not_negative": {
-          "name": "expense_items_amount_not_negative",
-          "value": "\"expense_items\".\"amount_minor\" >= 0"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.expense_months": {
@@ -3963,6 +3853,13 @@
         "client_message_id": {
           "name": "client_message_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "warning": {
+          "name": "warning",
+          "type": "chat_warning",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -8747,6 +8644,16 @@
         "sold",
         "hidden",
         "removed"
+      ]
+    },
+    "public.chat_warning": {
+      "name": "chat_warning",
+      "schema": "public",
+      "values": [
+        "off_platform_payment",
+        "suspicious_link",
+        "off_platform_contact",
+        "pressure"
       ]
     },
     "public.message_kind": {

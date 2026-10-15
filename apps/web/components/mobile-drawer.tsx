@@ -56,7 +56,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
         className="me-0 ms-auto mb-0 mt-0 h-dvh max-h-dvh w-[min(88vw,360px)] overflow-y-auto border-0 bg-background p-lg text-text-1 backdrop:bg-backdrop md:hidden"
       >
         <div className="flex items-center justify-between pb-md">
-          <span className="text-[22px] font-extrabold tracking-tight text-primary">Vinty</span>
+          <span className="text-[22px] font-extrabold tracking-tight text-primary">Yadii</span>
           <button
             type="button"
             aria-label={t("common.close")}

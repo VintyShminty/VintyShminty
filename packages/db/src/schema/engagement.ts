@@ -95,7 +95,7 @@ export const reports = pgTable(
     index("reports_review_idx").on(t.status, t.urgency, t.createdAt),
     index("reports_target_idx").on(t.targetType, t.targetId),
     check("reports_details_length", sql`${t.details} is null or char_length(${t.details}) <= 2000`),
-    check("reports_ai_summary_length", sql`${t.aiSummary} is null or char_length(${t.aiSummary}) <= 300`),
+    check("reports_ai_summary_length", sql`${t.aiSummary} is null or char_length(${t.aiSummary}) <= 600`),
     check("reports_member_has_reporter", sql`${t.source} <> 'member' or ${t.reporterId} is not null`),
   ],
 );

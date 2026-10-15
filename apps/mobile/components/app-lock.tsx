@@ -55,7 +55,7 @@ function AppLock({ kind, onUsePassword }: { kind: BiometricKind; onUsePassword: 
       accessibilityViewIsModal
     >
       <Text weight={800} className="text-primary" style={{ fontSize: 28, lineHeight: 34, letterSpacing: -1 }}>
-        Vinty
+        Yadii
       </Text>
       <View className="mt-2xl h-20 w-20 items-center justify-center rounded-full bg-accent-tint">
         <Icon as={Lock} size={32} className="text-primary" />

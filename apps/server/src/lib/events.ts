@@ -92,6 +92,7 @@ export async function loadListingFeatures(
         sizeId: listings.sizeId,
         conditionId: listings.conditionId,
         priceMinor: listings.priceMinor,
+        styles: listings.styles,
       })
       .from(listings)
       .where(inArray(listings.id, listingIds)),
@@ -113,6 +114,7 @@ export async function loadListingFeatures(
       priceBandValue: priceBand(r.priceMinor),
       colourIds: colourMap.get(r.id) ?? [],
       conditionId: r.conditionId,
+      styles: r.styles,
     });
   }
   return result;

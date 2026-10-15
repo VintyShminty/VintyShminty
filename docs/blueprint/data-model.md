@@ -989,6 +989,8 @@ Used by: Home feed, Search, Catalog, Brand page, Item page, Favourites, Sell for
 | `price_minor` | integer | yes | Item price in minor units. The buyer fee is added at display time and is not stored |
 | `currency` | char(3) | no | refers to currencies.code, on delete no action. default 'ILS' |
 | `previous_price_minor` | integer | yes | Set only when the price went down. Drives the Price drop badge and the struck-through Was line |
+| `styles` | listing_style[] | no | default empty. Up to 3 style tags (D-042) from the fixed list `LISTING_STYLES` in `packages/shared/src/enums.ts`: vintage, y2k, streetwear, minimal, classic, quiet_luxury, boho, cottagecore, romantic, sporty, outdoor, preppy, grunge, goth, western, evening, workwear, summer, modest, basics. Set by the AI listing check, most fitting first. Behind the scenes only: never in any API answer, only the Home feed reads it |
+| `styles_tagged_at` | timestamptz | yes | When the styles were last read by the AI. Null means never tagged, the nightly catch-up tags those |
 | `used_ai_photos` | boolean | no | default false. The AI photo disclosure checkbox on the sell form |
 | `country_code` | char(2) | no | default 'IL' |
 | `city` | text | yes |  |
@@ -1330,6 +1332,7 @@ Used by: Conversation thread (bubbles, offer bubble, dividers), Inbox preview.
 | `order_id` | uuid | yes | refers to orders.id, on delete set null. Set on order dividers so the app can open the order |
 | `payload` | jsonb | yes | Extra values for the divider, such as the amount |
 | `client_message_id` | uuid | yes | A UUID made by the app so a retry after bad network never sends twice |
+| `warning` | chat_warning | yes | D-041: what the AI chat check warned about (off_platform_payment, suspicious_link, off_platform_contact or pressure). Set a moment after a text message is stored, shown quietly to the recipient only. The AI never blocks or deletes a message. Null when nothing was found |
 | `deleted_at` | timestamptz | yes |  |
 | `created_at` | timestamptz | no | default now() |
 
@@ -1767,7 +1770,7 @@ Notification types: new_message, new_offer, offer_accepted, offer_declined, offe
 
 ### `reports`
 
-A report of a listing, a member, a message or a review. One generic table: the target is a type plus an id with no foreign key, so a report outlives what it reports.
+A report of a listing, a member, a message or a review, or the AI's row for an order a buyer opened a problem on (D-044, `target_type` 'order', `source` 'ai_check', no reporter, reason 'other'; members cannot report an order). One generic table: the target is a type plus an id with no foreign key, so a report outlives what it reports.
 
 Used by: Item page (... menu, Report), Profile (... menu), the admin Review list (D-038). Besides member reports the table holds the AI listing check's flags (`source` = 'ai_check', no reporter). The AI only sorts and describes (`ai_reason`, `urgency`, `ai_summary`), it never hides, removes or bans anything: only an admin action changes a listing.
 
@@ -1776,13 +1779,13 @@ Used by: Item page (... menu, Report), Profile (... menu), the admin Review list
 | `id` | uuid | no | primary key. default gen_random_uuid() |
 | `reporter_id` | uuid | yes | refers to users.id, on delete cascade. Null for an AI check flag |
 | `source` | report_source | no | default 'member'. member or ai_check |
-| `target_type` | report_target | no | listing, user, message or review |
+| `target_type` | report_target | no | listing, user, message, review or order (order only from the AI order summary, D-044) |
 | `target_id` | uuid | no |  |
 | `reason` | report_reason | no | counterfeit, prohibited_item, misleading, inappropriate, spam, harassment, scam_off_platform or other |
 | `details` | text | yes | the member's own note |
 | `ai_reason` | report_reason | yes | the AI's reading of the kind of problem. Null until sorted or when the AI is off |
 | `urgency` | report_urgency | yes | high, normal or low. Null until sorted, those list after low |
-| `ai_summary` | text | yes | one plain sentence for the admin, 300 characters at most |
+| `ai_summary` | text | yes | the AI's summary for the admin, 600 characters at most (300 until D-044 made order summaries longer) |
 | `status` | report_status | no | default 'open'. open, reviewing, actioned or dismissed |
 | `handled_by_id` | uuid | yes | refers to users.id, on delete set null |
 | `handled_at` | timestamptz | yes |  |
@@ -1793,7 +1796,7 @@ Used by: Item page (... menu, Report), Profile (... menu), the admin Review list
 Constraints:
 
 - Check `reports_details_length`: ((details IS NULL) OR (char_length(details) <= 2000))
-- Check `reports_ai_summary_length`: ((ai_summary IS NULL) OR (char_length(ai_summary) <= 300))
+- Check `reports_ai_summary_length`: ((ai_summary IS NULL) OR (char_length(ai_summary) <= 600))
 - Check `reports_member_has_reporter`: ((source <> 'member') OR (reporter_id IS NOT NULL))
 
 Indexes:
@@ -1846,8 +1849,8 @@ A short summary sheet per person: how much they like Dresses, Zara, a size or a 
 | Field | Type | Null | Notes |
 |---|---|---|---|
 | `user_id` | uuid | no | primary key (with feature and feature_key). refers to users.id, on delete cascade |
-| `feature` | affinity_feature | no | category, parent_category, brand, seller, size, price_band, colour or condition |
-| `feature_key` | text | no | A category, brand, seller, size, colour or condition id, or a price band "0" to "5" |
+| `feature` | affinity_feature | no | category, parent_category, brand, seller, size, price_band, colour, condition or style (D-042) |
+| `feature_key` | text | no | A category, brand, seller, size, colour or condition id, a style slug, or a price band "0" to "5" |
 | `score` | real | no | The score at `scored_at`. Never below 0 |
 | `scored_at` | timestamptz | no | default now() |
 | `event_count` | integer | no | default 0 |

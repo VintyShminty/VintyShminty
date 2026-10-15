@@ -1,15 +1,15 @@
 {
   "terms": {
     "title": "Terms of use",
-    "description": "The rules for using Vinty, in plain words: your account, buying and selling, what is not allowed and how we handle problems.",
-    "intro": "These are the rules for using Vinty, written to be read. Please read them before you start. If you use Vinty, you agree to them.",
+    "description": "The rules for using Yadii, in plain words: your account, buying and selling, what is not allowed and how we handle problems.",
+    "intro": "These are the rules for using Yadii, written to be read. Please read them before you start. If you use Yadii, you agree to them.",
     "sections": [
       {
         "id": "who",
-        "heading": "Who can use Vinty",
+        "heading": "Who can use Yadii",
         "blocks": [
-          "Vinty is for adults. You can use it if you are 18 or older. If you are 16 or 17, you can use it only with the permission of a parent or guardian, who agrees to these terms with you. [Lawyer: confirm the minimum age and the rule for minors under Israeli contract law]",
-          "Vinty is made for people in Israel. For now, prices are in shekels and items travel inside Israel."
+          "Yadii is for adults. You can use it if you are 18 or older. If you are 16 or 17, you can use it only with the permission of a parent or guardian, who agrees to these terms with you. [Lawyer: confirm the minimum age and the rule for minors under Israeli contract law]",
+          "Yadii is made for people in Israel. For now, prices are in shekels and items travel inside Israel."
         ]
       },
       {
@@ -17,7 +17,7 @@
         "heading": "Your account",
         "blocks": [
           "You can sign in with an email and password, or with Apple or Google. Give us true details and keep them up to date. One person, one account.",
-          "Keep your password and your email codes to yourself. Vinty will never ask you for them in a chat. You are responsible for what happens in your account, so tell us quickly if you think someone else got in.",
+          "Keep your password and your email codes to yourself. Yadii will never ask you for them in a chat. You are responsible for what happens in your account, so tell us quickly if you think someone else got in.",
           "You can close your account any time in Settings. While you have an open order, you need to finish it first."
         ]
       },
@@ -25,19 +25,19 @@
         "id": "practice",
         "heading": "Practice mode: what is real today",
         "blocks": [
-          "Vinty is in practice mode. Please read this part carefully.",
+          "Yadii is in practice mode. Please read this part carefully.",
           [
             "No real money moves. Checkout, payments, your balance and withdrawals are simulated. Nobody is charged and nobody is paid.",
             "Shipping is simulated too. No courier collects or delivers anything yet.",
             "Boosts are free for now.",
-            "The fees you see (for example the Coverage fee) are placeholders. They show how Vinty will work and may change before real payments start."
+            "The fees you see (for example the Coverage fee) are placeholders. They show how Yadii will work and may change before real payments start."
           ],
-          "Do not send real money or items because of something you saw in Vinty. We will tell you clearly, in the app and on the website, on the day real payments start. [Lawyer: confirm wording for a practice service, and whether a notice is needed when it goes live]"
+          "Do not send real money or items because of something you saw in Yadii. We will tell you clearly, in the app and on the website, on the day real payments start. [Lawyer: confirm wording for a practice service, and whether a notice is needed when it goes live]"
         ]
       },
       {
         "id": "selling",
-        "heading": "Selling on Vinty",
+        "heading": "Selling on Yadii",
         "blocks": [
           "When you list an item, you promise that:",
           [
@@ -54,7 +54,7 @@
         "id": "not-allowed",
         "heading": "What you cannot sell",
         "blocks": [
-          "You cannot list any of these on Vinty:",
+          "You cannot list any of these on Yadii:",
           [
             "Fake or copied items that pretend to be a brand, and items you are not allowed to sell.",
             "Weapons, ammunition, knives made for fighting, and anything made to hurt people.",
@@ -65,7 +65,7 @@
             "Medicines, medical devices and cosmetics that were opened or are past their date.",
             "Digital items, vouchers, gift cards and tickets.",
             "Anything that is illegal in Israel, hateful, or sexual in nature.",
-            "Services, jobs, and listings that ask people to leave Vinty to pay or to chat."
+            "Services, jobs, and listings that ask people to leave Yadii to pay or to chat."
           ],
           "We may add to this list when we learn something new. If you are not sure, ask us before you list. [Lawyer: confirm the list against Israeli law, including rules for children's items and second-hand electrical goods]"
         ]
@@ -83,7 +83,7 @@
         "id": "covered",
         "heading": "Coverage, the buyer promise",
         "blocks": [
-          "Coverage is the name of Vinty's promise to buyers. When real payments start, the idea is this: the money you pay is held, and the seller is paid only after you receive the item. If the item is not as described, you can open a dispute within 2 days of it arriving, and we look at it. If you are right, you get your money back.",
+          "Coverage is the name of Yadii's promise to buyers. When real payments start, the idea is this: the money you pay is held, and the seller is paid only after you receive the item. If the item is not as described, you can open a dispute within 2 days of it arriving, and we look at it. If you are right, you get your money back.",
           "Coverage adds a fee, today a placeholder of 5 percent, which the buyer pays. The exact rules, what is covered and what is not, and the timing will be written here before real payments start. [Lawyer: confirm the final Coverage terms, the fee, and how payments are held, including any licence needed to hold customer money]"
         ]
       },
@@ -92,14 +92,14 @@
         "heading": "Reviews",
         "blocks": [
           "After an order, the buyer and the seller can rate each other. Reviews must be honest, based on your own experience of that order, and polite.",
-          "Do not write reviews for your own items, trade reviews, or promise a review in return for something. We may remove reviews that break these rules or the rules on conduct below. If no one reviews an order after a few days, Vinty may add a default review. [Lawyer: confirm the automatic review rule]"
+          "Do not write reviews for your own items, trade reviews, or promise a review in return for something. We may remove reviews that break these rules or the rules on conduct below. If no one reviews an order after a few days, Yadii may add a default review. [Lawyer: confirm the automatic review rule]"
         ]
       },
       {
         "id": "conduct",
         "heading": "How to behave",
         "blocks": [
-          "Be kind. Do not harass, threaten, scam, spam, or share other people's private details. Do not use Vinty to move a deal outside the app. Do not try to break the service, copy it in bulk, or get around its limits.",
+          "Be kind. Do not harass, threaten, scam, spam, or share other people's private details. Do not use Yadii to move a deal outside the app. Do not try to break the service, copy it in bulk, or get around its limits.",
           "You can block someone at any time."
         ]
       },
@@ -122,7 +122,7 @@
         "id": "liability",
         "heading": "Our responsibility",
         "blocks": [
-          "Vinty is a place where people meet to sell to each other. The sale is between the buyer and the seller. We do not own the items and we do not check each one, so we cannot promise that every listing is accurate or safe.",
+          "Yadii is a place where people meet to sell to each other. The sale is between the buyer and the seller. We do not own the items and we do not check each one, so we cannot promise that every listing is accurate or safe.",
           "We work hard to keep the service running, but it may be interrupted, and this is a practice service that is still being built. To the extent the law allows, we are not responsible for indirect loss, or for what other users do. Nothing here limits rights that the law does not allow us to limit. [Lawyer: confirm the limits of liability, the disclaimer wording, and consumer law rules]"
         ]
       },
@@ -130,7 +130,7 @@
         "id": "changes",
         "heading": "Changes to these terms",
         "blocks": [
-          "We may update these terms, for example when real payments start. When the change matters, we will tell you in the app or by email before it starts. If you keep using Vinty after that, you agree to the new terms. If you do not agree, you can close your account."
+          "We may update these terms, for example when real payments start. When the change matters, we will tell you in the app or by email before it starts. If you keep using Yadii after that, you agree to the new terms. If you do not agree, you can close your account."
         ]
       },
       {
@@ -145,21 +145,21 @@
         "heading": "Contact",
         "blocks": [
           "Questions about these terms? Write to vintyshminty@gmail.com.",
-          "Vinty is run by: Vinty (the operator's legal name and address will be added before launch). [Lawyer: add the legal name, ID number and address]"
+          "Yadii is run by: Yadii (the operator's legal name and address will be added before launch). [Lawyer: add the legal name, ID number and address]"
         ]
       }
     ]
   },
   "privacy": {
     "title": "Privacy policy",
-    "description": "What personal information Vinty keeps, why, who sees it, how long we keep it and how to see, fix or delete it.",
-    "intro": "This page explains what Vinty knows about you, why, and what you can do about it. It is written for people, not lawyers. It is meant to fit Israel's Protection of Privacy Law, including Amendment 13, and to follow the main ideas of the European GDPR.",
+    "description": "What personal information Yadii keeps, why, who sees it, how long we keep it and how to see, fix or delete it.",
+    "intro": "This page explains what Yadii knows about you, why, and what you can do about it. It is written for people, not lawyers. It is meant to fit Israel's Protection of Privacy Law, including Amendment 13, and to follow the main ideas of the European GDPR.",
     "sections": [
       {
         "id": "who",
         "heading": "Who is responsible",
         "blocks": [
-          "Vinty (the operator's legal name and address will be added before launch) decides why and how your information is used. [Lawyer: add the legal name and address, and say whether we must register a database, appoint a privacy protection officer or name an EU representative]",
+          "Yadii (the operator's legal name and address will be added before launch) decides why and how your information is used. [Lawyer: add the legal name and address, and say whether we must register a database, appoint a privacy protection officer or name an EU representative]",
           "Questions about privacy go to vintyshminty@gmail.com."
         ]
       },
@@ -185,7 +185,7 @@
             "Things you save: favourites, saved searches and follows.",
             "Basic technical records: the time of requests and errors, and your approximate network address, so we can find faults and stop abuse."
           ],
-          "Your face data never leaves your phone. If you use Face ID to unlock Vinty, the phone does the checking and we receive nothing about it."
+          "Your face data never leaves your phone. If you use Face ID to unlock Yadii, the phone does the checking and we receive nothing about it."
         ]
       },
       {
@@ -200,12 +200,13 @@
         "id": "ai",
         "heading": "AI helpers",
         "blocks": [
-          "Some parts of Vinty use AI from Anthropic (Claude) to help you. It suggests and warns. It never decides anything about your account, your money or your orders. A person on our team does that.",
+          "Some parts of Yadii use AI from Anthropic (Claude) to help you. It suggests and warns. It never decides anything about your account, your money or your orders. A person on our team does that.",
           [
             "Selling: it reads the photos and words of your listing to suggest a category, brand and condition, and to give photo tips.",
             "Searching: it turns what you type in search into filters.",
             "Safety: it checks new and changed listings for items that are not allowed, fakes and scams, and helps us sort reports. Anything it finds goes to a person on our team.",
-            "Chat: it reads the messages in your conversations to suggest quick replies and to warn you about likely scams, such as someone asking you to pay or talk outside Vinty. If it sees a likely scam, our team may look at that conversation."
+            "Chat: it reads the messages in your conversations to warn you about likely scams, such as someone asking you to pay or talk outside Yadii. If it sees a likely scam, our team may look at that conversation.",
+            "Problems with an order: when a buyer reports a problem, it reads that order's details and the chat about it, and writes a short summary for a person on our team, who decides."
           ],
           "We do not send your name, email or phone number with what the AI reads. Anthropic may not use it to train its models. [Lawyer: confirm the Anthropic terms and the legal basis for automated checks of messages]"
         ]
@@ -214,13 +215,13 @@
         "id": "share",
         "heading": "Who sees your information",
         "blocks": [
-          "Other people on Vinty:",
+          "Other people on Yadii:",
           [
             "Everyone can see your public profile, your listings and your reviews.",
             "A buyer and a seller in an order see what the order needs, such as names, the delivery address and phone number, and the item.",
-            "Only the person you write to sees your messages (and Vinty, if someone reports a conversation or the AI helper sees a likely scam)."
+            "Only the person you write to sees your messages (and Yadii, if someone reports a conversation or the AI helper sees a likely scam)."
           ],
-          "Companies that help us run Vinty. They process your information for us and only for that:",
+          "Companies that help us run Yadii. They process your information for us and only for that:",
           [
             "Vercel runs our servers, in the EU (Frankfurt).",
             "Neon keeps our database, on Amazon servers in Frankfurt.",
@@ -273,14 +274,14 @@
         "id": "cookies",
         "heading": "Cookies",
         "blocks": [
-          "On the website we use two small files. One keeps you signed in. The other remembers your language. We do not use advertising or tracking cookies, and no ad companies follow you from Vinty. [Lawyer: confirm no consent banner is needed for these two]"
+          "On the website we use two small files. One keeps you signed in. The other remembers your language. We do not use advertising or tracking cookies, and no ad companies follow you from Yadii. [Lawyer: confirm no consent banner is needed for these two]"
         ]
       },
       {
         "id": "children",
         "heading": "Children",
         "blocks": [
-          "Vinty is not meant for children. You must be 18, or 16 to 17 with a parent or guardian's permission. If you think a younger child has an account, write to us and we will close it. [Lawyer: confirm the minimum age and parent consent rules]"
+          "Yadii is not meant for children. You must be 18, or 16 to 17 with a parent or guardian's permission. If you think a younger child has an account, write to us and we will close it. [Lawyer: confirm the minimum age and parent consent rules]"
         ]
       },
       {
@@ -308,15 +309,15 @@
     ]
   },
   "about": {
-    "title": "About Vinty",
-    "description": "Vinty is a place in Israel to give good clothes and things a second life, between people who feel like neighbours.",
-    "intro": "Vinty is a place to give good things a second life.",
+    "title": "About Yadii",
+    "description": "Yadii is a place in Israel to give good clothes and things a second life, between people who feel like neighbours.",
+    "intro": "Yadii is a place to give good things a second life.",
     "sections": [
       {
         "id": "idea",
         "heading": "The idea",
         "blocks": [
-          "Think of it as a walk through friends' closets. The dress somebody wore twice. The jacket that never found its owner. The toy that is still in love with being played with. On Vinty, people sell what they no longer use to people who will.",
+          "Think of it as a walk through friends' closets. The dress somebody wore twice. The jacket that never found its owner. The toy that is still in love with being played with. On Yadii, people sell what they no longer use to people who will.",
           "It is warm, simple and made for real people. No noise, no pressure, just things worth keeping in use."
         ]
       },
@@ -324,7 +325,7 @@
         "id": "who",
         "heading": "Who it is for",
         "blocks": [
-          "For anyone in Israel who wants to clear out a cupboard, find something special for less, or just enjoy a good hunt. Prices are in shekels, and Vinty works in Hebrew and English, in both directions."
+          "For anyone in Israel who wants to clear out a cupboard, find something special for less, or just enjoy a good hunt. Prices are in shekels, and Yadii works in Hebrew and English, in both directions."
         ]
       },
       {
@@ -332,14 +333,14 @@
         "heading": "How it works",
         "blocks": [
           "Take photos, say what it is, set a price. Buyers can make an offer, ask a question or save it for later. Home learns your taste, and you decide how much, in Settings.",
-          "You can use Vinty in the app on your phone and on this website."
+          "You can use Yadii in the app on your phone and on this website."
         ]
       },
       {
         "id": "practice",
         "heading": "A note on practice mode",
         "blocks": [
-          "We are still building. For now, Vinty is in practice mode: checkout and payments are simulated, shipping is simulated, and no money moves. It lets us make everything feel right before real orders start. We will tell you clearly when that changes."
+          "We are still building. For now, Yadii is in practice mode: checkout and payments are simulated, shipping is simulated, and no money moves. It lets us make everything feel right before real orders start. We will tell you clearly when that changes."
         ]
       },
       {

@@ -75,7 +75,12 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     const t = await withApp(undefined);
     contexts.push(t.ctx);
     const status = await t.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
-    expect(status.json()).toEqual({ photoAssist: false, textAssist: false, searchAssist: false });
+    expect(status.json()).toEqual({
+      photoAssist: false,
+      textAssist: false,
+      searchAssist: false,
+      helpAssist: false,
+    });
     const res = await t.suggest();
     expect(res.statusCode).toBe(200);
     const body = res.json() as PhotoSuggestion;
@@ -443,14 +448,24 @@ describe.skipIf(!databaseUrl)("photo tips and text helper", () => {
       if (!db) throw new Error("no database");
       await db.delete(killSwitches).where(eq(killSwitches.name, "ai"));
       const on = await status();
-      expect(on.json()).toEqual({ photoAssist: true, textAssist: true, searchAssist: false });
+      expect(on.json()).toEqual({
+        photoAssist: true,
+        textAssist: true,
+        searchAssist: false,
+        helpAssist: false,
+      });
       expect(on.headers["cache-control"]).toBe("public, max-age=60");
       await db.insert(killSwitches).values({ name: "ai", enabled: false, reason: "Paused" });
       try {
         // The meter remembers the switch for 30 seconds, so ask a fresh app copy.
         const fresh = await setup({ photo: fakePhotoReader({}), text: fakeTextReader({}) });
         const off = await fresh.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
-        expect(off.json()).toEqual({ photoAssist: false, textAssist: false, searchAssist: false });
+        expect(off.json()).toEqual({
+          photoAssist: false,
+          textAssist: false,
+          searchAssist: false,
+          helpAssist: false,
+        });
       } finally {
         await db.delete(killSwitches).where(eq(killSwitches.name, "ai"));
       }
@@ -459,7 +474,12 @@ describe.skipIf(!databaseUrl)("photo tips and text helper", () => {
     it("says text is off when only the photo helper has a key", async () => {
       const t = await setup({ photo: fakePhotoReader({}), text: fakeTextReader() });
       const res = await t.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
-      expect(res.json()).toEqual({ photoAssist: true, textAssist: false, searchAssist: false });
+      expect(res.json()).toEqual({
+        photoAssist: true,
+        textAssist: false,
+        searchAssist: false,
+        helpAssist: false,
+      });
     });
   });
 });

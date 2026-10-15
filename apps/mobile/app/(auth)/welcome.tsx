@@ -23,7 +23,7 @@ export default function Welcome() {
           className="text-primary-foreground"
           style={{ fontSize: 28, lineHeight: 34, letterSpacing: -1 }}
         >
-          Vinty
+          Yadii
         </Text>
         <View className="mt-md self-start rounded-full bg-background/95 px-md py-xs">
           <Text variant="cardMeta" weight={700} className="text-text-1">

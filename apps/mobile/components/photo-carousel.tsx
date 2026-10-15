@@ -27,35 +27,39 @@ function PhotoCarousel({ photos, onSwipe }: { photos: Photo[]; onSwipe?: () => v
 
   return (
     <View>
-      <FlatList
-        data={photos}
-        horizontal
-        pagingEnabled
-        // Photos page left to right in both languages. Paging a horizontal list that lays out right to left starts on the wrong photo.
-        style={{ direction: "ltr" }}
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(p) => p.key}
-        onMomentumScrollEnd={(e) => {
-          const next = Math.round(e.nativeEvent.contentOffset.x / width);
-          if (next !== index) onSwipe?.();
-          setIndex(next);
-        }}
-        renderItem={({ item, index: i }) => (
-          <Image
-            source={{ uri: item.url }}
-            placeholder={item.placeholder ?? undefined}
-            style={{ width, height }}
-            contentFit="cover"
-            transition={200}
-            accessibilityLabel={t("listing.photoLabel", { n: i + 1, total: photos.length })}
-            accessibilityIgnoresInvertColors
-          />
-        )}
-      />
+      {/* Photos page left to right in both languages. Paging a horizontal list that lays out right to left starts on
+          the wrong photo. The direction sits on a wrapper, not on the list: on the list itself Android stops it from
+          scrolling at all. */}
+      <View style={{ direction: "ltr" }}>
+        <FlatList
+          data={photos}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(p) => p.key}
+          onMomentumScrollEnd={(e) => {
+            const next = Math.round(e.nativeEvent.contentOffset.x / width);
+            if (next !== index) onSwipe?.();
+            setIndex(next);
+          }}
+          renderItem={({ item, index: i }) => (
+            <Image
+              source={{ uri: item.url }}
+              placeholder={item.placeholder ?? undefined}
+              style={{ width, height }}
+              contentFit="cover"
+              transition={200}
+              accessibilityLabel={t("listing.photoLabel", { n: i + 1, total: photos.length })}
+              accessibilityIgnoresInvertColors
+            />
+          )}
+        />
+      </View>
       {photos.length > 1 ? (
         <View className="absolute bottom-md end-md rounded-full bg-window px-sm py-xs">
           <Text variant="cardMeta" weight={600} className="text-text-1">
-            {t("listing.photoCount", { n: index + 1, total: photos.length })}
+            {/* Kept left to right in Hebrew too, or Android reads the numbers backwards ("2 / 1"). */}
+            {`\u2066${t("listing.photoCount", { n: index + 1, total: photos.length })}\u2069`}
           </Text>
         </View>
       ) : null}

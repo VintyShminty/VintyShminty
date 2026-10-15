@@ -152,6 +152,47 @@ describe.skipIf(!databaseUrl)("admin Review list: AI listing check, report sorti
       expect(input?.images).toHaveLength(2);
     });
 
+    it("saves the style tags on every check, even with no flags: unknown dropped, repeats removed, at most 3", async () => {
+      checkAnswer = { flags: [], styles: ["vintage", "bogus", "y2k", "vintage", "goth", "boho"] };
+      const id = await createListing(`Styled ${stamp}`);
+      expect(await aiRows(id)).toHaveLength(0);
+      const [row] = await db().select().from(listings).where(eq(listings.id, id));
+      expect(row?.styles).toEqual(["vintage", "y2k", "goth"]);
+      expect(row?.stylesTaggedAt).toBeInstanceOf(Date);
+
+      // A later check replaces the tags, and an answer without tags leaves the listing tagged with none.
+      checkAnswer = { flags: [] };
+      expect(
+        (await call("PATCH", `/v1/listings/${id}`, seller.token, { title: `Styled two ${stamp}` }))
+          .statusCode,
+      ).toBe(200);
+      await settleBackground();
+      const [again] = await db().select().from(listings).where(eq(listings.id, id));
+      expect(again?.styles).toEqual([]);
+      expect(again?.stylesTaggedAt).toBeInstanceOf(Date);
+    });
+
+    it("never shows the style tags in any listing answer", async () => {
+      checkAnswer = { flags: [], styles: ["vintage", "y2k"] };
+      const id = await createListing(`Secret tags ${stamp}`);
+      const [row] = await db().select().from(listings).where(eq(listings.id, id));
+      expect(row?.styles).toEqual(["vintage", "y2k"]);
+      const urls = [
+        `/v1/listings/${id}`,
+        `/v1/me/listings/${id}`,
+        "/v1/me/listings?status=active",
+        `/v1/users/${seller.id}/listings`,
+        "/v1/listings?limit=50",
+        "/v1/feed",
+        `/v1/listings/${id}/similar`,
+      ];
+      for (const url of urls) {
+        const res = await call("GET", url, seller.token);
+        expect(res.statusCode, url).toBeLessThan(500);
+        expect(res.body, url).not.toMatch(/styles|stylesTaggedAt|styles_tagged_at|"vintage"|"y2k"/);
+      }
+    });
+
     it("checks again after an edit of the words, and updates the open row instead of adding one", async () => {
       checkAnswer = {
         flags: [{ kind: "scam_off_platform", urgency: "normal", summary: "Asks for WhatsApp." }],

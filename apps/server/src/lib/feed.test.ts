@@ -69,6 +69,7 @@ const candidate = (over: Partial<Candidate> = {}): Candidate => ({
   viewCount: 100,
   pop: 0,
   colourIds: [],
+  styles: [],
   explore: false,
   ...over,
 });
@@ -119,6 +120,28 @@ describe("scoreCandidate", () => {
     const withTaste = scoreCandidate(candidate(), small, ctx).score;
     const without = scoreCandidate(candidate(), null, ctx).score;
     expect(withTaste - without).toBeCloseTo(0.1 * 1, 1);
+  });
+
+  it("lifts an item whose style the person likes, using the best matching style (D-042)", () => {
+    const learned = taste({
+      ...buildTaste(
+        [line("category", "shoes", 40), line("style", "vintage", 40), line("style", "y2k", 10)],
+        new Set(),
+        now,
+      ),
+    });
+    const none = scoreCandidate(candidate(), learned, ctx).score;
+    const one = scoreCandidate(candidate({ styles: ["vintage"] }), learned, ctx).score;
+    const several = scoreCandidate(candidate({ styles: ["y2k", "vintage", "goth"] }), learned, ctx).score;
+    const weak = scoreCandidate(candidate({ styles: ["y2k"] }), learned, ctx).score;
+    expect(one - none).toBeCloseTo(0.6 * 1, 5);
+    // Several styles count as the best match, not the sum.
+    expect(several).toBeCloseTo(one, 5);
+    expect(weak - none).toBeCloseTo(0.6 * 0.25, 5);
+    // No new reason line: styles are never explained to the person.
+    expect(scoreCandidate(candidate({ styles: ["vintage"] }), learned, ctx).terms.map((t) => t.kind)).toEqual(
+      scoreCandidate(candidate(), learned, ctx).terms.map((t) => t.kind),
+    );
   });
 
   it("counts a followed seller, a picked brand and a chosen size from the first day", () => {

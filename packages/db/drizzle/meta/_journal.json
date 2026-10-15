@@ -61,8 +61,36 @@
     {
       "idx": 8,
       "version": "7",
-      "when": 1792074249629,
-      "tag": "0008_daffy_jetstream",
+      "when": 1792014893285,
+      "tag": "0008_thin_stryfe",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792047934396,
+      "tag": "0009_elite_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792050397103,
+      "tag": "0010_thin_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792050907539,
+      "tag": "0011_pretty_iron_fist",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792074646436,
+      "tag": "0012_lumpy_sir_ram",
       "breakpoints": true
     }
   ]

@@ -23,6 +23,7 @@ import {
 } from "@vinty/shared";
 import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { checkChatInBackground } from "./chat-check.js";
 import { loadSellerSummaries } from "./discovery.js";
 import { ApiError } from "./errors.js";
 import { recordFirstMessage } from "./events.js";
@@ -34,7 +35,8 @@ import { keyBelongsToUser, MAX_UPLOAD_BYTES } from "./storage.js";
 type App = Pick<
   FastifyInstance,
   "db" | "storage" | "realtime" | "pusher" | "messageLimits" | "log" | "reference"
->;
+> &
+  Partial<Pick<FastifyInstance, "chatChecker">>;
 type ConversationRecord = typeof conversations.$inferSelect;
 type MessageRecord = typeof messages.$inferSelect;
 
@@ -178,6 +180,7 @@ export async function presentMessages(
       payload: row.payload ?? null,
       clientMessageId: row.clientMessageId,
       createdAt: row.createdAt.toISOString(),
+      warning: row.warning,
     };
   });
 }
@@ -338,7 +341,7 @@ async function displayNameOf(app: Pick<App, "db">, userId: string): Promise<stri
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-  return row?.displayUsername ?? row?.username ?? row?.name ?? "Vinty";
+  return row?.displayUsername ?? row?.username ?? row?.name ?? "Yadii";
 }
 
 export type SentMessage = { message: Message; created: boolean };
@@ -444,6 +447,8 @@ export async function sendMessage(
   if (!message) throw new Error("Message could not be presented");
   await afterMessageCommitted(app, conversation, userId, otherId, message, preview);
   await recordFirstMessage(app, conversation, userId);
+  // D-041: the AI looks at a new text message after the fact. It never holds up or fails the send.
+  if (message.kind === "text" && app.chatChecker) checkChatInBackground(app.chatChecker, message.id, app.log);
   return { message, created: true };
 }
 
