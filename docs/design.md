@@ -609,16 +609,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/web/components/top-bar.tsx`, `sell-button.tsx`, `home-greeting.tsx`, `home-feed.tsx`.
 - **References:** D-008, D-030, D-035, `docs/mockups/top-bar-options.html`
 
-### D-041 : Chat warns about likely scams and offers quick replies, and never sends anything itself
+### D-041 : Chat warns about likely scams
 
 - **Date:** 2026-10-14
 - **Area:** Chat, app and website
 - **Status:** Built on branch feat/ai-chat-helpers, waiting for Eden's review. Numbered D-041 because D-039 went to the website top bar and D-040 to style tags while this was built. The privacy policy's "AI helpers" section (PR #71) covers it.
-- **Decision:** Every text message is checked by Claude Haiku in the background after it is sent (Eden's choice), so sending never slows down. When it asks to pay outside Vinty, shares a link that may not be safe, moves the talk to WhatsApp or a phone number, or rushes the other person, the person who received it sees one quiet line under that bubble with a small warning sign, for example "Careful: paying outside Vinty is not protected. Keep payment in the app". The sender sees nothing new. Clear scams (a fake payment link, asking for card details or codes) also go to Eden's Review list (D-038). Quick replies: when someone opens a chat where the other person wrote last, up to 3 short replies in their language show as chips with a small sparkle above the typing box. A tap puts the words in the box to edit (Eden's choice), it never sends. The chips go away when the person starts typing or a new message comes in. Replies only use what is in the chat, never invent a price or a date, and never move the deal outside Vinty.
-- **Rationale:** Deals moved off the app are where people get cheated, and a warning at the right moment protects them without blocking anyone. Quick replies make answering a buyer one tap faster.
-- **Trade-off:** Reading every message costs about 0.006 cents each, but catches scams that are worded without the usual signs. Quick replies are made only when a chat is opened, so they appear a moment after it opens, and chats nobody opens cost nothing.
-- **Implementation:** shared shapes in `packages/shared/src/chat-assist.ts`, `warning` on messages. Server: `lib/chat-check.ts`, `lib/quick-replies.ts`, `POST /v1/conversations/:id/quick-replies`. App and website: the chat screen.
+- **Decision:** Every text message is checked by Claude Haiku in the background after it is sent (Eden's choice), so sending never slows down. When it asks to pay outside Vinty, shares a link that may not be safe, moves the talk to WhatsApp or a phone number, or rushes the other person, the person who received it sees one quiet line under that bubble with a small warning sign, for example "Careful: paying outside Vinty is not protected. Keep payment in the app". The sender sees nothing new. Clear scams (a fake payment link, asking for card details or codes) also go to Eden's Review list (D-038).
+- **Rationale:** Deals moved off the app are where people get cheated, and a warning at the right moment protects them without blocking anyone.
+- **Trade-off:** Reading every message costs about 0.006 cents each, but catches scams that are worded without the usual signs.
+- **Implementation:** `warning` on messages. Server: `lib/chat-check.ts`. App and website: the chat screen.
 - **References:** D-034, D-038, `docs/unfinished-work.md` (AI features with Claude Haiku)
+- **Note:** Quick replies were built and tried, then left aside by Eden on 2026-10-15.
 
 ## Open decisions
 

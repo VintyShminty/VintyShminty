@@ -8,7 +8,6 @@ import type { ListingCheckReader } from "./lib/listing-check.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
 import type { PhotoReader } from "./lib/photo-reader.js";
 import { type MemoryPusher, memoryPusher } from "./lib/push.js";
-import type { QuickRepliesReader } from "./lib/quick-replies.js";
 import type { ReportSortReader } from "./lib/report-sort.js";
 import type { SearchReader } from "./lib/search-reader.js";
 import type { Storage } from "./lib/storage.js";
@@ -70,7 +69,6 @@ export async function buildTestApp(
     listingCheckReader?: ListingCheckReader;
     reportSortReader?: ReportSortReader;
     chatCheckReader?: ChatCheckReader;
-    quickRepliesReader?: QuickRepliesReader;
     storage?: Storage;
   } = {},
 ): Promise<TestContext> {
@@ -91,7 +89,6 @@ export async function buildTestApp(
     ...(extras.listingCheckReader ? { listingCheckReader: extras.listingCheckReader } : {}),
     ...(extras.reportSortReader ? { reportSortReader: extras.reportSortReader } : {}),
     ...(extras.chatCheckReader ? { chatCheckReader: extras.chatCheckReader } : {}),
-    ...(extras.quickRepliesReader ? { quickRepliesReader: extras.quickRepliesReader } : {}),
   });
   await app.ready();
   return { app, mailer, pusher, database, close: () => app.close() };

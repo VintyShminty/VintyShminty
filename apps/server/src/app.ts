@@ -20,12 +20,6 @@ import { createMailer, type Mailer } from "./lib/mail.js";
 import { createPhotoReader, meteredPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
 import type { Pusher } from "./lib/push.js";
 import {
-  createQuickReplier,
-  createQuickRepliesReader,
-  meteredQuickRepliesReader,
-  type QuickRepliesReader,
-} from "./lib/quick-replies.js";
-import {
   createReportSorter,
   createReportSortReader,
   meteredReportSortReader,
@@ -59,7 +53,6 @@ import notificationRoutes from "./routes/notifications.js";
 import offerRoutes from "./routes/offers.js";
 import orderRoutes from "./routes/orders.js";
 import photoAssistRoutes from "./routes/photo-assist.js";
-import quickReplyRoutes from "./routes/quick-replies.js";
 import referenceRoutes from "./routes/reference.js";
 import referralRoutes from "./routes/referrals.js";
 import reviewRoutes from "./routes/reviews.js";
@@ -87,7 +80,6 @@ export type BuildAppOptions = {
   /** The background chat check that adds warnings to messages (D-041). Tests pass a fake. */
   chatCheckReader?: ChatCheckReader;
   /** Suggested replies in a chat (D-041). Tests pass a fake. */
-  quickRepliesReader?: QuickRepliesReader;
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
 };
@@ -104,7 +96,6 @@ export async function buildApp({
   listingCheckReader,
   reportSortReader,
   chatCheckReader,
-  quickRepliesReader,
 }: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
@@ -162,11 +153,6 @@ export async function buildApp({
         ),
       ),
     );
-    const meteredQuickReplies = meteredQuickRepliesReader(
-      quickRepliesReader ?? createQuickRepliesReader(env),
-      aiMeter,
-      env.PHOTO_READER_MODEL,
-    );
     await app.register(listingRoutes, { listingChecker });
     await app.register(uploadRoutes);
     const baseReader = photoReader ?? createPhotoReader(env);
@@ -179,7 +165,6 @@ export async function buildApp({
       reader: meteredPhotoReader(baseReader, aiMeter, env.PHOTO_READER_MODEL),
       textReader: meteredTextReader(textReader ?? createTextReader(env), aiMeter, env.PHOTO_READER_MODEL),
       searchReader: meteredSearch,
-      chatReader: meteredQuickReplies,
       meter: aiMeter,
     });
     await app.register(searchAssistRoutes, { searchReader: meteredSearch });
@@ -188,7 +173,6 @@ export async function buildApp({
     await app.register(engagementRoutes, { reportSorter });
     await app.register(eventRoutes);
     await app.register(messageRoutes);
-    await app.register(quickReplyRoutes, { replier: createQuickReplier(app, meteredQuickReplies) });
     await app.register(notificationRoutes);
     await app.register(addressRoutes);
     await app.register(offerRoutes);

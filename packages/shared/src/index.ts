@@ -4,7 +4,6 @@ export * from "./auth-errors.js";
 export * from "./bidi.js";
 export * from "./browse-tiles.js";
 export * from "./bumps.js";
-export * from "./chat-assist.js";
 export * from "./chat-format.js";
 export * from "./common.js";
 export * from "./discovery.js";

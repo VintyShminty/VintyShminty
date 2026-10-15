@@ -1,4 +1,4 @@
-import { aiCalls, blocks, killSwitches, messages, reports } from "@vinty/db";
+import { aiCalls, messages, reports } from "@vinty/db";
 import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { settleBackground } from "../lib/background.js";
@@ -8,13 +8,6 @@ import {
   type RawChatCheck,
   resolveChatCheck,
 } from "../lib/chat-check.js";
-import {
-  cleanReplies,
-  fakeQuickRepliesReader,
-  type QuickRepliesInput,
-  quickRepliesMessage,
-  type RawQuickReplies,
-} from "../lib/quick-replies.js";
 import {
   apiCaller,
   buildTestApp,
@@ -27,7 +20,7 @@ import {
 } from "../test-helpers.js";
 
 // Runs only when DATABASE_URL points at a migrated and seeded local database (pnpm db:reset).
-describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)", () => {
+describe.skipIf(!databaseUrl)("chat helpers: warnings (D-041)", () => {
   let ctx: TestContext;
   let call: ReturnType<typeof apiCaller>;
   const createdIds: string[] = [];
@@ -35,7 +28,6 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)"
   const stamp = Date.now().toString(36);
   let seller: TestPerson;
   let buyer: TestPerson;
-  let stranger: TestPerson;
   let listingId: string;
   let conversationId: string;
   const db = () => ctx.database.db;
@@ -45,12 +37,6 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)"
   const checkReader = fakeChatCheckReader(() => {
     if (checkBroken) throw new Error("model down");
     return checkAnswer;
-  });
-  let repliesAnswer: RawQuickReplies = { replies: ["Yes, it is", "What is your best price?", "Sorry, no"] };
-  let repliesBroken = false;
-  const repliesReader = fakeQuickRepliesReader(() => {
-    if (repliesBroken) throw new Error("model down");
-    return repliesAnswer;
   });
 
   const send = async (token: string, body: string, clientMessageId = crypto.randomUUID()) => {
@@ -65,16 +51,13 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)"
     await settleBackground();
     return { id, clientMessageId };
   };
-  const quick = (token: string, language = "en", id = conversationId) =>
-    call("POST", `/v1/conversations/${id}/quick-replies`, token, { language });
 
   beforeAll(async () => {
-    ctx = await buildTestApp({}, { chatCheckReader: checkReader, quickRepliesReader: repliesReader });
+    ctx = await buildTestApp({}, { chatCheckReader: checkReader });
     call = apiCaller(ctx);
-    [seller, buyer, stranger] = await Promise.all([
+    [seller, buyer] = await Promise.all([
       signUpTestUser(ctx, "casel", createdIds),
       signUpTestUser(ctx, "cabuy", createdIds),
-      signUpTestUser(ctx, "castr", createdIds),
     ]);
     listingId = await publishTestListing(ctx, seller, `Assist ${stamp} coat`);
     const res = await call("POST", "/v1/conversations", buyer.token, { listingId });
@@ -246,211 +229,6 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)"
         review: false,
         summary: "",
       });
-    });
-  });
-
-  describe("quick replies", () => {
-    // A fresh chat so the newest message is under the test's control.
-    let chat: string;
-    let chatSeller: TestPerson;
-    let chatBuyer: TestPerson;
-    const sendIn = async (token: string, body: string) => {
-      const res = await call("POST", `/v1/conversations/${chat}/messages`, token, {
-        kind: "text",
-        body,
-        clientMessageId: crypto.randomUUID(),
-      });
-      expect(res.statusCode, res.body).toBe(201);
-      await settleBackground();
-      return (res.json() as { id: string }).id;
-    };
-
-    beforeAll(async () => {
-      [chatSeller, chatBuyer] = await Promise.all([
-        signUpTestUser(ctx, "qrsel", createdIds),
-        signUpTestUser(ctx, "qrbuy", createdIds),
-      ]);
-      const lid = await publishTestListing(ctx, chatSeller, `Quick ${stamp} dress`);
-      chat = (
-        (await call("POST", "/v1/conversations", chatBuyer.token, { listingId: lid })).json() as {
-          id: string;
-        }
-      ).id;
-    });
-
-    it("answers empty with no AI call when there is no message, or the newest is mine", async () => {
-      const before = repliesReader.calls.length;
-      expect((await quick(chatSeller.token, "en", chat)).json()).toEqual({ forMessageId: null, replies: [] });
-      const mine = await sendIn(chatBuyer.token, "Is this still available?");
-      expect((await quick(chatBuyer.token, "en", chat)).json()).toEqual({ forMessageId: null, replies: [] });
-      expect(repliesReader.calls.length).toBe(before);
-      expect(mine).toBeTruthy();
-    });
-
-    it("answers empty with no AI call when the newest message is not text", async () => {
-      const before = repliesReader.calls.length;
-      const photo = await call("POST", `/v1/conversations/${chat}/messages`, chatBuyer.token, {
-        kind: "photo",
-        attachmentKey: `messages/${chatBuyer.id}/q.jpg`,
-        clientMessageId: crypto.randomUUID(),
-      });
-      expect(photo.statusCode, photo.body).toBe(201);
-      expect((await quick(chatSeller.token, "en", chat)).json()).toEqual({ forMessageId: null, replies: [] });
-      expect(repliesReader.calls.length).toBe(before);
-    });
-
-    it("returns cleaned replies for a text from the other person, and caches them", async () => {
-      repliesAnswer = {
-        replies: ["  Yes,   it is  ", "yes, it is", "", "x".repeat(120), "Sorry, no", "Fourth one"],
-      };
-      const newest = await sendIn(chatBuyer.token, "How much for the dress to ship to Haifa?");
-      const before = repliesReader.calls.length;
-      const first = await quick(chatSeller.token, "en", chat);
-      expect(first.statusCode).toBe(200);
-      const body = first.json() as { forMessageId: string; replies: string[] };
-      expect(body.forMessageId).toBe(newest);
-      // A reply over 80 characters is dropped, not cut in the middle of a word.
-      expect(body.replies).toEqual(["Yes, it is", "Sorry, no", "Fourth one"]);
-      expect(repliesReader.calls.length).toBe(before + 1);
-
-      const input = repliesReader.calls.at(-1) as QuickRepliesInput;
-      expect(input.askerSide).toBe("seller");
-      expect(input.language).toBe("en");
-      expect(input.messages.at(-1)).toEqual({
-        side: "buyer",
-        text: "How much for the dress to ship to Haifa?",
-      });
-      const text = quickRepliesMessage(input);
-      for (const secret of [chatSeller.id, chatBuyer.id, chatSeller.username, chatBuyer.username, chat]) {
-        expect(text).not.toContain(secret);
-      }
-
-      const again = await quick(chatSeller.token, "en", chat);
-      expect(again.json()).toEqual(body);
-      expect(repliesReader.calls.length).toBe(before + 1);
-      // Another language is another answer.
-      await quick(chatSeller.token, "he", chat);
-      expect(repliesReader.calls.length).toBe(before + 2);
-    });
-
-    it("is counted in the AI cost log under quick_replies", async () => {
-      const rows = await db()
-        .select()
-        .from(aiCalls)
-        .where(and(eq(aiCalls.action, "quick_replies"), eq(aiCalls.userId, chatSeller.id)));
-      expect(rows.length).toBeGreaterThan(0);
-    });
-
-    it("answers empty, not an error, when the model fails", async () => {
-      await sendIn(chatBuyer.token, "Hello?");
-      repliesBroken = true;
-      try {
-        const res = await quick(chatSeller.token, "en", chat);
-        expect(res.statusCode).toBe(200);
-        expect(res.json()).toEqual({ forMessageId: null, replies: [] });
-      } finally {
-        repliesBroken = false;
-      }
-    });
-
-    it("keeps people outside the chat out, and needs a session", async () => {
-      expect((await quick(stranger.token, "en", chat)).statusCode).toBe(404);
-      expect(
-        (await call("POST", `/v1/conversations/${chat}/quick-replies`, undefined, { language: "en" }))
-          .statusCode,
-      ).toBe(401);
-      expect((await quick(chatSeller.token, "fr", chat)).statusCode).toBe(400);
-    });
-
-    it("answers empty when a block exists between the two", async () => {
-      await sendIn(chatBuyer.token, "Are you there?");
-      await db().insert(blocks).values({ blockerId: chatSeller.id, blockedId: chatBuyer.id });
-      try {
-        const before = repliesReader.calls.length;
-        expect((await quick(chatSeller.token, "en", chat)).json()).toEqual({
-          forMessageId: null,
-          replies: [],
-        });
-        expect(repliesReader.calls.length).toBe(before);
-      } finally {
-        await db().delete(blocks).where(eq(blocks.blockerId, chatSeller.id));
-      }
-    });
-
-    it("stops after 60 uncached answers an hour for one person, and answers empty", async () => {
-      const [limSeller, limBuyer] = await Promise.all([
-        signUpTestUser(ctx, "qlsel", createdIds),
-        signUpTestUser(ctx, "qlbuy", createdIds),
-      ]);
-      const lid = await publishTestListing(ctx, limSeller, `Limit ${stamp} shirt`);
-      const limChat = (
-        (await call("POST", "/v1/conversations", limBuyer.token, { listingId: lid })).json() as {
-          id: string;
-        }
-      ).id;
-      const before = repliesReader.calls.length;
-      let last: { forMessageId: string | null; replies: string[] } = { forMessageId: null, replies: [] };
-      for (let i = 0; i < 61; i++) {
-        // Written straight to the table so the chat's own sending limits do not get in the way.
-        await db()
-          .insert(messages)
-          .values({
-            conversationId: limChat,
-            senderId: limBuyer.id,
-            kind: "text",
-            body: `Question ${i}`,
-            clientMessageId: crypto.randomUUID(),
-            createdAt: new Date(Date.now() + i),
-          });
-        // A new address every 25 calls, so the 30 a minute limit per address does not answer first.
-        last = (
-          await ctx.app.inject({
-            method: "POST",
-            url: `/v1/conversations/${limChat}/quick-replies`,
-            headers: { authorization: `Bearer ${limSeller.token}` },
-            remoteAddress: `10.9.0.${Math.floor(i / 25) + 1}`,
-            payload: { language: "en" },
-          })
-        ).json();
-        if (i < 60) expect(last.replies.length, `answer ${i}`).toBeGreaterThan(0);
-      }
-      expect(last).toEqual({ forMessageId: null, replies: [] });
-      expect(repliesReader.calls.length).toBe(before + 60);
-    });
-
-    it("cleans replies the way the app expects", () => {
-      expect(cleanReplies({ replies: null })).toEqual([]);
-      expect(cleanReplies({ replies: ["a", "A", " b ", "c", "d"] })).toEqual(["a", "b", "c"]);
-    });
-  });
-
-  describe("status", () => {
-    it("includes chatAssist, and says false when the AI switch is off", async () => {
-      await db().delete(killSwitches).where(eq(killSwitches.name, "ai"));
-      const on = await call("GET", "/v1/sell/assist");
-      expect(on.json().chatAssist).toBe(true);
-      await db().insert(killSwitches).values({ name: "ai", enabled: false, reason: "Paused" });
-      try {
-        // The meter remembers the switch for 30 seconds, so ask a fresh app copy.
-        const fresh = await buildTestApp({}, { quickRepliesReader: fakeQuickRepliesReader({ replies: [] }) });
-        try {
-          const off = await apiCaller(fresh)("GET", "/v1/sell/assist");
-          expect(off.json().chatAssist).toBe(false);
-        } finally {
-          await fresh.close();
-        }
-      } finally {
-        await db().delete(killSwitches).where(eq(killSwitches.name, "ai"));
-      }
-    });
-
-    it("says false when no reader has a key", async () => {
-      const t = await buildTestApp({}, { quickRepliesReader: fakeQuickRepliesReader() });
-      try {
-        expect((await apiCaller(t)("GET", "/v1/sell/assist")).json().chatAssist).toBe(false);
-      } finally {
-        await t.close();
-      }
     });
   });
 });

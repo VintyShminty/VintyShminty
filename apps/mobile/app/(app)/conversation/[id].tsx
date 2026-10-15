@@ -21,8 +21,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { BackIcon } from "@/components/ui/top-bar";
 import { authClient } from "@/lib/auth-client";
-import { quickReplyTarget } from "@/lib/chat-assist";
-import { quickRepliesQuery } from "@/lib/chat-assist-queries";
 import { buildThreadItems, dayLabel, formatClock, type ThreadItem } from "@/lib/chat-format";
 import {
   discardMessage,
@@ -36,7 +34,6 @@ import { conversationQuery, messagesQuery } from "@/lib/messaging-queries";
 import { useCounterOffer, useSendOffer } from "@/lib/order-flow-queries";
 import { setOpenThread } from "@/lib/push";
 import { joinThread, leaveThread, markThreadRead, useRealtimeStore } from "@/lib/realtime";
-import { photoAssistStatusQuery } from "@/lib/sell-assist";
 
 /** Why a message did not go, in words, for the line under the bubble. */
 function failedText(
@@ -97,18 +94,6 @@ function ConversationScreen() {
       }),
     [messages, pending, me, thread.hasNextPage, otherTyping],
   );
-
-  // Quick replies (D-041): only when the newest message is a text from the other person and the helper is on.
-  const assistStatus = useQuery(photoAssistStatusQuery());
-  const target = useMemo(
-    () => quickReplyTarget(messages, me, pending.length > 0),
-    [messages, me, pending.length],
-  );
-  const language = i18n.language === "he" ? "he" : "en";
-  const quick = useQuery({
-    ...quickRepliesQuery(id, target?.id ?? "", language),
-    enabled: Boolean(assistStatus.data?.chatAssist) && Boolean(target) && !conversation?.blocked,
-  });
 
   const sendText = (text: string) => {
     if (!me) return;
@@ -254,15 +239,6 @@ function ConversationScreen() {
           ) : (
             <Composer
               conversationId={id}
-              quickReplies={
-                target && quick.data
-                  ? {
-                      forMessageId: quick.data.forMessageId,
-                      newestId: target.id,
-                      replies: quick.data.replies,
-                    }
-                  : undefined
-              }
               onSend={sendText}
               onPickPhoto={() => void pickPhoto()}
               onOffer={canOffer ? () => openOfferSheet(null) : undefined}

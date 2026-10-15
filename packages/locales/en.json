@@ -986,8 +986,7 @@
         "suspicious_link": "Careful: this link may not be safe. Never enter your details through a link in chat",
         "off_platform_contact": "Careful: deals moved outside Vinty are not protected. Keep the chat here",
         "pressure": "Take your time. A real buyer or seller will not rush you"
-      },
-      "quickReplies": "Suggested replies"
+      }
     }
   },
   "push": {
@@ -1916,8 +1915,7 @@
       "search_understand": "Search in plain words",
       "listing_check": "Listing check",
       "report_sort": "Report sorting",
-      "chat_check": "Chat warnings",
-      "quick_replies": "Chat quick replies"
+      "chat_check": "Chat warnings"
     },
     "dashboard": {
       "totalUsers": "Users",

@@ -5,12 +5,11 @@ import { databaseUrl } from "../test-helpers.js";
 import { AiMeter, AiRefusedError } from "./ai-cost.js";
 import { fakeChatCheckReader, meteredChatCheckReader } from "./chat-check.js";
 import { fakePhotoReader, meteredPhotoReader } from "./photo-reader.js";
-import { fakeQuickRepliesReader, meteredQuickRepliesReader } from "./quick-replies.js";
 import { fakeSearchReader, meteredSearchReader } from "./search-reader.js";
 import { fakeTextReader, meteredTextReader } from "./text-reader.js";
 
 const MODEL = "claude-haiku-5-5";
-const ACTIONS = ["photo_tips", "text_suggest", "search_understand", "chat_check", "quick_replies"];
+const ACTIONS = ["photo_tips", "text_suggest", "search_understand", "chat_check"];
 const image = { mediaType: "image/jpeg" as const, data: Buffer.from("x") };
 
 // Runs only with a local database. Rows are found by action name and by the time this file started.
@@ -72,27 +71,10 @@ describe.skipIf(!databaseUrl)("metering of the tips check and the text helper", 
     expect((await rows()).map((r) => r.action)).toEqual(["chat_check"]);
   });
 
-  it("records the quick replies under quick_replies", async () => {
-    const meter = new AiMeter(db);
-    const reader = meteredQuickRepliesReader(fakeQuickRepliesReader({ replies: ["Yes"] }), meter, MODEL);
-    await reader.read({
-      language: "en",
-      askerSide: "seller",
-      listingTitle: "Blue jeans",
-      priceMinor: 4500,
-      currency: "ILS",
-      listingStatus: "active",
-      details: { brand: null, size: null, condition: null, description: "" },
-      messages: [{ side: "buyer", text: "Is it still available?" }],
-    });
-    expect((await rows()).map((r) => r.action)).toEqual(["quick_replies"]);
-  });
-
-  it("refuses the chat helpers, and records nothing, when the AI switch is off", async () => {
+  it("refuses the chat check, and records nothing, when the AI switch is off", async () => {
     await db.insert(killSwitches).values({ name: "ai", enabled: false, reason: "Paused" });
     const meter = new AiMeter(db);
     const check = fakeChatCheckReader({ warning: null, review: false, summary: "" });
-    const replies = fakeQuickRepliesReader({ replies: ["Yes"] });
     await expect(
       meteredChatCheckReader(check, meter, MODEL).read({
         latest: { side: "buyer", text: "Hi" },
@@ -102,20 +84,7 @@ describe.skipIf(!databaseUrl)("metering of the tips check and the text helper", 
         currency: null,
       }),
     ).rejects.toBeInstanceOf(AiRefusedError);
-    await expect(
-      meteredQuickRepliesReader(replies, meter, MODEL).read({
-        language: "en",
-        askerSide: "seller",
-        listingTitle: "Blue jeans",
-        priceMinor: null,
-        currency: null,
-        listingStatus: "active",
-        details: { brand: null, size: null, condition: null, description: "" },
-        messages: [{ side: "buyer", text: "Hi" }],
-      }),
-    ).rejects.toBeInstanceOf(AiRefusedError);
     expect(check.calls).toHaveLength(0);
-    expect(replies.calls).toHaveLength(0);
     expect(await rows()).toHaveLength(0);
   });
 

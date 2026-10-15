@@ -1,10 +1,8 @@
 "use client";
 
-import { ArrowUp, HandCoins, ImagePlus, Sparkles } from "lucide-react";
+import { ArrowUp, HandCoins, ImagePlus } from "lucide-react";
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Chip } from "@/components/chip";
-import { withReply } from "@/lib/chat-assist";
 import { sendTyping } from "@/lib/realtime";
 import { cn } from "@/lib/utils";
 
@@ -19,15 +17,12 @@ export function Composer({
   onSend,
   onPickPhoto,
   onOffer,
-  quickReplies = [],
 }: {
   conversationId: string;
   onSend: (text: string) => void;
   onPickPhoto: (file: File) => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
-  /** Suggested answers (D-041). Shown above the box while it is empty. A tap fills the box, it never sends. */
-  quickReplies?: string[];
 }) {
   const { t } = useTranslation();
   const [text, setText] = useState("");
@@ -74,15 +69,6 @@ export function Composer({
     stopTyping();
   };
 
-  const pickReply = (reply: string) => {
-    const next = withReply(text, reply);
-    setText(next);
-    const el = box.current;
-    el?.focus();
-    // The cursor goes to the end once the new text is in the box.
-    requestAnimationFrame(() => el?.setSelectionRange(next.length, next.length));
-  };
-
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     // Enter while choosing a character with an input method (Hebrew keyboards, emoji pickers) must not send.
     if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -97,26 +83,8 @@ export function Composer({
     if (chosen) onPickPhoto(chosen);
   };
 
-  const replies = text.trim() === "" ? quickReplies : [];
-
   return (
     <div className="border-t border-border-subtle bg-background">
-      {replies.length > 0 ? (
-        <fieldset
-          aria-label={t("chat.assist.quickReplies")}
-          className="m-0 flex min-w-0 items-center gap-sm overflow-x-auto border-0 px-md pb-0 pt-sm"
-        >
-          <Sparkles size={14} className="shrink-0 text-text-3" aria-hidden />
-          {replies.map((reply) => (
-            <Chip
-              key={reply}
-              label={reply}
-              onClick={() => pickReply(reply)}
-              className="max-w-full truncate"
-            />
-          ))}
-        </fieldset>
-      ) : null}
       <div className="flex items-end gap-sm px-md py-sm">
         <input
           ref={file}

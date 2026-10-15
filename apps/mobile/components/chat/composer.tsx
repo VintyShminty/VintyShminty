@@ -1,12 +1,10 @@
-import { ArrowUp, HandCoins, ImagePlus, Sparkles } from "lucide-react-native";
+import { ArrowUp, HandCoins, ImagePlus } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { Pressable, TextInput, View } from "react-native";
 import { useKeyboardState } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Chip } from "@/components/ui/chip";
 import { Icon } from "@/components/ui/icon";
-import { putReplyInBox, visibleQuickReplies } from "@/lib/chat-assist";
 import { sendTyping } from "@/lib/realtime";
 import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
@@ -23,23 +21,18 @@ function Composer({
   onSend,
   onPickPhoto,
   onOffer,
-  quickReplies,
 }: {
   conversationId: string;
   onSend: (text: string) => void;
   onPickPhoto: () => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
-  /** Suggested answers to the newest message (D-041). A tap fills the box, it never sends. */
-  quickReplies?: { forMessageId: string | null; newestId: string; replies: string[] };
 }) {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const keyboardVisible = useKeyboardState((s) => s.isVisible);
   const [text, setText] = useState("");
   const input = useRef<TextInput>(null);
-  // The message the suggestions were hidden for, once the person typed. Clearing the box does not bring them back.
-  const [dismissedFor, setDismissedFor] = useState<string | null>(null);
   const typing = useRef(false);
   const idle = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isHe = i18n.language === "he";
@@ -54,17 +47,8 @@ function Composer({
   // biome-ignore lint/correctness/useExhaustiveDependencies: only when the chat changes
   useEffect(() => stopTyping, [conversationId]);
 
-  const shown = visibleQuickReplies({
-    forMessageId: quickReplies?.forMessageId,
-    replies: quickReplies?.replies,
-    newestId: quickReplies?.newestId,
-    dismissedFor,
-    composerText: text,
-  });
-
   const onChange = (value: string) => {
     setText(value);
-    if (value !== "" && quickReplies) setDismissedFor(quickReplies.newestId);
     if (value.trim() === "") return stopTyping();
     if (!typing.current) {
       typing.current = true;
@@ -81,28 +65,8 @@ function Composer({
     stopTyping();
   };
 
-  const fillFromReply = (reply: string) => {
-    onChange(putReplyInBox(text, reply));
-    input.current?.focus();
-  };
-
   return (
     <View className="border-t border-border-subtle bg-background">
-      {shown.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          accessibilityLabel={t("chat.assist.quickReplies")}
-          className="grow-0"
-          contentContainerClassName="items-center gap-sm px-md pt-sm"
-        >
-          <Icon as={Sparkles} size={16} className="text-text-3" />
-          {shown.map((reply) => (
-            <Chip key={reply} label={reply} onPress={() => fillFromReply(reply)} />
-          ))}
-        </ScrollView>
-      ) : null}
       <View
         className="flex-row items-end gap-sm bg-background px-md pt-sm"
         style={{ paddingBottom: keyboardVisible ? 8 : insets.bottom + 8 }}

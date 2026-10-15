@@ -7,8 +7,6 @@ import {
   dayLabel,
   formatClock,
   type MessageOffer,
-  photoAssistStatusSchema,
-  quickRepliesSchema,
   type ThreadItem,
 } from "@vinty/shared";
 import { Archive, ArchiveRestore, ArrowLeft, Bell, BellOff, Loader2 } from "lucide-react";
@@ -22,8 +20,6 @@ import { OrderTracker } from "@/components/inbox/order-tracker";
 import { OfferDialog } from "@/components/offer/offer-dialog";
 import { SellerAvatar } from "@/components/seller-avatar";
 import { useViewer } from "@/components/site-context";
-import { clientApi } from "@/lib/api-client";
-import { quickReplyTarget, visibleQuickReplies } from "@/lib/chat-assist";
 import {
   discardMessage,
   type PendingMessage,
@@ -119,35 +115,6 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
     observer.observe(el);
     return () => observer.disconnect();
   }, [ready, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  // Quick replies (D-041): asked for once per newest message, kept per chat, message and language. A failure shows nothing.
-  const assistStatus = useQuery({
-    queryKey: ["photo-assist"],
-    queryFn: () => clientApi("/v1/sell/assist", { schema: photoAssistStatusSchema }),
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-  });
-  const language = i18n.language === "he" ? "he" : "en";
-  const replyTarget = quickReplyTarget({
-    enabled: Boolean(assistStatus.data?.chatAssist),
-    newest: messages[0],
-    me,
-    hasPending: pending.length > 0,
-    blocked: Boolean(conversation?.blocked),
-  });
-  const quickReplies = useQuery({
-    queryKey: ["quick-replies", id, replyTarget, language],
-    queryFn: () =>
-      clientApi(`/v1/conversations/${id}/quick-replies`, {
-        method: "POST",
-        body: { language },
-        schema: quickRepliesSchema,
-      }),
-    enabled: replyTarget !== null,
-    staleTime: Number.POSITIVE_INFINITY,
-    retry: false,
-  });
-  const replies = visibleQuickReplies(quickReplies.data, replyTarget, "");
 
   const sendText = (text: string) => {
     if (!me) return;
@@ -331,7 +298,6 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
             conversationId={id}
             onSend={sendText}
             onPickPhoto={sendPhoto}
-            quickReplies={replies}
             onOffer={canOffer ? () => setOfferDialog({ open: true, counterOf: null }) : undefined}
           />
         )}
