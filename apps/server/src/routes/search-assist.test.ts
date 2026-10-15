@@ -41,6 +41,40 @@ describe.skipIf(!databaseUrl)("search in plain words", () => {
     expect(reader.calls[0]?.userId).toBeUndefined();
   });
 
+  it("answers simple searches by fixed rules, without the reader and without using the hourly limit", async () => {
+    const reader = fakeSearchReader({ colours: ["K1"] });
+    const t = await setup(reader);
+    // More answers than the hourly AI limit (20), all by rules, from one address.
+    for (let i = 0; i < 24; i++) {
+      const res = await t.understand(`red women under ${i + 1}`, "10.1.0.9");
+      const body = res.json() as SearchUnderstanding;
+      expect(body.understood).toBe(true);
+      expect(body.colourIds).toHaveLength(1);
+      expect(body.categoryId).not.toBeNull();
+      expect(body.priceMaxMinor).toBe((i + 1) * 100);
+      expect(body.q).toBe("");
+    }
+    const hebrew = (await t.understand("אדום לגברים עד 80 שקל")).json() as SearchUnderstanding;
+    expect(hebrew.understood).toBe(true);
+    expect(hebrew.priceMaxMinor).toBe(8000);
+    expect(reader.calls).toHaveLength(0);
+    // The 24 rules answers used none of the 20 an hour: an AI phrase from the same address still goes through.
+    const res = await t.understand("red speedy dress under 100", "10.1.0.9");
+    expect((res.json() as SearchUnderstanding).understood).toBe(true);
+    expect(reader.calls).toHaveLength(1);
+  });
+
+  it("sends the AI the short list: no sizes unless the words mention one", async () => {
+    const reader = fakeSearchReader({ colours: ["K1"] });
+    const t = await setup(reader);
+    await t.understand("red speedy bag under 100");
+    await t.understand("red speedy bag size 38");
+    expect(reader.calls).toHaveLength(2);
+    expect(reader.calls[0]?.catalog).not.toContain("SIZE GROUPS");
+    expect(reader.calls[1]?.catalog).toContain("SIZE GROUPS");
+    expect(reader.calls[0]?.catalog).toContain("CATEGORIES");
+  });
+
   it("answers empty, without calling the reader, for short searches", async () => {
     const reader = fakeSearchReader({ colours: ["K1"] });
     const t = await setup(reader);
@@ -53,8 +87,8 @@ describe.skipIf(!databaseUrl)("search in plain words", () => {
   it("answers a repeated phrase from memory", async () => {
     const reader = fakeSearchReader({ colours: ["K1"] });
     const t = await setup(reader);
-    const first = await t.understand("Red   dress under 100");
-    const again = await t.understand("red dress UNDER 100");
+    const first = await t.understand("Red   speedy dress under 100");
+    const again = await t.understand("red speedy dress UNDER 100");
     expect(again.json()).toEqual(first.json());
     expect(reader.calls).toHaveLength(1);
   });
@@ -66,11 +100,11 @@ describe.skipIf(!databaseUrl)("search in plain words", () => {
       return { colours: ["K1"] };
     });
     const t = await setup(reader);
-    const failed = await t.understand("red dress under 100");
+    const failed = await t.understand("red speedy dress under 100");
     expect(failed.statusCode).toBe(200);
     expect((failed.json() as SearchUnderstanding).understood).toBe(false);
     fail = false;
-    const retry = await t.understand("red dress under 100");
+    const retry = await t.understand("red speedy dress under 100");
     expect((retry.json() as SearchUnderstanding).understood).toBe(true);
     expect(reader.calls).toHaveLength(2);
   });
@@ -78,7 +112,7 @@ describe.skipIf(!databaseUrl)("search in plain words", () => {
   it("is off without a key", async () => {
     const reader = fakeSearchReader();
     const t = await setup(reader);
-    const res = await t.understand("red dress under 100");
+    const res = await t.understand("red speedy dress under 100");
     expect((res.json() as SearchUnderstanding).understood).toBe(false);
     expect(reader.calls).toHaveLength(0);
     const status = await t.ctx.app.inject({ method: "GET", url: "/v1/sell/assist" });
@@ -89,15 +123,15 @@ describe.skipIf(!databaseUrl)("search in plain words", () => {
     const reader = fakeSearchReader({ colours: ["K1"] });
     const t = await setup(reader);
     for (let i = 0; i < 20; i++) {
-      const res = await t.understand(`red dress under ${i + 1}`, "10.1.0.2");
+      const res = await t.understand(`red speedy dress under ${i + 1}`, "10.1.0.2");
       expect((res.json() as SearchUnderstanding).understood).toBe(true);
     }
-    const over = await t.understand("red dress under 500", "10.1.0.2");
+    const over = await t.understand("red speedy dress under 500", "10.1.0.2");
     expect(over.statusCode).toBe(200);
     expect((over.json() as SearchUnderstanding).understood).toBe(false);
     expect(reader.calls).toHaveLength(20);
     // A phrase already remembered still answers.
-    const known = await t.understand("red dress under 1", "10.1.0.2");
+    const known = await t.understand("red speedy dress under 1", "10.1.0.2");
     expect((known.json() as SearchUnderstanding).understood).toBe(true);
   });
 

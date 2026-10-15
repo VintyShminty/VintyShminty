@@ -21,6 +21,8 @@ export type PhotoReadUsage = {
   outputTokens: number;
   cacheReadTokens: number;
   cacheWriteTokens: number;
+  /** Of `cacheWriteTokens`, those written to the 1 hour cache (priced at 2x input). Only the search reader sets it. */
+  cacheWrite1hTokens?: number;
 };
 
 /** A failure after the model answered, so the tokens were still spent and must be counted. */
