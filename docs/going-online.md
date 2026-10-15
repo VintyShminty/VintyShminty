@@ -78,6 +78,8 @@ Photo uploads go straight from the phone to the bucket with a one time link made
 
 **AI photo helper (optional).** To switch on the suggestions in the sell form online, add `ANTHROPIC_API_KEY` (your key from console.anthropic.com) to the Vercel settings and redeploy. Without it the sell form works as before, nothing is refused at start. Each listing costs a small fraction of a cent. Optional: `PHOTO_READER_MODEL` to change the model (default `claude-haiku-5-5`).
 
+**City and address suggestions (optional).** Add `GOOGLE_MAPS_API_KEY` (a Google Cloud key with Places API (New) enabled, restricted to that one API) to the Vercel settings and redeploy. The profile city and the delivery address forms then suggest places while typing. Without it they are plain text fields as before. The key stays on the server.
+
 The server checks all of this when it starts. If something is missing or still points at your Mac, it refuses to start and the deploy log says which setting is wrong in plain words.
 
 Google and Apple sign in are switched on in Part J. Real push alerts come later. Push stays on its online default, which tries to send through Expo.

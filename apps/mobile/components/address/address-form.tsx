@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type AddressFormValues, addressFormSchema } from "@vinty/shared";
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { type TextInput, View } from "react-native";
 import { FormInput } from "@/components/form-input";
+import { PlaceSuggestions } from "@/components/place-suggestions";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Row } from "@/components/ui/row";
@@ -43,7 +44,7 @@ export function AddressForm({
   const update = useUpdateAddress();
   const [banner, setBanner] = useState<string | null>(null);
   const [isDefault, setIsDefault] = useState(address?.isDefault ?? defaultIsDefault);
-  const { control, handleSubmit, setError, formState } = useForm<AddressFormValues>({
+  const { control, handleSubmit, setError, setValue, formState } = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     mode: "onTouched",
     defaultValues: {
@@ -56,6 +57,12 @@ export function AddressForm({
       label: address?.label ?? "",
     },
   });
+  const [focused, setFocused] = useState<"line1" | "city" | null>(null);
+  const line1Text = useWatch({ control, name: "line1" });
+  const cityText = useWatch({ control, name: "city" });
+  // A short delay so a tap on a suggestion lands before the list disappears with the keyboard focus.
+  const leave = (field: "line1" | "city") =>
+    setTimeout(() => setFocused((f) => (f === field ? null : f)), 200);
   const line1 = useRef<TextInput>(null);
   const line2 = useRef<TextInput>(null);
   const city = useRef<TextInput>(null);
@@ -121,7 +128,20 @@ export function AddressForm({
         returnKeyType="next"
         inputRef={line1}
         onSubmitEditing={() => line2.current?.focus()}
+        onFocus={() => setFocused("line1")}
+        onBlur={() => leave("line1")}
         maxLength={150}
+      />
+      <PlaceSuggestions
+        kind="address"
+        query={line1Text}
+        active={focused === "line1"}
+        onPick={({ main, details }) => {
+          const opts = { shouldDirty: true, shouldValidate: true };
+          setValue("line1", details?.line1 || main, opts);
+          if (details?.city) setValue("city", details.city, opts);
+          if (details?.postcode) setValue("postcode", details.postcode, opts);
+        }}
       />
       <FormInput
         control={control}
@@ -141,7 +161,15 @@ export function AddressForm({
         returnKeyType="next"
         inputRef={city}
         onSubmitEditing={() => postcode.current?.focus()}
+        onFocus={() => setFocused("city")}
+        onBlur={() => leave("city")}
         maxLength={80}
+      />
+      <PlaceSuggestions
+        kind="city"
+        query={cityText}
+        active={focused === "city"}
+        onPick={({ main }) => setValue("city", main, { shouldDirty: true, shouldValidate: true })}
       />
       <FormInput
         control={control}

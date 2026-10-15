@@ -4,6 +4,7 @@ import { addressFormSchema } from "@vinty/shared";
 import { type FormEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Field, Notice, SubmitButton } from "@/components/auth/fields";
+import { PlaceField } from "@/components/place-field";
 import { Switch } from "@/components/switch";
 import { ApiClientError } from "@/lib/api-error";
 import { describeApiError } from "@/lib/describe-api-error";
@@ -87,7 +88,16 @@ export function AddressForm({
         autoComplete="name"
         maxLength={100}
       />
-      <Field
+      <PlaceField
+        kind="address"
+        onPick={(d) =>
+          setValues((v) => ({
+            ...v,
+            line1: d.line1 || v.line1,
+            city: d.city || v.city,
+            postcode: d.postcode || v.postcode,
+          }))
+        }
         label={t("address.line1")}
         value={values.line1}
         onChange={set("line1")}
@@ -103,7 +113,8 @@ export function AddressForm({
         autoComplete="address-line2"
         maxLength={150}
       />
-      <Field
+      <PlaceField
+        kind="city"
         label={t("address.city")}
         value={values.city}
         onChange={set("city")}

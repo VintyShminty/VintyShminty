@@ -4,10 +4,11 @@ import { BIO_MAX, type EditProfileForm, editProfileFormSchema } from "@vinty/sha
 import { useRouter } from "expo-router";
 import { AtSign, Camera, Globe } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
 import { FormInput } from "@/components/form-input";
+import { PlaceSuggestions } from "@/components/place-suggestions";
 import { Avatar } from "@/components/ui/avatar";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
@@ -32,11 +33,13 @@ export default function EditProfile() {
   const [photo, setPhoto] = useState<{ uri: string; key: string } | "removed" | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const { control, handleSubmit, reset, formState } = useForm<EditProfileForm>({
+  const { control, handleSubmit, reset, setValue, formState } = useForm<EditProfileForm>({
     resolver: zodResolver(editProfileFormSchema),
     mode: "onTouched",
     defaultValues: { name: "", bio: "", city: "" },
   });
+  const [cityFocused, setCityFocused] = useState(false);
+  const cityText = useWatch({ control, name: "city" });
   useEffect(() => {
     if (me) reset({ name: me.name, bio: me.profile.bio ?? "", city: me.profile.city ?? "" });
   }, [me, reset]);
@@ -159,6 +162,14 @@ export default function EditProfile() {
             autoComplete="postal-address-locality"
             textContentType="addressCity"
             returnKeyType="done"
+            onFocus={() => setCityFocused(true)}
+            onBlur={() => setTimeout(() => setCityFocused(false), 200)}
+          />
+          <PlaceSuggestions
+            kind="city"
+            query={cityText ?? ""}
+            active={cityFocused}
+            onPick={({ main }) => setValue("city", main, { shouldDirty: true, shouldValidate: true })}
           />
         </View>
 

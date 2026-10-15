@@ -1692,6 +1692,9 @@
     }
   },
   "web": {
+    "places": {
+      "suggestions": "Place suggestions"
+    },
     "nav": {
       "languageShort": "EN",
       "mainNavigation": "Main",
