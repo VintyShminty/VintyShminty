@@ -54,7 +54,7 @@ export default function BrowseCategory() {
             hitSlop={8}
             role="button"
             accessibilityLabel={t("browse.search")}
-            className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+            className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
           >
             <Icon as={Search} size={22} />
           </Pressable>

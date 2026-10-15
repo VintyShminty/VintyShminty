@@ -57,7 +57,7 @@ export default function FilterCategory() {
       hitSlop={8}
       role="button"
       accessibilityLabel={t("common.close")}
-      className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+      className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
     >
       <Icon as={X} size={24} />
     </Pressable>

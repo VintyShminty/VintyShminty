@@ -1,14 +1,18 @@
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Camera, Plus, TriangleAlert, X } from "lucide-react-native";
-import { useState } from "react";
+import { Camera, Images, Plus, TriangleAlert, X } from "lucide-react-native";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, useWindowDimensions, View } from "react-native";
 import Animated, { useAnimatedRef, useReducedMotion } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Sortable from "react-native-sortables";
 import { PhotoViewer } from "@/components/sell/photo-viewer";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { Row } from "@/components/ui/row";
+import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
 import { type PickedPhoto, pickListingPhotos, shrinkPhoto, uploadListingPhoto } from "@/lib/listing-photos";
 import { movePhoto } from "@/lib/move-photo";
@@ -50,6 +54,8 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const tile = Math.floor((width - SIDE * 2 - GAP * 3) / 4);
   const remaining = maxPhotos - photos.length;
+  const insets = useSafeAreaInsets();
+  const sourceRef = useRef<BottomSheetModal>(null);
 
   const add = async (source: "library" | "camera") => {
     const picked = await pickListingPhotos(source, remaining);
@@ -75,12 +81,34 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
 
   const chooseSource = () => {
     if (remaining <= 0) return;
-    Alert.alert(t("sell.photos.addTitle"), undefined, [
-      { text: t("sell.photos.library"), onPress: () => void add("library") },
-      { text: t("sell.photos.camera"), onPress: () => void add("camera") },
-      { text: t("common.cancel"), style: "cancel" },
-    ]);
+    sourceRef.current?.present();
   };
+
+  // Our own sheet, not the system alert, so it looks the same on iPhone and Android.
+  const pickFrom = (source: "library" | "camera") => {
+    sourceRef.current?.dismiss();
+    // Let the sheet slide away before the system picker comes up.
+    setTimeout(() => void add(source), 250);
+  };
+  const sourceSheet = (
+    <Sheet ref={sourceRef} title={t("sell.photos.addTitle")} snapPoints={[220]}>
+      <View style={{ paddingBottom: insets.bottom + 16 }}>
+        <Row
+          icon={Images}
+          label={t("sell.photos.library")}
+          chevron={false}
+          onPress={() => pickFrom("library")}
+        />
+        <Row
+          icon={Camera}
+          label={t("sell.photos.camera")}
+          chevron={false}
+          last
+          onPress={() => pickFrom("camera")}
+        />
+      </View>
+    </Sheet>
+  );
 
   const drop = (from: number, to: number) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -124,6 +152,7 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
             {t("sell.photos.hint", { max: maxPhotos })}
           </Text>
         )}
+        {sourceSheet}
       </View>
     );
   }
@@ -244,6 +273,7 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
           ? t("sell.photos.failed")
           : (error ?? t("sell.photos.count", { count: photos.length, max: maxPhotos }))}
       </Text>
+      {sourceSheet}
     </View>
   );
 }

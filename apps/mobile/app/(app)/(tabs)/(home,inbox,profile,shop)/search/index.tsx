@@ -123,7 +123,7 @@ export default function SearchScreen() {
           hitSlop={8}
           role="button"
           accessibilityLabel={t("common.back")}
-          className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+          className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
         >
           <BackIcon />
         </Pressable>
@@ -168,7 +168,7 @@ export default function SearchScreen() {
             role="button"
             accessibilityLabel={saved ? t("search.saved") : t("search.save")}
             accessibilityState={{ selected: saved }}
-            className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+            className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
           >
             <Icon as={Bookmark} size={22} color={colors.accent} fill={saved ? colors.accent : "none"} />
           </Pressable>

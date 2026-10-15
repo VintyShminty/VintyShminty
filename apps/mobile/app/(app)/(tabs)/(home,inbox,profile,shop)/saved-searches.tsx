@@ -69,7 +69,7 @@ function SavedSearchRow({ search }: { search: SavedSearch }) {
           hitSlop={8}
           role="button"
           accessibilityLabel={t("savedSearches.delete")}
-          className="h-9 w-9 items-center justify-center rounded-full active:bg-pressed"
+          className="h-9 w-9 items-center justify-center rounded-full bg-transparent active:bg-pressed"
         >
           <Icon as={Trash2} size={18} className="text-destructive" />
         </Pressable>
