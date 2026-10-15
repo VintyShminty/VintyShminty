@@ -24,6 +24,7 @@ import {
   useSaveSearch,
 } from "@/lib/discovery-queries";
 import { savedSearchesQuery } from "@/lib/item-queries";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { useSavedSearchSummary } from "@/lib/saved-search-summary";
 import { useSearchAssist } from "@/lib/search-assist";
 import { activeFilters, useSearchStore } from "@/lib/search-store";
@@ -143,7 +144,7 @@ export default function SearchScreen() {
             returnKeyType="search"
             accessibilityLabel={t("search.placeholder")}
             className={`flex-1 text-[16px] text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
-            style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+            style={inputDirectionStyle(draft, isHe)}
           />
           {typing ? (
             <Pressable

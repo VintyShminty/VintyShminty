@@ -3,6 +3,7 @@ import {
   type AdminPublishInput,
   adminPublishResultSchema,
   photoSuggestionSchema,
+  standInSchema,
   standInsSchema,
   type UploadResponse,
   uploadResponseSchema,
@@ -17,6 +18,14 @@ export const standInsQuery = () =>
   queryOptions({
     queryKey: ["admin", "stand-ins"],
     queryFn: () => api("/v1/admin/stand-ins", { schema: standInsSchema }),
+  });
+
+/** Creates a new stand-in username. The server checks the name the same way as a sign up (taken, reserved, too short). */
+export const createStandIn = (username: string, displayName: string) =>
+  api("/v1/admin/stand-ins", {
+    method: "POST",
+    body: { username, ...(displayName ? { displayName } : {}) },
+    schema: standInSchema,
   });
 
 /**

@@ -6,6 +6,7 @@ import { useKeyboardState } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "@/components/ui/icon";
 import { sendTyping } from "@/lib/realtime";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
 
@@ -108,8 +109,7 @@ function Composer({
               isHe ? "font-heebo-400" : "font-aileron-400",
             )}
             style={{
-              textAlign: isHe ? "right" : "left",
-              writingDirection: isHe ? "rtl" : "ltr",
+              ...inputDirectionStyle(text, isHe),
               paddingHorizontal: 0,
             }}
           />

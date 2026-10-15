@@ -14,6 +14,7 @@ import { TopBar } from "@/components/ui/top-bar";
 import { categoryGuesses } from "@/lib/category-guesses";
 import { categoryIcon } from "@/lib/category-icons";
 import { useLocalName, useReference } from "@/lib/reference";
+import { inputDirectionStyle } from "@/lib/rtl";
 import { currentGuesses } from "@/lib/sell-assist";
 import { useSellStore } from "@/lib/sell-store";
 import { colors } from "@/theme";
@@ -172,7 +173,7 @@ export default function CategoryPanel() {
               returnKeyType="search"
               accessibilityLabel={t("sell.findCategory")}
               className={`flex-1 text-[16px] text-text-1 ${isHe ? "font-heebo-400" : "font-aileron-400"}`}
-              style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+              style={inputDirectionStyle(query, isHe)}
             />
           </View>
         </View>
