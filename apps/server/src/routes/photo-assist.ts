@@ -13,6 +13,7 @@ import {
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import type { AiMeter } from "../lib/ai-cost.js";
 import { ApiError } from "../lib/errors.js";
+import type { HelpReader } from "../lib/help-answer.js";
 import { WindowLimiter } from "../lib/limiter.js";
 import { createPhotoChecker, createPhotoSuggester, createTextSuggester } from "../lib/photo-assist.js";
 import type { PhotoReader } from "../lib/photo-reader.js";
@@ -34,9 +35,10 @@ const photoAssistRoutes: FastifyPluginAsyncZod<{
   reader: PhotoReader;
   textReader: TextReader;
   searchReader: SearchReader;
+  helpReader: HelpReader;
   /** The AI cost meter, asked whether the master switch is on for the status answer. */
   meter: Pick<AiMeter, "switchState">;
-}> = async (app, { reader, textReader, searchReader, meter }) => {
+}> = async (app, { reader, textReader, searchReader, helpReader, meter }) => {
   const limiter = new WindowLimiter(SUGGESTIONS_PER_HOUR, 3_600_000);
   const checkLimiter = new WindowLimiter(PHOTO_CHECKS_PER_HOUR, 3_600_000);
   const textLimiter = new WindowLimiter(TEXT_SUGGESTIONS_PER_HOUR, 3_600_000);
@@ -72,6 +74,7 @@ const photoAssistRoutes: FastifyPluginAsyncZod<{
         photoAssist: reader.enabled && switchOn,
         textAssist: textReader.enabled && switchOn,
         searchAssist: searchReader.enabled && switchOn,
+        helpAssist: helpReader.enabled && switchOn,
       };
     },
   );

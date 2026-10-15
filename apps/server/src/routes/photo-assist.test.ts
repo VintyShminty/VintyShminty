@@ -79,6 +79,7 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
       photoAssist: false,
       textAssist: false,
       searchAssist: false,
+      helpAssist: false,
     });
     const res = await t.suggest();
     expect(res.statusCode).toBe(200);
@@ -451,6 +452,7 @@ describe.skipIf(!databaseUrl)("photo tips and text helper", () => {
         photoAssist: true,
         textAssist: true,
         searchAssist: false,
+        helpAssist: false,
       });
       expect(on.headers["cache-control"]).toBe("public, max-age=60");
       await db.insert(killSwitches).values({ name: "ai", enabled: false, reason: "Paused" });
@@ -462,6 +464,7 @@ describe.skipIf(!databaseUrl)("photo tips and text helper", () => {
           photoAssist: false,
           textAssist: false,
           searchAssist: false,
+          helpAssist: false,
         });
       } finally {
         await db.delete(killSwitches).where(eq(killSwitches.name, "ai"));
@@ -475,6 +478,7 @@ describe.skipIf(!databaseUrl)("photo tips and text helper", () => {
         photoAssist: true,
         textAssist: false,
         searchAssist: false,
+        helpAssist: false,
       });
     });
   });

@@ -1,8 +1,9 @@
-import { HELP_GROUPS } from "@vinty/shared";
+import { HELP_ARTICLE_IDS, HELP_GROUPS } from "@vinty/shared";
 import { ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { HelpAsk } from "@/components/help-ask";
 import { StillStuck } from "@/components/still-stuck";
 import { getT, isLang } from "@/lib/i18n";
 import { alternatesFor } from "@/lib/seo";
@@ -27,6 +28,20 @@ export default async function HelpPage({ params }: { params: Promise<{ lang: str
     <main className="mx-auto max-w-[760px] px-lg pb-2xl pt-xl md:px-xl">
       <h1 className="text-title font-bold text-text-1">{t("help.title")}</h1>
       <p className="mt-sm text-body text-text-3">{t("help.intro")}</p>
+
+      <HelpAsk
+        lang={lang}
+        labels={{
+          title: t("help.ask.title"),
+          placeholder: t("help.ask.placeholder"),
+          button: t("help.ask.button"),
+          thinking: t("help.ask.thinking"),
+          label: t("help.ask.label"),
+          readMore: t("help.ask.readMore"),
+          noAnswer: t("help.ask.noAnswer"),
+        }}
+        titles={Object.fromEntries(HELP_ARTICLE_IDS.map((id) => [id, t(`help.articles.${id}.title`)]))}
+      />
 
       {HELP_GROUPS.map((group) => (
         <section key={group.id} className="mt-xl">

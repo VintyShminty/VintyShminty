@@ -27,6 +27,7 @@
     "@socket.io/redis-adapter": "^8.3.0",
     "@vercel/functions": "^3.9.11",
     "@vinty/db": "workspace:*",
+    "@vinty/locales": "workspace:*",
     "@vinty/shared": "workspace:*",
     "better-auth": "^1.7.7",
     "blurhash": "^2.0.5",
