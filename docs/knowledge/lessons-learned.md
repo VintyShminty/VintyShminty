@@ -28,3 +28,10 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Ask what accounts exist before asking Eden to open one.** The roadmap said "not started" for an account he had. Source: log 2026-10-13 evening, memory `accounts-eden-has`.
 - **Read the safety refusal, do not route around it.** A blocked command went back to Eden as a small manual step. Source: log 2026-10-13 late evening.
 - **Brief helpers fully and stack their branches on open PRs.** Sonnet built sign in and the error page from one message each, and was told when the base PR merged. Source: PRs #23, #25.
+- **Say which branch the local website shows when two are reviewed in turn.** Otherwise "I see nothing different" costs a round trip. Source: log 2026-10-15.
+- **Freeze the data a test reads before starting.** A category list changed mid test and made one model look far worse. Source: log 2026-10-14.
+- **Check a PR is unmerged before sending it more work.** Three PRs got improvements after merge and needed new PRs (#36 to #38). Source: log 2026-10-14. Also in `docs/playbook/git-and-github.md`.
+- **Do the online database step before calling a schema PR ready.** Source: log 2026-10-14 (#42), memory `migrate-before-merge`. Also in `docs/playbook/git-and-github.md`.
+- **For motion bugs, record a frame by frame video.** Stills hid the real problem. Source: log 2026-10-14 (#38).
+- **Two sessions can pick the same decision number.** Check `docs/design.md` before taking the next id, and renumber on merge, keeping both sides. Source: log 2026-10-14 (D-030, D-026, D-024).
+- **Test AI on messy real writing.** Half of the 60 listings were slang, typos and mixed Hebrew and English, and the answer key was written first. Source: log 2026-10-14.

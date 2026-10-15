@@ -39,3 +39,12 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **OAuth client (login key).** The pair of values Google gives so our server may offer "Continue with Google".
 - **Test user.** A Google account allowed to use Google login while it is in testing mode.
 - **Account linking.** Connecting a Google or Apple login to an existing Vinty account with the same email.
+- **Coverage.** Our name for buyer protection (placeholder in one key, `protectionName`). The buyer is protected and we step in if the item does not arrive or is not as described.
+- **Buzz / Buzzing.** A seller pushes their item up the feed for a while ("Give it buzz"). Free for now. The item shows "Buzzing" until it ends.
+- **Away mode.** A Settings switch that hides your items, with an optional return date.
+- **Invite code.** A personal code a friend types when joining. After their first order above the minimum both get a 50 shekel voucher.
+- **Mood chips.** The row of filters on Home (For you, New today, Under 50 shekels, Your sizes, Near you).
+- **Looks like.** The first group in a picker, showing the AI's best guesses. It never fills anything in by itself.
+- **Claude Haiku.** The small, cheap Anthropic AI model behind every AI feature.
+- **Review list.** One page in the admin pages with user reports and the AI's listing flags, urgent first. Eden decides.
+- **Card copy / blur.** A small lighter copy of each uploaded photo and a soft colour blur shown while it loads.
