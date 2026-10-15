@@ -57,4 +57,26 @@ describe("places client", () => {
     const client = createPlacesClient(env("k"), reply({}, false));
     await expect(client.suggest({ q: "tel", kind: "city", language: "en" })).rejects.toThrow();
   });
+
+  it("falls back to the geocoder for a missing postcode", async () => {
+    const answers = [
+      {
+        addressComponents: [
+          { longText: "Sderot Emek Ayalon", types: ["route"] },
+          { longText: "13", types: ["street_number"] },
+        ],
+      },
+      { status: "OK", results: [{ address_components: [{ long_name: "6091100", types: ["postal_code"] }] }] },
+    ];
+    let n = 0;
+    const fetchImpl = (async () => ({
+      ok: true,
+      status: 200,
+      json: async () => answers[n++],
+    })) as unknown as typeof fetch;
+    const client = createPlacesClient(env("k"), fetchImpl);
+    const d = await client.details({ id: "p2", language: "en" });
+    expect(d.postcode).toBe("6091100");
+    expect(d.line1).toBe("Sderot Emek Ayalon 13");
+  });
 });
