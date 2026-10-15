@@ -76,7 +76,7 @@ function Composer({
           hitSlop={6}
           role="button"
           accessibilityLabel={t("chat.addPhoto")}
-          className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+          className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
         >
           <Icon as={ImagePlus} size={24} className="text-text-2" />
         </Pressable>
@@ -86,7 +86,7 @@ function Composer({
             hitSlop={6}
             role="button"
             accessibilityLabel={t("offer.title")}
-            className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+            className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
           >
             <Icon as={HandCoins} size={24} className="text-text-2" />
           </Pressable>

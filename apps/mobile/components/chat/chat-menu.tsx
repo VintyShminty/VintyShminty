@@ -33,7 +33,7 @@ function ChatMenu({
         hitSlop={8}
         role="button"
         accessibilityLabel={t("chat.menuTitle")}
-        className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+        className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
       >
         <Icon as={MoreHorizontal} size={22} />
       </Pressable>

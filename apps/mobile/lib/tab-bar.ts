@@ -26,8 +26,12 @@ export function useKeyboardVisible() {
   return visible;
 }
 
-/** How far the bar floats above the bottom edge: lower than the home indicator area, never touching it. */
+/**
+ * How far the bar floats above the bottom edge. On iPhone it dips a little into the home indicator area, never
+ * touching it. Android draws its gesture line in the middle of that area, so there the bar sits fully above it.
+ */
 export function tabBarBottomGap(safeBottom: number) {
+  if (Platform.OS === "android") return safeBottom + 8;
   return safeBottom > 0 ? Math.max(safeBottom - 10, 12) : 12;
 }
 

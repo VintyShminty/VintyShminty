@@ -5,9 +5,9 @@ import {
   type BottomSheetModalProps,
 } from "@gorhom/bottom-sheet";
 import { X } from "lucide-react-native";
-import type { ReactNode, Ref } from "react";
+import { type ReactNode, type Ref, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, View } from "react-native";
+import { BackHandler, Pressable, View } from "react-native";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { colors, opacity, radii } from "@/theme";
@@ -37,12 +37,30 @@ function Backdrop(props: BottomSheetBackdropProps) {
  * Slide-up sheet (D-004): near-opaque window fill, 20px top corners, hairline border, light dim behind,
  * no shadow. Header: centred title, a close cross, and an optional text action.
  */
-function Sheet({ ref, title, children, action, snapPoints = ["88%"], ...props }: SheetProps) {
+function Sheet({ ref, title, children, action, snapPoints = ["88%"], onChange, ...props }: SheetProps) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const dismiss = () => (ref && typeof ref === "object" ? ref.current?.dismiss() : undefined);
+
+  // Android back closes the open sheet only, not the screen under it. The newest listener runs first, so a sheet
+  // opened over another sheet closes first.
+  useEffect(() => {
+    if (!open) return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (ref && typeof ref === "object") ref.current?.dismiss();
+      return true;
+    });
+    return () => sub.remove();
+  }, [open, ref]);
+
   return (
     <BottomSheetModal
       ref={ref}
       snapPoints={snapPoints}
+      onChange={(index, position, type) => {
+        setOpen(index >= 0);
+        onChange?.(index, position, type);
+      }}
       enableDynamicSizing={false}
       backdropComponent={Backdrop}
       keyboardBehavior="extend"
@@ -62,11 +80,11 @@ function Sheet({ ref, title, children, action, snapPoints = ["88%"], ...props }:
       <View className="h-12 flex-row items-center px-sm">
         <View className="w-20 items-start">
           <Pressable
-            onPress={() => (ref && typeof ref === "object" ? ref.current?.dismiss() : undefined)}
+            onPress={dismiss}
             hitSlop={8}
             role="button"
             accessibilityLabel={t("common.close")}
-            className="h-11 w-11 items-center justify-center rounded-full active:bg-pressed"
+            className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
           >
             <Icon as={X} size={22} />
           </Pressable>

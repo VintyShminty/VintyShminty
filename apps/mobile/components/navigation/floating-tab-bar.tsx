@@ -107,7 +107,12 @@ export function FloatingTabBar({ state, navigation, descriptors }: BottomTabBarP
               className="h-12 w-14 items-center justify-center"
             >
               <View
-                className={`h-10 w-12 items-center justify-center rounded-full ${focused ? "bg-accent-tint" : ""}`}
+                className="h-10 w-12 items-center justify-center"
+                // Never flattened away: on Android a view with no visible background is dropped, and when it gets
+                // the tint later it comes back without its rounded corners, as a square. Exact radius, half the
+                // 40 point height.
+                collapsable={false}
+                style={{ borderRadius: 20, backgroundColor: focused ? colors.accentTint : "transparent" }}
               >
                 <Icon as={tab.icon} size={22} className={focused ? "text-primary" : "text-text-3"} />
                 {badge !== undefined && badge !== null && badge !== "" ? (
