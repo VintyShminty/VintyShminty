@@ -599,7 +599,7 @@
     "away": "{{name}} is away until {{date}}. You can still save it.",
     "awayNoDate": "{{name}} is away for now. You can still save it.",
     "buyFor": "Buy for {{amount}}",
-    "orMakeYourPrice": "Or make your price",
+    "orMakeYourPrice": "Send your offer",
     "message": "Message",
     "breakdown": {
       "item": "Item",
@@ -1606,7 +1606,7 @@
       },
       "makeAnOffer": {
         "title": "Making an offer",
-        "body": "Not sure about the price? Tap \"Or make your price\" on the item and send an offer lower than the listed price. You can send up to 15 offers a day, and one at a time in each chat.\n\nThe seller can accept, decline or answer with a new price. If nobody answers, the offer closes after 48 hours.\n\nWhen an offer is accepted the item is held for you for 24 hours, so you can check out at the agreed price."
+        "body": "Not sure about the price? Tap \"Send your offer\" on the item and send an offer lower than the listed price. You can send up to 15 offers a day, and one at a time in each chat.\n\nThe seller can accept, decline or answer with a new price. If nobody answers, the offer closes after 48 hours.\n\nWhen an offer is accepted the item is held for you for 24 hours, so you can check out at the agreed price."
       },
       "covered": {
         "title": "What Coverage is",
