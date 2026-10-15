@@ -133,7 +133,7 @@ export function pushCopy(
     case "bump_ended":
       return {
         title: "Yadii",
-        body: he ? `הבאז על ${title} הסתיים` : `The buzz on ${title} has ended`,
+        body: he ? `ההקפצה של ${title} הסתיימה` : `The boost on ${title} has ended`,
       };
     default:
       return null;

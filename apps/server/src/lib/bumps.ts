@@ -60,16 +60,16 @@ export async function giveBuzz(
       .for("update")
       .limit(1);
     if (!listing) throw ApiError.notFound("Listing not found");
-    if (listing.status !== "active") throw ApiError.conflict("Only items for sale can get buzz");
+    if (listing.status !== "active") throw ApiError.conflict("Only listings for sale can be boosted");
     if (listing.bumpedUntil && listing.bumpedUntil > now)
-      throw ApiError.conflict("This item is already buzzing");
+      throw ApiError.conflict("This listing is already boosted");
 
     const [plan] = await tx
       .select()
       .from(bumpPlans)
       .where(and(eq(bumpPlans.id, planId), eq(bumpPlans.isActive, true)))
       .limit(1);
-    if (!plan) throw ApiError.invalid("Choose a buzz plan", { planId: "validation.bump.planUnknown" });
+    if (!plan) throw ApiError.invalid("Choose a boost plan", { planId: "validation.bump.planUnknown" });
 
     const endsAt = new Date(now.getTime() + plan.durationHours * HOUR_MS);
     const [row] = await tx

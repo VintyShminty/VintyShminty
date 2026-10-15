@@ -63,8 +63,8 @@ export const bundleDiscountDefaults = [
 ];
 
 export const bumpPlanSeed: (Named & { slug: string; durationHours: number; priceMinor: number })[] = [
-  { slug: "bump-3d", en: "Buzz for 3 days", he: "באז ל-3 ימים", durationHours: 72, priceMinor: 0 },
-  { slug: "bump-7d", en: "Buzz for 7 days", he: "באז ל-7 ימים", durationHours: 168, priceMinor: 0 },
+  { slug: "bump-3d", en: "Boost for 3 days", he: "הקפצה ל-3 ימים", durationHours: 72, priceMinor: 0 },
+  { slug: "bump-7d", en: "Boost for 7 days", he: "הקפצה ל-7 ימים", durationHours: 168, priceMinor: 0 },
 ];
 
 export const badgeSeed: (Named & {

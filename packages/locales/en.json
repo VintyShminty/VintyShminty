@@ -315,7 +315,7 @@
   "listing": {
     "sold": "Sold",
     "priceDrop": "Price drop",
-    "bumped": "Buzzing",
+    "bumped": "Boosted",
     "was": "Was: {{price}}",
     "percentOff": "{{percent}}% off",
     "reserved": "Reserved",
@@ -621,22 +621,22 @@
     "noMatches": "Nothing in your favourites matches that search"
   },
   "buzz": {
-    "action": "Give it buzz",
-    "title": "Give it buzz",
-    "intro": "Your item moves to the top of the feed and wears a Buzzing badge while it lasts.",
+    "action": "Boost this listing",
+    "title": "Boost this listing",
+    "intro": "Your listing moves to the top of the feed and shows a Boosted badge while the boost lasts.",
     "free": "Free for now",
-    "confirm": "Give it buzz",
-    "buzzing": "Buzzing",
+    "confirm": "Boost this listing",
+    "buzzing": "Boosted",
     "endsOn": "Ends {{date}}",
     "endedOn": "Ended {{date}}",
-    "yourBuzzes": "Your buzzes",
-    "empty": "No buzzes yet",
-    "emptyNote": "Give an item buzz and it climbs the feed for a few days",
+    "yourBuzzes": "Your boosts",
+    "empty": "No boosts yet",
+    "emptyNote": "Boost a listing and it climbs the feed for a few days",
     "ended": "Ended",
     "plansFailed": "We could not load the plans. Close this and try again.",
     "errors": {
-      "already": "This item is already buzzing",
-      "unavailable": "Only items that are for sale can get buzz"
+      "already": "This listing is already boosted",
+      "unavailable": "Only listings that are for sale can be boosted"
     }
   },
   "savedSearches": {
@@ -884,7 +884,7 @@
       "referral_rewarded": "Your friend's first order is done. You earned a reward",
       "referral_rewarded_invitee": "Your first order is done. You earned a voucher",
       "listing_removed": "{{title}} was removed by our team",
-      "bump_ended": "The buzz on {{title}} has ended",
+      "bump_ended": "The boost on {{title}} has ended",
       "platform_message": "A message from Yadii",
       "platform_welcome": "Welcome to Yadii. Start by browsing, or list your first item",
       "platform_welcome_back": "Welcome back to Yadii",
@@ -1720,8 +1720,8 @@
         "body": "You choose the price. Selling is free, so when an item sells you earn the full item price, after any discount you gave.\n\nBuyers pay a little on top for Coverage and postage. You can see what they will pay while you set the price.\n\nWhen someone sends an offer you can accept it, decline it or answer with a new price."
       },
       "buzz": {
-        "title": "Giving an item buzz",
-        "body": "Buzz gives one of your items a boost, so more people see it for a while. Tap \"Give it buzz\" on an active item. While it lasts the item shows a \"Buzzing\" badge.\n\nBuzz is free for now."
+        "title": "Boosting a listing",
+        "body": "A boost moves one of your listings to the top of the feed, so more people see it for a while. Tap \"Boost this listing\" on an active listing. While the boost lasts the listing shows a \"Boosted\" badge.\n\nBoosts are free for now."
       },
       "getPaid": {
         "title": "Getting paid",

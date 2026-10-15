@@ -45,7 +45,7 @@ describe.skipIf(!databaseUrl)("buzz", () => {
     expect(res.statusCode).toBe(200);
     const items = res.json().items;
     expect(items.length).toBeGreaterThanOrEqual(2);
-    expect(items[0]).toMatchObject({ priceMinor: 0, durationHours: 72, name: { en: "Buzz for 3 days" } });
+    expect(items[0]).toMatchObject({ priceMinor: 0, durationHours: 72, name: { en: "Boost for 3 days" } });
     expect(items[0].durationHours).toBeLessThan(items[1].durationHours);
   });
 
