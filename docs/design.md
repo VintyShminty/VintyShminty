@@ -671,6 +671,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Area:** App item page
 - **Status:** Built on branch feat/app-listing-page, waiting for Eden's review.
 - **Decision:** Both the buyer's and the seller's item page show the price like the card and the website (D-040): the seller price in espresso, a drop shows the old price muted and struck with a "% off" badge, and the Coverage price is a quiet line with a BadgeCheck (no cream pill). The buyer's price breakdown has no cream fill: it sits under a hairline with the same content.
+- **Description first:** the description sits right under the price in both views, among the first things anyone reads, before the details list (Eden).
 - **Rationale:** Eden found the listing page did not match the updated card.
 - **Implementation:** `PriceBlock` in `apps/mobile/components/price-pill.tsx`, used by `own-listing-view.tsx` and `buyer-view.tsx`.
 - **References:** D-032, D-040

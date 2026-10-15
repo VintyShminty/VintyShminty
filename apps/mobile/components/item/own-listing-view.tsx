@@ -154,6 +154,14 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
             noPriceLabel={t("listing.noPrice")}
           />
 
+          {/* The description comes right under the price, like buyers see it (Eden). */}
+          {listing.description ? (
+            <View className="gap-xs">
+              <Text variant="sectionLabel">{t("listing.description")}</Text>
+              <Text>{listing.description}</Text>
+            </View>
+          ) : null}
+
           {listing.status !== "draft" ? (
             <View className="flex-row gap-xl">
               <View className="flex-row items-center gap-xs">
@@ -251,13 +259,6 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
               value={listing.publishedAt ? timeAgo(listing.publishedAt, t) : null}
             />
           </View>
-
-          {listing.description ? (
-            <View className="gap-xs">
-              <Text variant="sectionLabel">{t("listing.description")}</Text>
-              <Text>{listing.description}</Text>
-            </View>
-          ) : null}
         </View>
       </ScrollView>
       {listing.status === "active" ? <BuzzSheet ref={buzzSheet} listingId={listing.id} /> : null}

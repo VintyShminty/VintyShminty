@@ -186,6 +186,14 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                 sold={sold}
               />
 
+              {/* The description comes right under the price, among the first things a buyer reads (Eden). */}
+              {listing.description ? (
+                <View className="gap-xs">
+                  <Text variant="sectionLabel">{t("listing.description")}</Text>
+                  <ExpandableText text={listing.description} />
+                </View>
+              ) : null}
+
               {sold ? null : (
                 <PriceBreakdownCard
                   priceMinor={price}
@@ -262,13 +270,6 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                 />
                 <DetailRow label={t("item.views")} value={String(listing.viewCount)} />
               </View>
-
-              {listing.description ? (
-                <View className="gap-xs">
-                  <Text variant="sectionLabel">{t("listing.description")}</Text>
-                  <ExpandableText text={listing.description} />
-                </View>
-              ) : null}
 
               <View className="gap-sm">
                 <Text variant="sectionLabel">{t("item.seller")}</Text>
