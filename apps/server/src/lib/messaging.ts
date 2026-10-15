@@ -447,7 +447,7 @@ export async function sendMessage(
   if (!message) throw new Error("Message could not be presented");
   await afterMessageCommitted(app, conversation, userId, otherId, message, preview);
   await recordFirstMessage(app, conversation, userId);
-  // D-039: the AI looks at a new text message after the fact. It never holds up or fails the send.
+  // D-041: the AI looks at a new text message after the fact. It never holds up or fails the send.
   if (message.kind === "text" && app.chatChecker) checkChatInBackground(app.chatChecker, message.id, app.log);
   return { message, created: true };
 }

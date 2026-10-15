@@ -1,6 +1,6 @@
 import type { ChatWarningKind, Message } from "@vinty/shared";
 
-/** The warning line (D-039) is for the person who received the message, never for the one who wrote it. */
+/** The warning line (D-041) is for the person who received the message, never for the one who wrote it. */
 export function warningFor(
   message: Pick<Message, "senderId" | "warning" | "kind">,
   me?: string,
@@ -10,7 +10,7 @@ export function warningFor(
 }
 
 /**
- * Should the chat ask for quick replies (D-039)? Only when the helper is on, the newest message is a text from the
+ * Should the chat ask for quick replies (D-041)? Only when the helper is on, the newest message is a text from the
  * other person, nothing of ours is still on its way and the chat is not blocked.
  */
 export function quickReplyTarget({

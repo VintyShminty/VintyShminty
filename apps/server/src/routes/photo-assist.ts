@@ -35,7 +35,7 @@ const photoAssistRoutes: FastifyPluginAsyncZod<{
   reader: PhotoReader;
   textReader: TextReader;
   searchReader: SearchReader;
-  /** The chat helpers (D-039): quick replies and the chat check run on the same key and switch. */
+  /** The chat helpers (D-041): quick replies and the chat check run on the same key and switch. */
   chatReader: QuickRepliesReader;
   /** The AI cost meter, asked whether the master switch is on for the status answer. */
   meter: Pick<AiMeter, "switchState">;

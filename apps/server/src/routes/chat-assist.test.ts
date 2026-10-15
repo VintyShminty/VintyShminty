@@ -27,7 +27,7 @@ import {
 } from "../test-helpers.js";
 
 // Runs only when DATABASE_URL points at a migrated and seeded local database (pnpm db:reset).
-describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-039)", () => {
+describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)", () => {
   let ctx: TestContext;
   let call: ReturnType<typeof apiCaller>;
   const createdIds: string[] = [];

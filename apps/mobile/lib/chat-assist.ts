@@ -1,6 +1,6 @@
 import type { Message } from "@vinty/shared";
 
-// Pure rules for the chat helpers (D-039): when the quick replies are offered, how a tapped reply lands in the box
+// Pure rules for the chat helpers (D-041): when the quick replies are offered, how a tapped reply lands in the box
 // and who sees a warning. Kept free of React so they are easy to test.
 
 type Chat = Pick<Message, "id" | "senderId" | "kind" | "body" | "createdAt">;

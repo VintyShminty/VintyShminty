@@ -598,11 +598,22 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** shared shapes in `packages/shared/src/review.ts`, new report columns (`source`, `urgency`, `ai_reason`, `ai_summary`, a report without a reporter is an AI check). Server: `lib/listing-check.ts`, report sorting, `GET /v1/admin/review`, `POST /v1/admin/review/:id/action`. Website: `app/[lang]/admin/review`.
 - **References:** D-036, D-037, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
-### D-039 : Chat warns about likely scams and offers quick replies, and never sends anything itself
+### D-039 : A calmer top of the website
+
+- **Date:** 2026-10-14
+- **Area:** Website, top bar, Home
+- **Status:** Built on branch feat/web-top-bar, waiting for Eden's review. Changes the Home greeting of D-030 (row 7) and the look of the Home mood chips (D-008, D-035).
+- **Decision:** Eden picked direction C of `docs/mockups/top-bar-options.html` ("Today, tightened"), with the search bar fully rounded. The top bar keeps its layout. The wordmark is near black (text-1) in bold, the bar's bottom line is the subtle border, the search bar is white with a thin border and fully rounded (no cream fill), and the Sell button shows a plus instead of the camera. The Home greeting is one line, "Good evening," in light weight and the first name in semibold, at the title size instead of two display lines. The Home mood chips are pills (fully rounded, 32px tall, light border, text-2), the chosen one filled near black. The buttons at the end of the top bar are slimmer: Sell, Sign up and Log in are 34px tall with 8px corners and less padding, Sign up has a light border and dark text instead of the espresso outline (the phone menu keeps its 40px Sell). Chips elsewhere are unchanged.
+- **Rationale:** Eden felt the top of the website looked childish. The cream filled search, the heavy chip outlines and the huge two line greeting made it read playful rather than grown up.
+- **Trade-off:** Home chips now differ from the filter chips on other pages. Directions A (quiet editorial) and B (department store) were not taken.
+- **Implementation:** `apps/web/components/top-bar.tsx`, `sell-button.tsx`, `home-greeting.tsx`, `home-feed.tsx`.
+- **References:** D-008, D-030, D-035, `docs/mockups/top-bar-options.html`
+
+### D-041 : Chat warns about likely scams and offers quick replies, and never sends anything itself
 
 - **Date:** 2026-10-14
 - **Area:** Chat, app and website
-- **Status:** Built on branch feat/ai-chat-helpers, waiting for Eden's review. The privacy policy's "AI helpers" section (PR #71) covers it.
+- **Status:** Built on branch feat/ai-chat-helpers, waiting for Eden's review. Numbered D-041 because D-039 went to the website top bar and D-040 to style tags while this was built. The privacy policy's "AI helpers" section (PR #71) covers it.
 - **Decision:** Every text message is checked by Claude Haiku in the background after it is sent (Eden's choice), so sending never slows down. When it asks to pay outside Vinty, shares a link that may not be safe, moves the talk to WhatsApp or a phone number, or rushes the other person, the person who received it sees one quiet line under that bubble with a small warning sign, for example "Careful: paying outside Vinty is not protected. Keep payment in the app". The sender sees nothing new. Clear scams (a fake payment link, asking for card details or codes) also go to Eden's Review list (D-038). Quick replies: when someone opens a chat where the other person wrote last, up to 3 short replies in their language show as chips with a small sparkle above the typing box. A tap puts the words in the box to edit (Eden's choice), it never sends. The chips go away when the person starts typing or a new message comes in. Replies only use what is in the chat, never invent a price or a date, and never move the deal outside Vinty.
 - **Rationale:** Deals moved off the app are where people get cheated, and a warning at the right moment protects them without blocking anyone. Quick replies make answering a buyer one tap faster.
 - **Trade-off:** Reading every message costs about 0.006 cents each, but catches scams that are worded without the usual signs. Quick replies are made only when a chat is opened, so they appear a moment after it opens, and chats nobody opens cost nothing.

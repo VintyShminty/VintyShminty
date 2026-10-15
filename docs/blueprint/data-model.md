@@ -1330,7 +1330,7 @@ Used by: Conversation thread (bubbles, offer bubble, dividers), Inbox preview.
 | `order_id` | uuid | yes | refers to orders.id, on delete set null. Set on order dividers so the app can open the order |
 | `payload` | jsonb | yes | Extra values for the divider, such as the amount |
 | `client_message_id` | uuid | yes | A UUID made by the app so a retry after bad network never sends twice |
-| `warning` | chat_warning | yes | D-039: what the AI chat check warned about (off_platform_payment, suspicious_link, off_platform_contact or pressure). Set a moment after a text message is stored, shown quietly to the recipient only. The AI never blocks or deletes a message. Null when nothing was found |
+| `warning` | chat_warning | yes | D-041: what the AI chat check warned about (off_platform_payment, suspicious_link, off_platform_contact or pressure). Set a moment after a text message is stored, shown quietly to the recipient only. The AI never blocks or deletes a message. Null when nothing was found |
 | `deleted_at` | timestamptz | yes |  |
 | `created_at` | timestamptz | no | default now() |
 

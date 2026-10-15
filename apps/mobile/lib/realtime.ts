@@ -135,7 +135,7 @@ function connect(userId: string) {
   // offer reserves the item.
   s.on("message:updated", ({ conversationId, offer, message }) => {
     if (offer) patchMessageOffer(queryClient, conversationId, offer.id, offer);
-    // The AI check put a warning on a message (D-039): swap it into the open chat.
+    // The AI check put a warning on a message (D-041): swap it into the open chat.
     if (message) {
       queryClient.setQueryData<MessagesData>(
         ["messages", conversationId],

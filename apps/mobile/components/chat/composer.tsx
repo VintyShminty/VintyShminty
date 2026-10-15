@@ -30,7 +30,7 @@ function Composer({
   onPickPhoto: () => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
-  /** Suggested answers to the newest message (D-039). A tap fills the box, it never sends. */
+  /** Suggested answers to the newest message (D-041). A tap fills the box, it never sends. */
   quickReplies?: { forMessageId: string | null; newestId: string; replies: string[] };
 }) {
   const { t, i18n } = useTranslation();

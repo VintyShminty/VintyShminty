@@ -98,7 +98,7 @@ function ConversationScreen() {
     [messages, pending, me, thread.hasNextPage, otherTyping],
   );
 
-  // Quick replies (D-039): only when the newest message is a text from the other person and the helper is on.
+  // Quick replies (D-041): only when the newest message is a text from the other person and the helper is on.
   const assistStatus = useQuery(photoAssistStatusQuery());
   const target = useMemo(
     () => quickReplyTarget(messages, me, pending.length > 0),

@@ -26,7 +26,7 @@ export function Composer({
   onPickPhoto: (file: File) => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
-  /** Suggested answers (D-039). Shown above the box while it is empty. A tap fills the box, it never sends. */
+  /** Suggested answers (D-041). Shown above the box while it is empty. A tap fills the box, it never sends. */
   quickReplies?: string[];
 }) {
   const { t } = useTranslation();

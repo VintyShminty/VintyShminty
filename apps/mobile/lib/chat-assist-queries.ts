@@ -3,7 +3,7 @@ import { type QuickReplies, quickRepliesSchema } from "@vinty/shared";
 import { api } from "@/lib/api";
 
 /**
- * Suggested replies for the newest message of a chat (D-039). Cached per chat, message and language, so going back
+ * Suggested replies for the newest message of a chat (D-041). Cached per chat, message and language, so going back
  * and forth costs nothing. A failure shows nothing (the screen never waits for this).
  */
 export const quickRepliesQuery = (conversationId: string, messageId: string, language: "en" | "he") =>

@@ -11,7 +11,7 @@ import { presentMessages } from "./messaging.js";
 import type { PhotoReadUsage } from "./photo-reader.js";
 
 /**
- * The AI chat check (D-039). After a new text message is stored, a model reads it with the few messages before it and
+ * The AI chat check (D-041). After a new text message is stored, a model reads it with the few messages before it and
  * may warn the person who received it (a quiet line under the message), and send a clear scam to the admin Review
  * list. It never blocks, deletes or holds a message, and never bans anyone. It runs in the background, so sending is
  * never slower and never fails because of it.
@@ -353,7 +353,7 @@ export type ChatChecker = ReturnType<typeof createChatChecker>;
 
 declare module "fastify" {
   interface FastifyInstance {
-    /** The background chat check (D-039). Absent when the app was built without a database. */
+    /** The background chat check (D-041). Absent when the app was built without a database. */
     chatChecker?: ChatChecker;
   }
 }

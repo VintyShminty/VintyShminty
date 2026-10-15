@@ -2,7 +2,7 @@ import { z } from "zod";
 import { idSchema, localeSchema } from "./common.js";
 
 /**
- * Chat helpers (D-039). Quick replies are suggestions above the typing box: a tap puts the words in the box, the person
+ * Chat helpers (D-041). Quick replies are suggestions above the typing box: a tap puts the words in the box, the person
  * edits and sends them. Nothing is ever sent in someone's name. Warnings live on the message itself (`warning`).
  */
 

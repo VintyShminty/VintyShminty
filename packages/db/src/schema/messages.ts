@@ -39,7 +39,7 @@ export const messages = pgTable(
     payload: jsonb("payload"),
     /** Set by the app so a retry after a bad network does not send twice. */
     clientMessageId: uuid("client_message_id"),
-    /** D-039: what the AI chat check warned about. Shown quietly to the recipient only. Null when nothing was found. */
+    /** D-041: what the AI chat check warned about. Shown quietly to the recipient only. Null when nothing was found. */
     warning: chatWarningEnum("warning"),
     deletedAt: ts("deleted_at"),
     createdAt: createdAt(),

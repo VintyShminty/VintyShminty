@@ -21,7 +21,7 @@ import {
   UNDER_50_MINOR,
   type UserSummary,
 } from "@vinty/shared";
-import { and, eq, inArray, type SQL, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, lt, type SQL, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { awayNowSql } from "./away.js";
 import { decodeCursor, encodeCursor } from "./cursor.js";
@@ -263,6 +263,40 @@ export async function loadSellerSummaries(
   return result;
 }
 
+/** The first few photos of each listing, in order, for the arrows on the website card. One query for all ids. */
+const CARD_PHOTO_LIMIT = 5;
+async function loadCardPhotos(db: Db, listingIds: string[]) {
+  const result = new Map<
+    string,
+    {
+      objectKey: string;
+      width: number;
+      height: number;
+      placeholder: string | null;
+      cardObjectKey: string | null;
+    }[]
+  >();
+  if (listingIds.length === 0) return result;
+  const rows = await db
+    .select({
+      listingId: listingPhotos.listingId,
+      objectKey: listingPhotos.objectKey,
+      width: listingPhotos.width,
+      height: listingPhotos.height,
+      placeholder: listingPhotos.placeholder,
+      cardObjectKey: listingPhotos.cardObjectKey,
+    })
+    .from(listingPhotos)
+    .where(and(inArray(listingPhotos.listingId, listingIds), lt(listingPhotos.position, CARD_PHOTO_LIMIT)))
+    .orderBy(asc(listingPhotos.position));
+  for (const r of rows) {
+    const list = result.get(r.listingId);
+    if (list) list.push(r);
+    else result.set(r.listingId, [r]);
+  }
+  return result;
+}
+
 /** Turns query rows into the cards the app draws. `isFavourited` is only present for a signed in viewer. */
 export async function toCards(
   app: Pick<FastifyInstance, "db" | "storage">,
@@ -274,7 +308,7 @@ export async function toCards(
   const sizeLabels = new Map<string, string>();
   for (const group of reference.sizeGroups) for (const s of group.sizes) sizeLabels.set(s.id, s.label);
   const conditionSlugs = new Map(reference.conditions.map((c) => [c.id, c.slug]));
-  const [hearted, sellers] = await Promise.all([
+  const [hearted, sellers, extraPhotos] = await Promise.all([
     opts.viewerId
       ? favouritedIds(
           db,
@@ -283,11 +317,16 @@ export async function toCards(
         )
       : null,
     opts.withSeller ? loadSellerSummaries(app, [...new Set(rows.map((r) => r.listing.sellerId))]) : null,
+    loadCardPhotos(
+      db,
+      rows.map((r) => r.listing.id),
+    ),
   ]);
   const now = new Date();
   return rows.map(({ listing: l, coverKey, coverWidth, coverHeight, coverPlaceholder, coverCardKey }) => {
     const price = l.priceMinor ?? 0;
     const seller = sellers?.get(l.sellerId);
+    const photoRows = extraPhotos.get(l.id);
     return {
       id: l.id,
       status: l.status,
@@ -311,6 +350,19 @@ export async function toCards(
               cardObjectKey: coverCardKey,
             })
           : null,
+      ...(photoRows && photoRows.length >= 2
+        ? {
+            photos: photoRows.map((p) =>
+              toCardPhoto(storage, {
+                objectKey: p.objectKey,
+                width: p.width,
+                height: p.height,
+                placeholder: p.placeholder,
+                cardObjectKey: p.cardObjectKey,
+              }),
+            ),
+          }
+        : {}),
       favouriteCount: l.favouriteCount,
       ...(hearted ? { isFavourited: hearted.has(l.id) } : {}),
       isBumped: Boolean(l.bumpedUntil && l.bumpedUntil > now),

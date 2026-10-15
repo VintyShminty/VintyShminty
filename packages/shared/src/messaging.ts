@@ -88,7 +88,7 @@ export const messageSchema = z.object({
   clientMessageId: idSchema.nullable(),
   createdAt: isoDateTimeSchema,
   /**
-   * The AI chat check's warning (D-039), shown only to the person who received the message. Set a moment after the
+   * The AI chat check's warning (D-041), shown only to the person who received the message. Set a moment after the
    * message arrives (a `message:updated` event follows). Optional because older servers do not send it.
    */
   warning: z.enum(CHAT_WARNING_KINDS).nullable().optional(),
@@ -234,7 +234,7 @@ export type ServerToClientEvents = {
     conversationId: string;
     messageId: string;
     offer?: MessageOffer;
-    /** The whole message again, sent only to the person who received it when the AI chat check adds a warning (D-039). */
+    /** The whole message again, sent only to the person who received it when the AI chat check adds a warning (D-041). */
     message?: Message;
   }) => void;
   /** An order moved. Goes to the buyer and the seller only. The app refetches the order. */

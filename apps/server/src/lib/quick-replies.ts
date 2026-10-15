@@ -18,7 +18,7 @@ import { isBlockedBetween, otherPersonId, requireParty, sideOf } from "./messagi
 import type { PhotoReadUsage } from "./photo-reader.js";
 
 /**
- * Chat quick replies (D-039). When someone opens a chat whose newest message is a text from the other person, the model
+ * Chat quick replies (D-041). When someone opens a chat whose newest message is a text from the other person, the model
  * suggests up to 3 short replies in the person's language. A tap only fills the typing box, nothing is ever sent for
  * them. Always answers with a (possibly empty) list, never an error.
  */

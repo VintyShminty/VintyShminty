@@ -174,7 +174,7 @@
             "Your settings: notification choices, privacy choices and whether Home learns from what you do. We need them to follow your choices.",
             "Your addresses: the names, street and phone number you save for delivery. We need them to complete an order, and the seller sees what a delivery needs.",
             "What you list: photos, descriptions, prices, category, size and brand, and your drafts. We need them to run your sale. Listings are public.",
-            "Your messages and offers: what you write to other people, with photos you send. We need them to deliver the conversation and to look into reports.",
+            "Your messages and offers: what you write to other people, with photos you send. We need them to deliver the conversation, to look into reports, and for the AI helpers described below.",
             "Your orders: what you bought or sold, prices, the delivery address, status and any dispute. We need them to run the order and for records. In practice mode they are simulated.",
             "Your balance and payouts: the practice balance and the history of it. We need it to show your sales. No bank or card details are collected today.",
             "Reviews: ratings and what you wrote. Reviews are public.",
@@ -197,6 +197,20 @@
         ]
       },
       {
+        "id": "ai",
+        "heading": "AI helpers",
+        "blocks": [
+          "Some parts of Vinty use AI from Anthropic (Claude) to help you. It suggests and warns. It never decides anything about your account, your money or your orders. A person on our team does that.",
+          [
+            "Selling: it reads the photos and words of your listing to suggest a category, brand and condition, and to give photo tips.",
+            "Searching: it turns what you type in search into filters.",
+            "Safety: it checks new and changed listings for items that are not allowed, fakes and scams, and helps us sort reports. Anything it finds goes to a person on our team.",
+            "Chat: it reads the messages in your conversations to suggest quick replies and to warn you about likely scams, such as someone asking you to pay or talk outside Vinty. If it sees a likely scam, our team may look at that conversation."
+          ],
+          "We do not send your name, email or phone number with what the AI reads. Anthropic may not use it to train its models. [Lawyer: confirm the Anthropic terms and the legal basis for automated checks of messages]"
+        ]
+      },
+      {
         "id": "share",
         "heading": "Who sees your information",
         "blocks": [
@@ -204,7 +218,7 @@
           [
             "Everyone can see your public profile, your listings and your reviews.",
             "A buyer and a seller in an order see what the order needs, such as names, the delivery address and phone number, and the item.",
-            "Only the person you write to sees your messages (and Vinty, if someone reports a conversation)."
+            "Only the person you write to sees your messages (and Vinty, if someone reports a conversation or the AI helper sees a likely scam)."
           ],
           "Companies that help us run Vinty. They process your information for us and only for that:",
           [
@@ -215,7 +229,7 @@
             "Resend sends our emails, such as your sign in codes.",
             "Apple and Google, if you choose to sign in with them.",
             "Expo sends push notifications to your phone.",
-            "Anthropic reads listing photos for the photo helper, only when a seller adds photos and uses it. We do not send your name or contact details with them."
+            "Anthropic runs the AI helpers described above. It receives only what each helper needs to read, never your name or contact details."
           ],
           "We may also share information when the law or a court requires it, or to protect people from harm or fraud. We do not sell your personal information. [Lawyer: confirm this section, the processor agreements, and what to say about the photo helper provider]"
         ]

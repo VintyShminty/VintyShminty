@@ -120,7 +120,7 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
     return () => observer.disconnect();
   }, [ready, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Quick replies (D-039): asked for once per newest message, kept per chat, message and language. A failure shows nothing.
+  // Quick replies (D-041): asked for once per newest message, kept per chat, message and language. A failure shows nothing.
   const assistStatus = useQuery({
     queryKey: ["photo-assist"],
     queryFn: () => clientApi("/v1/sell/assist", { schema: photoAssistStatusSchema }),

@@ -5,7 +5,7 @@ import { ApiError } from "../lib/errors.js";
 import type { QuickReplier } from "../lib/quick-replies.js";
 
 /**
- * Chat quick replies (D-039): up to 3 suggested replies for the newest message. Always 200 for a person in the chat,
+ * Chat quick replies (D-041): up to 3 suggested replies for the newest message. Always 200 for a person in the chat,
  * empty when the AI is off, refused, slow, or there is nothing to answer. A stranger gets 404 like every other chat route.
  */
 const quickReplyRoutes: FastifyPluginAsyncZod<{ replier: QuickReplier }> = async (app, { replier }) => {

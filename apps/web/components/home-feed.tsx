@@ -18,6 +18,7 @@ import { clientApi } from "@/lib/api-client";
 import { feedPath, homeHref, MOODS } from "@/lib/feed-url";
 import { gridQueryOptions } from "@/lib/grid-query";
 import { homeEmptyText } from "@/lib/home-empty";
+import { cn } from "@/lib/utils";
 
 /**
  * The Home chips and the feed under them. Switching a chip is done here in the browser: the address is updated with
@@ -97,6 +98,11 @@ export function HomeFeed({
               onClick={() => choose(m.key)}
               selected={mood === m.key}
               label={t(`home.moods.${m.key}`, { amount: formatPrice(UNDER_50_MINOR, "ILS") })}
+              // Light pills on Home (D-039): a light outline, the chosen one near black.
+              className={cn(
+                "h-8 rounded-full px-[14px]",
+                mood === m.key ? "border-text-1 bg-text-1 font-semibold" : "border-border text-text-2",
+              )}
             />
           ))}
         </nav>

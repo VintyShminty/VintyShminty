@@ -91,7 +91,7 @@ export const MESSAGE_KINDS = ["text", "photo", "offer", "system"] as const;
 export type MessageKind = (typeof MESSAGE_KINDS)[number];
 
 /**
- * What the AI chat check warns about (D-039), the most serious first. The person who receives the message sees a quiet
+ * What the AI chat check warns about (D-041), the most serious first. The person who receives the message sees a quiet
  * warning under it. The AI never blocks or deletes a message.
  */
 export const CHAT_WARNING_KINDS = [

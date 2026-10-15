@@ -105,6 +105,8 @@ export const listingCardSchema = z.object({
   previousPriceMinor: z.number().int().nullable(),
   currency: z.string().length(3),
   cover: photoSchema.nullable(),
+  /** All photos in order, card-sized, cover first. Only sent where cards are drawn on the website/app grids. */
+  photos: z.array(photoSchema).optional(),
   favouriteCount: z.number().int(),
   isFavourited: z.boolean().optional(),
   isBumped: z.boolean(),

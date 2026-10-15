@@ -84,9 +84,9 @@ export type BuildAppOptions = {
   listingCheckReader?: ListingCheckReader;
   /** Sorting of member reports by urgency (D-038). Tests pass a fake. */
   reportSortReader?: ReportSortReader;
-  /** The background chat check that adds warnings to messages (D-039). Tests pass a fake. */
+  /** The background chat check that adds warnings to messages (D-041). Tests pass a fake. */
   chatCheckReader?: ChatCheckReader;
-  /** Suggested replies in a chat (D-039). Tests pass a fake. */
+  /** Suggested replies in a chat (D-041). Tests pass a fake. */
   quickRepliesReader?: QuickRepliesReader;
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
@@ -150,7 +150,7 @@ export async function buildApp({
         env.PHOTO_READER_MODEL,
       ),
     );
-    // D-039: sendMessage starts this after a new text message is stored.
+    // D-041: sendMessage starts this after a new text message is stored.
     app.decorate(
       "chatChecker",
       createChatChecker(
