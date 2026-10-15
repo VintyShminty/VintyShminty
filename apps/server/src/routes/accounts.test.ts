@@ -279,7 +279,7 @@ describe.skipIf(!databaseUrl)("accounts", () => {
       });
       const mail = await waitFor(() => ctx.mailer.outbox.filter((m) => m.to === person.email)[1]);
       expect(mail.html).toContain('dir="rtl"');
-      expect(mail.subject).toContain("Vinty");
+      expect(mail.subject).toContain("Yadii");
     });
 
     it("allows 5 reset codes an hour for one email, then answers 429", async () => {

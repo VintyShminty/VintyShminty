@@ -65,7 +65,7 @@
     "subtitle": "התחברו וממשיכים מאיפה שעצרתם.",
     "submit": "התחברות",
     "forgot": "שכחתם את הסיסמה?",
-    "noAccount": "חדשים ב-Vinty?",
+    "noAccount": "חדשים ב-Yadii?",
     "signUp": "הרשמה",
     "passwordChanged": "הסיסמה שונתה. התחברו עם הסיסמה החדשה."
   },
@@ -217,11 +217,11 @@
   },
   "errors": {
     "socialFailed": "לא הצלחנו לחבר אתכם דרך {{provider}}. נסו שוב.",
-    "socialNoEmail": "{{provider}} לא שיתף את האימייל שלכם, ולכן לא יכולנו ליצור חשבון. אשרו ל-Vinty לראות את האימייל ונסו שוב.",
+    "socialNoEmail": "{{provider}} לא שיתף את האימייל שלכם, ולכן לא יכולנו ליצור חשבון. אשרו ל-Yadii לראות את האימייל ונסו שוב.",
     "socialBlocked": "כבר יש חשבון עם האימייל הזה. היכנסו עם הסיסמה.",
     "socialUnavailable": "ההתחברות דרך {{provider}} לא זמינה כרגע.",
     "general": "משהו השתבש. נסו שוב.",
-    "network": "לא הצלחנו להתחבר ל-Vinty. בדקו את החיבור ונסו שוב.",
+    "network": "לא הצלחנו להתחבר ל-Yadii. בדקו את החיבור ונסו שוב.",
     "wrongLogin": "האימייל והסיסמה לא תואמים.",
     "wrongPassword": "הסיסמה לא נכונה.",
     "emailTaken": "כבר קיים חשבון עם האימייל הזה",
@@ -242,17 +242,17 @@
     "generic": "זיהוי ביומטרי"
   },
   "lock": {
-    "title": "Vinty נעולה",
+    "title": "Yadii נעולה",
     "subtitle": "השתמשו ב-{{method}} כדי לפתוח את האפליקציה.",
     "failed": "‏{{method}} לא הצליח. נסו שוב או התחברו עם סיסמה.",
     "unlock": "פתיחה עם {{method}}",
     "usePassword": "התחברות עם סיסמה",
-    "prompt": "פתיחת Vinty",
-    "confirmEnable": "הפעלת {{method}} עבור Vinty"
+    "prompt": "פתיחת Yadii",
+    "confirmEnable": "הפעלת {{method}} עבור Yadii"
   },
   "faceId": {
-    "offerTitle": "פותחים את Vinty עם {{method}}",
-    "offerBody": "בלי להקליד סיסמה. Vinty תבקש {{method}} כשתפתחו אותה.",
+    "offerTitle": "פותחים את Yadii עם {{method}}",
+    "offerBody": "בלי להקליד סיסמה. Yadii תבקש {{method}} כשתפתחו אותה.",
     "turnOn": "הפעלת {{method}}",
     "notNow": "לא עכשיו",
     "turnOnFailed": "לא הצלחנו להפעיל את {{method}}. אפשר לנסות שוב בהגדרות, אבטחה."
@@ -364,13 +364,13 @@
     "removePhoto": "הסרת תמונה",
     "removePhotoTitle": "להסיר את התמונה?",
     "uploading": "מעלה...",
-    "photosDenied": "Vinty צריכה גישה לתמונות שלכם. אפשר לאשר בהגדרות הטלפון.",
+    "photosDenied": "Yadii צריכה גישה לתמונות שלכם. אפשר לאשר בהגדרות הטלפון.",
     "uploadFailed": "התמונה לא עלתה. נסו שוב."
   },
   "settings": {
     "title": "הגדרות",
     "promoTitle": "בטוח יותר, ופותח מהר יותר",
-    "promoBody": "השתמשו ב-{{method}} כדי לפתוח את Vinty בטלפון הזה.",
+    "promoBody": "השתמשו ב-{{method}} כדי לפתוח את Yadii בטלפון הזה.",
     "promoButton": "הגדרת {{method}}",
     "profileDetails": "הפרופיל שלכם",
     "account": "החשבון שלכם",
@@ -382,7 +382,7 @@
     "appLanguage": "שפת האפליקציה",
     "language": "שפה",
     "logOut": "התנתקות",
-    "logOutTitle": "להתנתק מ-Vinty?"
+    "logOutTitle": "להתנתק מ-Yadii?"
   },
   "account": {
     "title": "החשבון שלכם",
@@ -415,7 +415,7 @@
   "security": {
     "title": "כניסה וביטחון",
     "faceId": "פתיחה עם {{method}}",
-    "faceIdHint": "Vinty תבקש {{method}} כשתפתחו אותה או תחזרו אליה אחרי זמן מה.",
+    "faceIdHint": "Yadii תבקש {{method}} כשתפתחו אותה או תחזרו אליה אחרי זמן מה.",
     "sessions": "איפה אתם מחוברים",
     "unknownDevice": "מכשיר לא מוכר",
     "activeNow": "פעיל עכשיו",
@@ -454,7 +454,7 @@
     "dailyLimit": "תקרה להתראות ביום",
     "noLimit": "ללא הגבלה",
     "upTo": "עד {{count}} ביום",
-    "dailyLimitHint": "המספר המרבי של התראות ש-Vinty שולחת לטלפון שלכם ביום.",
+    "dailyLimitHint": "המספר המרבי של התראות ש-Yadii שולחת לטלפון שלכם ביום.",
     "enablePush": "לאפשר התראות בטלפון הזה",
     "enableEmail": "לאפשר התראות באימייל",
     "notSentYet": "הבחירות שלכם נשמרות. ההתראות האלה יתחילו להגיע כשהתכונות שמאחוריהן ייצאו."
@@ -568,7 +568,7 @@
       "viewerClose": "סגירת התמונה",
       "remove": "הסרת התמונה",
       "deniedTitle": "אין גישה לתמונות",
-      "denied": "אפשרו ל־Vinty להשתמש בתמונות או במצלמה בהגדרות הטלפון"
+      "denied": "אפשרו ל־Yadii להשתמש בתמונות או במצלמה בהגדרות הטלפון"
     },
     "conditionStop": "{{name}}, {{n}} מתוך {{total}}",
     "conditionAdjustHint": "החליקו למעלה או למטה כדי לשנות את המצב",
@@ -700,7 +700,7 @@
       "inappropriate": "תוכן לא הולם או פוגעני",
       "spam": "ספאם או פרסומת",
       "harassment": "הטרדה או התנהגות פוגענית",
-      "scam_off_platform": "ביקשו ממני לשלם או לדבר מחוץ ל-Vinty",
+      "scam_off_platform": "ביקשו ממני לשלם או לדבר מחוץ ל-Yadii",
       "other": "משהו אחר"
     }
   },
@@ -904,9 +904,9 @@
       "referral_rewarded_invitee": "ההזמנה הראשונה שלכם הושלמה. קיבלתם שובר",
       "listing_removed": "{{title}} הוסר על ידי הצוות שלנו",
       "bump_ended": "הבאז של {{title}} הסתיים",
-      "platform_message": "הודעה מ-Vinty",
-      "platform_welcome": "ברוכים הבאים ל-Vinty. אפשר להתחיל לגלוש או להעלות את הפריט הראשון",
-      "platform_welcome_back": "ברוכים השבים ל-Vinty",
+      "platform_message": "הודעה מ-Yadii",
+      "platform_welcome": "ברוכים הבאים ל-Yadii. אפשר להתחיל לגלוש או להעלות את הפריט הראשון",
+      "platform_welcome_back": "ברוכים השבים ל-Yadii",
       "andMore_one": "{{title}} ועוד פריט אחד",
       "andMore_two": "{{title}} ועוד שני פריטים",
       "andMore_other": "{{title}} ועוד {{count}} פריטים",
@@ -1003,9 +1003,9 @@
     },
     "assist": {
       "warning": {
-        "off_platform_payment": "שימו לב: תשלום מחוץ ל-Vinty אינו מוגן. כדאי לשלם באפליקציה",
+        "off_platform_payment": "שימו לב: תשלום מחוץ ל-Yadii אינו מוגן. כדאי לשלם באפליקציה",
         "suspicious_link": "שימו לב: ייתכן שהקישור הזה לא בטוח. לעולם אל תזינו פרטים דרך קישור בצ׳אט",
-        "off_platform_contact": "שימו לב: עסקה שעוברת אל מחוץ ל-Vinty אינה מוגנת. כדאי להמשיך לדבר כאן",
+        "off_platform_contact": "שימו לב: עסקה שעוברת אל מחוץ ל-Yadii אינה מוגנת. כדאי להמשיך לדבר כאן",
         "pressure": "אין למה למהר. קונה או מוכר אמיתיים לא ילחצו עליכם"
       }
     }
@@ -1343,10 +1343,10 @@
     "heroTitle": "מזמינים חבר/ה ושניכם מקבלים {{amount}}",
     "yourCode": "הקוד שלכם",
     "share": "שיתוף הקוד",
-    "shareMessage": "בואו להציץ בארונות איתי ב-Vinty. כשמצטרפים, מזינים את הקוד שלי {{code}}: {{link}}",
+    "shareMessage": "בואו להציץ בארונות איתי ב-Yadii. כשמצטרפים, מזינים את הקוד שלי {{code}}: {{link}}",
     "howTitle": "איך זה עובד",
     "how1": "שולחים את הקוד לחבר/ה",
-    "how2": "הם מצטרפים ל-Vinty ומוסיפים את הקוד",
+    "how2": "הם מצטרפים ל-Yadii ומוסיפים את הקוד",
     "how3": "כשההזמנה הראשונה שלהם בסך {{minimum}} ומעלה מושלמת, כל אחד מכם מקבל {{amount}}",
     "friendsTitle": "מי שהצטרפו",
     "friendsEmpty": "עדיין אף אחד/ת",
@@ -1615,7 +1615,7 @@
   },
   "help": {
     "title": "עזרה",
-    "intro": "תשובות קצרות על איך Vinty עובדת",
+    "intro": "תשובות קצרות על איך Yadii עובדת",
     "groups": {
       "buying": "קנייה",
       "selling": "מכירה",
@@ -1626,7 +1626,7 @@
     "stillStuck": {
       "title": "עדיין תקועים?",
       "button": "כתבו לנו",
-      "subject": "עזרה עם Vinty",
+      "subject": "עזרה עם Yadii",
       "note": "ספרו לנו מה קרה ונחזור אליכם"
     },
     "articles": {
@@ -1704,7 +1704,7 @@
       },
       "stayInside": {
         "title": "שומרים על עצמנו",
-        "body": "מדברים ומשלמים בתוך Vinty. אנחנו יכולים לבדוק רק הזמנות שנעשו באפליקציה, אז אם מישהו מבקש שתשלמו או תדברו במקום אחר, תסרבו ותדווחו עליו.\n\nלעולם אל תשתפו סיסמה או קוד בן 6 ספרות עם אף אחד, גם לא עם מי שאומר שהוא עובד אצלנו.\n\nאם הצעה נראית טובה מכדי להיות אמיתית, כנראה שהיא לא. בדקו קודם את התמונות ואת הביקורות על המוכר."
+        "body": "מדברים ומשלמים בתוך Yadii. אנחנו יכולים לבדוק רק הזמנות שנעשו באפליקציה, אז אם מישהו מבקש שתשלמו או תדברו במקום אחר, תסרבו ותדווחו עליו.\n\nלעולם אל תשתפו סיסמה או קוד בן 6 ספרות עם אף אחד, גם לא עם מי שאומר שהוא עובד אצלנו.\n\nאם הצעה נראית טובה מכדי להיות אמיתית, כנראה שהיא לא. בדקו קודם את התמונות ואת הביקורות על המוכר."
       },
       "reportAndBlock": {
         "title": "דיווח וחסימה",
@@ -1730,7 +1730,7 @@
       "favourites": "מועדפים",
       "account": "החשבון שלך",
       "browseTitle": "גלישה לפי סוג",
-      "homeLink": "Vinty, דף הבית"
+      "homeLink": "Yadii, דף הבית"
     },
     "dev": {
       "title": "בדיקת חיבור",
@@ -1756,7 +1756,7 @@
       "help": "עזרה",
       "terms": "תנאים",
       "privacy": "פרטיות",
-      "rights": "© {{year}} Vinty"
+      "rights": "© {{year}} Yadii"
     },
     "legal": {
       "draftLine": "טיוטה, עודכן לאחרונה ב-{{date}}",
@@ -1781,8 +1781,8 @@
     "browse": {
       "breadcrumb": "אתם כאן",
       "typesLabel": "סוגי פריטים",
-      "metaDescription": "עיינו בפריטי יד שנייה ב-Vinty לפי סוג: שמלות, חולצות, ג'ינסים, מעילים, נעליים ועוד.",
-      "tileMetaDescription": "{{name}} ב-Vinty: פריטי יד שנייה ממוכרים בישראל. אפשר להציע מחיר או לקנות בכמה הקשות."
+      "metaDescription": "עיינו בפריטי יד שנייה ב-Yadii לפי סוג: שמלות, חולצות, ג'ינסים, מעילים, נעליים ועוד.",
+      "tileMetaDescription": "{{name}} ב-Yadii: פריטי יד שנייה ממוכרים בישראל. אפשר להציע מחיר או לקנות בכמה הקשות."
     },
     "filters": {
       "sort": "מיון",
@@ -1805,7 +1805,7 @@
       "seeAll": "לכל הפריטים",
       "similar": "פריטים דומים",
       "report": "דיווח על הפריט",
-      "metaFallback": "{{details}} למכירה ב-Vinty",
+      "metaFallback": "{{details}} למכירה ב-Yadii",
       "loadFailed": "לא הצלחנו לטעון את הפריט",
       "breakdownLabel": "פירוט המחיר"
     },
@@ -1818,15 +1818,15 @@
       "unfollowLabel": "הפסקת מעקב אחרי {{name}}",
       "you": "זה אתם",
       "moreReviews": "עוד ביקורות",
-      "metaDescription_one": "ל{{name}} יש פריט {{count}} למכירה ב-Vinty",
-      "metaDescription_two": "ל{{name}} יש {{count}} פריטים למכירה ב-Vinty",
-      "metaDescription_other": "ל{{name}} יש {{count}} פריטים למכירה ב-Vinty",
+      "metaDescription_one": "ל{{name}} יש פריט {{count}} למכירה ב-Yadii",
+      "metaDescription_two": "ל{{name}} יש {{count}} פריטים למכירה ב-Yadii",
+      "metaDescription_other": "ל{{name}} יש {{count}} פריטים למכירה ב-Yadii",
       "statusGroup": "מצב הפריטים",
       "rating": "{{rating}} מתוך 5",
       "loadFailed": "לא הצלחנו לטעון את המוכר"
     },
     "help": {
-      "metaDescription": "תשובות מהירות על איך Vinty עובד",
+      "metaDescription": "תשובות מהירות על איך Yadii עובד",
       "allTopics": "כל נושאי העזרה",
       "breadcrumb": "אתם כאן"
     },
@@ -1836,7 +1836,7 @@
       "home": "חזרה לדף הבית"
     },
     "meta": {
-      "homeDescription": "מציאות יד שנייה מאנשים לידכם. קונים, מוכרים ומציעים מחיר ב-Vinty."
+      "homeDescription": "מציאות יד שנייה מאנשים לידכם. קונים, מוכרים ומציעים מחיר ב-Yadii."
     },
     "auth": {
       "menu": {
@@ -1862,7 +1862,7 @@
       "deviceOn": "{{browser}} ב-{{system}}",
       "onlyThisBrowser": "אתם מחוברים רק בדפדפן הזה.",
       "logOutOthersBody": "תישארו מחוברים כאן.",
-      "phoneAlertsNote": "התראות לטלפון מוגדרות באפליקציית Vinty. כאן בוחרים אילו מהן יגיעו אליכם באימייל."
+      "phoneAlertsNote": "התראות לטלפון מוגדרות באפליקציית Yadii. כאן בוחרים אילו מהן יגיעו אליכם באימייל."
     },
     "lists": {
       "favouritesEmptyNote": "לחצו על הסימנייה בפריט כדי לשמור אותו כאן"
@@ -1915,7 +1915,7 @@
   "admin": {
     "title": "ניהול",
     "menu": "תפריט",
-    "backToSite": "חזרה ל-Vinty",
+    "backToSite": "חזרה ל-Yadii",
     "loading": "טוען",
     "nav": {
       "dashboard": "לוח בקרה",
@@ -1928,7 +1928,7 @@
     },
     "adminsOnly": {
       "title": "למנהלים בלבד",
-      "message": "האזור הזה מיועד לצוות Vinty. אם אמורה להיות לך גישה, בקשו ממנהל להפעיל אותה"
+      "message": "האזור הזה מיועד לצוות Yadii. אם אמורה להיות לך גישה, בקשו ממנהל להפעיל אותה"
     },
     "checkFailed": {
       "title": "לא הצלחנו לבדוק את ההרשאה שלך",

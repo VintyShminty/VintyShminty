@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { logMailer, resendMailer } from "./mail.js";
 
 const message = { to: "me@example.com", subject: "Your code", text: "123456", html: "<p>123456</p>" };
-const env = { RESEND_API_KEY: "re_secret", MAIL_FROM: "Vinty <onboarding@resend.dev>" };
+const env = { RESEND_API_KEY: "re_secret", MAIL_FROM: "Yadii <onboarding@resend.dev>" };
 
 describe("resendMailer", () => {
   it("posts the email to Resend with the key as a bearer token", async () => {
@@ -19,7 +19,7 @@ describe("resendMailer", () => {
       "Bearer re_secret",
     );
     expect(JSON.parse(String(call?.init.body))).toEqual({
-      from: "Vinty <onboarding@resend.dev>",
+      from: "Yadii <onboarding@resend.dev>",
       to: ["me@example.com"],
       subject: "Your code",
       text: "123456",

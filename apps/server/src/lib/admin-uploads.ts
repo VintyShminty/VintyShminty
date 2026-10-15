@@ -418,8 +418,8 @@ export const EXPORT_COLUMNS = [
   "Link",
 ] as const;
 
-/** `vinty-uploads-YYYY-MM-DD.xlsx`, the date in UTC. */
-export const exportFileName = (now = new Date()) => `vinty-uploads-${now.toISOString().slice(0, 10)}.xlsx`;
+/** `yadii-uploads-YYYY-MM-DD.xlsx`, the date in UTC. */
+export const exportFileName = (now = new Date()) => `yadii-uploads-${now.toISOString().slice(0, 10)}.xlsx`;
 
 /** Shekels from agorot. Other currencies are written as a plain number too, the column says shekels for ILS items. */
 const major = (minor: number | null) => (minor === null ? null : Math.round(minor) / 100);
@@ -427,7 +427,7 @@ const major = (minor: number | null) => (minor === null ? null : Math.round(mino
 /** A real .xlsx: a bold frozen header row, sensible widths, dates as dates, prices as numbers, a clickable link. */
 export async function buildUploadsWorkbook(rows: AdminUploadRow[], siteBase: string): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = "Vinty admin";
+  workbook.creator = "Yadii admin";
   const sheet = workbook.addWorksheet("Uploaded items", { views: [{ state: "frozen", ySplit: 1 }] });
   const widths = [18, 38, 26, 22, 36, 38, 18, 12, 18, 12, 12, 18, 14, 52];
   sheet.columns = EXPORT_COLUMNS.map((header, i) => ({ header, width: widths[i] ?? 16 }));

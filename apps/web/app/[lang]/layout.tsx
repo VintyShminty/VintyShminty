@@ -25,7 +25,7 @@ export function generateStaticParams() {
   return LANGUAGES.map((lang) => ({ lang }));
 }
 
-export const metadata: Metadata = { title: "Vinty", metadataBase: new URL(SITE_URL) };
+export const metadata: Metadata = { title: "Yadii", metadataBase: new URL(SITE_URL) };
 
 /**
  * The frame of every page: fonts, language and direction, the providers client components need (wording, TanStack Query,

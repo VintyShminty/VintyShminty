@@ -341,7 +341,7 @@ async function displayNameOf(app: Pick<App, "db">, userId: string): Promise<stri
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-  return row?.displayUsername ?? row?.username ?? row?.name ?? "Vinty";
+  return row?.displayUsername ?? row?.username ?? row?.name ?? "Yadii";
 }
 
 export type SentMessage = { message: Message; created: boolean };

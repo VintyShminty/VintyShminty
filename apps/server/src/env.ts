@@ -69,7 +69,7 @@ const envSchema = z
       .enum(["true", "false"])
       .default("false")
       .transform((v) => v === "true"),
-    // Empty means "Vinty <no-reply@vinty.local>" for SMTP and "Vinty <onboarding@resend.dev>" (Resend's test sender,
+    // Empty means "Yadii <no-reply@vinty.local>" for SMTP and "Yadii <onboarding@resend.dev>" (Resend's test sender,
     // the only one that works before a domain is verified) for Resend.
     MAIL_FROM: optionalText,
 
@@ -208,7 +208,7 @@ const envSchema = z
     PHOTO_READER_MODEL: env.PHOTO_READER_MODEL ?? "claude-haiku-5-5",
     MAIL_FROM:
       env.MAIL_FROM ??
-      (env.MAIL_TRANSPORT === "resend" ? "Vinty <onboarding@resend.dev>" : "Vinty <no-reply@vinty.local>"),
+      (env.MAIL_TRANSPORT === "resend" ? "Yadii <onboarding@resend.dev>" : "Yadii <no-reply@vinty.local>"),
     /** Timers inside the server: on unless Vercel runs us, or the person switched them off. */
     IN_PROCESS_JOBS: env.IN_PROCESS_JOBS ? env.IN_PROCESS_JOBS === "true" : !env.VERCEL,
     /** Prepared statements break behind a transaction pooler such as Neon's. */

@@ -44,7 +44,7 @@ export function UploadedItems({ lang }: { lang: "en" | "he" }) {
       const res = await fetch(`/v1/admin/uploads/export.xlsx?${params}`, { credentials: "include" });
       if (!res.ok) throw await errorFromResponse(res);
       const blob = await res.blob();
-      const name = fileNameFromDisposition(res.headers.get("Content-Disposition"), "vinty-uploads.xlsx");
+      const name = fileNameFromDisposition(res.headers.get("Content-Disposition"), "yadii-uploads.xlsx");
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
