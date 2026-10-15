@@ -122,7 +122,10 @@ export function ItemCard({
               loading={i === 0 && !priority ? "lazy" : "eager"}
               fetchPriority={i === 0 && priority ? "high" : undefined}
               decoding="async"
-              className={cn("absolute inset-0 h-full w-full object-cover", i === photoIndex ? "" : "opacity-0")}
+              className={cn(
+                "absolute inset-0 h-full w-full object-cover",
+                i === photoIndex ? "" : "opacity-0",
+              )}
             />
           ))
         ) : listing.cover ? (
