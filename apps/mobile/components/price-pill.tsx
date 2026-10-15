@@ -1,6 +1,7 @@
-import { BadgeCheck, Check } from "lucide-react-native";
+import { BadgeCheck, Check, TrendingDown } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
+import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { formatMoney } from "@/lib/money";
@@ -53,18 +54,84 @@ function CoveredLine({
   amountMinor,
   currency,
   className,
+  large = false,
 }: {
   amountMinor: number;
   currency: string;
   className?: string;
+  /** The bigger size used on the item page. */
+  large?: boolean;
 }) {
   const { t } = useTranslation();
   return (
     <View className={cn("flex-row items-center gap-xs", className)}>
-      <Icon as={BadgeCheck} size={13} className="-translate-y-[1.5px] text-text-3" />
-      <Text variant="cardMeta" className="shrink" numberOfLines={1}>
+      <Icon
+        as={BadgeCheck}
+        size={large ? 16 : 13}
+        className={cn(large ? "" : "-translate-y-[1.5px]", "text-text-3")}
+      />
+      <Text
+        variant={large ? "bodySmall" : "cardMeta"}
+        className="shrink text-text-3"
+        numberOfLines={large ? 2 : 1}
+      >
         {t("listing.buyerPays", { price: formatMoney(amountMinor, currency) })}
       </Text>
+    </View>
+  );
+}
+
+/**
+ * The item page price block (D-045), the same language as the card: the seller price in espresso, a drop shows the
+ * old price muted and struck with a "% off" badge, then the Coverage price as a quiet line. No pill, no fill.
+ */
+function PriceBlock({
+  priceMinor,
+  previousPriceMinor,
+  buyerPriceMinor,
+  currency,
+  sold = false,
+  noPriceLabel,
+}: {
+  priceMinor: number | null;
+  previousPriceMinor: number | null;
+  buyerPriceMinor: number | null;
+  currency: string;
+  sold?: boolean;
+  /** Shown instead of a price while there is none (a draft). */
+  noPriceLabel?: string;
+}) {
+  const { t } = useTranslation();
+  const drop = !sold && priceMinor !== null && previousPriceMinor !== null && previousPriceMinor > priceMinor;
+  const percentOff =
+    drop && previousPriceMinor ? Math.round((1 - (priceMinor as number) / previousPriceMinor) * 100) : 0;
+  const money = priceMinor === null ? (noPriceLabel ?? "") : formatMoney(priceMinor, currency);
+  return (
+    <View className="gap-xs">
+      <View className="flex-row flex-wrap items-center gap-x-sm gap-y-xs">
+        <Text
+          variant="title"
+          className={cn(sold ? "text-text-4 line-through" : "text-primary")}
+          accessibilityLabel={money}
+        >
+          {money}
+        </Text>
+        {drop ? (
+          <>
+            <Text variant="body" className="text-text-4 line-through">
+              {formatMoney(previousPriceMinor as number, currency)}
+            </Text>
+            <Badge
+              variant="accent"
+              icon={TrendingDown}
+              label={t("listing.percentOff", { percent: percentOff })}
+            />
+          </>
+        ) : null}
+      </View>
+      {buyerPriceMinor !== null && !sold ? (
+        <CoveredLine large amountMinor={buyerPriceMinor} currency={currency} />
+      ) : null}
     </View>
   );
 }
@@ -98,7 +165,7 @@ function PriceBreakdownCard({
 }) {
   const { t } = useTranslation();
   return (
-    <View className="rounded-control bg-accent-tint p-md">
+    <View className="border-t border-border-subtle pt-md">
       <BreakdownLine label={t("item.breakdown.item")} value={formatMoney(priceMinor, currency)} />
       <BreakdownLine
         label={t("protectionName")}
@@ -120,4 +187,4 @@ function PriceBreakdownCard({
   );
 }
 
-export { CoveredLine, PriceBreakdownCard, PricePill };
+export { CoveredLine, PriceBlock, PriceBreakdownCard, PricePill };
