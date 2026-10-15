@@ -654,6 +654,17 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** shared shapes in `packages/shared/src/help-assist.ts`. Server: `lib/help-answer.ts`, `POST /v1/help/ask`. App and website: the Help page.
 - **References:** Milestone 9 Help pages, `docs/unfinished-work.md` (AI features with Claude Haiku)
 
+### D-044 : Order problems reach Eden's Review list with a facts only summary
+
+- **Date:** 2026-10-15
+- **Area:** Orders, admin pages (website)
+- **Status:** Built on branch feat/ai-order-summaries, waiting for Eden's review.
+- **Decision:** When a buyer reports a problem with an order, Claude Haiku reads the order's timeline (paid, shipped, arrived, problem opened), the listing, the buyer's note and the chat between buyer and seller about it, and writes a short summary for Eden: what happened when, what each side says and what is worth checking. It never suggests an outcome (Eden's choice): no "refund", no "the buyer is right". The order lands in the Review list (D-038) as an urgent "Order problem" with the summary, both people, the amount and the buyer's note. If the AI is off or fails, the order still lands there, without a summary. On the card Eden has "Refund the buyer" and "Release to the seller" (each asks first, both use the support moves the server already had), plus Dismiss and Mark handled. The AI never moves money. The privacy policy's "AI helpers" section says the AI reads an order's details and its chat for this (Eden approved the line).
+- **Rationale:** Order problems could be opened but nobody could see them or decide them in the admin pages. A summary saves reading a whole chat, and leaving out a verdict keeps the decision with a person.
+- **Trade-off:** About 0.03 cents per problem. Facts only means Eden still weighs each case himself, which is slower than a suggested answer but cannot be nudged by a confident wrong one.
+- **Implementation:** the `order` report target and the two actions in `packages/shared/src/review.ts`. Server: `lib/order-summary.ts`, the Review actions in `lib/admin-review.ts`. Website: order cards on the Review page.
+- **References:** D-038, D-041, `docs/unfinished-work.md` (AI features with Claude Haiku)
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

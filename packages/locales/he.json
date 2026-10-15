@@ -1959,7 +1959,8 @@
       "listing_check": "בדיקת פריטים",
       "report_sort": "מיון דיווחים",
       "chat_check": "אזהרות בצ׳אט",
-      "help_answer": "תשובות עזרה"
+      "help_answer": "תשובות עזרה",
+      "order_summary": "סיכומי בעיות בהזמנות"
     },
     "dashboard": {
       "totalUsers": "משתמשים",
@@ -2252,14 +2253,18 @@
         "hide_listing": "הסתרת הפריט",
         "remove_listing": "הסרת הפריט",
         "dismiss": "דחייה",
-        "handled": "סימון כמטופל"
+        "handled": "סימון כמטופל",
+        "refund_buyer": "החזר לקונה",
+        "release_seller": "שחרור למוכר"
       },
       "confirmRemove": "להסיר את הפריט לצמיתות? המוכר לא יוכל להחזיר אותו",
       "done": {
         "hide_listing": "הפריט הוסתר",
         "remove_listing": "הפריט הוסר",
         "dismiss": "נדחה",
-        "handled": "סומן כמטופל"
+        "handled": "סומן כמטופל",
+        "refund_buyer": "הכסף הוחזר לקונה",
+        "release_seller": "הכסף שוחרר למוכר"
       },
       "status": {
         "open": "פתוח",
@@ -2267,7 +2272,16 @@
         "actioned": "טופל",
         "dismissed": "נדחה"
       },
-      "loadMore": "להציג עוד"
+      "loadMore": "להציג עוד",
+      "order": {
+        "kind": "בעיה בהזמנה",
+        "buyer": "קונה: {{name}}",
+        "sellerOf": "מוכר: {{name}}",
+        "problemNote": "הקונה כתב: {{note}}",
+        "orderStatus": "מצב ההזמנה: {{status}}",
+        "confirmRefund": "להחזיר את הכסף לקונה? ההזמנה תיסגר כמוחזרת",
+        "confirmRelease": "לשחרר את הכסף למוכר? ההזמנה תיסגר כהושלמה"
+      }
     }
   }
 }

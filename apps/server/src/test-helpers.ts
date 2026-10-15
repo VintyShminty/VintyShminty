@@ -7,6 +7,7 @@ import type { ChatCheckReader } from "./lib/chat-check.js";
 import type { HelpReader } from "./lib/help-answer.js";
 import type { ListingCheckReader } from "./lib/listing-check.js";
 import { type MemoryMailer, memoryMailer } from "./lib/mail.js";
+import type { OrderSummaryReader } from "./lib/order-summary.js";
 import type { PhotoReader } from "./lib/photo-reader.js";
 import { type MemoryPusher, memoryPusher } from "./lib/push.js";
 import type { ReportSortReader } from "./lib/report-sort.js";
@@ -70,6 +71,7 @@ export async function buildTestApp(
     helpReader?: HelpReader;
     listingCheckReader?: ListingCheckReader;
     reportSortReader?: ReportSortReader;
+    orderSummaryReader?: OrderSummaryReader;
     chatCheckReader?: ChatCheckReader;
     storage?: Storage;
   } = {},
@@ -91,6 +93,7 @@ export async function buildTestApp(
     ...(extras.helpReader ? { helpReader: extras.helpReader } : {}),
     ...(extras.listingCheckReader ? { listingCheckReader: extras.listingCheckReader } : {}),
     ...(extras.reportSortReader ? { reportSortReader: extras.reportSortReader } : {}),
+    ...(extras.orderSummaryReader ? { orderSummaryReader: extras.orderSummaryReader } : {}),
     ...(extras.chatCheckReader ? { chatCheckReader: extras.chatCheckReader } : {}),
   });
   await app.ready();

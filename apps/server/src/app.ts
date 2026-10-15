@@ -18,6 +18,12 @@ import {
 } from "./lib/listing-check.js";
 import { loggerOptions } from "./lib/logger.js";
 import { createMailer, type Mailer } from "./lib/mail.js";
+import {
+  createOrderSummarizer,
+  createOrderSummaryReader,
+  meteredOrderSummaryReader,
+  type OrderSummaryReader,
+} from "./lib/order-summary.js";
 import { createPhotoReader, meteredPhotoReader, type PhotoReader } from "./lib/photo-reader.js";
 import type { Pusher } from "./lib/push.js";
 import {
@@ -81,6 +87,8 @@ export type BuildAppOptions = {
   listingCheckReader?: ListingCheckReader;
   /** Sorting of member reports by urgency (D-038). Tests pass a fake. */
   reportSortReader?: ReportSortReader;
+  /** The order problem summary for the admin Review list (D-044). Tests pass a fake. */
+  orderSummaryReader?: OrderSummaryReader;
   /** The background chat check that adds warnings to messages (D-041). Tests pass a fake. */
   chatCheckReader?: ChatCheckReader;
   /** Suggested replies in a chat (D-041). Tests pass a fake. */
@@ -100,6 +108,7 @@ export async function buildApp({
   helpReader,
   listingCheckReader,
   reportSortReader,
+  orderSummaryReader,
   chatCheckReader,
 }: BuildAppOptions) {
   const app = Fastify({
@@ -144,6 +153,18 @@ export async function buildApp({
         reportSortReader ?? createReportSortReader(env),
         aiMeter,
         env.PHOTO_READER_MODEL,
+      ),
+    );
+    // D-044: the order dispute route starts this after an order becomes disputed.
+    app.decorate(
+      "orderSummarizer",
+      createOrderSummarizer(
+        app,
+        meteredOrderSummaryReader(
+          orderSummaryReader ?? createOrderSummaryReader(env),
+          aiMeter,
+          env.PHOTO_READER_MODEL,
+        ),
       ),
     );
     // D-041: sendMessage starts this after a new text message is stored.

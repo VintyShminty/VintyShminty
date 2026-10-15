@@ -21,6 +21,7 @@ import { createOrder, quoteCheckout } from "../lib/checkout.js";
 import { ApiError } from "../lib/errors.js";
 import { recordPurchase } from "../lib/events.js";
 import { keysetCursor, olderThan, tsText } from "../lib/keyset.js";
+import { summariseOrderInBackground } from "../lib/order-summary.js";
 import {
   type Actor,
   orderRowFields,
@@ -268,17 +269,16 @@ const orderRoutes: FastifyPluginAsyncZod = async (app) => {
       const userId = userIdOf(request);
       const order = await requireOrderParty(db, request.params.id, userId);
       if (order.buyerId !== userId) throw ApiError.forbidden("Only the buyer can report a problem");
-      return presentOrderDetail(
+      const disputed = await transitionOrder(
         app,
-        await transitionOrder(
-          app,
-          order.id,
-          "open_dispute",
-          { role: "buyer", userId },
-          { note: request.body.details },
-        ),
-        userId,
+        order.id,
+        "open_dispute",
+        { role: "buyer", userId },
+        { note: request.body.details },
       );
+      // D-044: the admin Review list gets an urgent row with a facts only summary. Never slows or fails this request.
+      if (app.orderSummarizer) summariseOrderInBackground(app.orderSummarizer, disputed.id, request.log);
+      return presentOrderDetail(app, disputed, userId);
     },
   );
 

@@ -10,6 +10,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import type { Db } from "../lib/admin.js";
 import { applyReviewAction, listReview, loadReviewItem } from "../lib/admin-review.js";
+import { transitionOrder } from "../lib/orders.js";
 
 const errors = {
   400: errorResponseSchema,
@@ -64,6 +65,15 @@ export function registerAdminReviewRoutes(app: FastifyInstance, { db, preHandler
         id,
         request.body.action,
         request.body.note || undefined,
+        async (orderId, event, note) => {
+          await transitionOrder(
+            app,
+            orderId,
+            event,
+            { role: "admin", userId: adminIdOf(request) },
+            note ? { note } : {},
+          );
+        },
       );
       return loadReviewItem(db, app.storage, id);
     },

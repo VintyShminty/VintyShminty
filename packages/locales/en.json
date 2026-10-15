@@ -1925,7 +1925,8 @@
       "listing_check": "Listing check",
       "report_sort": "Report sorting",
       "chat_check": "Chat warnings",
-      "help_answer": "Help answers"
+      "help_answer": "Help answers",
+      "order_summary": "Order problem summaries"
     },
     "dashboard": {
       "totalUsers": "Users",
@@ -2212,14 +2213,18 @@
         "hide_listing": "Hide listing",
         "remove_listing": "Remove listing",
         "dismiss": "Dismiss",
-        "handled": "Mark handled"
+        "handled": "Mark handled",
+        "refund_buyer": "Refund the buyer",
+        "release_seller": "Release to the seller"
       },
       "confirmRemove": "Remove this listing for good? The seller cannot bring it back",
       "done": {
         "hide_listing": "Listing hidden",
         "remove_listing": "Listing removed",
         "dismiss": "Dismissed",
-        "handled": "Marked handled"
+        "handled": "Marked handled",
+        "refund_buyer": "Buyer refunded",
+        "release_seller": "Released to the seller"
       },
       "status": {
         "open": "Open",
@@ -2227,7 +2232,16 @@
         "actioned": "Actioned",
         "dismissed": "Dismissed"
       },
-      "loadMore": "Show more"
+      "loadMore": "Show more",
+      "order": {
+        "kind": "Order problem",
+        "buyer": "Buyer {{name}}",
+        "sellerOf": "Seller {{name}}",
+        "problemNote": "The buyer wrote: {{note}}",
+        "orderStatus": "Order is {{status}}",
+        "confirmRefund": "Refund the buyer? The order closes as refunded",
+        "confirmRelease": "Release the money to the seller? The order closes as complete"
+      }
     }
   }
 }
