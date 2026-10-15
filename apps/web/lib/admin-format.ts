@@ -112,6 +112,10 @@ export function describeAction(action: AdminAction, t: TFunction): string {
       return t("admin.actions.expensesMonthSaved", { month: action.targetId ?? "" });
     case "expenses_month_cleared":
       return t("admin.actions.expensesMonthCleared", { month: action.targetId ?? "" });
+    case "expenses_item_saved":
+      return t("admin.actions.expensesItemSaved", { name: asText(d.name) ?? "" });
+    case "expenses_item_deleted":
+      return t("admin.actions.expensesItemDeleted", { name: asText(d.name) ?? "" });
     case "switch_changed": {
       const name = t(`admin.security.switches.${action.targetId ?? ""}.name`, {
         defaultValue: action.targetId ?? "",

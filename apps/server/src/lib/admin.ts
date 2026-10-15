@@ -3,8 +3,8 @@ import {
   aiCalls,
   type Database,
   expenseConfig,
+  expenseItems,
   expenseMonths,
-  type FixedCost,
   listings,
   orders,
   sessions,
@@ -19,7 +19,7 @@ import type {
   AdminUsersPage,
   AdminUsersQuery,
 } from "@vinty/shared";
-import { type AnyColumn, and, count, desc, eq, gte, lt, type SQL, sql } from "drizzle-orm";
+import { type AnyColumn, and, count, desc, eq, gte, lt, or, type SQL, sql } from "drizzle-orm";
 import { ApiError } from "./errors.js";
 import { keysetCursor, olderThan, tsText } from "./keyset.js";
 
@@ -50,6 +50,11 @@ export const currentMonth = (now = new Date()) => now.toISOString().slice(0, 7);
 function monthRange(month: string): { start: Date; end: Date } {
   const [y, m] = month.split("-").map(Number) as [number, number];
   return { start: new Date(Date.UTC(y, m - 1, 1)), end: new Date(Date.UTC(y, m, 1)) };
+}
+
+/** The first day of the month after a YYYY-MM month, as YYYY-MM-DD. */
+function monthEndDay(month: string): string {
+  return monthRange(month).end.toISOString().slice(0, 10);
 }
 
 export async function loadDashboard(db: Db, now = new Date()): Promise<AdminDashboard> {
@@ -231,7 +236,7 @@ export async function loadAnalytics(db: Db, now = new Date()): Promise<AdminAnal
 }
 
 /** What a fixed cost is worth in agorot. Dollar amounts (cents) are converted with the saved rate. */
-const fixedInIls = (row: FixedCost, rateX10000: number) =>
+const fixedInIls = (row: { amountMinor: number; currency: string }, rateX10000: number) =>
   row.currency === "ILS" ? row.amountMinor : (row.amountMinor * rateX10000) / 10_000;
 
 export async function loadExpenses(db: Db, month: string, now = new Date()): Promise<AdminExpenses> {
@@ -245,7 +250,7 @@ export async function loadExpenses(db: Db, month: string, now = new Date()): Pro
   const cost = sql<string>`coalesce(sum(${aiCalls.costUsdMicros}), 0)`;
   const byCostDesc = desc(sql`sum(${aiCalls.costUsdMicros})`);
 
-  const [[config], [override], byProvider, byAction, byModel] = await Promise.all([
+  const [[config], [override], byProvider, byAction, byModel, items, itemNames] = await Promise.all([
     db.select().from(expenseConfig).where(eq(expenseConfig.id, 1)).limit(1),
     db.select().from(expenseMonths).where(eq(expenseMonths.month, month)).limit(1),
     db
@@ -266,19 +271,66 @@ export async function loadExpenses(db: Db, month: string, now = new Date()): Pro
       .where(inMonth)
       .groupBy(aiCalls.model)
       .orderBy(byCostDesc),
+    // Yearly costs started on or before this month, one time costs paid in it.
+    db
+      .select()
+      .from(expenseItems)
+      .where(
+        or(
+          and(eq(expenseItems.cadence, "yearly"), lt(expenseItems.paidOn, monthEndDay(month))),
+          and(
+            eq(expenseItems.cadence, "one_time"),
+            gte(expenseItems.paidOn, `${month}-01`),
+            lt(expenseItems.paidOn, monthEndDay(month)),
+          ),
+        ),
+      )
+      .orderBy(expenseItems.paidOn, expenseItems.name),
+    db.selectDistinct({ name: expenseItems.paidBy }).from(expenseItems),
   ]);
 
   const defaults = config?.fixedCosts ?? [];
   const rateX10000 = config?.usdToIlsRateX10000 ?? DEFAULT_RATE_X10000;
-  const fixed = override ? override.fixedCosts : defaults;
+  const fixed = (override ? override.fixedCosts : defaults).map((row) => ({
+    ...row,
+    paidBy: row.paidBy ?? "",
+  }));
+  const toExtra = (row: (typeof items)[number]) => ({
+    id: row.id,
+    cadence: row.cadence as "yearly" | "one_time",
+    name: row.name,
+    amountMinor: row.amountMinor,
+    currency: row.currency as "ILS" | "USD",
+    paidBy: row.paidBy,
+    paidOn: row.paidOn,
+  });
+  const yearly = items.filter((r) => r.cadence === "yearly").map(toExtra);
+  const oneTime = items.filter((r) => r.cadence === "one_time").map(toExtra);
   const aiMicros = byProvider.reduce((sum, r) => sum + n(r.cost), 0);
   const totalIls =
-    fixed.reduce((sum, row) => sum + fixedInIls(row, rateX10000), 0) + (aiMicros * rateX10000) / 100_000_000;
+    fixed.reduce((sum, row) => sum + fixedInIls(row, rateX10000), 0) +
+    yearly.reduce((sum, row) => sum + fixedInIls(row, rateX10000) / 12, 0) +
+    oneTime.reduce((sum, row) => sum + fixedInIls(row, rateX10000), 0) +
+    (aiMicros * rateX10000) / 100_000_000;
+  // Names people typed before, for the suggestions. Costs saved before the field existed have no name.
+  const paidByNames = [
+    ...new Set([
+      ...itemNames.map((r) => r.name),
+      ...defaults.map((r) => r.paidBy ?? ""),
+      ...fixed.map((r) => r.paidBy),
+    ]),
+  ]
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
 
   return {
     month,
     usesOverride: Boolean(override),
     fixed,
+    yearly,
+    oneTime,
+    paidByNames,
     auto: byProvider.map((r) => ({
       provider: r.provider,
       calls: n(r.calls),
@@ -303,7 +355,7 @@ export async function loadExpenses(db: Db, month: string, now = new Date()): Pro
     })),
     usdToIlsRate: rateX10000 / 10_000,
     totalIlsMinor: Math.round(totalIls),
-    defaults,
+    defaults: defaults.map((row) => ({ ...row, paidBy: row.paidBy ?? "" })),
   };
 }
 

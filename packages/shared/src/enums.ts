@@ -246,3 +246,7 @@ export type ExpenseCurrency = (typeof EXPENSE_CURRENCIES)[number];
 /** A fixed cost is either a subscription (a plan we pay for) or a configured amount (a number we typed in). */
 export const EXPENSE_KINDS = ["subscription", "configured"] as const;
 export type ExpenseKind = (typeof EXPENSE_KINDS)[number];
+
+/** Costs that are not monthly: a yearly cost is spread over 12 months, a one time cost counts in the month it was paid. */
+export const EXPENSE_CADENCES = ["yearly", "one_time"] as const;
+export type ExpenseCadence = (typeof EXPENSE_CADENCES)[number];

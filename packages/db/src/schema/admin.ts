@@ -1,6 +1,17 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, index, integer, jsonb, pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { createdAt, pk, ts } from "./_helpers.js";
+import {
+  bigint,
+  boolean,
+  check,
+  date,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  uuid,
+} from "drizzle-orm/pg-core";
+import { createdAt, currencyCol, pk, ts } from "./_helpers.js";
 import { users } from "./auth.js";
 import { listings } from "./listings.js";
 
@@ -10,6 +21,8 @@ export type FixedCost = {
   amountMinor: number;
   currency: "ILS" | "USD";
   kind: "subscription" | "configured";
+  /** Who paid. Missing on rows saved before the field existed. */
+  paidBy?: string;
 };
 
 /** One row per AI call, written by the one wrapper every AI call goes through (lib/ai-cost.ts). */
@@ -80,6 +93,29 @@ export const expenseMonths = pgTable("expense_months", {
   updatedAt: ts("updated_at").notNull().defaultNow(),
   updatedBy: uuid("updated_by").references(() => users.id, { onDelete: "set null" }),
 });
+
+/** A yearly or one time cost. Yearly counts 1/12 in every month from the month of `paidOn`, one time counts in that month only. */
+export const expenseItems = pgTable(
+  "expense_items",
+  {
+    id: pk(),
+    createdAt: createdAt(),
+    /** yearly or one_time */
+    cadence: text("cadence").notNull(),
+    name: text("name").notNull(),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: currencyCol(),
+    /** A free text name, empty when nobody is filled in. */
+    paidBy: text("paid_by").notNull().default(""),
+    paidOn: date("paid_on", { mode: "string" }).notNull(),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+  },
+  (t) => [
+    index("expense_items_paid_on_idx").on(t.paidOn),
+    check("expense_items_cadence_valid", sql`${t.cadence} in ('yearly', 'one_time')`),
+    check("expense_items_amount_not_negative", sql`${t.amountMinor} >= 0`),
+  ],
+);
 
 /** Marks a public seller that admins created to hold uploaded clothes. These people cannot log in. */
 export const standInSellers = pgTable("stand_in_sellers", {

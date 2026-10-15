@@ -57,6 +57,13 @@
       "when": 1792012832017,
       "tag": "0007_wet_red_ghost",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792074249629,
+      "tag": "0008_daffy_jetstream",
+      "breakpoints": true
     }
   ]
 }

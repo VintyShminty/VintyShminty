@@ -1,7 +1,13 @@
 import { z } from "zod";
 import { NAME_MAX, usernameSchema } from "./auth.js";
 import { idSchema, isoDateTimeSchema, localeSchema, localisedNameSchema, pageSchema } from "./common.js";
-import { EXPENSE_CURRENCIES, EXPENSE_KINDS, KILL_SWITCH_NAMES, LISTING_STATUSES } from "./enums.js";
+import {
+  EXPENSE_CADENCES,
+  EXPENSE_CURRENCIES,
+  EXPENSE_KINDS,
+  KILL_SWITCH_NAMES,
+  LISTING_STATUSES,
+} from "./enums.js";
 import { LISTING_COLOURS_MAX, LISTING_TITLE_MAX } from "./listing-rules.js";
 import { brandNameSchema, listingDescriptionSchema, listingPhotoInputSchema } from "./listings.js";
 import { currencyCodeSchema, minorUnitsSchema } from "./money.js";
@@ -18,12 +24,16 @@ const count = z.number().int().nonnegative();
 /** `YYYY-MM`. */
 export const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Use YYYY-MM");
 
+/** Who paid for a cost, a free text name. Empty when nobody is filled in. */
+const paidBySchema = z.string().trim().max(40).default("");
+
 export const fixedCostSchema = z.object({
   name: z.string().trim().min(1).max(80),
   /** Minor units of `currency` (agorot or cents). */
   amountMinor: z.number().int().min(0).max(100_000_000),
   currency: z.enum(EXPENSE_CURRENCIES),
   kind: z.enum(EXPENSE_KINDS),
+  paidBy: paidBySchema,
 });
 export type FixedCostInput = z.infer<typeof fixedCostSchema>;
 
@@ -114,13 +124,42 @@ export const expenseRowSchema = z.object({
   amountMinor: count,
   currency: z.enum(EXPENSE_CURRENCIES),
   kind: z.enum(EXPENSE_KINDS),
+  paidBy: z.string(),
 });
+
+/** `YYYY-MM-DD`. */
+export const dayStringSchema = z
+  .string()
+  .regex(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/, "Use YYYY-MM-DD");
+
+/** A yearly or one time cost. A yearly cost counts 1/12 in every month from the month of `paidOn`, a one time cost counts in full in that month only. */
+export const extraCostInputSchema = z.object({
+  cadence: z.enum(EXPENSE_CADENCES),
+  name: z.string().trim().min(1).max(80),
+  /** Minor units of `currency` (agorot or cents). */
+  amountMinor: z.number().int().min(0).max(100_000_000),
+  currency: z.enum(EXPENSE_CURRENCIES),
+  paidBy: paidBySchema,
+  paidOn: dayStringSchema,
+});
+export type ExtraCostInput = z.infer<typeof extraCostInputSchema>;
+
+export const extraCostSchema = extraCostInputSchema.extend({ id: idSchema, paidBy: z.string() });
+export type ExtraCost = z.infer<typeof extraCostSchema>;
+
+export const extraCostParamsSchema = z.object({ id: idSchema });
 
 export const adminExpensesSchema = z.object({
   month: monthSchema,
   /** True when this month has its own saved list, false when the defaults are used. */
   usesOverride: z.boolean(),
   fixed: z.array(expenseRowSchema),
+  /** Yearly costs running in this month (each counts 1/12 of its amount). */
+  yearly: z.array(extraCostSchema),
+  /** One time costs paid in this month. */
+  oneTime: z.array(extraCostSchema),
+  /** Every name used as "paid by" so far, for the suggestions. */
+  paidByNames: z.array(z.string()),
   /** One row per AI provider, worked out from the AI calls of the month. */
   auto: z.array(
     z.object({
@@ -152,7 +191,7 @@ export const adminExpensesSchema = z.object({
   ),
   /** Shekels per dollar. */
   usdToIlsRate: z.number().positive(),
-  /** Fixed costs plus AI spend, in agorot. */
+  /** Monthly, yearly (1/12) and one time costs plus AI spend, in agorot. */
   totalIlsMinor: count,
   /** The saved defaults, so the screen can edit them. */
   defaults: fixedCostsSchema,
