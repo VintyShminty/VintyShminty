@@ -12,13 +12,16 @@ export function openSearch(router: ReturnType<typeof useRouter>) {
   router.push("/search");
 }
 
-/** The big rounded search box on Home and Browse. Tapping it opens the Search screen (docs/components.md, SearchBar). */
-export function SearchBar() {
+/**
+ * The big rounded search box. By default tapping it opens the Search screen (Browse). Home passes `onPress` to
+ * look the same but start the search in place (docs/components.md, SearchBar).
+ */
+export function SearchBar({ onPress }: { onPress?: () => void }) {
   const { t } = useTranslation();
   const router = useRouter();
   return (
     <Pressable
-      onPress={() => openSearch(router)}
+      onPress={onPress ?? (() => openSearch(router))}
       role="button"
       accessibilityLabel={t("search.placeholder")}
       className="h-11 flex-row items-center gap-sm rounded-bar border border-border bg-surface px-md active:border-text-3"
