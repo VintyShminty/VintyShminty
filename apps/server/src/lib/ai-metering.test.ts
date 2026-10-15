@@ -82,6 +82,7 @@ describe.skipIf(!databaseUrl)("metering of the tips check and the text helper", 
       priceMinor: 4500,
       currency: "ILS",
       listingStatus: "active",
+      details: { brand: null, size: null, condition: null, description: "" },
       messages: [{ side: "buyer", text: "Is it still available?" }],
     });
     expect((await rows()).map((r) => r.action)).toEqual(["quick_replies"]);
@@ -109,6 +110,7 @@ describe.skipIf(!databaseUrl)("metering of the tips check and the text helper", 
         priceMinor: null,
         currency: null,
         listingStatus: "active",
+        details: { brand: null, size: null, condition: null, description: "" },
         messages: [{ side: "buyer", text: "Hi" }],
       }),
     ).rejects.toBeInstanceOf(AiRefusedError);

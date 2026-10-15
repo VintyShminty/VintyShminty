@@ -309,7 +309,8 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings and quick replies (D-041)"
       expect(first.statusCode).toBe(200);
       const body = first.json() as { forMessageId: string; replies: string[] };
       expect(body.forMessageId).toBe(newest);
-      expect(body.replies).toEqual(["Yes, it is", "x".repeat(80), "Sorry, no"]);
+      // A reply over 80 characters is dropped, not cut in the middle of a word.
+      expect(body.replies).toEqual(["Yes, it is", "Sorry, no", "Fourth one"]);
       expect(repliesReader.calls.length).toBe(before + 1);
 
       const input = repliesReader.calls.at(-1) as QuickRepliesInput;

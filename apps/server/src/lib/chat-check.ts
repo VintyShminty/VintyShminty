@@ -64,7 +64,8 @@ export interface ChatCheckReader {
 const CHAT_CHECK_JSON_SCHEMA = {
   type: "object",
   properties: {
-    warning: { type: ["string", "null"], enum: [...CHAT_WARNING_KINDS, null] },
+    // Claude needs "a kind or null" written as two choices, an enum with null inside a ["string", "null"] type is refused.
+    warning: { anyOf: [{ type: "string", enum: [...CHAT_WARNING_KINDS] }, { type: "null" }] },
     review: { type: "boolean" },
     summary: { type: "string" },
   },
