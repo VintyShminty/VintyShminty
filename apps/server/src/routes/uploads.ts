@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import {
+  cropPhotoInputSchema,
   errorResponseSchema,
   rotatePhotoInputSchema,
   rotatePhotoResponseSchema,
@@ -73,6 +74,53 @@ const uploadRoutes: FastifyPluginAsyncZod = async (app) => {
       }
       const newKey = `${key.slice(0, key.lastIndexOf("/") + 1)}${randomUUID()}.jpg`;
       await app.storage.put(newKey, turned, "image/jpeg");
+      return { key: newKey, publicUrl: app.storage.publicUrl(newKey) };
+    },
+  );
+
+  /** Crops an uploaded listing photo to a rectangle given in fractions of the photo. Saved under a new key, like a turn. */
+  app.post(
+    "/v1/uploads/crop",
+    {
+      preHandler: app.requireUser,
+      config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
+      schema: {
+        body: cropPhotoInputSchema,
+        response: {
+          200: rotatePhotoResponseSchema,
+          400: errorResponseSchema,
+          401: errorResponseSchema,
+        },
+      },
+    },
+    async (request) => {
+      const userId = request.session?.user.id;
+      if (!userId) throw ApiError.unauthenticated();
+      const { key, x, y, width, height } = request.body;
+      if (!keyBelongsToUser(key, "listing_photo", userId)) {
+        throw ApiError.invalid("That photo is not yours", { key: "validation.listing.photos.invalid" });
+      }
+      const original = await app.storage.read(key, MAX_UPLOAD_BYTES.listing_photo);
+      if (!original)
+        throw ApiError.invalid("That photo could not be read", { key: "validation.listing.photos.invalid" });
+      let cropped: Buffer;
+      try {
+        // Apply the camera's own orientation first, so the fractions mean what the seller saw.
+        const upright = await sharp(original).rotate().toBuffer({ resolveWithObject: true });
+        const { width: fullWidth, height: fullHeight } = upright.info;
+        const left = Math.min(fullWidth - 1, Math.round(x * fullWidth));
+        const top = Math.min(fullHeight - 1, Math.round(y * fullHeight));
+        const cropWidth = Math.min(fullWidth - left, Math.max(1, Math.round(width * fullWidth)));
+        const cropHeight = Math.min(fullHeight - top, Math.max(1, Math.round(height * fullHeight)));
+        cropped = await sharp(upright.data)
+          .extract({ left, top, width: cropWidth, height: cropHeight })
+          .jpeg({ quality: 85 })
+          .toBuffer();
+      } catch {
+        throw ApiError.invalid("That photo could not be read", { key: "validation.listing.photos.invalid" });
+      }
+      const newKey = `${key.slice(0, key.lastIndexOf("/") + 1)}${randomUUID()}.jpg`;
+      await app.storage.put(newKey, cropped, "image/jpeg");
       return { key: newKey, publicUrl: app.storage.publicUrl(newKey) };
     },
   );

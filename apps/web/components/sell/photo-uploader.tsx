@@ -1,10 +1,14 @@
 "use client";
 
 import { movePhoto } from "@vinty/shared";
-import { Camera, ChevronLeft, ChevronRight, Plus, RotateCcw, RotateCw, X } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Crop, Plus, RotateCcw, RotateCw, X } from "lucide-react";
 import { type Dispatch, type SetStateAction, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PhotoCropper } from "@/components/sell/photo-cropper";
 import {
+  type CropRect,
+  cropLocalPhoto,
+  cropUploadedPhoto,
   prepareListingPhoto,
   rotateLocalPhoto,
   rotateUploadedPhoto,
@@ -15,38 +19,52 @@ import { cn } from "@/lib/utils";
 
 type SetPhotos = Dispatch<SetStateAction<SellPhoto[]>>;
 
-/** The full size viewer: the browser's modal dialog with the picture, arrows and a close button. */
+/**
+ * The full size viewer: the browser's modal dialog with the picture, arrows and a close button. Uploaded photos get
+ * Rotate and Crop tools at the bottom, Crop swaps the picture for the crop view.
+ */
 function PhotoViewer({
   photos,
   index,
   onIndex,
   onClose,
+  onRotate,
+  onCrop,
 }: {
   photos: SellPhoto[];
   index: number | null;
   onIndex: (i: number) => void;
   onClose: () => void;
+  /** A quarter turn clockwise. Failures are announced by the caller. */
+  onRotate: (id: string) => Promise<void>;
+  /** Crops to a rectangle in fractions of the picture. Resolves true when it worked. */
+  onCrop: (id: string, rect: CropRect) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
+  const [cropping, setCropping] = useState(false);
+  const [busy, setBusy] = useState<"rotate" | "crop" | null>(null);
   const open = index !== null;
   useEffect(() => {
     const el = dialog.current;
     if (!el) return;
     if (open && !el.open) el.showModal();
     if (!open && el.open) el.close();
+    if (!open) setCropping(false);
   }, [open]);
   const photo = index === null ? null : photos[index];
+  const canEdit = photo?.state === "done" && busy === null;
+  const closeOrBack = () => (cropping ? (busy === null ? setCropping(false) : undefined) : onClose());
   return (
     <dialog
       ref={dialog}
       aria-label={t("web.sell.photos.viewerLabel")}
       onCancel={(e) => {
         e.preventDefault();
-        onClose();
+        closeOrBack();
       }}
       onKeyDown={(e) => {
-        if (index === null) return;
+        if (index === null || cropping) return;
         const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
         const next = rtl ? "ArrowLeft" : "ArrowRight";
         const prev = rtl ? "ArrowRight" : "ArrowLeft";
@@ -55,7 +73,23 @@ function PhotoViewer({
       }}
       className="m-auto h-[min(90dvh,900px)] w-[min(94vw,900px)] rounded-window border-0 bg-background p-0 backdrop:bg-backdrop open:flex"
     >
-      {photo ? (
+      {photo && cropping ? (
+        <div className="h-full w-full bg-surface">
+          <PhotoCropper
+            url={photo.url}
+            busy={busy === "crop"}
+            onCancel={() => setCropping(false)}
+            onDone={(rect) => {
+              setBusy("crop");
+              void onCrop(photo.id, rect)
+                .then((ok) => {
+                  if (ok) setCropping(false);
+                })
+                .finally(() => setBusy(null));
+            }}
+          />
+        </div>
+      ) : photo ? (
         <div className="relative flex h-full w-full items-center justify-center bg-surface">
           {/* biome-ignore lint/performance/noImgElement: a local or stored listing photo, no image optimisation on purpose */}
           <img src={photo.url} alt="" className="max-h-full max-w-full object-contain" />
@@ -87,6 +121,32 @@ function PhotoViewer({
               <ChevronRight size={22} aria-hidden className="rtl:-scale-x-100" />
             </button>
           ) : null}
+          <div className="absolute inset-x-0 bottom-sm flex justify-center">
+            <div className="flex items-center gap-xs rounded-full bg-window p-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setBusy("rotate");
+                  void onRotate(photo.id).finally(() => setBusy(null));
+                }}
+                disabled={!canEdit}
+                aria-busy={busy === "rotate"}
+                className="inline-flex h-10 items-center gap-sm rounded-full px-lg text-body-sm font-semibold hover:bg-pressed disabled:opacity-40"
+              >
+                <RotateCw size={18} aria-hidden className={cn(busy === "rotate" && "animate-spin")} />
+                {t("sell.photos.rotate")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCropping(true)}
+                disabled={!canEdit}
+                className="inline-flex h-10 items-center gap-sm rounded-full px-lg text-body-sm font-semibold hover:bg-pressed disabled:opacity-40"
+              >
+                <Crop size={18} aria-hidden />
+                {t("sell.photos.crop")}
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </dialog>
@@ -123,7 +183,6 @@ export function PhotoUploader({
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [over, setOver] = useState<number | "area" | null>(null);
   const [announce, setAnnounce] = useState("");
-  const [turning, setTurning] = useState<string[]>([]);
   const remaining = maxPhotos - photos.length;
 
   const update = (id: string, patch: Partial<SellPhoto>) =>
@@ -181,33 +240,48 @@ export function PhotoUploader({
   };
 
   /** A quarter turn. Only in the browser: turned here. Already uploaded: the server turns it and gives a new key. */
-  const rotate = async (photo: SellPhoto) => {
-    if (turning.includes(photo.id)) return;
-    setTurning((ids) => [...ids, photo.id]);
+  const rotate = async (id: string) => {
+    const photo = photos.find((p) => p.id === id);
+    if (!photo) return;
     try {
       if (photo.key) {
         const turned = await rotateUploadedPhoto(photo.key);
-        update(photo.id, {
-          key: turned.key,
-          url: turned.publicUrl,
-          width: photo.height,
-          height: photo.width,
-        });
+        update(id, { key: turned.key, url: turned.publicUrl, width: photo.height, height: photo.width });
       } else {
         const turned = await rotateLocalPhoto(photo.url);
-        update(photo.id, {
-          url: URL.createObjectURL(turned.blob),
-          width: turned.width,
-          height: turned.height,
-        });
+        update(id, { url: URL.createObjectURL(turned.blob), width: turned.width, height: turned.height });
         // A failed upload is retried from the file, so it has to be the turned one.
-        files.current.set(photo.id, new File([turned.blob], "photo.jpg", { type: "image/jpeg" }));
+        files.current.set(id, new File([turned.blob], "photo.jpg", { type: "image/jpeg" }));
       }
       onChanged();
     } catch {
       setAnnounce(t("sell.photos.rotateFailed"));
-    } finally {
-      setTurning((ids) => ids.filter((id) => id !== photo.id));
+    }
+  };
+
+  /** A crop, `rect` in fractions of the picture. Same two routes as a turn. Resolves true when it worked. */
+  const crop = async (id: string, rect: CropRect) => {
+    const photo = photos.find((p) => p.id === id);
+    if (!photo) return false;
+    try {
+      if (photo.key) {
+        const cut = await cropUploadedPhoto(photo.key, rect);
+        update(id, {
+          key: cut.key,
+          url: cut.publicUrl,
+          width: Math.max(1, Math.round(rect.width * photo.width)),
+          height: Math.max(1, Math.round(rect.height * photo.height)),
+        });
+      } else {
+        const cut = await cropLocalPhoto(photo.url, rect);
+        update(id, { url: URL.createObjectURL(cut.blob), width: cut.width, height: cut.height });
+        files.current.set(id, new File([cut.blob], "photo.jpg", { type: "image/jpeg" }));
+      }
+      onChanged();
+      return true;
+    } catch {
+      setAnnounce(t("sell.photos.cropFailed"));
+      return false;
     }
   };
 
@@ -336,22 +410,6 @@ export function PhotoUploader({
               >
                 <X size={14} aria-hidden />
               </button>
-              {photo.state !== "uploading" ? (
-                <button
-                  type="button"
-                  onClick={() => void rotate(photo)}
-                  disabled={turning.includes(photo.id)}
-                  aria-label={t("sell.photos.rotate")}
-                  aria-busy={turning.includes(photo.id)}
-                  className="absolute start-xs top-xs flex h-6 w-6 items-center justify-center rounded-full bg-window hover:bg-pressed"
-                >
-                  <RotateCw
-                    size={14}
-                    aria-hidden
-                    className={cn(turning.includes(photo.id) && "animate-spin")}
-                  />
-                </button>
-              ) : null}
               {index === 0 ? (
                 <span className="pointer-events-none absolute bottom-xs start-xs rounded-full bg-window px-[6px] py-[2px] text-badge font-bold">
                   {t("sell.photos.main")}
@@ -426,7 +484,14 @@ export function PhotoUploader({
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>
-      <PhotoViewer photos={photos} index={viewing} onIndex={setViewing} onClose={() => setViewing(null)} />
+      <PhotoViewer
+        photos={photos}
+        index={viewing}
+        onIndex={setViewing}
+        onClose={() => setViewing(null)}
+        onRotate={rotate}
+        onCrop={crop}
+      />
     </div>
   );
 }

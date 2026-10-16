@@ -158,6 +158,23 @@ export const rotatePhotoInputSchema = z.object({
   direction: z.enum(["cw", "ccw"]).default("cw"),
 });
 export const rotatePhotoResponseSchema = z.object({ key: z.string(), publicUrl: z.string().url() });
+/**
+ * Crop an uploaded listing photo. The rectangle is in fractions (0 to 1) of the photo as it is shown, with the camera's
+ * own turn already applied, so the app, the website and the server agree whatever the pixel size. The answer is a new key.
+ */
+export const cropPhotoInputSchema = z
+  .object({
+    key: z.string().min(1).max(300),
+    x: z.number().min(0).max(1),
+    y: z.number().min(0).max(1),
+    width: z.number().gt(0).max(1),
+    height: z.number().gt(0).max(1),
+  })
+  .refine((r) => r.x + r.width <= 1.0001 && r.y + r.height <= 1.0001, {
+    message: "The crop is outside the photo",
+  });
+export type CropPhotoInput = z.infer<typeof cropPhotoInputSchema>;
+
 export type RotatePhotoResponse = z.infer<typeof rotatePhotoResponseSchema>;
 
 export const pushTokenInputSchema = z.object({

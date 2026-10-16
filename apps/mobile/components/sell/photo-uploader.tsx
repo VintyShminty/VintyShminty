@@ -1,10 +1,10 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Camera, Images, Plus, RotateCw, TriangleAlert, X } from "lucide-react-native";
+import { Camera, Images, Plus, TriangleAlert, X } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, Pressable, useWindowDimensions, View } from "react-native";
+import { Alert, Pressable, useWindowDimensions, View } from "react-native";
 import Animated, { useAnimatedRef, useReducedMotion } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Sortable from "react-native-sortables";
@@ -15,6 +15,9 @@ import { Row } from "@/components/ui/row";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
 import {
+  type CropRect,
+  cropLocalPhoto,
+  cropUploadedPhoto,
   type PickedPhoto,
   pickListingPhotos,
   rotateLocalPhoto,
@@ -55,7 +58,6 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
   const rtl = useIsRtl();
   const reduced = useReducedMotion();
   const [viewing, setViewing] = useState<number | null>(null);
-  const [turning, setTurning] = useState<string[]>([]);
   const photos = useSellStore((s) => s.values.photos);
   const set = useSellStore((s) => s.set);
   const clearError = useSellStore((s) => s.clearError);
@@ -127,15 +129,20 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
   const remove = (id: string) =>
     set({ photos: useSellStore.getState().values.photos.filter((p) => p.id !== id) });
 
+  /** Swaps in an edited picture, keeps the order and marks the form as changed. */
+  const replacePhoto = (id: string, patch: Partial<SellPhoto>) =>
+    set({
+      photos: useSellStore.getState().values.photos.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    });
+
   /** A quarter turn. Only on the phone: turned here. Already uploaded: the server turns it and gives a new key. */
-  const rotate = async (photo: SellPhoto) => {
-    if (turning.includes(photo.id)) return;
-    setTurning((ids) => [...ids, photo.id]);
+  const rotate = async (id: string) => {
+    const photo = useSellStore.getState().values.photos.find((p) => p.id === id);
+    if (!photo) return;
     try {
-      const { updatePhoto } = useSellStore.getState();
       if (photo.key) {
         const turned = await rotateUploadedPhoto(photo.key);
-        updatePhoto(photo.id, {
+        replacePhoto(id, {
           key: turned.key,
           uri: turned.publicUrl,
           width: photo.height,
@@ -143,13 +150,40 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
         });
       } else {
         const turned = await rotateLocalPhoto({ uri: photo.uri, width: photo.width, height: photo.height });
-        updatePhoto(photo.id, { uri: turned.uri, width: turned.width, height: turned.height });
+        replacePhoto(id, { uri: turned.uri, width: turned.width, height: turned.height });
       }
     } catch (err) {
       if (__DEV__) console.warn("Rotating a listing photo failed:", err);
       Alert.alert(t("sell.photos.rotateFailed"));
-    } finally {
-      setTurning((ids) => ids.filter((id) => id !== photo.id));
+    }
+  };
+
+  /** A crop. `rect` is in fractions of the photo, `size` is its real pixel size as the viewer loaded it. */
+  const crop = async (id: string, rect: CropRect, size: { width: number; height: number }) => {
+    const photo = useSellStore.getState().values.photos.find((p) => p.id === id);
+    if (!photo) return false;
+    try {
+      if (photo.key) {
+        const cut = await cropUploadedPhoto(photo.key, rect);
+        replacePhoto(id, {
+          key: cut.key,
+          uri: cut.publicUrl,
+          width: Math.max(1, Math.round(rect.width * size.width)),
+          height: Math.max(1, Math.round(rect.height * size.height)),
+        });
+      } else {
+        const cut = await cropLocalPhoto(
+          { uri: photo.uri, width: photo.width, height: photo.height },
+          rect,
+          size,
+        );
+        replacePhoto(id, { uri: cut.uri, width: cut.width, height: cut.height });
+      }
+      return true;
+    } catch (err) {
+      if (__DEV__) console.warn("Cropping a listing photo failed:", err);
+      Alert.alert(t("sell.photos.cropFailed"));
+      return false;
     }
   };
 
@@ -277,22 +311,6 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
                       className={photo.state === "failed" ? "text-error" : undefined}
                     />
                   </Pressable>
-                  {photo.state !== "uploading" ? (
-                    <Pressable
-                      onPress={() => void rotate(photo)}
-                      disabled={turning.includes(photo.id)}
-                      hitSlop={6}
-                      role="button"
-                      accessibilityLabel={t("sell.photos.rotate")}
-                      className="absolute bottom-xs end-xs h-5 w-5 items-center justify-center rounded-full bg-window"
-                    >
-                      {turning.includes(photo.id) ? (
-                        <ActivityIndicator size="small" />
-                      ) : (
-                        <Icon as={RotateCw} size={12} />
-                      )}
-                    </Pressable>
-                  ) : null}
                   {index === 0 ? (
                     <View className="absolute bottom-xs start-xs rounded-full bg-window px-[6px] py-[2px]">
                       <Text variant="badge" weight={700}>
@@ -317,7 +335,13 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
         </View>
         {!rtl && remaining > 0 ? addBox : null}
       </Animated.ScrollView>
-      <PhotoViewer photos={photos} startIndex={viewing} onClose={() => setViewing(null)} />
+      <PhotoViewer
+        photos={photos}
+        startIndex={viewing}
+        onClose={() => setViewing(null)}
+        onRotate={rotate}
+        onCrop={crop}
+      />
       <Text variant="cardDesc" className={failed || error ? "text-error" : "text-text-3"}>
         {failed
           ? t("sell.photos.failed")
