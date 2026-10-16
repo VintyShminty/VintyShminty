@@ -488,13 +488,14 @@ An admin can find and edit any listing (website: Listings in the back office, th
 
 | Method | Path | Request | Response | Notes |
 |---|---|---|---|---|
-| GET | `/v1/admin/listings` | `?q=&cursor=&limit=` (default 20, up to 50) | page of `adminListingRowSchema` | Newest first, drafts left out. `q` matches the title or the seller's username (a part, any case) |
+| GET | `/v1/admin/listings` | `?q=&cursor=&limit=` (default 20, up to 50) | page of `adminListingRowSchema` | Newest first, drafts and removed listings left out. `q` matches the title or the seller's username (a part, any case) |
 | GET | `/v1/admin/listings/:id` | none | `listingDetailSchema` | The listing in full, seen as an admin (not the owner). 404 for a draft or unknown id |
 | PATCH | `/v1/admin/listings/:id` | `listingDraftInputSchema` | `listingDetailSchema` | Runs through the same writer and rules as the seller's `PATCH /v1/listings/:id` (the listing must stay complete), with the listing's seller as owner of the photo folder. 409 for a sold listing. Writes `listing_edited` with the old title, `sellerId`, the list of changed fields and the old and new price. Does not start the AI listing check |
 | POST | `/v1/admin/listings/:id/uploads` | `{ contentType, byteSize }` | `uploadResponseSchema` | A signed upload into the seller's own `listings/<sellerId>/` folder, so new photos pass the normal photo checks. Existing photos are kept by sending their keys again |
 | POST | `/v1/admin/listings/:id/photos/rotate` | `{ key, direction? }` (same as `/v1/uploads/rotate`) | `{ key, publicUrl }` | Turns a photo in the listing's seller folder (`listings/<sellerId>/`) and saves it under a new key. 400 for a key outside that folder or an unreadable photo, 404 for an unknown or draft listing. Writes `listing_photo_rotated` with `sellerId`, `from`, `to`, `direction` |
 | POST | `/v1/admin/listings/:id/photos/crop` | `{ key, x, y, width, height }` (same as `/v1/uploads/crop`) | `{ key, publicUrl }` | Same rules as rotate, for a crop. Writes `listing_photo_cropped` with `sellerId`, `from`, `to` and the rectangle `rect`. The edit form then saves the listing with the new key |
 | PATCH | `/v1/admin/listings/:id/status` | `{ status: "active" \| "hidden" \| "removed", note? }` | `listingDetailSchema` | Hidden or removed keeps `status_reason` (the note, else a default), which also stops the seller from putting it back live. Active clears it. 409 for a reserved or sold listing. Writes `listing_status_changed` with `from`, `to` and the note |
+| DELETE | `/v1/admin/listings/:id` | none | 204 | Deletes the listing and its photo files for good, the same rule as the seller's `DELETE /v1/listings/:id`: 409 when it has an order (use remove instead). Refreshes the seller's counts. Writes `listing_deleted` with the title and `sellerId` (target id is the deleted listing). A rename is the normal `PATCH /v1/admin/listings/:id` with only `{ title }`, logged as `listing_edited` |
 
 ## Socket.IO
 

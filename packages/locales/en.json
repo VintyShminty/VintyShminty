@@ -2072,7 +2072,16 @@
       "statusLocked": "A reserved or sold listing cannot be changed here",
       "statusSaved": "Listing is now {{status}}",
       "removeTitle": "Remove this listing?",
-      "removeBody": "It disappears for everyone, and its seller cannot bring it back. You can put it live again from here"
+      "removeBody": "It disappears for everyone, and its seller cannot bring it back. You can put it live again from here",
+      "delete": "Delete",
+      "deleteTitle": "Delete this listing?",
+      "deleteBody": "It is deleted for good, with its photos. This cannot be undone",
+      "deleteHasOrder": "This listing has an order, so it cannot be deleted. Remove it instead",
+      "rename": "Rename",
+      "renameSave": "Save",
+      "renameCancel": "Cancel",
+      "renamed": "Listing renamed",
+      "deleted": "Listing deleted"
     },
     "users": {
       "filters": "Filter people",
