@@ -1,6 +1,6 @@
 # Decisions index
 
-Last compiled: 2026-10-15 (second pass, night). Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections, through the new Home top).
+Last compiled: 2026-10-16 (evening). Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections), `docs/log/2026-10-16.md` (all six sections, through bundles).
 
 An index only. The full text and reasoning live where the link points. When a decision is replaced, mark it "Superseded by" and keep the line.
 
@@ -54,8 +54,8 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-045 | The app item page speaks the card's language | Merged, 2026-10-15 (#79) |
 | D-046 | The logo is a gently tilted price tag with a bold Y (for now, name not final) | Merged, 2026-10-15 (#89) |
 | D-047 | Home top is the wordmark, a bell and a bookmark, then a full width search that works in place | Merged, 2026-10-15 (#93) |
-| D-048 | Home and search show your shopping groups (Women, Men, Kids) first, other groups a bit lower, never hidden | Built, 2026-10-16 |
-| D-049 | Closet deal is now Bundle: item page box, + Bundle on cards, bundle bar, postage saving shown, sellers' steps on by default (Hebrew: באנדל) | Built, 2026-10-16 |
+| D-048 | Home and search show your shopping groups (Women, Men, Kids) first, other groups a bit lower, never hidden | Merged, 2026-10-16 (#106) |
+| D-049 | Closet deal is now Bundle: item page box, + Bundle on cards, bundle bar, postage saving shown, sellers' steps on by default (Hebrew: באנדל) | Merged, 2026-10-16 (#107) |
 | O-003 | Hebrew font pairing | Closed by D-011 |
 
 General rule: where a design question is not decided, follow the product spec (the Vinted UX deconstruction) for how things work only, never its names, wording, icons or looks. Source: `docs/design.md`, D-019, `docs/originality.md`.
@@ -104,6 +104,16 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Admin batch upload: on the phone you tap photos then "Make item". The website keeps one drop is one item. The stand-in username is created on the spot per batch | 2026-10-15 | Decided (Eden), #88, #91 |
 | Builds are iPhone only, no iPad. Apple's reviewer gets a normal account, never an admin | 2026-10-15 | Decided (Eden), log 2026-10-15 |
 | Items 5 to 8, 11 to 19 (photo search, saved searches, brands, disputes, withdrawals, account deletion, seed passwords and more) | | Open, see data model |
+| Over the air updates (EAS Update): `pnpm update:live` sends screens, wording and fixes to installed apps on the `production` channel. Native changes still need a build. Works from TestFlight build 7 | 2026-10-16 | Merged (#101), `CLAUDE.md` |
+| A search word that names a category also finds everything in that category, both languages, singular or plural | 2026-10-16 | Merged (#104) |
+| Bundle steps: the biggest parcel sets postage, an offer on the whole bundle comes later, the bar shows only on that seller's pages, 5/10/15% on by default | 2026-10-16 | Decided (Eden approved the mockup), `docs/plans/closet-deals.md` section 6 |
+| Face ID lock closes the sell form, welcome questions and Face ID offer while locked, rather than drawing the lock as its own native layer | 2026-10-16 | Merged (#96) |
+| Help answers drop any answer with a link, an email address or a phone number | 2026-10-16 | Decided (Eden), merged (#96) |
+| Only the seller can send photos in chat, enforced by the server | 2026-10-16 | Merged (#99) |
+| Photo rotate and crop live in the full-screen photo view, crop is our own screen (no native package) | 2026-10-16 | Decided (Eden), merged (#97, #100) |
+| Admin listing edits use admin-only routes. Delete keeps a listing that was in an order. Removed listings vanish from the admin list | 2026-10-16 | Decided (Eden), merged (#98, #103) |
+| Launch under Eden's personal Apple account. A company account needs a Ltd and can take the app over later with Apple's app transfer | 2026-10-16 | Decided (Eden), log 2026-10-16 |
+| Payments: no provider chosen. Ask Rapyd and PayMe the four questions in the log first (sellers are private people) | 2026-10-16 | Open, log 2026-10-16 |
 
 ## Process (`docs/playbook/`)
 
@@ -120,11 +130,13 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Merges into `main` go live by themselves (Vercel is connected to GitHub). To try a branch live before merging, deploy it by hand from a clean copy (`VintyShminty-copies/deploy`) | 2026-10-13 | Active, `docs/going-online.md` |
 | Eden pastes every secret himself. Claude never types passwords, keys or Apple or Google logins | 2026-10-13 | Active, `docs/playbook/security-and-safety.md` |
 | The product spec stays in `docs/` and is never committed | 2026-10-13 | Active, `.gitignore` |
-| TestFlight builds are made with local Xcode, not EAS. Build 6 went up on 2026-10-15, next is 7 | 2026-10-14 | Active (Eden), memory, `CLAUDE.md` |
+| TestFlight builds are made with local Xcode, not EAS. Build 7 went up on 2026-10-16, next is 8 | 2026-10-14 | Active (Eden), memory, `CLAUDE.md` |
 | Use Sonnet helpers for work that does not need Opus | 2026-10-14 | Active (Eden), memory |
 | Run the online database step before calling a schema PR ready | 2026-10-14 | Active, memory `migrate-before-merge` |
 
 ## Superseded
+
+- "Closet deal" as the user-facing name for a bundle (Milestone 5): superseded by "Bundle" (Hebrew באנדל) in D-049 on 2026-10-16.
 
 - FilterSheet as a bottom sheet (D-004 list and components): superseded by D-014 on 2026-10-12.
 - O-003 as an open proposal: closed by D-011 on 2026-10-12.

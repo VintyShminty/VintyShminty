@@ -1,6 +1,6 @@
 # Plan: a home feed that learns
 
-Status: built (server and app, Milestone 7, branch `milestone-7`). Decided by Eden on 2026-10-13. App decisions are in D-022 of `docs/design.md`. Section 11 (shopping groups and personal search) was decided by Eden on 2026-10-16 and built on branch `feat/shopping-groups` (D-048).
+Status: built (server and app, Milestone 7, branch `milestone-7`). Decided by Eden on 2026-10-13. App decisions are in D-022 of `docs/design.md`. Section 11 (shopping groups and personal search) was decided by Eden on 2026-10-16 and merged the same day (#106, D-048).
 
 ## Why
 
@@ -403,7 +403,7 @@ Decided by Eden on 2026-10-13 (the chosen option is marked **Chosen**). These ov
 - Stages 2 and 3 are not built in this plan.
 - The Vercel scheduler fix is a separate task.
 
-## 11. Shopping groups and personal search (decided 2026-10-16, built on `feat/shopping-groups`)
+## 11. Shopping groups and personal search (decided and merged 2026-10-16, #106)
 
 ### Why
 
