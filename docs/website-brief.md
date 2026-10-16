@@ -18,7 +18,7 @@ The Vinty website is as important as the app. It does everything the app does, o
 
 **Address rule.** Every page lives under `/en/...` or `/he/...` (the language is in the address so Google lists both and Hebrew mirrors the layout, D-018). Below, paths are written without the prefix. So `/item/123` means `/en/item/123` and `/he/item/123`. Pages that need a login are marked "Login". Pages Google should list are marked "Google".
 
-**Our words used in this brief.** sellers (never members), closet, piece, hearts (saved items), Buzz ("Give it buzz", "Buzzing"), Away mode, My sizes, Covered (placeholder for the protection name, one key `protectionName`), Closet deal (bundle), the five condition names (Unworn with tags, Unworn, Like new, Worn, Well loved), Post it, Keep as draft. The banned words list in `docs/originality.md` (G3) applies on the web too.
+**Our words used in this brief.** sellers (never members), closet, piece, hearts (saved items), Buzz ("Give it buzz", "Buzzing"), Away mode, My sizes, Covered (placeholder for the protection name, one key `protectionName`), Bundle (was Closet deal, renamed 2026-10-16, D-049), the five condition names (Unworn with tags, Unworn, Like new, Worn, Well loved), Post it, Keep as draft. The banned words list in `docs/originality.md` (G3) applies on the web too.
 
 ## 2. The global shell on the web
 

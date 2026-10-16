@@ -108,6 +108,8 @@ export type Totals = {
   buyerProtectionFeeMinor: number;
   shippingMinor: number;
   totalMinor: number;
+  /** What a bundle saves in all (discount plus postage). Shown as one green line when above 0. */
+  bundleSavedMinor?: number;
 };
 
 /** The numbers of an order: items, bundle discount, Buyer Protection, postage and the total. */
@@ -115,24 +117,34 @@ export function PriceBreakdown({ totals, label }: { totals: Totals; label: strin
   const { t } = useTranslation();
   const money = (v: number) => formatPrice(v, totals.currency);
   return (
-    <dl aria-label={label} className="rounded-control border border-border-subtle p-md">
-      <Line
-        label={t("checkout.items", { count: totals.itemsCount })}
-        value={money(totals.itemsSubtotalMinor)}
-      />
-      {totals.bundleDiscountMinor > 0 ? (
+    <div className="flex flex-col gap-sm">
+      <dl aria-label={label} className="rounded-control border border-border-subtle p-md">
         <Line
-          label={t("checkout.bundleDiscount", {
-            percent:
-              totals.bundleDiscountPercent ??
-              Math.round((totals.bundleDiscountMinor / Math.max(totals.itemsSubtotalMinor, 1)) * 100),
-          })}
-          value={`-${money(totals.bundleDiscountMinor)}`}
+          label={t("checkout.items", { count: totals.itemsCount })}
+          value={money(totals.itemsSubtotalMinor)}
         />
+        {totals.bundleDiscountMinor > 0 ? (
+          <Line
+            label={t("checkout.bundleDiscount", {
+              percent:
+                totals.bundleDiscountPercent ??
+                Math.round((totals.bundleDiscountMinor / Math.max(totals.itemsSubtotalMinor, 1)) * 100),
+            })}
+            value={`-${money(totals.bundleDiscountMinor)}`}
+          />
+        ) : null}
+        <Line label={t("checkout.protection")} value={money(totals.buyerProtectionFeeMinor)} />
+        <Line label={t("checkout.postage")} value={money(totals.shippingMinor)} />
+        <Line strong label={t("checkout.total")} value={money(totals.totalMinor)} />
+      </dl>
+      {totals.bundleSavedMinor && totals.bundleSavedMinor > 0 ? (
+        <p
+          role="status"
+          className="rounded-control bg-success-tint px-md py-sm text-body-sm font-semibold text-success"
+        >
+          {t("bundle.saveLine", { amount: money(totals.bundleSavedMinor) })}
+        </p>
       ) : null}
-      <Line label={t("checkout.protection")} value={money(totals.buyerProtectionFeeMinor)} />
-      <Line label={t("checkout.postage")} value={money(totals.shippingMinor)} />
-      <Line strong label={t("checkout.total")} value={money(totals.totalMinor)} />
-    </dl>
+    </div>
   );
 }

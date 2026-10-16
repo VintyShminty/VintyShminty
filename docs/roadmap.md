@@ -42,7 +42,7 @@ A separate website as important as the app, for laptops and phone browsers, matc
 | W2 | Public pages | Home, Browse, search with filters, item page, seller page, help. Google can find them and shared links show a photo preview | Done (merged, PR #53) |
 | W3 | Accounts | Sign up, log in, codes, Apple and Google, profile, settings, favourites, saved searches. The home feed learns from the website too | Done (merged, PR #57). Google sign in tried online by Eden 2026-10-14 |
 | W4 | Messaging | Inbox and live chat, the order tracker card, notifications | Done (merged, PR #59) |
-| W5 | Orders | Offers, simulated checkout, order timeline, reviews, pretend balance, bundles | Done (merged, PR #61). Make your price, offers in chat, checkout, addresses, order page, My orders, tracker card, reviews and replies, pretend balance and withdrawals, Closet deal bundles, reports |
+| W5 | Orders | Offers, simulated checkout, order timeline, reviews, pretend balance, bundles | Done (merged, PR #61). Make your price, offers in chat, checkout, addresses, order page, My orders, tracker card, reviews and replies, pretend balance and withdrawals, Bundles (first called Closet deal), reports |
 | W6 | Selling | The sell form with photo uploads from the browser, drafts, own listings | Done (merged, PR #62). Sell form, photo uploads, drafts, edit, own item page with the app's actions (edit, Give it buzz, reserve, hide or show, mark as sold, delete), Your buzzes, and the website brought in line with D-032 (price tag on the photo card, bookmark for saving) and D-034 (ledger line offers, smaller bubbles) |
 | W7 | Finishing | Terms and privacy, every page checked at both sizes and in both languages, then shown | Done (merged, PR #65) |
 

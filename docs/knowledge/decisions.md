@@ -55,6 +55,7 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-046 | The logo is a gently tilted price tag with a bold Y (for now, name not final) | Merged, 2026-10-15 (#89) |
 | D-047 | Home top is the wordmark, a bell and a bookmark, then a full width search that works in place | Merged, 2026-10-15 (#93) |
 | D-048 | Home and search show your shopping groups (Women, Men, Kids) first, other groups a bit lower, never hidden | Built, 2026-10-16 |
+| D-049 | Closet deal is now Bundle: item page box, + Bundle on cards, bundle bar, postage saving shown, sellers' steps on by default (Hebrew: באנדל) | Built, 2026-10-16 |
 | O-003 | Hebrew font pairing | Closed by D-011 |
 
 General rule: where a design question is not decided, follow the product spec (the Vinted UX deconstruction) for how things work only, never its names, wording, icons or looks. Source: `docs/design.md`, D-019, `docs/originality.md`.

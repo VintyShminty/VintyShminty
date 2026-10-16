@@ -5,6 +5,7 @@ import { Bookmark, Check, TrendingDown, Zap } from "lucide-react-native";
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
+import { BundleCardButton } from "@/components/bundle/card-button";
 import { CoveredLine } from "@/components/price-pill";
 import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
@@ -29,6 +30,7 @@ function ListingCard({
   hideSave = false,
   saveOnSold = false,
   onLongPress,
+  bundleSellerId,
 }: {
   listing: ListingCardData;
   /** Set where the cards are known to be the viewer's own (for example their own profile). */
@@ -37,6 +39,8 @@ function ListingCard({
   saveOnSold?: boolean;
   /** Home only: a long press (or the screen reader action) opens "Why you see this". */
   onLongPress?: (listing: ListingCardData) => void;
+  /** A seller's other items on an item page: shows the "+ Bundle" pill for a bundle with this seller. */
+  bundleSellerId?: string;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -120,6 +124,9 @@ function ListingCard({
               fill={saved ? colors.accent : "none"}
             />
           </Pressable>
+        ) : null}
+        {bundleSellerId && !sold && !isOwn ? (
+          <BundleCardButton listingId={listing.id} sellerId={bundleSellerId} title={listing.title} />
         ) : null}
         <View className="absolute bottom-sm start-sm max-w-[90%] flex-row items-baseline gap-xs rounded-[6px] border border-border-subtle bg-background px-sm py-[3px]">
           {priceDrop && !sold ? (

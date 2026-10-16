@@ -32,6 +32,8 @@ type Totals = {
   buyerProtectionFeeMinor: number;
   shippingMinor: number;
   totalMinor: number;
+  /** What a bundle saves in all (discount plus postage). Shown as one green line when above 0. */
+  bundleSavedMinor?: number;
 };
 
 /** The numbers of an order: items, bundle discount, Buyer Protection, postage and the total. All from the server. */
@@ -58,6 +60,13 @@ function PriceBreakdown({ quote }: { quote: Totals }) {
       <Line label={t("checkout.postage")} value={money(quote.shippingMinor)} />
       <View className="my-xs h-px bg-border-subtle" />
       <Line strong label={t("checkout.total")} value={money(quote.totalMinor)} />
+      {quote.bundleSavedMinor && quote.bundleSavedMinor > 0 ? (
+        <View className="mt-sm rounded-control bg-success-tint px-md py-sm">
+          <Text variant="bodySmall" weight={600} className="text-success">
+            {t("bundle.saveLine", { amount: money(quote.bundleSavedMinor) })}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }

@@ -31,6 +31,7 @@ import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BUNDLE_BAR_HEIGHT, BundleBar, bundleBarVisible } from "@/components/bundle/bundle-bar";
 import { MoreMenu } from "@/components/item/more-menu";
 import { ListingCard } from "@/components/listing-card";
 import { ReplySheet } from "@/components/orders/reply-sheet";
@@ -49,6 +50,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import { Tabs } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
+import { useSellerBundle } from "@/lib/bundle-queries";
 import {
   meQuery,
   myListingsQuery,
@@ -115,9 +117,12 @@ function ProfileHeader({
   isSelf,
   tab,
   onTab,
+  bundleOn,
 }: {
   profile: PublicProfile;
   isSelf: boolean;
+  /** The seller's bundles are on, so the Bundle button shows. */
+  bundleOn: boolean;
   tab: TabKey;
   onTab: (tab: TabKey) => void;
 }) {
@@ -175,7 +180,7 @@ function ProfileHeader({
         </View>
       ) : null}
 
-      {!isSelf && profile.activeListingCount >= 2 ? (
+      {!isSelf && profile.activeListingCount >= 2 && bundleOn ? (
         <View className="px-lg pt-lg">
           <Button
             variant="outline"
@@ -389,6 +394,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const [ownStatus, setOwnStatus] = useState<MyListingStatus>("active");
 
   const profileQ = useQuery(profileQuery(userId));
+  const bundleSeller = useSellerBundle(userId);
   const listingsQ = useInfiniteQuery({
     ...userListingsQuery(userId, status),
     enabled: tab === "listings" && !isSelf,
@@ -515,11 +521,20 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
         onEndReached={fetchMore}
         onEndReachedThreshold={0.6}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        contentContainerStyle={{
+          paddingBottom:
+            insets.bottom + 40 + (!isSelf && bundleBarVisible(bundleSeller) ? BUNDLE_BAR_HEIGHT : 0),
+        }}
         ListHeaderComponent={
           <View>
             {isSelf && profile.holidayMode ? <AwayBanner profile={profile} /> : null}
-            <ProfileHeader profile={profile} isSelf={isSelf} tab={tab} onTab={setTab} />
+            <ProfileHeader
+              profile={profile}
+              isSelf={isSelf}
+              tab={tab}
+              onTab={setTab}
+              bundleOn={Boolean(bundleSeller.ladder?.on && bundleSeller.ladder.tiers.length > 0)}
+            />
             {tab === "listings" && isSelf ? (
               <ScrollView
                 horizontal
@@ -622,6 +637,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
           }
         }}
       />
+      {isSelf ? null : <BundleBar sellerId={userId} seller={bundleSeller} />}
       {isSelf ? <ReplySheet ref={replySheet} review={replyTarget} /> : null}
     </Screen>
   );

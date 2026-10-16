@@ -396,7 +396,7 @@ export function useWithdraw() {
   });
 }
 
-// ---- Bundles (Closet deal) ----
+// ---- Bundles ----
 
 export const bundleQuery = (id: string) =>
   queryOptions({
@@ -410,7 +410,10 @@ export function useOpenBundle() {
   return useMutation({
     mutationFn: (sellerId: string) =>
       clientApi<Bundle>("/v1/bundles", { method: "POST", body: { sellerId }, schema: bundleSchema }),
-    onSuccess: (bundle) => queryClient.setQueryData(["bundle", bundle.id], bundle),
+    onSuccess: (bundle) => {
+      queryClient.setQueryData(["bundle", bundle.id], bundle);
+      queryClient.setQueryData(["bundle-open", bundle.seller.id], bundle);
+    },
   });
 }
 
@@ -423,7 +426,10 @@ export function useToggleBundleItem() {
         method: add ? "PUT" : "DELETE",
         schema: bundleSchema,
       }),
-    onSuccess: (bundle) => queryClient.setQueryData(["bundle", bundle.id], bundle),
+    onSuccess: (bundle) => {
+      queryClient.setQueryData(["bundle", bundle.id], bundle);
+      queryClient.setQueryData(["bundle-open", bundle.seller.id], bundle);
+    },
     onError: (_err, { bundleId }) => void queryClient.invalidateQueries({ queryKey: ["bundle", bundleId] }),
   });
 }

@@ -40,6 +40,7 @@ const CLIENT_SECTIONS = [
   "address",
   "review",
   "bundle",
+  "bundleSettings",
   "balance",
   "report",
   "countries",

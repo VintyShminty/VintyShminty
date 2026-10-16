@@ -5,10 +5,13 @@ import { useRouter } from "expo-router";
 import { Check, Clock, Moon } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, Pressable, View } from "react-native";
+import { Alert, FlatList, Pressable, View } from "react-native";
+import { BUNDLE_BAR_HEIGHT, BundleBar, bundleBarVisible } from "@/components/bundle/bundle-bar";
+import { BundleBox } from "@/components/bundle/bundle-box";
 import { DetailRow } from "@/components/item/detail-row";
 import { FavouritePill } from "@/components/item/favourite-pill";
 import { MoreMenu } from "@/components/item/more-menu";
+import { ListingCard } from "@/components/listing-card";
 import { ListingGrid } from "@/components/listing-grid";
 import { OfferSheet } from "@/components/offer/offer-sheet";
 import { PhotoCarousel } from "@/components/photo-carousel";
@@ -23,10 +26,12 @@ import { StarRating } from "@/components/ui/star-rating";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { api } from "@/lib/api";
+import { useSellerBundle } from "@/lib/bundle-queries";
 import { similarQuery } from "@/lib/item-queries";
 import { useStartConversation } from "@/lib/messaging-queries";
 import { formatMoney } from "@/lib/money";
 import { useSendOffer } from "@/lib/order-flow-queries";
+import { userListingsQuery } from "@/lib/queries";
 import { useLocalName } from "@/lib/reference";
 import { timeAgo } from "@/lib/time";
 import { useDwell } from "@/lib/use-dwell";
@@ -96,6 +101,8 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   const router = useRouter();
   const name = useLocalName();
   const similar = useInfiniteQuery(similarQuery(listing.id));
+  const fromSeller = useInfiniteQuery(userListingsQuery(listing.seller.id, "active"));
+  const bundleSeller = useSellerBundle(listing.seller.id);
   const dwell = useDwell(listing.id);
   const startChat = useStartConversation();
   const existingChat = listing.viewer.conversationId;
@@ -148,6 +155,9 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   const buyerPrice = listing.buyerPriceMinor ?? price;
   const seller = listing.seller;
   const sellerName = seller.username ?? t("profile.closedAccount");
+  const moreFromSeller = (fromSeller.data?.pages.flatMap((p) => p.items) ?? [])
+    .filter((c) => c.id !== listing.id)
+    .slice(0, 10);
 
   return (
     <Screen bottomInset={false}>
@@ -157,7 +167,7 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
       <ListingGrid
         query={similar}
         emptyTitle={t("item.noSimilar")}
-        bottomPadding={32}
+        bottomPadding={32 + (bundleBarVisible(bundleSeller) ? BUNDLE_BAR_HEIGHT : 0)}
         header={
           <View>
             <PhotoCarousel photos={listing.photos} onSwipe={dwell.onPhotoSwipe} />
@@ -307,7 +317,37 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                   ) : null}
                 </Pressable>
               </View>
+
+              {listing.status === "active" ? (
+                <BundleBox
+                  sellerId={seller.id}
+                  sellerName={sellerName}
+                  listingId={listing.id}
+                  seller={bundleSeller}
+                />
+              ) : null}
             </View>
+
+            {moreFromSeller.length > 0 ? (
+              <View className="pt-xl">
+                {/* normal-case: a username is shown exactly as the seller wrote it, never in capitals. */}
+                <Text variant="sectionLabel" className="px-lg pb-md normal-case">
+                  {t("item.moreFromSeller", { name: sellerName })}
+                </Text>
+                <FlatList
+                  horizontal
+                  data={moreFromSeller}
+                  keyExtractor={(c) => c.id}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerClassName="gap-md px-lg"
+                  renderItem={({ item }) => (
+                    <View className="w-[150px]">
+                      <ListingCard listing={item} bundleSellerId={seller.id} />
+                    </View>
+                  )}
+                />
+              </View>
+            ) : null}
 
             <Text variant="sectionLabel" className="px-lg pb-md pt-xl">
               {t("item.moreLikeThis")}
@@ -315,6 +355,7 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
           </View>
         }
       />
+      <BundleBar sellerId={seller.id} seller={bundleSeller} />
       {listing.viewer.canOffer ? (
         <OfferSheet
           ref={offerSheet}

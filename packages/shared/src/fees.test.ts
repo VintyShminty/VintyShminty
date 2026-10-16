@@ -4,6 +4,7 @@ import {
   buyerPriceMinor,
   calculateBuyerProtectionFee,
   calculateOrderTotals,
+  DEFAULT_BUNDLE_LADDER,
   nextBundleTier,
 } from "./fees.js";
 import { formatMoney, fromMinorUnits, toMinorUnits } from "./money.js";
@@ -95,5 +96,14 @@ describe("bundle ladder", () => {
     expect(nextBundleTier(tiers, 1)).toEqual({ addItems: 1, percentOff: 5 });
     expect(nextBundleTier(tiers, 3)).toEqual({ addItems: 2, percentOff: 15 });
     expect(nextBundleTier(tiers, 5)).toBeNull();
+  });
+});
+
+describe("default bundle ladder", () => {
+  it("gives 5, 10 and 15 percent at 2, 3 and 5 items", () => {
+    expect(bundleDiscountPercentFor(DEFAULT_BUNDLE_LADDER, 1)).toBe(0);
+    expect(bundleDiscountPercentFor(DEFAULT_BUNDLE_LADDER, 2)).toBe(5);
+    expect(bundleDiscountPercentFor(DEFAULT_BUNDLE_LADDER, 4)).toBe(10);
+    expect(bundleDiscountPercentFor(DEFAULT_BUNDLE_LADDER, 5)).toBe(15);
   });
 });

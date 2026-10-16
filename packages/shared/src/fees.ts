@@ -86,6 +86,13 @@ export interface BundleTier {
   percentOff: number;
 }
 
+/** The ladder a seller has until they change it: 2 items 5 percent, 3 items 10 percent, 5 items 15 percent. */
+export const DEFAULT_BUNDLE_LADDER: readonly BundleTier[] = [
+  { minItems: 2, percentOff: 5 },
+  { minItems: 3, percentOff: 10 },
+  { minItems: 5, percentOff: 15 },
+];
+
 /** The discount percent for a bundle of this size: the best step of the seller's ladder that the item count reaches. */
 export function bundleDiscountPercentFor(tiers: readonly BundleTier[], itemCount: number): number {
   let percent = 0;

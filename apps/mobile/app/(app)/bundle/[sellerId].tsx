@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import type { ListingCard } from "@vinty/shared";
+import { bundleSavedMinor, type ListingCard } from "@vinty/shared";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Percent } from "lucide-react-native";
@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StepsBar } from "@/components/bundle/steps-bar";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -131,6 +132,8 @@ export default function BundleScreen() {
   };
 
   const count = b?.itemCount ?? 0;
+  const saved = b ? bundleSavedMinor(b) : 0;
+  const soldOut = (b?.items ?? []).filter((i) => i.status === "sold");
   let tierLine = t("bundle.pickMore", { count: MIN_ITEMS });
   if (b) {
     if (b.discountPercent > 0 && b.nextTier) {
@@ -177,6 +180,7 @@ export default function BundleScreen() {
                   {tierLine}
                 </Text>
               </View>
+              {b && b.tiers.length > 0 ? <StepsBar bundle={b} minItems={MIN_ITEMS} /> : null}
               {failed ? <Banner variant="error">{t("bundle.changeFailed")}</Banner> : null}
             </View>
           }
@@ -209,6 +213,11 @@ export default function BundleScreen() {
           className="gap-sm border-t border-border-subtle bg-background px-lg pt-md"
           style={{ paddingBottom: insets.bottom + 12 }}
         >
+          {soldOut.map((i) => (
+            <Text key={i.listingId} variant="cardDesc" className="text-text-4">
+              {i.title} · {t("bundle.soldRemoved")}
+            </Text>
+          ))}
           <View className="flex-row items-baseline justify-between">
             <Text variant="bodySmall" className="text-text-2">
               {t("bundle.selected", { count })}
@@ -222,6 +231,45 @@ export default function BundleScreen() {
               <Text weight={700}>{formatMoney(b.netMinor, b.currency)}</Text>
             </View>
           </View>
+          {b.discountMinor > 0 ? (
+            <View className="flex-row items-baseline justify-between">
+              <Text variant="bodySmall" className="text-text-2">
+                {t("bundle.discountLine", { percent: b.discountPercent })}
+              </Text>
+              <Text variant="bodySmall" weight={500} className="text-success">
+                -{formatMoney(b.discountMinor, b.currency)}
+              </Text>
+            </View>
+          ) : null}
+          {b.postageTogetherMinor > 0 && count > 0 ? (
+            <View className="flex-row items-baseline justify-between">
+              <Text variant="bodySmall" className="text-text-2">
+                {t("bundle.postageOne")}
+              </Text>
+              <View className="flex-row items-baseline gap-sm">
+                {b.postageSeparateMinor > b.postageTogetherMinor ? (
+                  <Text variant="cardDesc" className="text-text-4 line-through">
+                    {formatMoney(b.postageSeparateMinor, b.currency)}
+                  </Text>
+                ) : null}
+                <Text variant="bodySmall" weight={500}>
+                  {formatMoney(b.postageTogetherMinor, b.currency)}
+                </Text>
+              </View>
+            </View>
+          ) : null}
+          {saved > 0 ? (
+            <View className="rounded-control bg-success-tint px-md py-sm">
+              <Text
+                variant="bodySmall"
+                weight={600}
+                className="text-success"
+                accessibilityLiveRegion="polite"
+              >
+                {t("bundle.saveLine", { amount: formatMoney(saved, b.currency) })}
+              </Text>
+            </View>
+          ) : null}
           <Button
             size="lg"
             disabled={count < MIN_ITEMS || busyId !== null}

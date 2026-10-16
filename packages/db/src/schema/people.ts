@@ -86,6 +86,8 @@ export const userSettings = pgTable("user_settings", {
   /** Seller shipping options (Settings, Postage). */
   shipFromHome: boolean("ship_from_home").notNull().default(false),
   shipFromDropoff: boolean("ship_from_dropoff").notNull().default(true),
+  /** Seller option: buyers who take several items get the discount ladder (Settings, Bundles). */
+  bundlesOn: boolean("bundles_on").notNull().default(true),
   updatedAt: updatedAt(),
 });
 

@@ -1,7 +1,26 @@
-import { bundleSchema, createBundleInputSchema, errorResponseSchema, idSchema } from "@vinty/shared";
+import { profiles } from "@vinty/db";
+import {
+  bundleLadderSchema,
+  bundleSchema,
+  createBundleInputSchema,
+  errorResponseSchema,
+  idSchema,
+  openBundleQuerySchema,
+  updateBundleLadderInputSchema,
+} from "@vinty/shared";
+import { eq } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { addBundleItem, openBundle, ownBundle, presentBundle, removeBundleItem } from "../lib/bundles.js";
+import {
+  addBundleItem,
+  findOpenBundle,
+  loadBundleLadder,
+  openBundle,
+  ownBundle,
+  presentBundle,
+  removeBundleItem,
+  saveBundleLadder,
+} from "../lib/bundles.js";
 import { ApiError } from "../lib/errors.js";
 
 const idParams = z.object({ id: idSchema });
@@ -23,6 +42,39 @@ const bundleRoutes: FastifyPluginAsyncZod = async (app) => {
     return request.session.user.id;
   };
 
+  app.get(
+    "/v1/users/:id/bundle-ladder",
+    { schema: { params: idParams, response: { 200: bundleLadderSchema, 404: errorResponseSchema } } },
+    async (request) => {
+      const [seller] = await app.db
+        .select({ deletedAt: profiles.deletedAt })
+        .from(profiles)
+        .where(eq(profiles.userId, request.params.id))
+        .limit(1);
+      if (!seller || seller.deletedAt) throw ApiError.notFound();
+      return loadBundleLadder(app.db, request.params.id);
+    },
+  );
+
+  app.get(
+    "/v1/me/bundle-ladder",
+    { preHandler, schema: { response: { 200: bundleLadderSchema, 401: errorResponseSchema } } },
+    async (request) => loadBundleLadder(app.db, userIdOf(request), true),
+  );
+
+  app.put(
+    "/v1/me/bundle-ladder",
+    {
+      preHandler,
+      config: WRITE_LIMIT,
+      schema: {
+        body: updateBundleLadderInputSchema,
+        response: { 200: bundleLadderSchema, 400: errorResponseSchema, 401: errorResponseSchema },
+      },
+    },
+    async (request) => saveBundleLadder(app, userIdOf(request), request.body),
+  );
+
   app.post(
     "/v1/bundles",
     {
@@ -36,6 +88,22 @@ const bundleRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request, reply) => {
       const { bundle, created } = await openBundle(app, userIdOf(request), request.body.sellerId);
       return reply.code(created ? 201 : 200).send(await presentBundle(app, bundle));
+    },
+  );
+
+  // The buyer's open bundle with one seller, or null. Reading it makes nothing, unlike POST /v1/bundles.
+  app.get(
+    "/v1/bundles/open",
+    {
+      preHandler,
+      schema: {
+        querystring: openBundleQuerySchema,
+        response: { 200: bundleSchema.nullable(), ...errors },
+      },
+    },
+    async (request) => {
+      const bundle = await findOpenBundle(app, userIdOf(request), request.query.sellerId);
+      return bundle ? presentBundle(app, bundle) : null;
     },
   );
 

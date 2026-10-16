@@ -2,7 +2,7 @@
 
 import { formatPrice, messagePageSchema } from "@vinty/shared";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useLoginPrompt } from "@/components/login-prompt";
@@ -135,8 +135,26 @@ export function BuyButtons({
 
 /** The bar fixed to the bottom of a phone screen (hidden on a laptop, where the card holds the buttons). */
 export function BuyBar(props: BuyProps) {
+  const bar = useRef<HTMLDivElement>(null);
+  // Other fixed bars (the bundle bar) sit above this one, so its height is published as --buy-bar-h.
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--buy-bar-h", `${el.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--buy-bar-h");
+    };
+  }, []);
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background px-lg pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-md lg:hidden">
+    <div
+      ref={bar}
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background px-lg pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-md lg:hidden"
+    >
       <BuyButtons {...props} compact />
     </div>
   );

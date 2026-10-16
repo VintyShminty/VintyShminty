@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { feedPageSchema, formatPrice, type ListingCard } from "@vinty/shared";
+import { type Bundle, bundleSavedMinor, feedPageSchema, formatPrice, type ListingCard } from "@vinty/shared";
 import { Check, ChevronLeft, Loader2, Percent } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -75,8 +75,55 @@ function PickCard({
   );
 }
 
+/** The steps as a bar that fills as items are picked. Each step has a mark with its item count and discount. */
+function StepsBar({ bundle }: { bundle: Bundle }) {
+  const { t } = useTranslation();
+  const top = Math.max(...bundle.tiers.map((x) => x.minItems), MIN_ITEMS);
+  const fill = Math.min(100, (bundle.itemCount / top) * 100);
+  return (
+    <div className="mx-8 mt-md pb-[44px]">
+      <div
+        role="progressbar"
+        aria-label={t("bundle.stepsLabel")}
+        aria-valuemin={0}
+        aria-valuemax={top}
+        aria-valuenow={Math.min(bundle.itemCount, top)}
+        className="relative h-2 rounded-full bg-pressed"
+      >
+        <div
+          className="absolute inset-y-0 start-0 rounded-full bg-primary transition-[width]"
+          style={{ width: `${fill}%` }}
+        />
+        {bundle.tiers.map((tier) => {
+          const lit = bundle.itemCount >= tier.minItems;
+          return (
+            <span
+              key={tier.minItems}
+              className="absolute top-1/2 flex -translate-y-1/2 flex-col items-center rtl:translate-x-1/2 ltr:-translate-x-1/2"
+              style={{ insetInlineStart: `${(tier.minItems / top) * 100}%` }}
+            >
+              <span
+                className={cn(
+                  "h-4 w-4 rounded-full border-2",
+                  lit ? "border-primary bg-primary" : "border-border bg-background",
+                )}
+              />
+              <span className="mt-xs whitespace-nowrap text-card-meta font-semibold text-text-1">
+                {t("bundle.stepOff", { percent: tier.percentOff })}
+              </span>
+              <span className="whitespace-nowrap text-card-meta text-text-3">
+                {t("bundle.stepItems", { count: tier.minItems })}
+              </span>
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 /**
- * Closet deal (the app's bundle screen): pick several items from one seller, watch the discount grow, then go to
+ * The bundle page (the app's bundle screen): pick several items from one seller, watch the discount grow, then go to
  * checkout with the bundle. The bundle lives on the server, so every click adds or removes one item and the totals
  * (and the tiers) come back from there.
  */
@@ -142,6 +189,8 @@ export function BundleView({ lang, sellerId }: { lang: string; sellerId: string 
       tierLine = t("bundle.addMore", { count: b.nextTier.addItems, percent: b.nextTier.percentOff });
     }
   }
+  const saved = b ? bundleSavedMinor(b) : 0;
+  const sold = (b?.items ?? []).filter((i) => i.status === "sold");
   const sellerName = b?.seller.username ?? t("profile.closedAccount");
 
   const spinner = (
@@ -189,6 +238,7 @@ export function BundleView({ lang, sellerId }: { lang: string; sellerId: string 
             <Percent size={18} aria-hidden className="shrink-0" />
             {tierLine}
           </p>
+          {b && b.tiers.length > 0 ? <StepsBar bundle={b} /> : null}
           {failed ? (
             <p
               role="alert"
@@ -251,6 +301,15 @@ export function BundleView({ lang, sellerId }: { lang: string; sellerId: string 
                   ))}
                 </ul>
               ) : null}
+              {sold.length > 0 ? (
+                <ul className="flex flex-col gap-xs">
+                  {sold.map((i) => (
+                    <li key={i.listingId} className="text-card-desc text-text-4">
+                      <span className="line-through">{i.title}</span> · {t("bundle.soldRemoved")}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
               <dl className="flex flex-col gap-sm border-t border-border-subtle pt-md">
                 <div className="flex items-center justify-between gap-md text-body-sm">
                   <dt className="text-text-2">{t("orders.itemsSubtotal")}</dt>
@@ -259,7 +318,7 @@ export function BundleView({ lang, sellerId }: { lang: string; sellerId: string 
                 {b.discountMinor > 0 ? (
                   <div className="flex items-center justify-between gap-md text-body-sm">
                     <dt className="text-text-2">
-                      {t("orders.bundleDiscount")} ({b.discountPercent}%)
+                      {t("bundle.discountLine", { percent: b.discountPercent })}
                     </dt>
                     <dd dir="ltr" className="font-medium text-success">
                       -{formatPrice(b.discountMinor, b.currency)}
@@ -270,7 +329,26 @@ export function BundleView({ lang, sellerId }: { lang: string; sellerId: string 
                   <dt>{t("web.bundle.itemsTotal")}</dt>
                   <dd>{formatPrice(b.netMinor, b.currency)}</dd>
                 </div>
+                {b.postageTogetherMinor > 0 && count > 0 ? (
+                  <div className="flex items-center justify-between gap-md text-body-sm">
+                    <dt className="text-text-2">{t("bundle.postageOne")}</dt>
+                    <dd className="flex items-baseline gap-sm font-medium text-text-1">
+                      {b.postageSeparateMinor > b.postageTogetherMinor ? (
+                        <s className="text-text-4">{formatPrice(b.postageSeparateMinor, b.currency)}</s>
+                      ) : null}
+                      {formatPrice(b.postageTogetherMinor, b.currency)}
+                    </dd>
+                  </div>
+                ) : null}
               </dl>
+              {saved > 0 ? (
+                <p
+                  role="status"
+                  className="rounded-control bg-success-tint px-md py-sm text-body-sm font-semibold text-success"
+                >
+                  {t("bundle.saveLine", { amount: formatPrice(saved, b.currency) })}
+                </p>
+              ) : null}
               {count < MIN_ITEMS || busyId !== null ? (
                 <span
                   aria-disabled="true"

@@ -455,7 +455,9 @@ export default function Checkout() {
 
         <View className="gap-sm">
           <Text variant="sectionLabel">{t("checkout.summary")}</Text>
-          <PriceBreakdown quote={q} />
+          <PriceBreakdown
+            quote={{ ...q, bundleSavedMinor: q.bundleId ? q.bundleDiscountMinor + q.postageSavedMinor : 0 }}
+          />
           <View className="flex-row items-center gap-xs pt-xs">
             <Icon as={Timer} size={14} className="text-text-3" />
             <Text variant="cardDesc" className="flex-1 text-text-3">

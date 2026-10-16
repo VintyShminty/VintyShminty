@@ -4,7 +4,7 @@
  * `help.groups.<group>` and `help.articles.<id>` (title and body, paragraphs split by a blank line).
  */
 export const HELP_GROUPS = [
-  { id: "buying", articles: ["buyAnItem", "makeAnOffer", "covered", "closetDeal", "saveItems"] },
+  { id: "buying", articles: ["buyAnItem", "makeAnOffer", "covered", "bundles", "saveItems"] },
   { id: "selling", articles: ["listAnItem", "setYourPrice", "buzz", "getPaid", "awayMode"] },
   { id: "orders", articles: ["orderSteps", "shipAnOrder", "receivedOrProblem", "cancelAnOrder"] },
   { id: "account", articles: ["profileAndSizes", "signInAndFaceId", "inviteFriends", "closeAccount"] },
