@@ -1,6 +1,12 @@
 "use client";
 
-import { type UploadResponse, uploadResponseSchema } from "@vinty/shared";
+import {
+  type CropPhotoInput,
+  type RotatePhotoResponse,
+  rotatePhotoResponseSchema,
+  type UploadResponse,
+  uploadResponseSchema,
+} from "@vinty/shared";
 import { clientApi } from "@/lib/api-client";
 
 /** The same as the app: 1600 px on the longest side at most, saved as JPEG at 80 percent. */
@@ -74,4 +80,61 @@ export async function uploadListingPhoto(
   await putWithProgress(upload.uploadUrl, upload.headers, photo.blob, onProgress);
   onProgress(1);
   return upload;
+}
+
+/** Turns a picture that is only in the browser a quarter turn, saved as JPEG like the shrunk copy. */
+export async function rotateLocalPhoto(url: string): Promise<PreparedPhoto> {
+  const bitmap = await createImageBitmap(await (await fetch(url)).blob());
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.height;
+  canvas.height = bitmap.width;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("No canvas");
+  context.translate(canvas.width, 0);
+  context.rotate(Math.PI / 2);
+  context.drawImage(bitmap, 0, 0);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", QUALITY));
+  if (!blob) throw new Error("Could not make a JPEG");
+  return { blob, width: canvas.width, height: canvas.height };
+}
+
+/** Asks the server to turn a photo that is already uploaded. The answer is a new key, the listing must use it. */
+export function rotateUploadedPhoto(key: string): Promise<RotatePhotoResponse> {
+  return clientApi("/v1/uploads/rotate", {
+    method: "POST",
+    body: { key, direction: "cw" },
+    schema: rotatePhotoResponseSchema,
+  });
+}
+
+/** A crop rectangle in fractions (0 to 1) of the photo as it is shown. */
+export type CropRect = Pick<CropPhotoInput, "x" | "y" | "width" | "height">;
+
+/** Crops a picture that is only in the browser, saved as JPEG like the shrunk copy. */
+export async function cropLocalPhoto(url: string, rect: CropRect): Promise<PreparedPhoto> {
+  const bitmap = await createImageBitmap(await (await fetch(url)).blob());
+  const left = Math.min(bitmap.width - 1, Math.round(rect.x * bitmap.width));
+  const top = Math.min(bitmap.height - 1, Math.round(rect.y * bitmap.height));
+  const width = Math.min(bitmap.width - left, Math.max(1, Math.round(rect.width * bitmap.width)));
+  const height = Math.min(bitmap.height - top, Math.max(1, Math.round(rect.height * bitmap.height)));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("No canvas");
+  context.drawImage(bitmap, left, top, width, height, 0, 0, width, height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", QUALITY));
+  if (!blob) throw new Error("Could not make a JPEG");
+  return { blob, width, height };
+}
+
+/** Asks the server to crop a photo that is already uploaded. The answer is a new key, the listing must use it. */
+export function cropUploadedPhoto(key: string, rect: CropRect): Promise<RotatePhotoResponse> {
+  return clientApi("/v1/uploads/crop", {
+    method: "POST",
+    body: { key, ...rect },
+    schema: rotatePhotoResponseSchema,
+  });
 }
