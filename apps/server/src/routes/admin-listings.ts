@@ -14,14 +14,14 @@ import {
   rotatePhotoResponseSchema,
   uploadResponseSchema,
 } from "@vinty/shared";
-import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
+import { and, asc, desc, eq, notInArray, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { type Db, likePattern, writeAudit } from "../lib/admin.js";
 import { ApiError } from "../lib/errors.js";
 import { keysetCursor, olderThan, tsText } from "../lib/keyset.js";
 import { createListingWriter } from "../lib/listing-write.js";
-import { type ListingRow, loadListingDetail, refreshSellerCounts } from "../lib/listings.js";
+import { hasOrders, type ListingRow, loadListingDetail, refreshSellerCounts } from "../lib/listings.js";
 import { cropStoredPhoto, rotateStoredPhoto } from "../lib/photo-edit.js";
 import { cardKeyFor } from "../lib/photo-variants.js";
 import { keyBelongsToUser, presignUploadResponse } from "../lib/storage.js";
@@ -118,7 +118,7 @@ export function registerAdminListingRoutes(app: FastifyInstance, { db, preHandle
         .leftJoin(listingPhotos, and(eq(listingPhotos.listingId, listings.id), eq(listingPhotos.position, 0)))
         .where(
           and(
-            ne(listings.status, "draft"),
+            notInArray(listings.status, ["draft", "removed"]),
             olderThan(cursor, listings.createdAt, listings.id),
             pattern
               ? sql`(${listings.title} ilike ${pattern} or ${users.username} ilike ${pattern})`
@@ -355,6 +355,42 @@ export function registerAdminListingRoutes(app: FastifyInstance, { db, preHandle
       });
       await refreshSellerCounts(db, row.sellerId);
       return detail(row, adminId);
+    },
+  );
+
+  // ---- Delete for good ----
+
+  typed.delete(
+    "/v1/admin/listings/:id",
+    {
+      preHandler,
+      config: rateLimit,
+      schema: { params: idParams, response: { 204: z.null(), ...errors } },
+    },
+    async (request, reply) => {
+      const adminId = adminIdOf(request);
+      const row = await findListing(request.params.id);
+      // The same rule as the seller's own delete: a listing that was part of an order stays, so the order keeps its history.
+      if (await hasOrders(db, row.id)) {
+        throw ApiError.conflict("This listing has an order. Remove it instead");
+      }
+      const { photoKeys } = await currentOf(row.id);
+      await db.transaction(async (tx) => {
+        await writeAudit(tx, adminId, "listing_deleted", "listing", row.id, {
+          title: row.title,
+          sellerId: row.sellerId,
+        });
+        await tx.delete(listings).where(eq(listings.id, row.id));
+      });
+      await refreshSellerCounts(db, row.sellerId);
+      for (const key of photoKeys) {
+        if (!keyBelongsToUser(key, "listing_photo", row.sellerId)) continue;
+        waitUntil(
+          app.storage.remove(key).catch((err) => app.log.warn({ err }, "could not delete a listing photo")),
+        );
+        waitUntil(app.storage.remove(cardKeyFor(key)).catch(() => undefined));
+      }
+      return reply.code(204).send(null);
     },
   );
 }

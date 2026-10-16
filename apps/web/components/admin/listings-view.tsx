@@ -1,13 +1,19 @@
 "use client";
 
-import type { AdminListingRow } from "@vinty/shared";
-import { Search } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type AdminListingRow, LISTING_TITLE_MAX } from "@vinty/shared";
+import { Pencil, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/components/admin/toast";
 import { inputClass, LoadFailed, Loading, PageTitle, quietButton } from "@/components/admin/ui";
-import { useAdminListings } from "@/lib/admin-queries";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { adminKeys } from "@/lib/admin-keys";
+import { adminErrorText, useAdminListings } from "@/lib/admin-queries";
+import { clientApi } from "@/lib/api-client";
+import { ApiClientError } from "@/lib/api-error";
 import { formatDate } from "@/lib/time";
 import { useDebounced } from "@/lib/use-debounced";
 import { cn } from "@/lib/utils";
@@ -24,9 +30,60 @@ function money(minor: number | null, currency: string, language: string): string
 function ListingRow({ item, lang }: { item: AdminListingRow; lang: string }) {
   const { t, i18n } = useTranslation();
   const price = money(item.priceMinor, item.currency, i18n.language);
-  const quiet = item.status === "hidden" || item.status === "removed";
+  const quiet = item.status === "hidden";
+  const toast = useToast();
+  const client = useQueryClient();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(item.title);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [hasOrder, setHasOrder] = useState(false);
+  const done = () => void client.invalidateQueries({ queryKey: adminKeys.all });
+
+  const rename = useMutation({
+    mutationFn: (title: string) =>
+      clientApi(`/v1/admin/listings/${item.id}`, { method: "PATCH", body: { title } }),
+    onSuccess: () => {
+      setEditing(false);
+      done();
+      toast(t("admin.listings.renamed"));
+    },
+    onError: (error) => toast(adminErrorText(error, t), "error"),
+  });
+  const del = useMutation({
+    mutationFn: () => clientApi(`/v1/admin/listings/${item.id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      done();
+      toast(t("admin.listings.deleted"));
+    },
+    onError: (error) => {
+      if (error instanceof ApiClientError && error.status === 409) setHasOrder(true);
+      else toast(adminErrorText(error, t), "error");
+    },
+    onSettled: () => setConfirmDelete(false),
+  });
+  const remove = useMutation({
+    mutationFn: () =>
+      clientApi(`/v1/admin/listings/${item.id}/status`, { method: "PATCH", body: { status: "removed" } }),
+    onSuccess: () => {
+      done();
+      toast(t("admin.listings.statusSaved", { status: t("admin.listings.status.removed") }));
+    },
+    onError: (error) => toast(adminErrorText(error, t), "error"),
+  });
+
+  const save = () => {
+    const title = draft.trim();
+    if (!title || title === item.title) setEditing(false);
+    else rename.mutate(title);
+  };
+  const startEdit = () => {
+    setDraft(item.title);
+    setEditing(true);
+  };
+  const busy = rename.isPending || del.isPending || remove.isPending;
+
   return (
-    <li className="flex items-center gap-md rounded-window border border-border bg-surface p-md">
+    <li className="flex flex-wrap items-center gap-md rounded-window border border-border bg-surface p-md">
       {item.photoUrl ? (
         <img
           src={item.photoUrl}
@@ -37,9 +94,44 @@ function ListingRow({ item, lang }: { item: AdminListingRow; lang: string }) {
         <div className="h-16 w-16 shrink-0 rounded-control bg-pressed" />
       )}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-body font-semibold text-text-1" dir="auto">
-          {item.title}
-        </p>
+        {editing ? (
+          <div className="flex flex-wrap items-center gap-sm">
+            <input
+              // biome-ignore lint/a11y/noAutofocus: the field appears because the admin asked to rename
+              autoFocus
+              value={draft}
+              maxLength={LISTING_TITLE_MAX}
+              aria-label={t("admin.listings.rename")}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") save();
+                if (e.key === "Escape") setEditing(false);
+              }}
+              dir="auto"
+              className={cn(inputClass, "min-w-0 flex-1")}
+            />
+            <button type="button" disabled={busy} onClick={save} className={quietButton}>
+              {t("admin.listings.renameSave")}
+            </button>
+            <button type="button" disabled={busy} onClick={() => setEditing(false)} className={quietButton}>
+              {t("admin.listings.renameCancel")}
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-sm">
+            <p className="truncate text-body font-semibold text-text-1" dir="auto">
+              {item.title}
+            </p>
+            <button
+              type="button"
+              onClick={startEdit}
+              aria-label={t("admin.listings.rename")}
+              className="shrink-0 rounded-control p-xs text-text-3 hover:bg-pressed"
+            >
+              <Pencil size={14} aria-hidden />
+            </button>
+          </div>
+        )}
         <p className="truncate text-body-sm text-text-3" dir="auto">
           {t("admin.listings.by", { name: item.sellerUsername ?? "" })}
           {" · "}
@@ -59,6 +151,39 @@ function ListingRow({ item, lang }: { item: AdminListingRow; lang: string }) {
       <Link href={`/${lang}/admin/listings/${item.id}`} className={quietButton}>
         {t("admin.listings.edit")}
       </Link>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => setConfirmDelete(true)}
+        aria-label={t("admin.listings.delete")}
+        className={cn(quietButton, "gap-xs text-error")}
+      >
+        <Trash2 size={14} aria-hidden />
+        {t("admin.listings.delete")}
+      </button>
+      {hasOrder ? (
+        <div className="flex basis-full flex-wrap items-center gap-sm text-body-sm text-text-3">
+          <span>{t("admin.listings.deleteHasOrder")}</span>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => remove.mutate()}
+            className={cn(quietButton, "text-error")}
+          >
+            {t("admin.listings.setRemoved")}
+          </button>
+        </div>
+      ) : null}
+      <ConfirmDialog
+        open={confirmDelete}
+        title={t("admin.listings.deleteTitle")}
+        body={t("admin.listings.deleteBody")}
+        confirmLabel={t("admin.listings.delete")}
+        destructive
+        busy={del.isPending}
+        onConfirm={() => del.mutate()}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </li>
   );
 }

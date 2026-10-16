@@ -1,4 +1,4 @@
-import { adminActions, listings, users } from "@vinty/db";
+import { adminActions, listingPhotos, listings, orderItems, orders, users } from "@vinty/db";
 import { and, eq, inArray } from "drizzle-orm";
 import sharp from "sharp";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -13,6 +13,7 @@ import {
   signUpTestUser,
   type TestContext,
   type TestPerson,
+  waitFor,
 } from "../test-helpers.js";
 
 describe.skipIf(!databaseUrl)("admin edit any listing", () => {
@@ -44,11 +45,12 @@ describe.skipIf(!databaseUrl)("admin edit any listing", () => {
   });
 
   it("keeps everyone but admins out", async () => {
-    const attempts: ["GET" | "PATCH", string, object?][] = [
+    const attempts: ["GET" | "PATCH" | "DELETE", string, object?][] = [
       ["GET", "/v1/admin/listings"],
       ["GET", `/v1/admin/listings/${listingId}`],
       ["PATCH", `/v1/admin/listings/${listingId}`, { title: "Nope" }],
       ["PATCH", `/v1/admin/listings/${listingId}/status`, { status: "hidden" }],
+      ["DELETE", `/v1/admin/listings/${listingId}`],
     ];
     for (const [method, url, body] of attempts) {
       expect((await call(method, url, undefined, body)).statusCode).toBe(401);
@@ -133,6 +135,113 @@ describe.skipIf(!databaseUrl)("admin edit any listing", () => {
       .from(adminActions)
       .where(and(eq(adminActions.targetId, listingId), eq(adminActions.action, "listing_status_changed")));
     expect(rows).toHaveLength(3);
+  });
+});
+
+describe.skipIf(!databaseUrl)("admin quick rename and delete", () => {
+  let ctx: TestContext;
+  let call: ReturnType<typeof apiCaller>;
+  const createdIds: string[] = [];
+  const removed: string[] = [];
+  let admin: TestPerson;
+  let seller: TestPerson;
+  let other: TestPerson;
+  const stamp = Date.now().toString(36);
+  const db = () => ctx.database.db;
+  const audits = (id: string, action: string) =>
+    db()
+      .select()
+      .from(adminActions)
+      .where(and(eq(adminActions.targetId, id), eq(adminActions.action, action)));
+
+  beforeAll(async () => {
+    const storage: Storage = {
+      ...fakeStorage,
+      remove: async (key) => {
+        removed.push(key);
+      },
+    };
+    ctx = await buildTestApp({}, { storage });
+    call = apiCaller(ctx);
+    [admin, seller, other] = await Promise.all([
+      signUpTestUser(ctx, "aqad", createdIds),
+      signUpTestUser(ctx, "aqsel", createdIds),
+      signUpTestUser(ctx, "aqoth", createdIds),
+    ]);
+    await db().update(users).set({ role: "admin" }).where(eq(users.id, admin.id));
+  });
+  afterAll(async () => {
+    await db().delete(adminActions).where(inArray(adminActions.adminUserId, createdIds));
+    await cleanupTestUsers(ctx.database, createdIds, { onlyIds: true });
+    await ctx.close();
+  });
+
+  it("renames with a title only body and writes the log", async () => {
+    const id = await publishQuietListing(ctx, seller, `Quick old ${stamp}`);
+    const res = await call("PATCH", `/v1/admin/listings/${id}`, admin.token, { title: `Quick new ${stamp}` });
+    expect(res.statusCode).toBe(200);
+    const [row] = await db().select().from(listings).where(eq(listings.id, id));
+    expect(row?.title).toBe(`Quick new ${stamp}`);
+    const [audit] = await audits(id, "listing_edited");
+    expect(audit?.details).toMatchObject({ title: `Quick old ${stamp}`, changed: ["title"] });
+  });
+
+  it("refuses a too long title and a normal user", async () => {
+    const id = await publishQuietListing(ctx, seller, `Quick long ${stamp}`);
+    const long = await call("PATCH", `/v1/admin/listings/${id}`, admin.token, { title: "x".repeat(81) });
+    expect(long.statusCode).toBe(400);
+    const nope = await call("PATCH", `/v1/admin/listings/${id}`, other.token, { title: "Nope nope" });
+    expect(nope.statusCode).toBe(403);
+  });
+
+  it("leaves a removed listing out of the admin list", async () => {
+    const id = await publishQuietListing(ctx, seller, `Quick hidden ${stamp}`);
+    const find = async () =>
+      (await call("GET", `/v1/admin/listings?q=${encodeURIComponent(`Quick hidden ${stamp}`)}`, admin.token))
+        .json()
+        .items.map((i: { id: string }) => i.id);
+    expect(await find()).toEqual([id]);
+    await call("PATCH", `/v1/admin/listings/${id}/status`, admin.token, { status: "removed" });
+    expect(await find()).toEqual([]);
+  });
+
+  it("deletes a listing with its photos and writes the log", async () => {
+    const id = await publishQuietListing(ctx, seller, `Quick gone ${stamp}`);
+    const key = `listings/${seller.id}/del-${stamp}.jpg`;
+    await db()
+      .insert(listingPhotos)
+      .values({ listingId: id, objectKey: key, position: 0, width: 10, height: 10 });
+    expect((await call("DELETE", `/v1/admin/listings/${id}`, other.token)).statusCode).toBe(403);
+    const res = await call("DELETE", `/v1/admin/listings/${id}`, admin.token);
+    expect(res.statusCode).toBe(204);
+    expect(await db().select().from(listings).where(eq(listings.id, id))).toHaveLength(0);
+    expect(await db().select().from(listingPhotos).where(eq(listingPhotos.listingId, id))).toHaveLength(0);
+    await waitFor(() => (removed.includes(key) ? true : undefined));
+    const [audit] = await audits(id, "listing_deleted");
+    expect(audit?.adminUserId).toBe(admin.id);
+    expect(audit?.details).toMatchObject({ title: `Quick gone ${stamp}`, sellerId: seller.id });
+  });
+
+  it("answers 409 for a listing that has an order", async () => {
+    const id = await publishQuietListing(ctx, seller, `Quick order ${stamp}`);
+    const [order] = await db()
+      .insert(orders)
+      .values({
+        buyerId: other.id,
+        sellerId: seller.id,
+        status: "completed",
+        itemsSubtotalMinor: 1000,
+        totalMinor: 1000,
+        sellerEarningsMinor: 1000,
+      })
+      .returning({ id: orders.id });
+    await db()
+      .insert(orderItems)
+      .values({ orderId: (order as { id: string }).id, listingId: id, priceMinor: 1000, titleSnapshot: "x" });
+    const res = await call("DELETE", `/v1/admin/listings/${id}`, admin.token);
+    expect(res.statusCode).toBe(409);
+    expect(await db().select().from(listings).where(eq(listings.id, id))).toHaveLength(1);
+    expect(await audits(id, "listing_deleted")).toHaveLength(0);
   });
 });
 
