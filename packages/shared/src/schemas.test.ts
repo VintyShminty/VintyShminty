@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { errorResponseSchema, paginationQuerySchema } from "./common.js";
 import { createListingInputSchema, searchFiltersSchema } from "./listings.js";
+import { bundleSavedMinor, updateBundleLadderInputSchema } from "./orders.js";
 import { addressInputSchema, usernameSchema } from "./users.js";
 
 describe("shared schemas", () => {
@@ -37,5 +38,32 @@ describe("shared schemas", () => {
     expect(
       errorResponseSchema.safeParse({ error: { code: "not_found", message: "No such item" } }).success,
     ).toBe(true);
+  });
+});
+
+describe("bundle ladder input", () => {
+  const tier = (minItems: number, percentOff: number) => ({ minItems, percentOff });
+  const ok = (tiers: ReturnType<typeof tier>[]) =>
+    updateBundleLadderInputSchema.safeParse({ on: true, tiers }).success;
+
+  it("takes 1 to 5 steps that grow in items and percent", () => {
+    expect(ok([tier(2, 5)])).toBe(true);
+    expect(ok([tier(2, 5), tier(3, 10), tier(5, 15)])).toBe(true);
+    expect(ok([])).toBe(false);
+    expect(ok([tier(2, 5), tier(3, 5)])).toBe(false);
+    expect(ok([tier(3, 5), tier(3, 10)])).toBe(false);
+    expect(ok([tier(1, 5)])).toBe(false);
+    expect(ok([tier(21, 5)])).toBe(false);
+    expect(ok([tier(2, 51)])).toBe(false);
+    expect(ok([2, 3, 4, 5, 6, 7].map((n) => tier(n, n)))).toBe(false);
+  });
+
+  it("adds the discount and the postage saved", () => {
+    expect(
+      bundleSavedMinor({ discountMinor: 3700, postageSeparateMinor: 4600, postageTogetherMinor: 1800 }),
+    ).toBe(6500);
+    expect(
+      bundleSavedMinor({ discountMinor: 0, postageSeparateMinor: 1800, postageTogetherMinor: 1800 }),
+    ).toBe(0);
   });
 });

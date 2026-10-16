@@ -81,7 +81,7 @@ function StepsBar({ bundle }: { bundle: Bundle }) {
   const top = Math.max(...bundle.tiers.map((x) => x.minItems), MIN_ITEMS);
   const fill = Math.min(100, (bundle.itemCount / top) * 100);
   return (
-    <div className="mt-md pb-[44px]">
+    <div className="mx-8 mt-md pb-[44px]">
       <div
         role="progressbar"
         aria-label={t("bundle.stepsLabel")}
