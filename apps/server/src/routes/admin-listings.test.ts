@@ -1,11 +1,14 @@
 import { adminActions, listings, users } from "@vinty/db";
 import { and, eq, inArray } from "drizzle-orm";
+import sharp from "sharp";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { Storage } from "../lib/storage.js";
 import {
   apiCaller,
   buildTestApp,
   cleanupTestUsers,
   databaseUrl,
+  fakeStorage,
   publishQuietListing,
   signUpTestUser,
   type TestContext,
@@ -130,5 +133,101 @@ describe.skipIf(!databaseUrl)("admin edit any listing", () => {
       .from(adminActions)
       .where(and(eq(adminActions.targetId, listingId), eq(adminActions.action, "listing_status_changed")));
     expect(rows).toHaveLength(3);
+  });
+});
+
+describe.skipIf(!databaseUrl)("admin rotates and crops a listing photo", () => {
+  let ctx: TestContext;
+  let call: ReturnType<typeof apiCaller>;
+  const createdIds: string[] = [];
+  const stored = new Map<string, Buffer>();
+  let admin: TestPerson;
+  let seller: TestPerson;
+  let other: TestPerson;
+  let listingId: string;
+  const stamp = Date.now().toString(36);
+  const db = () => ctx.database.db;
+
+  beforeAll(async () => {
+    // A wide picture: 40 by 20 pixels.
+    const wide = await sharp({ create: { width: 40, height: 20, channels: 3, background: "#808080" } })
+      .jpeg()
+      .toBuffer();
+    const storage: Storage = {
+      ...fakeStorage,
+      read: async (key) => (key.includes("missing") ? null : wide),
+      put: async (key, body) => {
+        stored.set(key, body);
+      },
+    };
+    ctx = await buildTestApp({}, { storage });
+    call = apiCaller(ctx);
+    [admin, seller, other] = await Promise.all([
+      signUpTestUser(ctx, "apred", createdIds),
+      signUpTestUser(ctx, "apsel", createdIds),
+      signUpTestUser(ctx, "apoth", createdIds),
+    ]);
+    await db().update(users).set({ role: "admin" }).where(eq(users.id, admin.id));
+    listingId = await publishQuietListing(ctx, seller, `Admin photo ${stamp}`);
+  });
+  afterAll(async () => {
+    await db().delete(adminActions).where(inArray(adminActions.adminUserId, createdIds));
+    await cleanupTestUsers(ctx.database, createdIds, { onlyIds: true });
+    await ctx.close();
+  });
+
+  const rect = { x: 0.5, y: 0, width: 0.5, height: 1 };
+
+  it("turns a photo in the seller's folder and writes a log row", async () => {
+    const key = `listings/${seller.id}/a.jpg`;
+    const res = await call("POST", `/v1/admin/listings/${listingId}/photos/rotate`, admin.token, { key });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.key.startsWith(`listings/${seller.id}/`)).toBe(true);
+    expect(body.key).not.toBe(key);
+    const meta = await sharp(stored.get(body.key)).metadata();
+    expect([meta.width, meta.height]).toEqual([20, 40]);
+    const [audit] = await db()
+      .select()
+      .from(adminActions)
+      .where(and(eq(adminActions.targetId, listingId), eq(adminActions.action, "listing_photo_rotated")));
+    expect(audit?.details).toMatchObject({ from: key, to: body.key, sellerId: seller.id });
+  });
+
+  it("crops a photo in the seller's folder and writes a log row", async () => {
+    const key = `listings/${seller.id}/b.jpg`;
+    const res = await call("POST", `/v1/admin/listings/${listingId}/photos/crop`, admin.token, {
+      key,
+      ...rect,
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.key.startsWith(`listings/${seller.id}/`)).toBe(true);
+    const meta = await sharp(stored.get(body.key)).metadata();
+    expect([meta.width, meta.height]).toEqual([20, 20]);
+    const [audit] = await db()
+      .select()
+      .from(adminActions)
+      .where(and(eq(adminActions.targetId, listingId), eq(adminActions.action, "listing_photo_cropped")));
+    expect(audit?.details).toMatchObject({ from: key, to: body.key, rect });
+  });
+
+  it("refuses non admins, other folders and unknown listings", async () => {
+    const key = `listings/${seller.id}/a.jpg`;
+    const rotateUrl = `/v1/admin/listings/${listingId}/photos/rotate`;
+    const cropUrl = `/v1/admin/listings/${listingId}/photos/crop`;
+    expect((await call("POST", rotateUrl, other.token, { key })).statusCode).toBe(403);
+    expect((await call("POST", cropUrl, seller.token, { key, ...rect })).statusCode).toBe(403);
+    expect((await call("POST", rotateUrl, undefined, { key })).statusCode).toBe(401);
+    const foreign = `listings/${other.id}/a.jpg`;
+    expect((await call("POST", rotateUrl, admin.token, { key: foreign })).statusCode).toBe(400);
+    expect((await call("POST", cropUrl, admin.token, { key: foreign, ...rect })).statusCode).toBe(400);
+    expect(
+      (await call("POST", rotateUrl, admin.token, { key: `listings/${seller.id}/missing.jpg` })).statusCode,
+    ).toBe(400);
+    const nobody = "00000000-0000-4000-8000-000000000000";
+    expect(
+      (await call("POST", `/v1/admin/listings/${nobody}/photos/rotate`, admin.token, { key })).statusCode,
+    ).toBe(404);
   });
 });

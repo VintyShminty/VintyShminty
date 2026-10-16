@@ -100,13 +100,16 @@ export async function rotateLocalPhoto(url: string): Promise<PreparedPhoto> {
   return { blob, width: canvas.width, height: canvas.height };
 }
 
-/** Asks the server to turn a photo that is already uploaded. The answer is a new key, the listing must use it. */
-export function rotateUploadedPhoto(key: string): Promise<RotatePhotoResponse> {
-  return clientApi("/v1/uploads/rotate", {
-    method: "POST",
-    body: { key, direction: "cw" },
-    schema: rotatePhotoResponseSchema,
-  });
+/** Asks the server to turn a photo that is already uploaded (an admin editing a listing passes its id). The answer is a new key, the listing must use it. */
+export function rotateUploadedPhoto(key: string, adminListingId?: string): Promise<RotatePhotoResponse> {
+  return clientApi(
+    adminListingId ? `/v1/admin/listings/${adminListingId}/photos/rotate` : "/v1/uploads/rotate",
+    {
+      method: "POST",
+      body: { key, direction: "cw" },
+      schema: rotatePhotoResponseSchema,
+    },
+  );
 }
 
 /** A crop rectangle in fractions (0 to 1) of the photo as it is shown. */
@@ -132,8 +135,12 @@ export async function cropLocalPhoto(url: string, rect: CropRect): Promise<Prepa
 }
 
 /** Asks the server to crop a photo that is already uploaded. The answer is a new key, the listing must use it. */
-export function cropUploadedPhoto(key: string, rect: CropRect): Promise<RotatePhotoResponse> {
-  return clientApi("/v1/uploads/crop", {
+export function cropUploadedPhoto(
+  key: string,
+  rect: CropRect,
+  adminListingId?: string,
+): Promise<RotatePhotoResponse> {
+  return clientApi(adminListingId ? `/v1/admin/listings/${adminListingId}/photos/crop` : "/v1/uploads/crop", {
     method: "POST",
     body: { key, ...rect },
     schema: rotatePhotoResponseSchema,
