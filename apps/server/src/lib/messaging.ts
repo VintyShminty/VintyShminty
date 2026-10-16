@@ -42,6 +42,10 @@ type MessageRecord = typeof messages.$inferSelect;
 
 export type Side = "buyer" | "seller";
 
+/** Only the seller of the item may send photos. Every conversation has exactly one seller (the owner of the listing). */
+export const canSendPhotos = (conversation: Pick<ConversationRecord, "sellerId">, userId: string): boolean =>
+  conversation.sellerId === userId;
+
 export const sideOf = (conversation: Pick<ConversationRecord, "buyerId">, userId: string): Side =>
   conversation.buyerId === userId ? "buyer" : "seller";
 
@@ -323,6 +327,7 @@ export async function loadConversationDetail(
     },
     order: order ?? null,
     blocked,
+    canSendPhotos: canSendPhotos(row.c, userId),
     otherLastReadAt:
       (sideOf(row.c, userId) === "buyer" ? row.c.sellerLastReadAt : row.c.buyerLastReadAt)?.toISOString() ??
       null,
@@ -390,6 +395,10 @@ export async function sendMessage(
   }
 
   if (input.kind === "photo") {
+    // Only the seller may send photos, so nobody gets unwanted pictures from a stranger.
+    if (!canSendPhotos(conversation, userId)) {
+      throw new ApiError(403, "forbidden", "Only the seller can send photos in this chat");
+    }
     if (!keyBelongsToUser(input.attachmentKey, "message_photo", userId)) {
       throw ApiError.invalid("That photo is not yours", { attachmentKey: "validation.upload.notYours" });
     }

@@ -297,7 +297,7 @@ export function ChatView({ lang, id }: { lang: string; id: string }) {
           <Composer
             conversationId={id}
             onSend={sendText}
-            onPickPhoto={sendPhoto}
+            onPickPhoto={conversation.canSendPhotos ? sendPhoto : undefined}
             onOffer={canOffer ? () => setOfferDialog({ open: true, counterOf: null }) : undefined}
           />
         )}

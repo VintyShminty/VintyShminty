@@ -25,7 +25,8 @@ function Composer({
 }: {
   conversationId: string;
   onSend: (text: string) => void;
-  onPickPhoto: () => void;
+  /** Only the seller of the item may send photos. Left out for the buyer. */
+  onPickPhoto?: () => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
 }) {
@@ -72,15 +73,17 @@ function Composer({
         className="flex-row items-end gap-sm bg-background px-md pt-sm"
         style={{ paddingBottom: keyboardVisible ? 8 : insets.bottom + 8 }}
       >
-        <Pressable
-          onPress={onPickPhoto}
-          hitSlop={6}
-          role="button"
-          accessibilityLabel={t("chat.addPhoto")}
-          className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
-        >
-          <Icon as={ImagePlus} size={24} className="text-text-2" />
-        </Pressable>
+        {onPickPhoto ? (
+          <Pressable
+            onPress={onPickPhoto}
+            hitSlop={6}
+            role="button"
+            accessibilityLabel={t("chat.addPhoto")}
+            className="h-11 w-11 items-center justify-center rounded-full bg-transparent active:bg-pressed"
+          >
+            <Icon as={ImagePlus} size={24} className="text-text-2" />
+          </Pressable>
+        ) : null}
         {onOffer ? (
           <Pressable
             onPress={onOffer}
