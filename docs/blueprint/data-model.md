@@ -598,9 +598,10 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Dungarees
   - Matching sets: Two-piece sets, Suits
   - Kimonos and kaftans
-  - Swimwear: Bikinis, One piece swimsuits, Cover ups and sarongs
+  - Swimwear: Bikinis, One piece swimsuits, Tankinis, Swim shorts, Cover ups and sarongs
+  - Surfwear: Wetsuits, Rash guards and swim tops, Board shorts, Surf ponchos and changing robes
   - Underwear and sleepwear: Bras, Knickers, Shapewear, Tights and socks, Pyjamas, Nightdresses, Robes
-  - Sportswear: Sports bras, Sports tops, Sports leggings, Sports shorts, Track jackets, Tracksuits, Team shirts
+  - Sportswear: Sports bras, Sports tops, Sports leggings, Sports shorts, Track jackets, Tracksuits, Team shirts, Running clothes, Cycling clothes, Gym and training clothes, Yoga and pilates clothes, Tennis and padel clothes, Ski and snowboard clothes, Hiking and outdoor clothes
   - Maternity
   - Uniforms and costumes: Military and surplus, Work uniforms, Costumes
 - **Men, Clothing**
@@ -618,8 +619,9 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Jumpsuits: Jumpsuits, Boiler suits
   - Dungarees
   - Swimwear: Swim shorts, Swim briefs
+  - Surfwear: Wetsuits, Rash guards and swim tops, Board shorts, Surf ponchos and changing robes
   - Underwear and sleepwear: Underwear, Socks, Pyjamas, Robes
-  - Sportswear: Sports tops, Sports shorts, Sports trousers, Track jackets, Tracksuits, Team shirts
+  - Sportswear: Sports tops, Sports shorts, Sports trousers, Track jackets, Tracksuits, Team shirts, Running clothes, Cycling clothes, Gym and training clothes, Yoga and pilates clothes, Tennis and padel clothes, Ski and snowboard clothes, Hiking and outdoor clothes
   - Uniforms and costumes: Military and surplus, Work uniforms, Costumes
 - **Kids, Girls**
   - Tops: T-shirts, Shirts, Polo shirts, Long sleeve tops
