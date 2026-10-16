@@ -69,7 +69,9 @@ function Handle({
       { translateY: box.y.value + (fy === 1 ? box.h.value : 0) - HIT / 2 },
     ],
   }));
-  const inward = (HIT - MARK) / 2 - MARK_WIDTH / 2;
+  // The mark is centred on the corner point, so move it half its size into the box: its L then sits on the corner,
+  // its stroke just over the box's hairline.
+  const inward = MARK / 2 - MARK_WIDTH / 2;
 
   return (
     <GestureDetector gesture={pan}>
@@ -90,8 +92,8 @@ function Handle({
             borderLeftWidth: fx === 0 ? MARK_WIDTH : 0,
             borderRightWidth: fx === 1 ? MARK_WIDTH : 0,
             transform: [
-              { translateX: fx === 0 ? -inward : inward },
-              { translateY: fy === 0 ? -inward : inward },
+              { translateX: fx === 0 ? inward : -inward },
+              { translateY: fy === 0 ? inward : -inward },
             ],
           }}
         />
