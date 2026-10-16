@@ -5,6 +5,7 @@ import {
   createBundleInputSchema,
   errorResponseSchema,
   idSchema,
+  openBundleQuerySchema,
   updateBundleLadderInputSchema,
 } from "@vinty/shared";
 import { eq } from "drizzle-orm";
@@ -12,6 +13,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import {
   addBundleItem,
+  findOpenBundle,
   loadBundleLadder,
   openBundle,
   ownBundle,
@@ -57,7 +59,7 @@ const bundleRoutes: FastifyPluginAsyncZod = async (app) => {
   app.get(
     "/v1/me/bundle-ladder",
     { preHandler, schema: { response: { 200: bundleLadderSchema, 401: errorResponseSchema } } },
-    async (request) => loadBundleLadder(app.db, userIdOf(request)),
+    async (request) => loadBundleLadder(app.db, userIdOf(request), true),
   );
 
   app.put(
@@ -86,6 +88,22 @@ const bundleRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request, reply) => {
       const { bundle, created } = await openBundle(app, userIdOf(request), request.body.sellerId);
       return reply.code(created ? 201 : 200).send(await presentBundle(app, bundle));
+    },
+  );
+
+  // The buyer's open bundle with one seller, or null. Reading it makes nothing, unlike POST /v1/bundles.
+  app.get(
+    "/v1/bundles/open",
+    {
+      preHandler,
+      schema: {
+        querystring: openBundleQuerySchema,
+        response: { 200: bundleSchema.nullable(), ...errors },
+      },
+    },
+    async (request) => {
+      const bundle = await findOpenBundle(app, userIdOf(request), request.query.sellerId);
+      return bundle ? presentBundle(app, bundle) : null;
     },
   );
 

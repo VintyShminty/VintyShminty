@@ -37,7 +37,7 @@
     "info": "Fresh drops weekly",
     "all": "All",
     "dresses": "Dresses",
-    "bundleDiscounts": "Closet deals"
+    "bundleDiscounts": "Bundles"
   },
   "welcome": {
     "title": "Good taste,\npassed on",
@@ -1222,7 +1222,7 @@
     "message": "Message {{name}}",
     "price": "Price",
     "itemsSubtotal": "Items",
-    "bundleDiscount": "Closet deal",
+    "bundleDiscount": "Bundle",
     "protection": "$t(protectionName)",
     "protectionNote": "$t(protectionName) means your money comes back if the item is not as described",
     "shipping": "Postage",
@@ -1491,7 +1491,7 @@
     "title": "Checkout",
     "items_one": "{{count}} item",
     "items_other": "{{count}} items",
-    "bundleDiscount": "Closet deal ({{percent}}%)",
+    "bundleDiscount": "Bundle ({{percent}}%)",
     "protection": "$t(protectionName)",
     "postage": "Postage",
     "total": "Total to pay",
@@ -1536,19 +1536,52 @@
     }
   },
   "bundle": {
-    "title": "Closet deal",
-    "shop": "Closet deal",
+    "title": "Bundle",
+    "shop": "Bundle",
     "pickMore": "Pick at least {{count}} items",
     "addMore_one": "Add {{count}} more item to get {{percent}}% off",
     "addMore_other": "Add {{count}} more items to get {{percent}}% off",
     "tierNext_one": "{{percent}}% off. Add {{count}} more item to get {{next}}% off",
     "tierNext_other": "{{percent}}% off. Add {{count}} more items to get {{next}}% off",
-    "tierTop": "{{percent}}% off, the best closet deal",
+    "tierTop": "{{percent}}% off, the best bundle",
     "selected_one": "{{count}} item picked",
     "selected_other": "{{count}} items picked",
     "continue": "Continue to checkout",
     "openFailed": "We could not set that up",
-    "changeFailed": "That item could not be changed. Try again"
+    "changeFailed": "That item could not be changed. Try again",
+    "boxTitle": "Bundle from {{name}}",
+    "yourBundle": "Your bundle",
+    "stepItems_one": "{{count}} item",
+    "stepItems_other": "{{count}} items",
+    "stepOff": "{{percent}}% off",
+    "postageOnce": "Postage is paid once for the whole parcel",
+    "add": "Add to bundle",
+    "view": "View bundle",
+    "remove": "Remove",
+    "notInYetOff_one": "{{count}} item in your bundle, {{percent}}% off. This one is not in it yet",
+    "notInYetOff_other": "{{count}} items in your bundle, {{percent}}% off. This one is not in it yet",
+    "notInYet_one": "{{count}} item in your bundle. This one is not in it yet",
+    "notInYet_other": "{{count}} items in your bundle. This one is not in it yet",
+    "addGain": "Add this item to get {{percent}}% off",
+    "addPlain": "Add this item to your bundle",
+    "isInOff_one": "This item is in your bundle. {{count}} item, {{percent}}% off",
+    "isInOff_other": "This item is in your bundle. {{count}} items, {{percent}}% off",
+    "isIn_one": "This item is in your bundle. {{count}} item",
+    "isIn_other": "This item is in your bundle. {{count}} items",
+    "cardAdd": "+ Bundle",
+    "cardIn": "In bundle",
+    "barCount_one": "{{count}} item",
+    "barCount_other": "{{count}} items",
+    "barCountOff_one": "{{count}} item, {{percent}}% off",
+    "barCountOff_other": "{{count}} items, {{percent}}% off",
+    "barSave": "You save {{amount}}",
+    "barNext_one": "Add {{count}} more item for {{percent}}% off",
+    "barNext_other": "Add {{count}} more items for {{percent}}% off",
+    "saveLine": "You save {{amount}} with this bundle",
+    "discountLine": "Bundle, {{percent}}% off",
+    "postageOne": "Postage, one parcel",
+    "stepsLabel": "Discount steps",
+    "soldRemoved": "Sold, removed from your bundle"
   },
   "protectionName": "Coverage",
   "shopping": {
@@ -1710,9 +1743,9 @@
         "title": "What Coverage is",
         "body": "Coverage is a small fee added at checkout. You see it on its own line in the price breakdown, next to the item price and postage.\n\nIt goes towards keeping buying safe, including our team looking into a problem with an order. The name is a working name and may change."
       },
-      "closetDeal": {
-        "title": "Closet deals",
-        "body": "Some sellers give a discount when you take several of their items. When a seller has one, the item page tells you how many more items to add to get a percentage off.\n\nPick your items, continue to checkout and pay for them together in one order."
+      "bundles": {
+        "title": "Bundles",
+        "body": "Take several items from the same seller and get a discount, with postage paid once for the whole parcel. On an item page, the Bundle box shows the seller's steps. Tap Add to bundle to start one, then add more of their items with the + Bundle buttons.\n\nA bar at the bottom tells you how many items you have, what you save and how many more you need for the next step. Tap View bundle to see it all, continue to checkout and pay for everything in one order. Items stay on sale for everyone until you check out.\n\nIf you sell, you can switch bundles off or choose your own steps in Settings, Bundles."
       },
       "saveItems": {
         "title": "Saving items and searches",
@@ -1950,8 +1983,8 @@
       "startOwn": "This is your own item."
     },
     "bundle": {
-      "add": "Add {{title}} to your closet deal",
-      "remove": "Remove {{title}} from your closet deal",
+      "add": "Add {{title}} to your bundle",
+      "remove": "Remove {{title}} from your bundle",
       "backTo": "Back to {{name}}",
       "summary": "Summary",
       "itemsTotal": "Items total"
@@ -2405,5 +2438,28 @@
         "confirmRelease": "Release the money to the seller? The order closes as complete"
       }
     }
+  },
+  "bundleSettings": {
+    "title": "Bundles",
+    "offer": "Offer bundles",
+    "offerHint": "Buyers who take several of your items get a discount, and pay postage once",
+    "steps": "Your steps",
+    "stepsNote": "Each step needs more items and a bigger discount than the one before",
+    "items": "Items",
+    "percent": "Discount",
+    "step": "Step {{number}}",
+    "addStep": "Add a step",
+    "removeStep": "Remove step {{number}}",
+    "more": "More items",
+    "fewer": "Fewer items",
+    "moreOff": "Bigger discount",
+    "fewerOff": "Smaller discount",
+    "itemsValue_one": "{{count}} item",
+    "itemsValue_other": "{{count}} items",
+    "save": "Save",
+    "saved": "Saved",
+    "loadFailed": "We could not load your bundle steps",
+    "saveFailed": "We could not save that. Try again",
+    "off": "Bundles are off, so nobody gets a discount on your items"
   }
 }

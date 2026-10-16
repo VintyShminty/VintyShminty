@@ -30,9 +30,14 @@ type Reader = Pick<App["db"], "select">;
 
 /**
  * A seller's ladder. Sellers who never saved steps get the default ladder, and a seller who switched bundles off
- * has an empty ladder, so the discount is 0 percent everywhere.
+ * has an empty ladder, so the discount is 0 percent everywhere. The seller's own Settings screen passes
+ * `keepSteps` to still see the saved steps while the switch is off.
  */
-export async function loadBundleLadder(db: Reader, sellerId: string): Promise<BundleLadder> {
+export async function loadBundleLadder(
+  db: Reader,
+  sellerId: string,
+  keepSteps = false,
+): Promise<BundleLadder> {
   const [[settings], rows] = await Promise.all([
     db
       .select({ on: userSettings.bundlesOn })
@@ -46,8 +51,8 @@ export async function loadBundleLadder(db: Reader, sellerId: string): Promise<Bu
       .orderBy(asc(bundleDiscountTiers.minItems)),
   ]);
   const on = settings?.on ?? true;
-  if (!on) return { on: false, tiers: [] };
-  return { on: true, tiers: rows.length > 0 ? rows : DEFAULT_BUNDLE_LADDER.map((t) => ({ ...t })) };
+  const tiers = rows.length > 0 ? rows : DEFAULT_BUNDLE_LADDER.map((t) => ({ ...t }));
+  return { on, tiers: on || keepSteps ? tiers : [] };
 }
 
 /** Replaces the seller's steps and the on switch in one go. */
@@ -63,7 +68,7 @@ export async function saveBundleLadder(app: App, sellerId: string, input: Update
     await tx.delete(bundleDiscountTiers).where(eq(bundleDiscountTiers.sellerId, sellerId));
     await tx.insert(bundleDiscountTiers).values(input.tiers.map((t) => ({ sellerId, ...t })));
   });
-  return loadBundleLadder(app.db, sellerId);
+  return loadBundleLadder(app.db, sellerId, true);
 }
 
 /** What the parcels cost: each item's own parcel added up, and the one parcel a bundle pays (the biggest). */
@@ -156,6 +161,16 @@ export async function presentBundle(app: App, bundle: BundleRecord): Promise<Bun
     postageSeparateMinor: postage.separateMinor,
     postageTogetherMinor: postage.togetherMinor,
   };
+}
+
+/** The open bundle this buyer already has with a seller, or null. Makes nothing. */
+export async function findOpenBundle(app: App, buyerId: string, sellerId: string) {
+  const [row] = await app.db
+    .select()
+    .from(bundles)
+    .where(and(eq(bundles.buyerId, buyerId), eq(bundles.sellerId, sellerId), eq(bundles.status, "open")))
+    .limit(1);
+  return row ?? null;
 }
 
 /** The open bundle this buyer has with a seller, made now when there is none. */

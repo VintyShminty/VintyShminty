@@ -168,6 +168,8 @@ Applied in part (m6-nav): the first ten tiles plus a More tile, in `apps/mobile/
 
 **Ten words we use:** closet, piece, find, hearts (saved items), drop (a new listing), sellers, away, post it, take a look, passed on.
 
-**Ten words we avoid:** members, wardrobe, bump, protection (as the headline), bundle, holiday mode, personalisation, satisfactory, submit, utilise.
+**Ten words we avoid:** members, wardrobe, bump, protection (as the headline), holiday mode, personalisation, satisfactory, submit, utilise.
+
+Note: Eden chose "Bundle" on 2026-10-16 (it was on the avoid list). The word is fine, "Bundle discounts" stays banned. In Hebrew we write "באנדל" ("חבילה" already means the postage parcel).
 
 Examples: "Post it" not "Upload". "Keep as draft" not "Save draft". "Noa is away until 20 Oct. You can still save it." not "User is on holiday".

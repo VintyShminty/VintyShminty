@@ -96,7 +96,14 @@ describe.skipIf(!databaseUrl)("bundle ladder", () => {
 
     const a = await publishQuietListing(ctx, seller, "Ladder a");
     const b = await publishQuietListing(ctx, seller, "Ladder b");
+    expect((await call("GET", `/v1/bundles/open?sellerId=${seller.id}`)).statusCode).toBe(401);
+    const none = await call("GET", `/v1/bundles/open?sellerId=${seller.id}`, buyer.token);
+    expect(none.statusCode).toBe(200);
+    expect(none.json()).toBeNull();
     const bundle = (await call("POST", "/v1/bundles", buyer.token, { sellerId: seller.id })).json();
+    expect((await call("GET", `/v1/bundles/open?sellerId=${seller.id}`, buyer.token)).json().id).toBe(
+      bundle.id,
+    );
     await call("PUT", `/v1/bundles/${bundle.id}/items/${a}`, buyer.token);
     const two = (await call("PUT", `/v1/bundles/${bundle.id}/items/${b}`, buyer.token)).json();
     expect(two).toMatchObject({ itemCount: 2, discountPercent: 20 });
@@ -114,7 +121,8 @@ describe.skipIf(!databaseUrl)("bundle ladder", () => {
       on: false,
       tiers: [{ minItems: 2, percentOff: 20 }],
     });
-    expect(off.json()).toEqual({ on: false, tiers: [] });
+    // The seller still sees the saved steps in Settings, everybody else sees an empty ladder.
+    expect(off.json()).toEqual({ on: false, tiers: [{ minItems: 2, percentOff: 20 }] });
     expect((await call("GET", `/v1/users/${seller.id}/bundle-ladder`)).json()).toEqual({
       on: false,
       tiers: [],

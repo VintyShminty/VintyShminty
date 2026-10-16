@@ -91,6 +91,13 @@ export const bundleSchema = z.object({
 });
 export type Bundle = z.infer<typeof bundleSchema>;
 
+/** What a bundle saves the buyer: the discount plus the postage of the parcels that no longer ship separately. */
+export function bundleSavedMinor(
+  b: Pick<Bundle, "discountMinor" | "postageSeparateMinor" | "postageTogetherMinor">,
+): number {
+  return b.discountMinor + Math.max(0, b.postageSeparateMinor - b.postageTogetherMinor);
+}
+
 /** A seller's ladder as the item page, the profile and Settings read it. Off means no discount at all. */
 export const bundleLadderSchema = z.object({
   on: z.boolean(),
@@ -132,6 +139,7 @@ export const updateBundleLadderInputSchema = z
 export type UpdateBundleLadderInput = z.infer<typeof updateBundleLadderInputSchema>;
 
 export const createBundleInputSchema = z.object({ sellerId: idSchema });
+export const openBundleQuerySchema = z.object({ sellerId: idSchema });
 export const bundleParamsSchema = z.object({ id: idSchema, listingId: idSchema });
 
 // ---- Checkout ----
