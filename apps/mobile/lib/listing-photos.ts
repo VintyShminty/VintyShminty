@@ -1,4 +1,9 @@
-import { type UploadResponse, uploadResponseSchema } from "@vinty/shared";
+import {
+  type RotatePhotoResponse,
+  rotatePhotoResponseSchema,
+  type UploadResponse,
+  uploadResponseSchema,
+} from "@vinty/shared";
 import * as FileSystem from "expo-file-system/legacy";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -94,4 +99,22 @@ export async function uploadListingPhoto(
   }
   onProgress(1);
   return upload;
+}
+
+/** Turns a photo that is only on the phone a quarter turn, saved as JPEG like the shrunk copy. */
+export async function rotateLocalPhoto(photo: PickedPhoto): Promise<PickedPhoto> {
+  const turned = await ImageManipulator.manipulateAsync(photo.uri, [{ rotate: 90 }], {
+    compress: 0.8,
+    format: ImageManipulator.SaveFormat.JPEG,
+  });
+  return { uri: turned.uri, width: turned.width, height: turned.height };
+}
+
+/** Asks the server to turn a photo that is already uploaded. The answer is a new key, the listing must use it. */
+export function rotateUploadedPhoto(key: string): Promise<RotatePhotoResponse> {
+  return api<RotatePhotoResponse>("/v1/uploads/rotate", {
+    method: "POST",
+    body: { key, direction: "cw" },
+    schema: rotatePhotoResponseSchema,
+  });
 }

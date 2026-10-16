@@ -152,6 +152,14 @@ export const uploadResponseSchema = z.object({
 });
 export type UploadResponse = z.infer<typeof uploadResponseSchema>;
 
+/** Turn an uploaded listing photo a quarter turn. The answer is a new key, the old file is left alone. */
+export const rotatePhotoInputSchema = z.object({
+  key: z.string().min(1).max(300),
+  direction: z.enum(["cw", "ccw"]).default("cw"),
+});
+export const rotatePhotoResponseSchema = z.object({ key: z.string(), publicUrl: z.string().url() });
+export type RotatePhotoResponse = z.infer<typeof rotatePhotoResponseSchema>;
+
 export const pushTokenInputSchema = z.object({
   token: z.string().min(10).max(500),
   platform: z.enum(["ios", "android"]),

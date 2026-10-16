@@ -1,10 +1,15 @@
 "use client";
 
 import { movePhoto } from "@vinty/shared";
-import { Camera, ChevronLeft, ChevronRight, Plus, RotateCcw, X } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Plus, RotateCcw, RotateCw, X } from "lucide-react";
 import { type Dispatch, type SetStateAction, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { prepareListingPhoto, uploadListingPhoto } from "@/lib/listing-photo-upload";
+import {
+  prepareListingPhoto,
+  rotateLocalPhoto,
+  rotateUploadedPhoto,
+  uploadListingPhoto,
+} from "@/lib/listing-photo-upload";
 import { newPhotoId, type SellPhoto } from "@/lib/sell-state";
 import { cn } from "@/lib/utils";
 
@@ -118,6 +123,7 @@ export function PhotoUploader({
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [over, setOver] = useState<number | "area" | null>(null);
   const [announce, setAnnounce] = useState("");
+  const [turning, setTurning] = useState<string[]>([]);
   const remaining = maxPhotos - photos.length;
 
   const update = (id: string, patch: Partial<SellPhoto>) =>
@@ -172,6 +178,37 @@ export function PhotoUploader({
     setPhotos((list) => movePhoto(list, from, to));
     onChanged();
     setAnnounce(t("web.sell.photos.moved", { n: to + 1, total: photos.length }));
+  };
+
+  /** A quarter turn. Only in the browser: turned here. Already uploaded: the server turns it and gives a new key. */
+  const rotate = async (photo: SellPhoto) => {
+    if (turning.includes(photo.id)) return;
+    setTurning((ids) => [...ids, photo.id]);
+    try {
+      if (photo.key) {
+        const turned = await rotateUploadedPhoto(photo.key);
+        update(photo.id, {
+          key: turned.key,
+          url: turned.publicUrl,
+          width: photo.height,
+          height: photo.width,
+        });
+      } else {
+        const turned = await rotateLocalPhoto(photo.url);
+        update(photo.id, {
+          url: URL.createObjectURL(turned.blob),
+          width: turned.width,
+          height: turned.height,
+        });
+        // A failed upload is retried from the file, so it has to be the turned one.
+        files.current.set(photo.id, new File([turned.blob], "photo.jpg", { type: "image/jpeg" }));
+      }
+      onChanged();
+    } catch {
+      setAnnounce(t("sell.photos.rotateFailed"));
+    } finally {
+      setTurning((ids) => ids.filter((id) => id !== photo.id));
+    }
   };
 
   const onDropFiles = (event: React.DragEvent) => {
@@ -299,6 +336,22 @@ export function PhotoUploader({
               >
                 <X size={14} aria-hidden />
               </button>
+              {photo.state !== "uploading" ? (
+                <button
+                  type="button"
+                  onClick={() => void rotate(photo)}
+                  disabled={turning.includes(photo.id)}
+                  aria-label={t("sell.photos.rotate")}
+                  aria-busy={turning.includes(photo.id)}
+                  className="absolute start-xs top-xs flex h-6 w-6 items-center justify-center rounded-full bg-window hover:bg-pressed"
+                >
+                  <RotateCw
+                    size={14}
+                    aria-hidden
+                    className={cn(turning.includes(photo.id) && "animate-spin")}
+                  />
+                </button>
+              ) : null}
               {index === 0 ? (
                 <span className="pointer-events-none absolute bottom-xs start-xs rounded-full bg-window px-[6px] py-[2px] text-badge font-bold">
                   {t("sell.photos.main")}
