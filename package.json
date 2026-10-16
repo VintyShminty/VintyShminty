@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev:mobile": "pnpm --filter @vinty/mobile start",
+    "update:live": "pnpm --filter @vinty/mobile update:live",
     "dev:server": "pnpm --filter @vinty/server dev",
     "dev:web": "pnpm --filter @vinty/web dev",
     "audit:prod": "pnpm audit --prod --audit-level high",
