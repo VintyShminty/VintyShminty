@@ -26,6 +26,7 @@ import type { FastifyInstance } from "fastify";
 import { awayNowSql } from "./away.js";
 import { decodeCursor, encodeCursor } from "./cursor.js";
 import { buyerPrice, type ListingRow, toCardPhoto } from "./listings.js";
+import { categoriesNamedBy } from "./search-rules.js";
 
 type Db = NonNullable<Database["db"]>;
 
@@ -75,11 +76,16 @@ export function searchTokens(q: string | undefined): string[] {
 
 export const likeEscape = (text: string) => text.replace(/[\\%_]/g, (c) => `\\${c}`);
 
-/** Each word must match: as the start of a word (full text) or anywhere in the title or brand (plain substring). */
-function textConditions(tokens: string[]): SQL[] {
+/**
+ * Each word must match: as the start of a word (full text), anywhere in the title or brand (plain substring), or as the
+ * name of the item's category or one above it ("shoes" finds everything under Shoes).
+ */
+function textConditions(tokens: string[], tree: readonly CategoryNode[]): SQL[] {
   return tokens.map((token) => {
     const like = `%${likeEscape(token)}%`;
-    return sql`(${listings.searchVector} @@ to_tsquery('simple', ${`${token}:*`}) or ${listings.title} ilike ${like} or coalesce(${listings.brandName}, '') ilike ${like})`;
+    const text = sql`${listings.searchVector} @@ to_tsquery('simple', ${`${token}:*`}) or ${listings.title} ilike ${like} or coalesce(${listings.brandName}, '') ilike ${like}`;
+    const named = [...new Set(categoriesNamedBy(token, tree).flatMap((id) => categorySubtreeIds(tree, id)))];
+    return named.length > 0 ? sql`(${text} or ${inArray(listings.categoryId, named)})` : sql`(${text})`;
   });
 }
 
@@ -113,7 +119,7 @@ export function filterConditions(filters: Filters, reference: Pick<ReferenceData
     ];
     conditions.push(ids.length > 0 ? inArray(listings.categoryId, ids) : sql`false`);
   }
-  conditions.push(...textConditions(searchTokens(filters.q)));
+  conditions.push(...textConditions(searchTokens(filters.q), reference.categories));
   return conditions;
 }
 
