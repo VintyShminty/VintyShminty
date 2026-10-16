@@ -1991,6 +1991,7 @@
       "expenses": "Expenses",
       "security": "Security",
       "upload": "Listing upload",
+      "listings": "Listings",
       "review": "Review"
     },
     "adminsOnly": {
@@ -2046,6 +2047,32 @@
       "noActivity": "Nothing has happened yet",
       "by": "By {{name}}",
       "bySystem": "By the system"
+    },
+    "listings": {
+      "search": "Search by title or seller username",
+      "empty": "No listings match",
+      "loadMore": "Load more",
+      "by": "by {{name}}",
+      "noPrice": "No price",
+      "edit": "Edit",
+      "editTitle": "Edit a listing",
+      "seller": "Seller: {{name}}",
+      "statusTitle": "Visibility",
+      "status": {
+        "active": "Live",
+        "reserved": "Reserved",
+        "sold": "Sold",
+        "hidden": "Hidden",
+        "removed": "Removed",
+        "draft": "Draft"
+      },
+      "setActive": "Put back live",
+      "setHidden": "Hide",
+      "setRemoved": "Remove",
+      "statusLocked": "A reserved or sold listing cannot be changed here",
+      "statusSaved": "Listing is now {{status}}",
+      "removeTitle": "Remove this listing?",
+      "removeBody": "It disappears for everyone, and its seller cannot bring it back. You can put it live again from here"
     },
     "users": {
       "filters": "Filter people",

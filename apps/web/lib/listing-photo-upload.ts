@@ -65,8 +65,9 @@ function putWithProgress(
 export async function uploadListingPhoto(
   photo: PreparedPhoto,
   onProgress: (fraction: number) => void,
+  path = "/v1/uploads",
 ): Promise<UploadResponse> {
-  const upload = await clientApi("/v1/uploads", {
+  const upload = await clientApi(path, {
     method: "POST",
     body: {
       purpose: "listing_photo",

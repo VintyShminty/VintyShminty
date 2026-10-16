@@ -11,6 +11,7 @@ export const adminKeys = {
   reviewAll: ["admin", "review"] as const,
   review: (filter: string) => ["admin", "review", "list", filter] as const,
   reviewCount: ["admin", "review", "count"] as const,
+  listings: (q: string) => ["admin", "listings", q] as const,
   standIns: ["admin", "stand-ins"] as const,
   uploadsAll: ["admin", "uploads"] as const,
   uploads: (standInId: string, owner: string, status: string) =>

@@ -141,10 +141,13 @@ export function SellForm({
   lang,
   reference,
   existing,
+  admin = false,
 }: {
   lang: Lang;
   reference: ReferenceData;
   existing?: ListingDetail;
+  /** The back office edits someone else's listing through the admin routes, and goes back to the admin list. */
+  admin?: boolean;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -349,7 +352,7 @@ export function SellForm({
           schema: listingDetailSchema,
         });
       } else {
-        saved = await clientApi(`/v1/listings/${listingId}`, {
+        saved = await clientApi(`${admin ? "/v1/admin/listings" : "/v1/listings"}/${listingId}`, {
           method: "PATCH",
           body: input,
           schema: listingDetailSchema,
@@ -363,8 +366,9 @@ export function SellForm({
       }
       setDirty(false);
       dirtyRef.current = false;
-      void queryClient.invalidateQueries({ queryKey: ["my-listings"] });
+      void queryClient.invalidateQueries({ queryKey: [admin ? "admin" : "my-listings"] });
       if (after) router.push(after);
+      else if (admin) router.push(`/${lang}/admin/listings`);
       else if (publish || editingLive)
         router.push(`/${lang}/item/${saved.id}?${publish ? "posted=1" : "saved=1"}`);
       else router.push(`/${lang}/profile?status=draft`);
@@ -410,7 +414,11 @@ export function SellForm({
     setLeaveTo(null);
     router.push(to);
   };
-  const backHref = listingId ? `/${lang}/item/${listingId}` : `/${lang}/profile`;
+  const backHref = admin
+    ? `/${lang}/admin/listings`
+    : listingId
+      ? `/${lang}/item/${listingId}`
+      : `/${lang}/profile`;
 
   const chooseCategory = (leaf: CategoryNode) => {
     set(categoryChoicePatch(values, leaf, reference), "categoryId");
@@ -455,6 +463,7 @@ export function SellForm({
               error={err("photos")}
               onAdded={() => set({}, "photos")}
               onChanged={() => setDirty(true)}
+              uploadPath={admin && listingId ? `/v1/admin/listings/${listingId}/uploads` : undefined}
             />
             {tipRows.length > 0 ? (
               <ul className="flex flex-col gap-xs">

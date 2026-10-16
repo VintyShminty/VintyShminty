@@ -5,12 +5,14 @@ import {
   type AdminAnalytics,
   type AdminDashboard,
   type AdminExpenses,
+  type AdminListingsPage,
   type AdminReviewPage,
   type AdminSecurity,
   type AdminUsersPage,
   adminAnalyticsSchema,
   adminDashboardSchema,
   adminExpensesSchema,
+  adminListingsPageSchema,
   adminReviewPageSchema,
   adminSecuritySchema,
   adminUsersPageSchema,
@@ -63,6 +65,26 @@ export function useAdminUsers(filter: string, q: string) {
       if (q) params.set("q", q);
       if (pageParam) params.set("cursor", pageParam);
       return clientApi(`/v1/admin/users?${params}`, { schema: adminUsersPageSchema });
+    },
+    getNextPageParam: (last) => last.nextCursor,
+  });
+}
+
+export function useAdminListings(q: string) {
+  return useInfiniteQuery<
+    AdminListingsPage,
+    Error,
+    { pages: AdminListingsPage[] },
+    readonly unknown[],
+    string | null
+  >({
+    queryKey: adminKeys.listings(q),
+    initialPageParam: null,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams({ limit: "20" });
+      if (q) params.set("q", q);
+      if (pageParam) params.set("cursor", pageParam);
+      return clientApi(`/v1/admin/listings?${params}`, { schema: adminListingsPageSchema });
     },
     getNextPageParam: (last) => last.nextCursor,
   });
