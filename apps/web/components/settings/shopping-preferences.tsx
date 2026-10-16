@@ -4,8 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type HiddenItem,
   hiddenListSchema,
+  ONBOARDING_PICKS,
+  type OnboardingPick,
   PERSONALISATION_SIZES_MAX,
   personalisationSizesSchema,
+  shopsForSchema,
 } from "@vinty/shared";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +18,8 @@ import { useTranslation } from "react-i18next";
 import { Notice } from "@/components/auth/fields";
 import { Chip } from "@/components/chip";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { SectionLabel } from "@/components/settings/page-head";
+import { SectionLabel, SwitchRow } from "@/components/settings/page-head";
+import { Switch } from "@/components/switch";
 import { clientApi } from "@/lib/api-client";
 import { describeApiError } from "@/lib/describe-api-error";
 import type { FilterOptions } from "@/lib/filters";
@@ -25,13 +29,14 @@ type Props = {
   groups: FilterOptions["sizeGroups"];
   initialSizeIds: string[];
   initialHidden: HiddenItem[];
+  initialShopsFor: OnboardingPick[];
 };
 
 /**
- * Settings, Shopping preferences (D-022, D-029): the sizes Home puts first, "Answer the welcome questions again", the
+ * Settings, Shopping preferences (D-022, D-029): what you shop for, the sizes Home puts first, "Answer the welcome questions again", the
  * list of things hidden from Home with Undo, and Reset my recommendations. Same words and calls as the app.
  */
-export function ShoppingPreferences({ lang, groups, initialSizeIds, initialHidden }: Props) {
+export function ShoppingPreferences({ lang, groups, initialSizeIds, initialHidden, initialShopsFor }: Props) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -66,6 +71,32 @@ export function ShoppingPreferences({ lang, groups, initialSizeIds, initialHidde
       // Home shows the new sizes the next time the list is built.
       void queryClient.invalidateQueries({ queryKey: ["grid", "feed"], refetchType: "none" });
     },
+  });
+
+  const shopsFor = useQuery({
+    queryKey: ["shops-for"],
+    queryFn: () => clientApi("/v1/me/personalisation/shops-for", { schema: shopsForSchema }),
+    initialData: { shopsFor: initialShopsFor },
+    staleTime: 60_000,
+  });
+  const saveShopsFor = useMutation({
+    mutationFn: (picks: OnboardingPick[]) =>
+      clientApi("/v1/me/personalisation/shops-for", {
+        method: "PUT",
+        body: { shopsFor: picks },
+        schema: shopsForSchema,
+      }),
+    onMutate: async (picks) => {
+      await queryClient.cancelQueries({ queryKey: ["shops-for"] });
+      const previous = queryClient.getQueryData(["shops-for"]);
+      queryClient.setQueryData(["shops-for"], { shopsFor: picks });
+      return { previous };
+    },
+    onError: (_err, _picks, context) => {
+      if (context?.previous) queryClient.setQueryData(["shops-for"], context.previous);
+    },
+    // Home and search show the new groups the next time they load.
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: ["grid"], refetchType: "none" }),
   });
 
   const hidden = useQuery({
@@ -129,8 +160,26 @@ export function ShoppingPreferences({ lang, groups, initialSizeIds, initialHidde
   return (
     <div>
       {saveSizes.isError ? <Notice kind="error">{t(describeApiError(saveSizes.error).key)}</Notice> : null}
+      {saveShopsFor.isError ? <Notice kind="error">{t("errors.general")}</Notice> : null}
       {resetDone ? <Notice kind="success">{t("shopping.resetDone")}</Notice> : null}
       {reset.isError ? <Notice kind="error">{t("errors.general")}</Notice> : null}
+
+      <SectionLabel>{t("shopping.shopFor")}</SectionLabel>
+      {ONBOARDING_PICKS.map((pick) => {
+        const picked = shopsFor.data.shopsFor;
+        return (
+          <SwitchRow key={pick} label={t(`onboarding.shopFor.${pick}`)}>
+            <Switch
+              checked={picked.includes(pick)}
+              label={t(`onboarding.shopFor.${pick}`)}
+              onChange={(on) =>
+                saveShopsFor.mutate(ONBOARDING_PICKS.filter((p) => (p === pick ? on : picked.includes(p))))
+              }
+            />
+          </SwitchRow>
+        );
+      })}
+      <p className="pt-sm text-card-desc text-text-3">{t("shopping.shopForNote")}</p>
 
       <SectionLabel>{t("shopping.sizes")}</SectionLabel>
       <button

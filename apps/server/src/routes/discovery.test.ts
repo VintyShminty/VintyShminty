@@ -1,4 +1,4 @@
-import { blocks, favourites, follows, listings, listingViews, profiles } from "@vinty/db";
+import { blocks, favourites, follows, listings, listingViews, profiles, userAffinities } from "@vinty/db";
 import { type CategoryNode, categoryTrail, type ReferenceData } from "@vinty/shared";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -500,6 +500,99 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(mine.indexOf(older.id)).toBeLessThan(mine.indexOf(newer.id));
       await ctx.database.db.delete(follows).where(eq(follows.followerId, carol.id));
       await ctx.database.db.delete(listings).where(eq(listings.id, newer.id));
+    });
+  });
+
+  describe("shopping groups", () => {
+    let frank: Person; // shops for Men
+    let mensItem: { id: string };
+    let womensItem: { id: string };
+    let womenId: string;
+    const groupWord = `grp${stamp}`;
+
+    /** A leaf under Women or Men that the default listing can be published in, with one of its sizes. */
+    const leafIn = (slug: string) => {
+      const root = reference.categories.find((c) => c.slug === slug) as CategoryNode;
+      const leaf = leaves(root.children).find(
+        (c) => c.rules.size === "required" && c.rules.brand !== "hidden" && c.sizeGroupIds.length > 0,
+      ) as CategoryNode;
+      const size = reference.sizeGroups.find((g) => leaf.sizeGroupIds.includes(g.id))?.sizes[0];
+      return { root, leaf, sizeId: size?.id };
+    };
+
+    beforeAll(async () => {
+      frank = await signUpTestUser(ctx, "frank", createdIds);
+      const women = leafIn("women");
+      const men = leafIn("men");
+      womenId = women.root.id;
+      // The same words and price, so only the group can decide the order. The women's one is newer.
+      mensItem = await publish(alice, {
+        title: `${groupWord} shoes`,
+        categoryId: men.leaf.id,
+        sizeId: men.sizeId,
+        priceMinor: 9000,
+      });
+      womensItem = await publish(alice, {
+        title: `${groupWord} shoes`,
+        categoryId: women.leaf.id,
+        sizeId: women.sizeId,
+        priceMinor: 8000,
+      });
+      const res = await ctx.app.inject({
+        method: "PUT",
+        url: "/v1/me/personalisation/shops-for",
+        headers: bearer(frank.token),
+        payload: { shopsFor: ["men"] },
+      });
+      expect(res.statusCode, res.body).toBe(200);
+    });
+
+    it("keeps the answer as a setting", async () => {
+      const res = await get("/v1/me/personalisation/shops-for", frank.token);
+      expect(res.json()).toEqual({ shopsFor: ["men"] });
+    });
+
+    it("puts the person's own group first in a word search, and keeps every item", async () => {
+      expect(ids(await get(`/v1/listings?q=${groupWord}`, frank.token))).toEqual([
+        mensItem.id,
+        womensItem.id,
+      ]);
+      // A visitor gets the usual order: the newer one first.
+      expect(ids(await get(`/v1/listings?q=${groupWord}`))).toEqual([womensItem.id, mensItem.id]);
+      // A picked sort stays exact.
+      expect(ids(await get(`/v1/listings?q=${groupWord}&sort=price_asc`, frank.token))).toEqual([
+        womensItem.id,
+        mensItem.id,
+      ]);
+    });
+
+    it("moves the other group a bit lower on Home without hiding it", async () => {
+      const seen: string[] = [];
+      let cursor: string | null = null;
+      for (let page = 0; page < 10 && !(seen.includes(mensItem.id) && seen.includes(womensItem.id)); page++) {
+        const res = await get(`/v1/feed?limit=50${cursor ? `&cursor=${cursor}` : ""}`, frank.token);
+        const body = res.json() as { items: { id: string }[]; nextCursor: string | null };
+        seen.push(...body.items.map((i) => i.id));
+        cursor = body.nextCursor;
+        if (!cursor) break;
+      }
+      expect(seen).toContain(womensItem.id);
+      expect(seen.indexOf(mensItem.id)).toBeLessThan(seen.indexOf(womensItem.id));
+    });
+
+    it("learns only the corner when the person hearts something outside their groups", async () => {
+      const res = await ctx.app.inject({
+        method: "PUT",
+        url: `/v1/listings/${womensItem.id}/favourite`,
+        headers: bearer(frank.token),
+      });
+      expect(res.statusCode, res.body).toBeLessThan(300);
+      const lines = await ctx.database.db
+        .select({ feature: userAffinities.feature, key: userAffinities.featureKey })
+        .from(userAffinities)
+        .where(eq(userAffinities.userId, frank.id));
+      expect(lines.some((l) => l.feature === "category")).toBe(true);
+      expect(lines.some((l) => l.feature === "parent_category" && l.key === womenId)).toBe(false);
     });
   });
 });

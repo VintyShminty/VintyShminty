@@ -79,3 +79,9 @@ export const onboardingPicksSchema = z.object({
   picks: z.array(z.enum(ONBOARDING_PICKS)).max(ONBOARDING_PICKS.length),
 });
 export type OnboardingPicks = z.infer<typeof onboardingPicksSchema>;
+
+/** GET and PUT /v1/me/personalisation/shops-for: the lasting answer to "What do you shop for?". Empty means not answered. */
+export const shopsForSchema = z.object({
+  shopsFor: z.array(z.enum(ONBOARDING_PICKS)).max(ONBOARDING_PICKS.length),
+});
+export type ShopsFor = z.infer<typeof shopsForSchema>;

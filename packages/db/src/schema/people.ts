@@ -80,6 +80,8 @@ export const userSettings = pgTable("user_settings", {
   emailEnabled: boolean("email_enabled").notNull().default(true),
   /** Lets the feed use favourites, sizes and brands (Settings, Privacy). */
   personaliseFeed: boolean("personalise_feed").notNull().default(true),
+  /** What the person shops for: "women", "men", "kids" (Shopping preferences, sign up). Empty means not answered. */
+  shopsFor: text("shops_for").array().notNull().default(sql`'{}'::text[]`),
   showLastSeen: boolean("show_last_seen").notNull().default(true),
   /** Seller shipping options (Settings, Postage). */
   shipFromHome: boolean("ship_from_home").notNull().default(false),

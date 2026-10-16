@@ -1,6 +1,6 @@
 # Plan: a home feed that learns
 
-Status: built (server and app, Milestone 7, branch `milestone-7`). Decided by Eden on 2026-10-13. App decisions are in D-022 of `docs/design.md`. Section 11 (shopping groups and personal search) is planned, decided by Eden on 2026-10-16, not built.
+Status: built (server and app, Milestone 7, branch `milestone-7`). Decided by Eden on 2026-10-13. App decisions are in D-022 of `docs/design.md`. Section 11 (shopping groups and personal search) was decided by Eden on 2026-10-16 and built on branch `feat/shopping-groups` (D-048).
 
 ## Why
 
@@ -403,7 +403,7 @@ Decided by Eden on 2026-10-13 (the chosen option is marked **Chosen**). These ov
 - Stages 2 and 3 are not built in this plan.
 - The Vercel scheduler fix is a separate task.
 
-## 11. Shopping groups and personal search (planned 2026-10-16, not built)
+## 11. Shopping groups and personal search (decided 2026-10-16, built on `feat/shopping-groups`)
 
 ### Why
 
@@ -434,6 +434,7 @@ A "shopping group" is Women, Men or Kids, the top of the category tree. Today th
 - An action on an item outside the person's groups teaches the item's own category and the one directly above it (for example Women, Sports, Cycling), and nothing higher. The share for the group itself (Women) is 0 for that action.
 - In that corner the minus of 11.2 does not apply while its taste score is above a small threshold. So hearting women's cycling clothes brings more women's cycling clothes, never dresses.
 - The corner fades at the normal speed, half in 7 days (Eden, 2026-10-16). Coming back keeps it open.
+- This needs an answer to "What do you shop for?". Without one, every action teaches as before, which is how the groups are worked out from behaviour.
 
 ### 11.4 Search order becomes personal
 

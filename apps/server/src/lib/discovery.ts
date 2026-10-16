@@ -139,10 +139,55 @@ export function searchConditions(
 export type SortSpec = { key: SQL; dir: "asc" | "desc" };
 
 /**
+ * What a signed in person's search order leans on (plan section 11.4): other shopping groups (minus the corners they
+ * opened), their taste and the sizes they set. Built by `searchPersonal` in feed.ts.
+ */
+export type SearchPersonal = {
+  otherGroupIds: string[];
+  cornerIds: string[];
+  categoryIds: string[];
+  brandIds: string[];
+  sellerIds: string[];
+  styles: string[];
+  sizeIds: string[];
+};
+
+/** 0 to 11 points: own group (or a corner they opened) 4, a liked category 2, brand 1, seller 1, style 1, a set size 2. */
+function personalPoints(p: SearchPersonal): SQL {
+  const when = (condition: SQL | undefined, points: number) =>
+    condition ? sql`(case when ${condition} then ${sql.raw(String(points))} else 0 end)` : sql`0`;
+  const has = (
+    column:
+      | typeof listings.categoryId
+      | typeof listings.brandId
+      | typeof listings.sellerId
+      | typeof listings.sizeId,
+    ids: string[],
+  ) => (ids.length > 0 ? inArray(column, ids) : undefined);
+  const otherGroup = has(listings.categoryId, p.otherGroupIds);
+  const corner = has(listings.categoryId, p.cornerIds);
+  const ownGroup = otherGroup
+    ? sql`not coalesce(${otherGroup}${corner ? sql` and not ${corner}` : sql``}, false)`
+    : sql`true`;
+  const style =
+    p.styles.length > 0
+      ? sql`${listings.styles} && array[${sql.join(
+          p.styles.map((st) => sql`${st}`),
+          sql`, `,
+        )}]::listing_style[]`
+      : undefined;
+  return sql`(${when(ownGroup, 4)} + ${when(has(listings.categoryId, p.categoryIds), 2)} + ${when(has(listings.brandId, p.brandIds), 1)} + ${when(has(listings.sellerId, p.sellerIds), 1)} + ${when(style, 1)} + ${when(has(listings.sizeId, p.sizeIds), 2)})::bigint`;
+}
+
+/**
  * The sort of a search. Every sort is one number per row plus the id, so a cursor is just `{ k, i }`.
  * Relevance packs the text score above the recency: score * 1e13 + bumped time in ms (a score is at most about 1000).
  */
-export function sortSpec(sort: SearchFilters["sort"], q: string | undefined): SortSpec {
+export function sortSpec(
+  sort: SearchFilters["sort"],
+  q: string | undefined,
+  personal: SearchPersonal | null = null,
+): SortSpec {
   if (sort === "price_asc") return { key: sql`coalesce(${listings.priceMinor}, 0)::bigint`, dir: "asc" };
   if (sort === "price_desc") return { key: sql`coalesce(${listings.priceMinor}, 0)::bigint`, dir: "desc" };
   const tokens = searchTokens(q);
@@ -150,6 +195,15 @@ export function sortSpec(sort: SearchFilters["sort"], q: string | undefined): So
     const query = tokens.map((t) => `${t}:*`).join(" & ");
     const titleHit = tokens.map((t) => sql`${listings.title} ilike ${`%${likeEscape(t)}%`}`);
     const allInTitle = sql.join(titleHit, sql` and `);
+    const text = sql`(floor(ts_rank(${listings.searchVector}, to_tsquery('simple', ${query})) * 1000)::bigint + (case when ${allInTitle} then 300 else 0 end))`;
+    if (personal) {
+      // The text match still comes first, in steps of 50 so items that match about as well count as equal. Inside a
+      // step the person decides (0 to 11 points), then recency: step * 1e15 + points * 1e13 + bumped time in ms.
+      return {
+        key: sql`(${text} / 50) * 1000000000000000 + ${personalPoints(personal)} * 10000000000000 + ${bumpedMs}`,
+        dir: "desc",
+      };
+    }
     return {
       key: sql`(floor(ts_rank(${listings.searchVector}, to_tsquery('simple', ${query})) * 1000)::bigint + (case when ${allInTitle} then 300 else 0 end)) * 10000000000000 + ${bumpedMs}`,
       dir: "desc",

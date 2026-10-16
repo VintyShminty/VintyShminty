@@ -1557,6 +1557,8 @@
     "redo": "Answer the welcome questions again",
     "redoNote": "Go through the questions you saw when you joined. Your saved sizes stay unless you change them",
     "sizesNote": "Pieces in your sizes show up first on Home",
+    "shopFor": "What you shop for",
+    "shopForNote": "Home and search show these first. Everything else still shows, just a little lower",
     "none": "None picked yet",
     "count_one": "{{count}} size picked",
     "count_other": "{{count}} sizes picked",

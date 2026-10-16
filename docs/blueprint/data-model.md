@@ -250,6 +250,7 @@ Used by: Settings (Language, Push notifications, Postage, Privacy), feed persona
 | `push_daily_limit` | smallint | yes | Null means no daily limit. The spec offers Up to N notifications per day |
 | `email_enabled` | boolean | no | default true |
 | `personalise_feed` | boolean | no | default true. Lets the feed use favourites, sizes and brands (Settings, Privacy) |
+| `shops_for` | text[] | no | default '{}'. What the person shops for: women, men, kids (the sign up question and Shopping preferences). Never fades. Empty means not answered, then Home works the groups out from behaviour (`docs/plans/home-feed.md` section 11) |
 | `show_last_seen` | boolean | no | default true |
 | `ship_from_home` | boolean | no | default false. Seller option: a courier collects from the address |
 | `ship_from_dropoff` | boolean | no | default true. Seller option: take the parcel to a locker or shop |
