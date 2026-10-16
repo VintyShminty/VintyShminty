@@ -29,7 +29,7 @@ export function BundleBar({ lang, sellerId }: { lang: string; sellerId: string }
 
   return (
     <>
-      <div aria-hidden className="h-[72px]" />
+      <div aria-hidden className="h-[92px]" />
       <div
         style={{ bottom: "var(--buy-bar-h, 0px)" }}
         className="fixed inset-x-0 z-30 border-t border-primary bg-primary px-lg py-sm text-on-accent"
@@ -48,7 +48,8 @@ export function BundleBar({ lang, sellerId }: { lang: string; sellerId: string }
             ))}
           </div>
           <div role="status" className="min-w-0 flex-1">
-            <p className="truncate text-body-sm font-semibold">
+            {/* Two lines at most: Hebrew is longer, and "You save" must never be cut off on a phone. */}
+            <p className="line-clamp-2 text-body-sm font-semibold">
               {saved > 0
                 ? `${summary} · ${t("bundle.barSave", { amount: formatPrice(saved, bundle.currency) })}`
                 : summary}
