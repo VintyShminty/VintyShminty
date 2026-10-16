@@ -5,6 +5,7 @@ import {
   ReceiptText,
   ShieldAlert,
   ShieldCheck,
+  Tag,
   Upload,
   Users,
 } from "lucide-react";
@@ -22,4 +23,5 @@ export const ADMIN_NAV: { key: string; path: string; icon: LucideIcon }[] = [
   { key: "expenses", path: "/expenses", icon: ReceiptText },
   { key: "security", path: "/security", icon: ShieldCheck },
   { key: "upload", path: "/upload", icon: Upload },
+  { key: "listings", path: "/listings", icon: Tag },
 ];

@@ -38,6 +38,7 @@ import type { AiMeter } from "../lib/ai-cost.js";
 import { ApiError } from "../lib/errors.js";
 import type { ListingChecker } from "../lib/listing-check.js";
 import type { PhotoReader } from "../lib/photo-reader.js";
+import { registerAdminListingRoutes } from "./admin-listings.js";
 import { registerAdminReviewRoutes } from "./admin-review.js";
 import { registerAdminUploadRoutes } from "./admin-uploads.js";
 
@@ -81,6 +82,7 @@ const adminRoutes: FastifyPluginAsyncZod<{
 
   registerAdminUploadRoutes(app, { db, preHandler, adminIdOf, reader, listingChecker });
   registerAdminReviewRoutes(app, { db, preHandler, adminIdOf });
+  registerAdminListingRoutes(app, { db, preHandler, adminIdOf });
 
   app.get(
     "/v1/admin/dashboard",

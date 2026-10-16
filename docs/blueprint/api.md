@@ -482,6 +482,18 @@ The team uploads many clothes in big batches. They are shown publicly under a **
 
 **The owner name stays private.** It lives only in `admin_uploads.owner_full_name`. The only routes that read that table are the admin ones above. A test (`apps/server/src/routes/admin-uploads.test.ts`) fetches the public item, similar items, search, profile, profile listings, member search and feed for an uploaded item and checks the name is in none of them.
 
+## Admin panel, edit listings
+
+An admin can find and edit any listing (website: Listings in the back office, the edit screen is the normal sell form). Same admin guard and audit rule as the rest of `/v1/admin/*`. Code: `apps/server/src/routes/admin-listings.ts`.
+
+| Method | Path | Request | Response | Notes |
+|---|---|---|---|---|
+| GET | `/v1/admin/listings` | `?q=&cursor=&limit=` (default 20, up to 50) | page of `adminListingRowSchema` | Newest first, drafts left out. `q` matches the title or the seller's username (a part, any case) |
+| GET | `/v1/admin/listings/:id` | none | `listingDetailSchema` | The listing in full, seen as an admin (not the owner). 404 for a draft or unknown id |
+| PATCH | `/v1/admin/listings/:id` | `listingDraftInputSchema` | `listingDetailSchema` | Runs through the same writer and rules as the seller's `PATCH /v1/listings/:id` (the listing must stay complete), with the listing's seller as owner of the photo folder. 409 for a sold listing. Writes `listing_edited` with the old title, `sellerId`, the list of changed fields and the old and new price. Does not start the AI listing check |
+| POST | `/v1/admin/listings/:id/uploads` | `{ contentType, byteSize }` | `uploadResponseSchema` | A signed upload into the seller's own `listings/<sellerId>/` folder, so new photos pass the normal photo checks. Existing photos are kept by sending their keys again |
+| PATCH | `/v1/admin/listings/:id/status` | `{ status: "active" \| "hidden" \| "removed", note? }` | `listingDetailSchema` | Hidden or removed keeps `status_reason` (the note, else a default), which also stops the seller from putting it back live. Active clears it. 409 for a reserved or sold listing. Writes `listing_status_changed` with `from`, `to` and the note |
+
 ## Socket.IO
 
 Real time messaging and live badges. Every event also exists as a REST read, so a missed event is repaired by refetching, and the app works with the socket down.

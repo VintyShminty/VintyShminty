@@ -100,6 +100,7 @@ export function PhotoUploader({
   error,
   onAdded,
   onChanged,
+  uploadPath,
 }: {
   photos: SellPhoto[];
   setPhotos: SetPhotos;
@@ -109,6 +110,8 @@ export function PhotoUploader({
   onAdded: () => void;
   /** Called on any change of the list (the form remembers it is unsaved). */
   onChanged: () => void;
+  /** Where to ask for the upload address. The back office sends photos into the seller's folder. */
+  uploadPath?: string;
 }) {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
@@ -128,7 +131,7 @@ export function PhotoUploader({
     try {
       const prepared = await prepareListingPhoto(file);
       update(id, { url: URL.createObjectURL(prepared.blob), width: prepared.width, height: prepared.height });
-      const upload = await uploadListingPhoto(prepared, (progress) => update(id, { progress }));
+      const upload = await uploadListingPhoto(prepared, (progress) => update(id, { progress }), uploadPath);
       update(id, { key: upload.key, state: "done", progress: 1 });
       files.current.delete(id);
     } catch {

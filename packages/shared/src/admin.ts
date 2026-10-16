@@ -408,3 +408,40 @@ export const adminUploadRowSchema = z.object({
 export type AdminUploadRow = z.infer<typeof adminUploadRowSchema>;
 export const adminUploadsPageSchema = pageSchema(adminUploadRowSchema);
 export type AdminUploadsPage = z.infer<typeof adminUploadsPageSchema>;
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Edit any listing (admin Listings page)
+
+/** The states an admin can put someone else's listing into. Sold, reserved and draft listings are never moved by hand. */
+export const ADMIN_LISTING_STATUSES = ["active", "hidden", "removed"] as const;
+
+export const adminListingsQuerySchema = z.object({
+  /** Part of the title or of the seller's username, any case. */
+  q: z.string().trim().max(100).optional(),
+  cursor: z.string().min(1).max(500).optional(),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
+export type AdminListingsQuery = z.infer<typeof adminListingsQuerySchema>;
+
+export const adminListingRowSchema = z.object({
+  id: idSchema,
+  title: z.string(),
+  status: z.enum(LISTING_STATUSES),
+  statusReason: z.string().nullable(),
+  sellerId: idSchema,
+  sellerUsername: z.string().nullable(),
+  priceMinor: z.number().int().nullable(),
+  currency: z.string(),
+  photoUrl: z.string().nullable(),
+  createdAt: isoDateTimeSchema,
+});
+export type AdminListingRow = z.infer<typeof adminListingRowSchema>;
+export const adminListingsPageSchema = pageSchema(adminListingRowSchema);
+export type AdminListingsPage = z.infer<typeof adminListingsPageSchema>;
+
+export const adminListingStatusInputSchema = z.object({
+  status: z.enum(ADMIN_LISTING_STATUSES),
+  /** Shown to the team in the log, and kept as the reason when the listing is hidden or removed. */
+  note: z.string().trim().max(300).optional(),
+});
+export type AdminListingStatusInput = z.infer<typeof adminListingStatusInputSchema>;

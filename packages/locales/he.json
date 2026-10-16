@@ -2025,6 +2025,7 @@
       "expenses": "הוצאות",
       "security": "אבטחה",
       "upload": "העלאת מודעות",
+      "listings": "מודעות",
       "review": "בדיקה"
     },
     "adminsOnly": {
@@ -2080,6 +2081,32 @@
       "noActivity": "עוד לא קרה כלום",
       "by": "על ידי {{name}}",
       "bySystem": "על ידי המערכת"
+    },
+    "listings": {
+      "search": "חיפוש לפי כותרת או שם משתמש של המוכר",
+      "empty": "אין מודעות שמתאימות",
+      "loadMore": "טען עוד",
+      "by": "מאת {{name}}",
+      "noPrice": "ללא מחיר",
+      "edit": "עריכה",
+      "editTitle": "עריכת מודעה",
+      "seller": "מוכר: {{name}}",
+      "statusTitle": "נראות",
+      "status": {
+        "active": "באוויר",
+        "reserved": "שמורה",
+        "sold": "נמכרה",
+        "hidden": "מוסתרת",
+        "removed": "הוסרה",
+        "draft": "טיוטה"
+      },
+      "setActive": "החזרה לאוויר",
+      "setHidden": "הסתרה",
+      "setRemoved": "הסרה",
+      "statusLocked": "אי אפשר לשנות כאן מודעה שמורה או שנמכרה",
+      "statusSaved": "המודעה עכשיו: {{status}}",
+      "removeTitle": "להסיר את המודעה?",
+      "removeBody": "היא נעלמת מכולם והמוכר לא יכול להחזיר אותה. אפשר להחזיר אותה לאוויר מכאן"
     },
     "users": {
       "filters": "סינון אנשים",
