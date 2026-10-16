@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/badge";
+import { BundleBar } from "@/components/bundle/bundle-bar";
+import { BundleBox } from "@/components/bundle/bundle-box";
 import { EmptyState } from "@/components/empty-state";
 import { FavouriteButton } from "@/components/favourite-button";
 import { BuzzingNote, OwnerActions } from "@/components/item/owner-actions";
@@ -410,6 +412,10 @@ export default async function ItemPage({
                 </ul>
               ) : null}
             </section>
+
+            {isOwner || listing.status !== "active" ? null : (
+              <BundleBox lang={lang} sellerId={seller.id} sellerName={sellerName} listingId={listing.id} />
+            )}
           </div>
         </aside>
 
@@ -462,7 +468,11 @@ export default async function ItemPage({
           <ul className="-mx-lg flex gap-lg overflow-x-auto px-lg pb-sm md:mx-0 md:px-0">
             {moreFromSeller.map((card) => (
               <li key={card.id} className="w-[160px] shrink-0 md:w-[200px]">
-                <ItemCard listing={card} hideSave={isOwner} />
+                <ItemCard
+                  listing={card}
+                  hideSave={isOwner}
+                  bundleSellerId={isOwner ? undefined : seller.id}
+                />
               </li>
             ))}
           </ul>
@@ -479,6 +489,7 @@ export default async function ItemPage({
       </section>
 
       {showBar ? <BuyBar {...buyProps} /> : null}
+      {isOwner ? null : <BundleBar lang={lang} sellerId={seller.id} />}
     </main>
   );
 }

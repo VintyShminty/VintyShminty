@@ -1,8 +1,8 @@
 import { feedPageSchema, type PublicProfile } from "@vinty/shared";
-import { Layers } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BundleBar } from "@/components/bundle/bundle-bar";
+import { BundleProfileButton } from "@/components/bundle/profile-button";
 import { Chip } from "@/components/chip";
 import { EmptyState } from "@/components/empty-state";
 import { FollowButton } from "@/components/follow-button";
@@ -129,13 +129,7 @@ export default async function SellerPage({
             <>
               <FollowButton userId={profile.id} name={name} initial={profile.viewer?.isFollowing ?? false} />
               {profile.activeListingCount >= 2 ? (
-                <Link
-                  href={`/${lang}/bundle/${profile.id}`}
-                  className="inline-flex h-11 items-center justify-center gap-sm rounded-control border border-primary px-lg text-body-sm font-semibold text-primary hover:bg-accent-tint"
-                >
-                  <Layers size={18} aria-hidden />
-                  {t("bundle.shop")}
-                </Link>
+                <BundleProfileButton lang={lang} sellerId={profile.id} />
               ) : null}
             </>
           )
@@ -203,6 +197,7 @@ export default async function SellerPage({
           <ReportButton label={t("seller.report")} targetType="user" targetId={profile.id} />
         </div>
       )}
+      {isSelf ? null : <BundleBar lang={lang} sellerId={profile.id} />}
     </main>
   );
 }

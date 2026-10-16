@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   return { title: getT(lang)("bundle.title"), robots: { index: false } };
 }
 
-/** Closet deal with one seller: pick items, see the discount, go to checkout. Needs a login. */
+/** The bundle with one seller: pick items, see the discount, go to checkout. Needs a login. */
 export default async function BundlePage({ params }: { params: Params }) {
   const { lang, sellerId } = await params;
   if (!isLang(lang)) notFound();

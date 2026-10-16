@@ -6,6 +6,7 @@ import Link from "next/link";
 import { type MouseEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/badge";
+import { BundleCardButton } from "@/components/bundle/card-button";
 import { useLoginPrompt } from "@/components/login-prompt";
 import { CoveredLine } from "@/components/price-pill";
 import { useConditionName, useViewer } from "@/components/site-context";
@@ -30,6 +31,7 @@ export function ItemCard({
   feedPosition,
   preview = false,
   priority = false,
+  bundleSellerId,
 }: {
   listing: ListingCard;
   /** The first cards of a grid are in view when the page opens, so their photos load at once instead of lazily. */
@@ -41,6 +43,8 @@ export function ItemCard({
   saveOnSold?: boolean;
   /** Set on the Home feed: the card's place in the list. It then counts as seen after a second,  */
   feedPosition?: number;
+  /** Set on a seller's other items: shows the "+ Bundle" pill for a bundle with this seller. */
+  bundleSellerId?: string;
 }) {
   const { t, i18n } = useTranslation();
   const viewer = useViewer();
@@ -204,6 +208,9 @@ export function ItemCard({
               ))}
             </div>
           </>
+        ) : null}
+        {bundleSellerId && !preview && !sold && !isOwn ? (
+          <BundleCardButton listingId={listing.id} sellerId={bundleSellerId} title={listing.title} />
         ) : null}
         <div className="absolute bottom-sm start-sm flex max-w-[90%] items-baseline gap-xs rounded-[6px] border border-border-subtle bg-background px-sm py-[3px]">
           {priceDrop && !sold ? (

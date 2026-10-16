@@ -509,7 +509,14 @@ function NewCheckout({ lang, target }: { lang: string; target: CheckoutTarget | 
 
         <aside className="flex flex-col gap-lg md:sticky md:top-28 md:self-start">
           <h2 className="text-section-label font-bold uppercase text-text-3">{t("checkout.summary")}</h2>
-          <PriceBreakdown label={t("checkout.summary")} totals={{ ...q, itemsCount: q.items.length }} />
+          <PriceBreakdown
+            label={t("checkout.summary")}
+            totals={{
+              ...q,
+              itemsCount: q.items.length,
+              bundleSavedMinor: q.bundleId ? q.bundleDiscountMinor + q.postageSavedMinor : 0,
+            }}
+          />
           <p className="flex items-center gap-xs text-card-desc text-text-3">
             <Timer size={14} aria-hidden />
             {t("checkout.holdNote", { minutes: q.holdMinutes })}
