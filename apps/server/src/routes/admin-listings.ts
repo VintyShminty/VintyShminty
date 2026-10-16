@@ -5,10 +5,13 @@ import {
   adminListingsPageSchema,
   adminListingsQuerySchema,
   adminUploadRequestSchema,
+  cropPhotoInputSchema,
   errorResponseSchema,
   idSchema,
   listingDetailSchema,
   listingDraftInputSchema,
+  rotatePhotoInputSchema,
+  rotatePhotoResponseSchema,
   uploadResponseSchema,
 } from "@vinty/shared";
 import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
@@ -19,6 +22,7 @@ import { ApiError } from "../lib/errors.js";
 import { keysetCursor, olderThan, tsText } from "../lib/keyset.js";
 import { createListingWriter } from "../lib/listing-write.js";
 import { type ListingRow, loadListingDetail, refreshSellerCounts } from "../lib/listings.js";
+import { cropStoredPhoto, rotateStoredPhoto } from "../lib/photo-edit.js";
 import { cardKeyFor } from "../lib/photo-variants.js";
 import { keyBelongsToUser, presignUploadResponse } from "../lib/storage.js";
 
@@ -168,6 +172,67 @@ export function registerAdminListingRoutes(app: FastifyInstance, { db, preHandle
         contentType,
         byteSize,
       });
+    },
+  );
+
+  /** The photo must sit in the listing's seller folder, the same rule as the listing's own edit. */
+  async function photoOfListing(listingId: string, key: string) {
+    const row = await findListing(listingId);
+    if (!keyBelongsToUser(key, "listing_photo", row.sellerId)) {
+      throw ApiError.invalid("That photo does not belong to this listing's seller", {
+        key: "validation.listing.photos.invalid",
+      });
+    }
+    return row;
+  }
+
+  typed.post(
+    "/v1/admin/listings/:id/photos/rotate",
+    {
+      preHandler,
+      config: rateLimit,
+      schema: {
+        params: idParams,
+        body: rotatePhotoInputSchema,
+        response: { 200: rotatePhotoResponseSchema, ...errors },
+      },
+    },
+    async (request) => {
+      const row = await photoOfListing(request.params.id, request.body.key);
+      const { key, direction } = request.body;
+      const turned = await rotateStoredPhoto(app.storage, key, direction);
+      await writeAudit(db, adminIdOf(request), "listing_photo_rotated", "listing", row.id, {
+        sellerId: row.sellerId,
+        from: key,
+        to: turned.key,
+        direction,
+      });
+      return turned;
+    },
+  );
+
+  typed.post(
+    "/v1/admin/listings/:id/photos/crop",
+    {
+      preHandler,
+      config: rateLimit,
+      schema: {
+        params: idParams,
+        body: cropPhotoInputSchema,
+        response: { 200: rotatePhotoResponseSchema, ...errors },
+      },
+    },
+    async (request) => {
+      const { key, x, y, width, height } = request.body;
+      const row = await photoOfListing(request.params.id, key);
+      const cut = await cropStoredPhoto(app.storage, key, { x, y, width, height });
+      await writeAudit(db, adminIdOf(request), "listing_photo_cropped", "listing", row.id, {
+        sellerId: row.sellerId,
+        from: key,
+        to: cut.key,
+        rect: { x, y, width, height },
+      });
+      return cut;
     },
   );
 

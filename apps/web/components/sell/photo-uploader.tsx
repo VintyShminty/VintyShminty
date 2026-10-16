@@ -166,6 +166,7 @@ export function PhotoUploader({
   onAdded,
   onChanged,
   uploadPath,
+  adminListingId,
 }: {
   photos: SellPhoto[];
   setPhotos: SetPhotos;
@@ -177,6 +178,8 @@ export function PhotoUploader({
   onChanged: () => void;
   /** Where to ask for the upload address. The back office sends photos into the seller's folder. */
   uploadPath?: string;
+  /** Set when an admin edits this listing: turning and cropping then go through the admin routes. */
+  adminListingId?: string;
 }) {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
@@ -248,7 +251,7 @@ export function PhotoUploader({
     if (!photo) return;
     try {
       if (photo.key) {
-        const turned = await rotateUploadedPhoto(photo.key);
+        const turned = await rotateUploadedPhoto(photo.key, adminListingId);
         update(id, { key: turned.key, url: turned.publicUrl, width: photo.height, height: photo.width });
       } else {
         const turned = await rotateLocalPhoto(photo.url);
@@ -268,7 +271,7 @@ export function PhotoUploader({
     if (!photo) return false;
     try {
       if (photo.key) {
-        const cut = await cropUploadedPhoto(photo.key, rect);
+        const cut = await cropUploadedPhoto(photo.key, rect, adminListingId);
         update(id, {
           key: cut.key,
           url: cut.publicUrl,

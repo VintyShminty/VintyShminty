@@ -463,6 +463,7 @@ export function SellForm({
               error={err("photos")}
               onAdded={() => set({}, "photos")}
               onChanged={() => setDirty(true)}
+              adminListingId={admin && listingId ? listingId : undefined}
               uploadPath={admin && listingId ? `/v1/admin/listings/${listingId}/uploads` : undefined}
             />
             {tipRows.length > 0 ? (
