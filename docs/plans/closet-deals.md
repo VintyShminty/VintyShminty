@@ -1,6 +1,6 @@
 # Plan: bundles that people find and feel
 
-Status: planned 2026-10-16, not built. Waiting for Eden's decisions (section 6). Live mockup (website look, clickable): https://claude.ai/artifact/EApCzYrtcGR3EYSGXqbkhd
+Status: approved 2026-10-16, being built on branch `feat/bundles`. Decisions in section 6. Live mockup (website look, clickable): https://claude.ai/artifact/EApCzYrtcGR3EYSGXqbkhd
 
 ## Why
 
@@ -66,6 +66,16 @@ Checkout (built) gets the same "You save" line.
 - `docs/design.md`: one new decision.
 
 ## 6. Decisions for Eden
+
+Eden approved the mockup on 2026-10-16 and asked to build. The recommended option of each was taken (Eden can change them later):
+
+- **1: keep the biggest parcel** for any number of items.
+- **2: an offer on the whole bundle comes later**, not in this round.
+- **3: the bundle bar shows only on that seller's pages.**
+- **4: the ladder stays on by default** for new sellers.
+
+The options as asked:
+
 
 1. **Postage for many items.** Today the biggest parcel sets the price, however many items. Keep that (simple, buyers save the most) or step up one parcel size every 4 items (closer to a real box)?
 2. **Make an offer on the whole bundle.** Let the buyer send one offer for the bundle total, which the seller accepts, declines or counters like a normal offer. Now, in this round, or later?
