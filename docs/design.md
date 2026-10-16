@@ -626,7 +626,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-14
 - **Area:** Chat, app and website
-- **Status:** Built on branch feat/ai-chat-helpers, waiting for Eden's review. Numbered D-041 because D-039 and D-040 went to website changes while this was built. The privacy policy's "AI helpers" section (PR #71) covers it.
+- **Status:** Merged, 2026-10-15 (#74).
 - **Decision:** Every text message is checked by Claude Haiku in the background after it is sent (Eden's choice), so sending never slows down. When it asks to pay outside Vinty, shares a link that may not be safe, moves the talk to WhatsApp or a phone number, or rushes the other person, the person who received it sees one quiet line under that bubble with a small warning sign, for example "Careful: paying outside Vinty is not protected. Keep payment in the app". The sender sees nothing new. Clear scams (a fake payment link, asking for card details or codes) also go to Eden's Review list (D-038).
 - **Rationale:** Deals moved off the app are where people get cheated, and a warning at the right moment protects them without blocking anyone.
 - **Trade-off:** Reading every message costs about 0.006 cents each, but catches scams that are worded without the usual signs.
@@ -638,7 +638,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-15
 - **Area:** Home feed, listings
-- **Status:** Built on branch feat/ai-style-tags, waiting for Eden's review. Numbered D-042 because D-040 and D-041 went to the website item page and chat warnings while this was built.
+- **Status:** Merged, 2026-10-15 (#75).
 - **Decision:** Every listing gets up to 3 style tags from a fixed list of 20: Vintage, Y2K, Streetwear, Minimal, Classic, Quiet luxury, Boho, Cottagecore, Romantic, Sporty, Outdoor, Preppy, Grunge, Goth, Western, Evening and party, Workwear, Summer and beach, Modest, Everyday basics. Narrow trends fold into a broad tag (coquette and balletcore into Romantic, gorpcore into Outdoor, old money into Quiet luxury). Claude Haiku picks them in the same call that already checks each new or changed listing (D-038), and listings Eden uploads in the admin pages get them too. Existing listings are tagged a batch at a time (up to 100 a night). Home learns styles the way it learns brands and sizes, so someone who keeps opening and saving vintage pieces sees more vintage across brands and categories. Nobody sees the tags (Eden's choice): no chips, no "Because you like" line, nothing for sellers to edit.
 - **Rationale:** Brand and category alone miss taste: a vintage lover likes old Levi's and a 90s blazer alike. A fixed, broad list keeps enough items in each tag to learn from. The list was widened after looking at how resale sites and trend writers group styles, since none of the big resale sites publish an official list.
 - **Trade-off:** One AI call now does two jobs (safety and taste), which keeps the photo cost at once per listing. If the tags turn out weak, they can move to their own call. Changing the list later means tagging again.
@@ -649,7 +649,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-15
 - **Area:** Help page, app and website
-- **Status:** Built on branch feat/ai-help-answers, waiting for Eden's review.
+- **Status:** Merged, 2026-10-15 (#76).
 - **Decision:** At the top of the Help page an "Ask a question" box takes a question in the person's own words, in English or Hebrew. Claude Haiku answers in 2 to 4 short sentences using only our own help articles, and links up to 2 of them ("Read more"). Every answer carries a small sparkle and the line "Answer written by AI from our help pages". The AI cannot see anyone's account, orders or messages (Eden's choice): a question like "where is my order" gets a general answer and the right article. When the articles do not cover the question it says so, and the page points to "Write to us". Signed out visitors can ask too, at most 20 new questions an hour per person or internet address, and a repeated question is remembered at no cost. The box sits only on the Help page (Eden's choice). It never invents rules, fees or times, never asks for personal details and never moves anything off the app.
 - **Rationale:** People rarely read a list of articles to find one answer. Answering only from our own pages keeps it honest, and a "not in our help pages" answer is better than a guess.
 - **Trade-off:** About 0.01 cents a question. It is only as good as our articles, so a common question it cannot answer is a sign an article is missing.
@@ -660,7 +660,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-15
 - **Area:** Orders, admin pages (website)
-- **Status:** Built on branch feat/ai-order-summaries, waiting for Eden's review.
+- **Status:** Merged, 2026-10-15 (#77).
 - **Decision:** When a buyer reports a problem with an order, Claude Haiku reads the order's timeline (paid, shipped, arrived, problem opened), the listing, the buyer's note and the chat between buyer and seller about it, and writes a short summary for Eden: what happened when, what each side says and what is worth checking. It never suggests an outcome (Eden's choice): no "refund", no "the buyer is right". The order lands in the Review list (D-038) as an urgent "Order problem" with the summary, both people, the amount and the buyer's note. If the AI is off or fails, the order still lands there, without a summary. On the card Eden has "Refund the buyer" and "Release to the seller" (each asks first, both use the support moves the server already had), plus Dismiss and Mark handled. The AI never moves money. The privacy policy's "AI helpers" section says the AI reads an order's details and its chat for this (Eden approved the line).
 - **Rationale:** Order problems could be opened but nobody could see them or decide them in the admin pages. A summary saves reading a whole chat, and leaving out a verdict keeps the decision with a person.
 - **Trade-off:** About 0.03 cents per problem. Facts only means Eden still weighs each case himself, which is slower than a suggested answer but cannot be nudged by a confident wrong one.
@@ -671,7 +671,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-15
 - **Area:** App item page
-- **Status:** Built on branch feat/app-listing-page, waiting for Eden's review.
+- **Status:** Merged, 2026-10-15 (#79).
 - **Decision:** Both the buyer's and the seller's item page show the price like the card and the website (D-040): the seller price in espresso, a drop shows the old price muted and struck with a "% off" badge, and the Coverage price is a quiet line with a BadgeCheck (no cream pill). The buyer's price breakdown has no cream fill: it sits under a hairline with the same content.
 - **Description first:** the description sits right under the price in both views, among the first things anyone reads, before the details list (Eden).
 - **Rationale:** Eden found the listing page did not match the updated card.
@@ -682,7 +682,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-15
 - **Area:** Brand, app icon, website header
-- **Status:** Built on branch feat/tag-logo, waiting for Eden's review. A first logo "for now", while the name Yadii is not final.
+- **Status:** Merged, 2026-10-15 (#89). A first logo "for now", while the name Yadii is not final.
 - **Decision:** A price tag outline hanging from its string, tilted a little (8 degrees), with a bold Y inside, drawn in espresso. The app icon is the cream tag on an espresso square. Android uses the same cream tag on espresso, a white one for themed icons. The splash shows the espresso tag on white. The website header and the phone menu put the tag in front of the word Yadii, and the sharing preview shows both.
 - **Choice:** Eden picked the price tag from six directions (two hands, a Y shaped hand, the ii as two people, a hanger with a Y hook, a price tag, a plain wordmark), then the tilt of one tag draft with the bold Y of another, and the gentle tilt over the swinging one.
 - **Rationale:** A tag reads as second hand clothes at a glance, matches the price pills on our cards, and looks nothing like Vinted's plain word logo (docs/originality.md).
@@ -693,7 +693,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-10-15
 - **Area:** App, Home
-- **Status:** Approved by Eden (2026-10-15), not merged yet. Changes the Home greeting of D-019 (implementation, navigation, item 2).
+- **Status:** Merged, 2026-10-15 (#93). Changes the Home greeting of D-019 (implementation, navigation, item 2).
 - **Decision:** Eden picked direction C ("Wordmark and icons") over B ("Search first, no greeting"). The top of Home in the app is the Yadii wordmark at the start. For signed in people, Alerts (a bell with a small espresso dot when something is unread) opens Notifications as its own page that slides in over Home, with a back arrow and swipe back, so you never leave Home. The Inbox keeps its own Notifications section. Saved (a bookmark) opens saved items. Both sit at the end. Under them is a full-width rounded search bar, then the mood chips. The search bar works in place (Eden, 2026-10-15): tapping it types right there with no new page. The wordmark row and the chips step aside, the bar stays at the top with Cancel at its end, and suggestions, recent and saved searches and then the results with their filters replace the feed. Cancel brings the feed back, as it was. Browse still opens the Search page.
 - **Rationale:** The big two line greeting took about a fifth of the screen before the first photo, the light and bold split felt loud, and the small round search button looked like an afterthought.
 - **Trade-off:** The personal greeting is gone. Saved items and notifications can now each be reached from two places. Eden first saw the bell switch to the Inbox tab and found that jump too direct, so it opens a page instead.

@@ -40,7 +40,11 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Test user.** A Google account allowed to use Google login while it is in testing mode.
 - **Account linking.** Connecting a Google or Apple login to an existing Vinty account with the same email.
 - **Coverage.** Our name for buyer protection (placeholder in one key, `protectionName`). The buyer is protected and we step in if the item does not arrive or is not as described.
-- **Buzz / Buzzing.** A seller pushes their item up the feed for a while ("Give it buzz"). Free for now. The item shows "Buzzing" until it ends.
+- **Boost / Boosted (הקפצה, מוקפצת).** A seller moves a listing to the top of the feed for a while ("Boost this listing", "להקפיץ את המודעה"). Free for now. The listing shows "Boosted" until it ends. Called Buzz until 2026-10-15, and still "buzz" and "bump" inside the code.
+- **Yadii.** The name the app shows now (#83). Still a candidate, not final (`docs/originality.md` G10).
+- **Wordmark.** The app name written in bold as a logo, at the top of Home (D-047).
+- **Expense items.** Yearly and one time costs in the admin Expenses page, each with a "Paid by" name.
+- **Place suggestions.** Google's city and address guesses while you type a profile city or delivery address, fetched through our server.
 - **Away mode.** A Settings switch that hides your items, with an optional return date.
 - **Invite code.** A personal code a friend types when joining. After their first order above the minimum both get a 50 shekel voucher.
 - **Mood chips.** The row of filters on Home (For you, New today, Under 50 shekels, Your sizes, Near you).

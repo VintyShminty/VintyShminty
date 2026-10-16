@@ -1,7 +1,7 @@
 import { Lock, ScanFace } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AppState, View } from "react-native";
+import { AppState, BackHandler, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -47,6 +47,12 @@ function AppLock({ kind, onUsePassword }: { kind: BiometricKind; onUsePassword: 
     });
     return () => sub.remove();
   }, [attempt]);
+
+  // Android's back button does nothing while locked, so it cannot move the screens behind the lock.
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+    return () => sub.remove();
+  }, []);
 
   return (
     <View

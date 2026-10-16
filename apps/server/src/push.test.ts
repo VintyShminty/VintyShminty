@@ -92,13 +92,14 @@ describe.skipIf(!databaseUrl)("push rules", () => {
     expect(push?.priority).toBe("high");
     expect(push?.data).toMatchObject({ type: "new_message", conversationId, userId: buyer.id });
 
-    await call("PATCH", "/v1/me/settings", seller.token, { language: "he" });
-    await call("POST", `/v1/conversations/${conversationId}/messages`, buyer.token, {
+    await call("PATCH", "/v1/me/settings", buyer.token, { language: "he" });
+    await call("POST", `/v1/conversations/${conversationId}/messages`, seller.token, {
       kind: "photo",
-      attachmentKey: `messages/${buyer.id}/p-${stamp}.jpg`,
+      attachmentKey: `messages/${seller.id}/p-${stamp}.jpg`,
       clientMessageId: crypto.randomUUID(),
     });
     await settle();
+    expect(ctx.pusher.sent[1]?.to).toBe(buyerPhone);
     expect(ctx.pusher.sent[1]?.body).toBe("שלח/ה תמונה");
   });
 

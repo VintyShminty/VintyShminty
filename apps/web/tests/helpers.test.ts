@@ -41,6 +41,22 @@ describe("login links", () => {
     expect(safeNext("/\\evil.example")).toBeNull();
     expect(loginHref("en", "//evil.example")).toBe("/en/log-in");
   });
+
+  it("refuses addresses a browser would turn into another website", () => {
+    expect(safeNext(decodeURIComponent("/%09/evil.com"))).toBeNull();
+    expect(safeNext("/\n/evil.com")).toBeNull();
+    expect(safeNext("//evil.com")).toBeNull();
+    expect(safeNext("/\\evil.com")).toBeNull();
+    expect(safeNext("https://evil.com")).toBeNull();
+  });
+
+  it("only comes back to pages under a language", () => {
+    expect(safeNext("/en/item/123?x=1#y")).toBe("/en/item/123?x=1#y");
+    expect(safeNext("/he")).toBe("/he");
+    expect(safeNext("/")).toBeNull();
+    expect(safeNext("/fr/item/1")).toBeNull();
+    expect(safeNext("/english")).toBeNull();
+  });
 });
 
 describe("empty Home text", () => {

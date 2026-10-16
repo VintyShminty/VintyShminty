@@ -143,9 +143,9 @@ describe.skipIf(!databaseUrl)("chat helpers: warnings (D-041)", () => {
         clientMessageId: first.clientMessageId,
       });
       expect(retry.statusCode).toBe(200);
-      const photo = await call("POST", `/v1/conversations/${conversationId}/messages`, buyer.token, {
+      const photo = await call("POST", `/v1/conversations/${conversationId}/messages`, seller.token, {
         kind: "photo",
-        attachmentKey: `messages/${buyer.id}/pic.jpg`,
+        attachmentKey: `messages/${seller.id}/pic.jpg`,
         clientMessageId: crypto.randomUUID(),
       });
       expect(photo.statusCode, photo.body).toBe(201);

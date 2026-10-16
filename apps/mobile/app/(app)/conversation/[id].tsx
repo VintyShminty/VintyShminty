@@ -240,7 +240,7 @@ function ConversationScreen() {
             <Composer
               conversationId={id}
               onSend={sendText}
-              onPickPhoto={() => void pickPhoto()}
+              onPickPhoto={conversation.canSendPhotos ? () => void pickPhoto() : undefined}
               onOffer={canOffer ? () => openOfferSheet(null) : undefined}
             />
           )}

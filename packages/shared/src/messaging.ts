@@ -167,6 +167,8 @@ export const conversationDetailSchema = conversationRowSchema.extend({
   order: conversationOrderSchema.nullable(),
   /** The other person blocked you or you blocked them: the thread opens but sending is refused. */
   blocked: z.boolean(),
+  /** Only the seller of the item may send photos in the chat. False for the buyer. */
+  canSendPhotos: z.boolean(),
   /** When the other person last opened the thread. The app shows "Seen" on your last message if it is later. */
   otherLastReadAt: isoDateTimeSchema.nullable(),
 });

@@ -171,27 +171,40 @@ describe.skipIf(!databaseUrl)("conversations and messages", () => {
       expect(offer.statusCode).toBe(400);
     });
 
-    it("sends a photo from the sender's own folder only", async () => {
-      const ok = await call("POST", `/v1/conversations/${conversationId}/messages`, buyer.token, {
+    it("lets only the seller send photos, from the seller's own folder only", async () => {
+      const ok = await call("POST", `/v1/conversations/${conversationId}/messages`, seller.token, {
         kind: "photo",
-        attachmentKey: `messages/${buyer.id}/${stamp}.jpg`,
+        attachmentKey: `messages/${seller.id}/${stamp}.jpg`,
         width: 600,
         height: 800,
         clientMessageId: crypto.randomUUID(),
       });
       expect(ok.statusCode, ok.body).toBe(201);
-      expect(ok.json().attachment.url).toContain(`messages/${buyer.id}/`);
+      expect(ok.json().attachment.url).toContain(`messages/${seller.id}/`);
       expect(ok.json().attachment.width).toBe(600);
 
-      const stolen = await call("POST", `/v1/conversations/${conversationId}/messages`, buyer.token, {
+      const buyerPhoto = await call("POST", `/v1/conversations/${conversationId}/messages`, buyer.token, {
         kind: "photo",
-        attachmentKey: `messages/${seller.id}/${stamp}.jpg`,
+        attachmentKey: `messages/${buyer.id}/${stamp}.jpg`,
+        clientMessageId: crypto.randomUUID(),
+      });
+      expect(buyerPhoto.statusCode).toBe(403);
+      expect(buyerPhoto.json().error.code).toBe("forbidden");
+
+      const detailBuyer = await call("GET", `/v1/conversations/${conversationId}`, buyer.token);
+      expect(detailBuyer.json().canSendPhotos).toBe(false);
+      const detailSeller = await call("GET", `/v1/conversations/${conversationId}`, seller.token);
+      expect(detailSeller.json().canSendPhotos).toBe(true);
+
+      const stolen = await call("POST", `/v1/conversations/${conversationId}/messages`, seller.token, {
+        kind: "photo",
+        attachmentKey: `messages/${buyer.id}/${stamp}.jpg`,
         clientMessageId: crypto.randomUUID(),
       });
       expect(stolen.statusCode).toBe(400);
-      const wrongFolder = await call("POST", `/v1/conversations/${conversationId}/messages`, buyer.token, {
+      const wrongFolder = await call("POST", `/v1/conversations/${conversationId}/messages`, seller.token, {
         kind: "photo",
-        attachmentKey: `listings/${buyer.id}/${stamp}.jpg`,
+        attachmentKey: `listings/${seller.id}/${stamp}.jpg`,
         clientMessageId: crypto.randomUUID(),
       });
       expect(wrongFolder.statusCode).toBe(400);
