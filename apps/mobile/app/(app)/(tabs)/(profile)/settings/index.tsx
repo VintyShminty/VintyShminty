@@ -4,6 +4,7 @@ import {
   Bell,
   Globe,
   HelpCircle,
+  Layers,
   Lock,
   LogOut,
   Mail,
@@ -103,6 +104,11 @@ export default function Settings() {
             icon={SlidersHorizontal}
             label={t("shopping.title")}
             onPress={() => router.push("/settings/personalisation")}
+          />
+          <Row
+            icon={Layers}
+            label={t("bundleSettings.title")}
+            onPress={() => router.push("/settings/bundles")}
           />
           <Row
             icon={Moon}

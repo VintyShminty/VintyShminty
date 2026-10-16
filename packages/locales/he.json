@@ -620,7 +620,8 @@
       "total": "תשלמו",
       "note": "אתם מוגנים בכיסוי. אם הפריט לא מגיע או לא תואם לתיאור, אנחנו נכנסים לתמונה ועוזרים לפתור את זה."
     },
-    "buyNow": "קנו עכשיו"
+    "buyNow": "קנו עכשיו",
+    "moreFromSeller": "עוד מ{{name}}"
   },
   "seller": {
     "more": "עוד אפשרויות",
@@ -1622,7 +1623,9 @@
     "discountLine": "באנדל, {{percent}}% הנחה",
     "postageOne": "משלוח, חבילה אחת",
     "stepsLabel": "שלבי ההנחה",
-    "soldRemoved": "נמכר, הוסר מהבאנדל שלך"
+    "soldRemoved": "נמכר, הוסר מהבאנדל שלך",
+    "addLabel": "הוספת {{title}} לבאנדל",
+    "removeLabel": "הסרת {{title}} מהבאנדל"
   },
   "protectionName": "כיסוי",
   "shopping": {

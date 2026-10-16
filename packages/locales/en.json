@@ -611,7 +611,8 @@
       "total": "You pay",
       "note": "You are protected by Coverage. If the item does not arrive or is not as described, we step in to help sort it out."
     },
-    "buyNow": "Buy now"
+    "buyNow": "Buy now",
+    "moreFromSeller": "More from {{name}}"
   },
   "seller": {
     "more": "More options",
@@ -1581,7 +1582,9 @@
     "discountLine": "Bundle, {{percent}}% off",
     "postageOne": "Postage, one parcel",
     "stepsLabel": "Discount steps",
-    "soldRemoved": "Sold, removed from your bundle"
+    "soldRemoved": "Sold, removed from your bundle",
+    "addLabel": "Add {{title}} to your bundle",
+    "removeLabel": "Remove {{title}} from your bundle"
   },
   "protectionName": "Coverage",
   "shopping": {
