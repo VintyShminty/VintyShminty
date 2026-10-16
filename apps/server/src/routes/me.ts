@@ -41,6 +41,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import { and, eq, inArray, ne, or, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { likePattern } from "../lib/admin.js";
 import { isAway } from "../lib/away.js";
 import { ApiError } from "../lib/errors.js";
 import { deleteAllFeedData, resetLearnedTaste } from "../lib/events.js";
@@ -378,7 +379,7 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
           tx.delete(userSizes).where(eq(userSizes.userId, userId)),
           tx.delete(userBrands).where(eq(userBrands.userId, userId)),
           deleteAllFeedData(tx, userId),
-          tx.delete(verifications).where(sql`${verifications.identifier} like ${`%${before.email}%`}`),
+          tx.delete(verifications).where(sql`${verifications.identifier} like ${likePattern(before.email)}`),
           tx.delete(sessions).where(eq(sessions.userId, userId)),
           tx.delete(accounts).where(eq(accounts.userId, userId)),
         ]);

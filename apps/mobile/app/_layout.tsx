@@ -90,11 +90,12 @@ export default function RootLayout() {
                 </Stack>
               </LocaleProvider>
             </View>
-            {signedIn && locked ? (
-              <AppLock kind={support?.kind ?? "generic"} onUsePassword={usePassword} />
-            ) : null}
             <PortalHost />
           </BottomSheetModalProvider>
+          {/* After the sheet host and PortalHost, so open sheets and popovers sit under the lock, not above it. */}
+          {signedIn && locked ? (
+            <AppLock kind={support?.kind ?? "generic"} onUsePassword={usePassword} />
+          ) : null}
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
