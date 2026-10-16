@@ -1,8 +1,8 @@
 import { Image } from "expo-image";
-import { X } from "lucide-react-native";
+import { Crop, RotateCw, X } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Modal, Pressable, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, FlatList, Modal, Pressable, useWindowDimensions, View } from "react-native";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -13,8 +13,10 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PhotoCropper } from "@/components/sell/photo-cropper";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import type { CropRect } from "@/lib/listing-photos";
 import { useIsRtl } from "@/lib/rtl";
 import { colors } from "@/theme";
 
@@ -22,7 +24,8 @@ const MAX_ZOOM = 4;
 const DISMISS_DISTANCE = 110;
 const SPRING = { damping: 28, stiffness: 320, mass: 1 };
 
-type ViewerPhoto = { id: string; uri: string };
+/** `state` is only given by the sell form: editing tools wait until the photo is uploaded. */
+type ViewerPhoto = { id: string; uri: string; state?: "uploading" | "done" | "failed" };
 
 /** One full-screen photo. Pinch to zoom, drag when zoomed, double tap to zoom, drag down to close. */
 function ViewerPage({
@@ -153,16 +156,23 @@ function ViewerPage({
 /**
  * Full-screen look at the listing's photos. Swipe between them, pinch to zoom, drag down or tap the cross to close.
  * It is a plain modal with its own gesture root, so it works above the sell form's native modal.
+ * With `onRotate` and `onCrop` (the seller's own photos in the sell form) a bar of editing tools shows at the bottom.
  */
 function PhotoViewer({
   photos,
   startIndex,
   onClose,
+  onRotate,
+  onCrop,
 }: {
   photos: readonly ViewerPhoto[];
   /** Null keeps the viewer closed. */
   startIndex: number | null;
   onClose: () => void;
+  /** A quarter turn clockwise. Resolves when the photo has been swapped (failures are shown by the caller). */
+  onRotate?: (id: string) => Promise<void>;
+  /** Crops to a rectangle in fractions of the photo. Resolves true when it worked. */
+  onCrop?: (id: string, rect: CropRect, size: { width: number; height: number }) => Promise<boolean>;
 }) {
   const { t } = useTranslation();
   const { width, height } = useWindowDimensions();
@@ -171,6 +181,8 @@ function PhotoViewer({
   const reduced = useReducedMotion();
   const [zoomed, setZoomed] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [cropping, setCropping] = useState(false);
+  const [busy, setBusy] = useState<"rotate" | "crop" | null>(null);
   const backdrop = useSharedValue(1);
   const list = useRef<FlatList<ViewerPhoto>>(null);
 
@@ -182,11 +194,34 @@ function PhotoViewer({
   const backdropStyle = useAnimatedStyle(() => ({ opacity: backdrop.value }));
   const close = useCallback(() => {
     setZoomed(false);
+    setCropping(false);
     backdrop.value = 1;
     onClose();
   }, [backdrop, onClose]);
 
   if (startIndex === null) return null;
+  const currentPhoto = photos[current];
+  const canEdit = Boolean(onRotate && onCrop && currentPhoto?.state === "done" && busy === null);
+
+  const rotate = async () => {
+    if (!onRotate || !currentPhoto) return;
+    setBusy("rotate");
+    try {
+      await onRotate(currentPhoto.id);
+    } finally {
+      setBusy(null);
+    }
+  };
+  const crop = async (rect: CropRect, size: { width: number; height: number }) => {
+    if (!onCrop || !currentPhoto) return;
+    setBusy("crop");
+    try {
+      if (await onCrop(currentPhoto.id, rect, size)) setCropping(false);
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const startList = toListIndex(startIndex);
 
   return (
@@ -195,7 +230,7 @@ function PhotoViewer({
       transparent
       animationType={reduced ? "none" : "fade"}
       statusBarTranslucent
-      onRequestClose={close}
+      onRequestClose={cropping && busy === null ? () => setCropping(false) : close}
       onShow={() => setCurrent(startIndex)}
     >
       <GestureHandlerRootView style={{ flex: 1, direction: "ltr" }}>
@@ -260,6 +295,50 @@ function PhotoViewer({
             <Icon as={X} size={20} />
           </Pressable>
         </View>
+        {onRotate && onCrop ? (
+          <View
+            pointerEvents="box-none"
+            style={{ position: "absolute", bottom: insets.bottom + 16, start: 16, end: 16 }}
+            className="items-center"
+          >
+            <View className="flex-row items-center gap-sm rounded-full bg-window p-xs">
+              <Pressable
+                onPress={() => void rotate()}
+                disabled={!canEdit}
+                role="button"
+                accessibilityLabel={t("sell.photos.rotate")}
+                accessibilityState={{ disabled: !canEdit, busy: busy === "rotate" }}
+                className={`h-10 flex-row items-center gap-sm rounded-full px-lg active:bg-pressed ${canEdit || busy ? "" : "opacity-40"}`}
+              >
+                {busy === "rotate" ? <ActivityIndicator size="small" /> : <Icon as={RotateCw} size={18} />}
+                <Text variant="button" weight={600}>
+                  {t("sell.photos.rotate")}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setCropping(true)}
+                disabled={!canEdit}
+                role="button"
+                accessibilityLabel={t("sell.photos.crop")}
+                accessibilityState={{ disabled: !canEdit }}
+                className={`h-10 flex-row items-center gap-sm rounded-full px-lg active:bg-pressed ${canEdit || busy ? "" : "opacity-40"}`}
+              >
+                <Icon as={Crop} size={18} />
+                <Text variant="button" weight={600}>
+                  {t("sell.photos.crop")}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : null}
+        {cropping && currentPhoto ? (
+          <PhotoCropper
+            uri={currentPhoto.uri}
+            busy={busy === "crop"}
+            onCancel={() => setCropping(false)}
+            onDone={(rect, size) => void crop(rect, size)}
+          />
+        ) : null}
       </GestureHandlerRootView>
     </Modal>
   );

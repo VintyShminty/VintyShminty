@@ -14,7 +14,17 @@ import { Icon } from "@/components/ui/icon";
 import { Row } from "@/components/ui/row";
 import { Sheet } from "@/components/ui/sheet";
 import { Text } from "@/components/ui/text";
-import { type PickedPhoto, pickListingPhotos, shrinkPhoto, uploadListingPhoto } from "@/lib/listing-photos";
+import {
+  type CropRect,
+  cropLocalPhoto,
+  cropUploadedPhoto,
+  type PickedPhoto,
+  pickListingPhotos,
+  rotateLocalPhoto,
+  rotateUploadedPhoto,
+  shrinkPhoto,
+  uploadListingPhoto,
+} from "@/lib/listing-photos";
 import { movePhoto } from "@/lib/move-photo";
 import { useIsRtl } from "@/lib/rtl";
 import { newPhotoId, type SellPhoto, useSellStore } from "@/lib/sell-store";
@@ -118,6 +128,64 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
 
   const remove = (id: string) =>
     set({ photos: useSellStore.getState().values.photos.filter((p) => p.id !== id) });
+
+  /** Swaps in an edited picture, keeps the order and marks the form as changed. */
+  const replacePhoto = (id: string, patch: Partial<SellPhoto>) =>
+    set({
+      photos: useSellStore.getState().values.photos.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+    });
+
+  /** A quarter turn. Only on the phone: turned here. Already uploaded: the server turns it and gives a new key. */
+  const rotate = async (id: string) => {
+    const photo = useSellStore.getState().values.photos.find((p) => p.id === id);
+    if (!photo) return;
+    try {
+      if (photo.key) {
+        const turned = await rotateUploadedPhoto(photo.key);
+        replacePhoto(id, {
+          key: turned.key,
+          uri: turned.publicUrl,
+          width: photo.height,
+          height: photo.width,
+        });
+      } else {
+        const turned = await rotateLocalPhoto({ uri: photo.uri, width: photo.width, height: photo.height });
+        replacePhoto(id, { uri: turned.uri, width: turned.width, height: turned.height });
+      }
+    } catch (err) {
+      if (__DEV__) console.warn("Rotating a listing photo failed:", err);
+      Alert.alert(t("sell.photos.rotateFailed"));
+    }
+  };
+
+  /** A crop. `rect` is in fractions of the photo, `size` is its real pixel size as the viewer loaded it. */
+  const crop = async (id: string, rect: CropRect, size: { width: number; height: number }) => {
+    const photo = useSellStore.getState().values.photos.find((p) => p.id === id);
+    if (!photo) return false;
+    try {
+      if (photo.key) {
+        const cut = await cropUploadedPhoto(photo.key, rect);
+        replacePhoto(id, {
+          key: cut.key,
+          uri: cut.publicUrl,
+          width: Math.max(1, Math.round(rect.width * size.width)),
+          height: Math.max(1, Math.round(rect.height * size.height)),
+        });
+      } else {
+        const cut = await cropLocalPhoto(
+          { uri: photo.uri, width: photo.width, height: photo.height },
+          rect,
+          size,
+        );
+        replacePhoto(id, { uri: cut.uri, width: cut.width, height: cut.height });
+      }
+      return true;
+    } catch (err) {
+      if (__DEV__) console.warn("Cropping a listing photo failed:", err);
+      Alert.alert(t("sell.photos.cropFailed"));
+      return false;
+    }
+  };
 
   const openTile = (photo: SellPhoto, index: number) => {
     if (photo.state === "failed") {
@@ -267,7 +335,13 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
         </View>
         {!rtl && remaining > 0 ? addBox : null}
       </Animated.ScrollView>
-      <PhotoViewer photos={photos} startIndex={viewing} onClose={() => setViewing(null)} />
+      <PhotoViewer
+        photos={photos}
+        startIndex={viewing}
+        onClose={() => setViewing(null)}
+        onRotate={rotate}
+        onCrop={crop}
+      />
       <Text variant="cardDesc" className={failed || error ? "text-error" : "text-text-3"}>
         {failed
           ? t("sell.photos.failed")

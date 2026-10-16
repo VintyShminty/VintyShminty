@@ -558,6 +558,11 @@
       "main": "Cover",
       "viewerClose": "Close photo",
       "remove": "Remove photo",
+      "rotate": "Rotate",
+      "rotateFailed": "Could not turn the photo. Try again",
+      "crop": "Crop",
+      "cropFailed": "Could not crop the photo. Try again",
+      "cropArea": "Crop area",
       "deniedTitle": "No access to photos",
       "denied": "Allow Yadii to use your photos or camera in the phone's Settings"
     },

@@ -1,4 +1,10 @@
-import { type UploadResponse, uploadResponseSchema } from "@vinty/shared";
+import {
+  type CropPhotoInput,
+  type RotatePhotoResponse,
+  rotatePhotoResponseSchema,
+  type UploadResponse,
+  uploadResponseSchema,
+} from "@vinty/shared";
 import * as FileSystem from "expo-file-system/legacy";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -94,4 +100,55 @@ export async function uploadListingPhoto(
   }
   onProgress(1);
   return upload;
+}
+
+/** Turns a photo that is only on the phone a quarter turn, saved as JPEG like the shrunk copy. */
+export async function rotateLocalPhoto(photo: PickedPhoto): Promise<PickedPhoto> {
+  const turned = await ImageManipulator.manipulateAsync(photo.uri, [{ rotate: 90 }], {
+    compress: 0.8,
+    format: ImageManipulator.SaveFormat.JPEG,
+  });
+  return { uri: turned.uri, width: turned.width, height: turned.height };
+}
+
+/** Asks the server to turn a photo that is already uploaded. The answer is a new key, the listing must use it. */
+export function rotateUploadedPhoto(key: string): Promise<RotatePhotoResponse> {
+  return api<RotatePhotoResponse>("/v1/uploads/rotate", {
+    method: "POST",
+    body: { key, direction: "cw" },
+    schema: rotatePhotoResponseSchema,
+  });
+}
+
+/** A crop rectangle in fractions (0 to 1) of the photo as it is shown. */
+export type CropRect = Pick<CropPhotoInput, "x" | "y" | "width" | "height">;
+
+/** Crops a photo that is only on the phone. `size` is the photo's real pixel size, the rectangle is in fractions. */
+export async function cropLocalPhoto(
+  photo: PickedPhoto,
+  rect: CropRect,
+  size: { width: number; height: number },
+): Promise<PickedPhoto> {
+  const originX = Math.min(size.width - 1, Math.round(rect.x * size.width));
+  const originY = Math.min(size.height - 1, Math.round(rect.y * size.height));
+  const width = Math.min(size.width - originX, Math.max(1, Math.round(rect.width * size.width)));
+  const height = Math.min(size.height - originY, Math.max(1, Math.round(rect.height * size.height)));
+  const cut = await ImageManipulator.manipulateAsync(
+    photo.uri,
+    [{ crop: { originX, originY, width, height } }],
+    {
+      compress: 0.8,
+      format: ImageManipulator.SaveFormat.JPEG,
+    },
+  );
+  return { uri: cut.uri, width: cut.width, height: cut.height };
+}
+
+/** Asks the server to crop a photo that is already uploaded. The answer is a new key, the listing must use it. */
+export function cropUploadedPhoto(key: string, rect: CropRect): Promise<RotatePhotoResponse> {
+  return api<RotatePhotoResponse>("/v1/uploads/crop", {
+    method: "POST",
+    body: { key, ...rect },
+    schema: rotatePhotoResponseSchema,
+  });
 }
