@@ -1,6 +1,6 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
-import { type HiddenItem, PERSONALISATION_SIZES_MAX } from "@vinty/shared";
+import { type HiddenItem, ONBOARDING_PICKS, PERSONALISATION_SIZES_MAX } from "@vinty/shared";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,18 +8,24 @@ import { Alert, ScrollView, View } from "react-native";
 import { OptionListSheet } from "@/components/sell/option-list-sheet";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
-import { Row, SectionHeader } from "@/components/ui/row";
+import { Row, SectionHeader, SwitchRow } from "@/components/ui/row";
 import { Screen } from "@/components/ui/screen";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { describeApiError } from "@/lib/auth-errors";
-import { hiddenQuery, useResetRecommendations, useUndoHide } from "@/lib/feed-queries";
+import {
+  hiddenQuery,
+  shopsForQuery,
+  useResetRecommendations,
+  useSaveShopsFor,
+  useUndoHide,
+} from "@/lib/feed-queries";
 import { personalisationSizesQuery, useSavePersonalisationSizes } from "@/lib/item-queries";
 import { useLocalName, useReference } from "@/lib/reference";
 import { buildSizeOptions, summariseSizes } from "@/lib/size-options";
 
-/** Settings, Shopping preferences: the sizes your feed puts first. Brands arrive in Milestone 6. */
+/** Settings, Shopping preferences: what you shop for and the sizes your feed puts first. */
 export default function Personalisation() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -29,6 +35,8 @@ export default function Personalisation() {
   const saved = useQuery(personalisationSizesQuery());
   const save = useSavePersonalisationSizes();
   const hidden = useQuery(hiddenQuery());
+  const shopsFor = useQuery(shopsForQuery());
+  const saveShopsFor = useSaveShopsFor();
   const undo = useUndoHide();
   const reset = useResetRecommendations();
   const [resetDone, setResetDone] = useState(false);
@@ -85,7 +93,31 @@ export default function Personalisation() {
     <Screen>
       <TopBar title={t("shopping.title")} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-2xl">
-        <SectionHeader className="pt-sm">{t("shopping.sizes")}</SectionHeader>
+        {shopsFor.data ? (
+          <>
+            <SectionHeader className="pt-sm">{t("shopping.shopFor")}</SectionHeader>
+            {ONBOARDING_PICKS.map((pick, i) => {
+              const picked = shopsFor.data.shopsFor;
+              return (
+                <SwitchRow
+                  key={pick}
+                  label={t(`onboarding.shopFor.${pick}`)}
+                  checked={picked.includes(pick)}
+                  onCheckedChange={(on) =>
+                    saveShopsFor.mutate(
+                      ONBOARDING_PICKS.filter((p) => (p === pick ? on : picked.includes(p))),
+                    )
+                  }
+                  last={i === ONBOARDING_PICKS.length - 1}
+                />
+              );
+            })}
+            <Text variant="cardDesc" className="px-lg pt-sm text-text-3">
+              {t("shopping.shopForNote")}
+            </Text>
+          </>
+        ) : null}
+        <SectionHeader className={shopsFor.data ? undefined : "pt-sm"}>{t("shopping.sizes")}</SectionHeader>
         <Row label={t("shopping.pick")} value={summary} onPress={() => sheetRef.current?.present()} last />
         <Text variant="cardDesc" className="px-lg pt-sm text-text-3">
           {t("shopping.sizesNote")}
@@ -141,6 +173,11 @@ export default function Personalisation() {
           </View>
         ) : null}
         {reset.isError ? (
+          <View className="px-lg pt-lg">
+            <Banner variant="error">{t("errors.general")}</Banner>
+          </View>
+        ) : null}
+        {saveShopsFor.isError ? (
           <View className="px-lg pt-lg">
             <Banner variant="error">{t("errors.general")}</Banner>
           </View>

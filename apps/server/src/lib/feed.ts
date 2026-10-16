@@ -17,7 +17,9 @@ import {
   type AffinityFeature,
   arrangeFeed,
   type CategoryNode,
+  CORNER_MIN,
   confidence,
+  EXPLORE_GROUP_MIN,
   effectiveScore,
   type FeedCard,
   type FeedMood,
@@ -30,10 +32,12 @@ import {
   GENERAL_WEIGHTS,
   type HomeFeedPage,
   NEW_PILE_DAYS,
+  OTHER_GROUP_MINUS,
   PERSONAL_WEIGHTS,
   PILES,
   priceBand,
   type ReferenceData,
+  resolveGroups,
   type ScoredItem,
   SEEN_PENALTY,
   SEEN_PENALTY_AFTER,
@@ -50,10 +54,11 @@ import {
   filterConditions,
   moodConditions,
   queryCardRows,
+  type SearchPersonal,
   toCards,
   visibilityConditions,
 } from "./discovery.js";
-import { parentCategoryIds, personalisationOn } from "./events.js";
+import { feedSettings, groupRootIds, parentCategoryIds } from "./events.js";
 
 type App = Pick<FastifyInstance, "db" | "storage" | "reference" | "log">;
 
@@ -75,6 +80,10 @@ export type Taste = {
   top: { categories: string[]; parents: string[]; brands: string[]; sellers: string[] };
   /** Categories the person already knows well. The surprise pile looks elsewhere. */
   knownCategories: string[];
+  /** Faded points per top category (Women, Men, Kids...), to work out the person's groups when they did not answer. */
+  rootTotals: Map<string, number>;
+  /** The person's own shopping groups (top category ids). Null when unknown: nothing is lowered. */
+  groups: Set<string> | null;
   follows: Set<string>;
   pickedBrands: Set<string>;
   chosenSizes: Set<string>;
@@ -87,7 +96,7 @@ export function buildTaste(
   lines: { feature: AffinityFeature; key: string; score: number; scoredAt: Date }[],
   rootCategoryIds: ReadonlySet<string>,
   now = new Date(),
-): Pick<Taste, "confidence" | "scores" | "top" | "knownCategories"> {
+): Pick<Taste, "confidence" | "scores" | "top" | "knownCategories" | "rootTotals"> {
   const effective = lines
     .map((l) => ({ ...l, eff: effectiveScore(l.score, l.scoredAt, now) }))
     .filter((l) => l.eff > 0);
@@ -125,6 +134,11 @@ export function buildTaste(
     knownCategories: sorted("category")
       .filter((r) => r.eff >= 1)
       .map((r) => r.key),
+    rootTotals: new Map(
+      sorted("parent_category")
+        .filter((r) => rootCategoryIds.has(r.key))
+        .map((r) => [r.key, r.eff]),
+    ),
   };
 }
 
@@ -134,7 +148,9 @@ async function loadTaste(
   viewerId: string | undefined,
   reference: ReferenceData,
 ): Promise<Taste | null> {
-  if (!viewerId || !(await personalisationOn(app, viewerId))) return null;
+  if (!viewerId) return null;
+  const settings = await feedSettings(app, viewerId);
+  if (!settings.on) return null;
   const { db } = app;
   const [lines, followed, brandRows, sizeRows, seenRows] = await Promise.all([
     db.select().from(userAffinities).where(eq(userAffinities.userId, viewerId)),
@@ -164,6 +180,7 @@ async function loadTaste(
   );
   return {
     ...base,
+    groups: resolveGroups(settings.shopsFor, groupRootIds(reference.categories), base.rootTotals),
     follows: new Set(followed.map((f) => f.id)),
     pickedBrands: new Set(brandRows.map((b) => b.id)),
     chosenSizes: new Set(sizeRows.map((s) => s.id)),
@@ -172,6 +189,37 @@ async function loadTaste(
         r.listingId ? [[r.listingId, { shown: r.shown, opened: r.opened }] as const] : [],
       ),
     ),
+  };
+}
+
+/**
+ * What a signed in person's search order leans on (plan section 11.4). Null for a visitor and for a person who
+ * turned personalisation off: their search order stays as it is for everyone.
+ */
+export async function searchPersonal(
+  app: App,
+  viewerId: string | undefined,
+  reference: ReferenceData,
+): Promise<SearchPersonal | null> {
+  const taste = await loadTaste(app, viewerId, reference);
+  if (!taste) return null;
+  const tree = reference.categories;
+  const subtrees = (ids: string[]) => [...new Set(ids.flatMap((id) => categorySubtreeIds(tree, id)))];
+  const strong = (feature: AffinityFeature, min: number) =>
+    [...taste.scores[feature]].filter(([, v]) => v >= min).map(([key]) => key);
+  const groupRoots = [...groupRootIds(tree).values()];
+  const otherGroups = taste.groups ? groupRoots.filter((id) => !taste.groups?.has(id)) : [];
+  return {
+    otherGroupIds: subtrees(otherGroups),
+    cornerIds: subtrees([
+      ...strong("category", CORNER_MIN),
+      ...strong("parent_category", CORNER_MIN).filter((id) => !groupRoots.includes(id)),
+    ]),
+    categoryIds: taste.confidence > 0 ? taste.top.categories : [],
+    brandIds: [...new Set([...(taste.confidence > 0 ? taste.top.brands : []), ...taste.pickedBrands])],
+    sellerIds: [...new Set([...(taste.confidence > 0 ? taste.top.sellers : []), ...taste.follows])],
+    styles: taste.confidence > 0 ? strong("style", 0.5) : [],
+    sizeIds: [...taste.chosenSizes],
   };
 }
 
@@ -207,7 +255,10 @@ export type ScoreContext = {
   /** Stays the same all day for one person, so the small shuffle does not move cards between requests. */
   seed: string;
   maxPop: number;
+  /** Every category above this one, closest first. The last one is the top (Women, Men, Kids...). */
   parentsOf: (categoryId: string) => readonly string[];
+  /** The top categories that are shopping groups (Women, Men, Kids). */
+  groupRoots: ReadonlySet<string>;
 };
 
 const shuffleOf = (seed: string, id: string) =>
@@ -282,6 +333,18 @@ export function scoreCandidate(
 
     const seen = taste.seen.get(c.id);
     if (seen && seen.shown >= SEEN_PENALTY_AFTER && seen.opened === 0) penalty = SEEN_PENALTY;
+
+    // Another shopping group moves a bit lower, unless the person opened this corner of it (plan section 11.2, 11.3).
+    if (taste.groups && c.categoryId) {
+      const parents = ctx.parentsOf(c.categoryId);
+      const top = parents.at(-1) ?? c.categoryId;
+      if (ctx.groupRoots.has(top) && !taste.groups.has(top)) {
+        const above = parents.length > 1 ? (parents[0] ?? null) : null;
+        const corner =
+          get("category", c.categoryId) >= CORNER_MIN || get("parent_category", above) >= CORNER_MIN;
+        if (!corner) penalty += OTHER_GROUP_MINUS;
+      }
+    }
   }
 
   const G = GENERAL_WEIGHTS;
@@ -467,6 +530,21 @@ async function loadCandidates(
     const unknown = or(isNull(listings.categoryId), notInArray(listings.categoryId, known));
     if (unknown) exploreExtra.push(unknown);
   }
+  // Surprises stay inside the person's own groups (or outside every group). Plan section 11.2.
+  const otherGroups = taste?.groups
+    ? [...groupRootIds(reference.categories).values()].filter((id) => !taste.groups?.has(id))
+    : [];
+  const otherGroupIds = [
+    ...new Set(otherGroups.flatMap((id) => categorySubtreeIds(reference.categories, id))),
+  ];
+  const ownGroups = or(isNull(listings.categoryId), notInArray(listings.categoryId, otherGroupIds));
+  const explore = async () => {
+    const order = [sql`md5(${listings.id}::text || ${seed})`];
+    if (otherGroupIds.length === 0 || !ownGroups) return select(exploreExtra, order, PILES.explore);
+    const inside = await select([...exploreExtra, ownGroups], order, PILES.explore);
+    // Too few in the person's groups (a small shop today): the whole site, as before.
+    return inside.length >= EXPLORE_GROUP_MIN ? inside : select(exploreExtra, order, PILES.explore);
+  };
 
   const [tastePile, newPile, popularPile, explorePile] = await Promise.all([
     tasteConditions.length
@@ -483,7 +561,7 @@ async function loadCandidates(
       PILES.popular,
     ),
     // The same surprises all day for one person, different between people.
-    select(exploreExtra, [sql`md5(${listings.id}::text || ${seed})`], PILES.explore),
+    explore(),
   ]);
 
   const byId = new Map<string, Candidate>();
@@ -540,7 +618,8 @@ async function createSnapshot(app: App, scope: FeedScope, reference: ReferenceDa
     return found;
   };
   const maxPop = Math.max(1, ...candidates.map((c) => c.pop));
-  const ctx: ScoreContext = { now, seed, maxPop, parentsOf };
+  const groupRoots = new Set(groupRootIds(reference.categories).values());
+  const ctx: ScoreContext = { now, seed, maxPop, parentsOf, groupRoots };
   const scored = candidates
     .map((c) => ({ c, ...scoreCandidate(c, taste, ctx) }))
     .sort((a, b) => b.score - a.score || (a.c.id < b.c.id ? 1 : -1));

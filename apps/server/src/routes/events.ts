@@ -1,4 +1,13 @@
-import { brands, feedHidden, listings, profiles, userEvents, users } from "@vinty/db";
+import {
+  brands,
+  feedHidden,
+  feedSnapshots,
+  listings,
+  profiles,
+  userEvents,
+  userSettings,
+  users,
+} from "@vinty/db";
 import {
   DWELL_MIN_MS,
   DWELL_MIN_PHOTOS,
@@ -13,6 +22,7 @@ import {
   hideInputSchema,
   idSchema,
   onboardingPicksSchema,
+  shopsForSchema,
 } from "@vinty/shared";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
@@ -271,6 +281,42 @@ const eventRoutes: FastifyPluginAsyncZod = async (app) => {
     },
   );
 
+  // ---- What do you shop for (a lasting setting, plan section 11.1) ----
+
+  const saveShopsFor = async <T extends string>(userId: string, picks: readonly T[]): Promise<T[]> => {
+    const shopsFor = [...new Set(picks)];
+    await db
+      .insert(userSettings)
+      .values({ userId, shopsFor })
+      .onConflictDoUpdate({ target: userSettings.userId, set: { shopsFor } });
+    // The next Home starts a fresh list with the new groups.
+    await db.delete(feedSnapshots).where(eq(feedSnapshots.userId, userId));
+    return shopsFor;
+  };
+
+  app.get(
+    "/v1/me/personalisation/shops-for",
+    { preHandler, schema: { response: { 200: shopsForSchema, ...errors } } },
+    async (request) => {
+      const [row] = await db
+        .select({ shopsFor: userSettings.shopsFor })
+        .from(userSettings)
+        .where(eq(userSettings.userId, userIdOf(request)))
+        .limit(1);
+      return shopsForSchema.parse({ shopsFor: row?.shopsFor ?? [] });
+    },
+  );
+
+  app.put(
+    "/v1/me/personalisation/shops-for",
+    {
+      preHandler,
+      config: WRITE_LIMIT,
+      schema: { body: shopsForSchema, response: { 200: shopsForSchema, ...errors } },
+    },
+    async (request) => ({ shopsFor: await saveShopsFor(userIdOf(request), request.body.shopsFor) }),
+  );
+
   // ---- After sign up ----
 
   app.post(
@@ -283,6 +329,8 @@ const eventRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request, reply) => {
       const userId = userIdOf(request);
       const reference = await app.reference.get();
+      // The answer is kept as a setting that never fades. Skipping (no picks) leaves an earlier answer alone.
+      if (request.body.picks.length > 0) await saveShopsFor(userId, request.body.picks);
       const picked = [...new Set(request.body.picks)].flatMap((slug) => {
         const node = reference.categories.find((c) => c.slug === slug);
         return node ? [node.id] : [];

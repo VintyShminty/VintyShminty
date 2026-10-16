@@ -133,6 +133,38 @@ export const FIRST_CHANCE_MAX_VIEWS = 50;
 export const SEEN_PENALTY_AFTER = 3;
 export const SEEN_PENALTY = 0.5;
 export const SHUFFLE_SIZE = 0.1;
+/**
+ * Shopping groups (Women, Men, Kids, plan section 11). Items in a group the person does not shop for move this much
+ * lower on Home, never hidden (Eden: "a bit lower"). A strong taste match is worth about 1.
+ */
+export const OTHER_GROUP_MINUS = 0.3;
+/** Without an answer, a group counts as the person's own when it holds this share of their learned group taste... */
+export const INFERRED_GROUP_SHARE = 0.6;
+/** ...and only once there is this much of it (points, after fading). */
+export const INFERRED_GROUP_MIN_POINTS = 5;
+/** A corner outside the person's groups stays open while its taste is at least this (0 to 1, against their best). */
+export const CORNER_MIN = 0.2;
+/** Surprise cards come from the person's groups, or from the whole site when those have fewer recent items than this. */
+export const EXPLORE_GROUP_MIN = 10;
+
+/**
+ * The person's own shopping groups as top category ids. Their answer wins. Without one, the group holding most of
+ * their learned taste counts once it is clear enough. Null means unknown: nothing is lowered.
+ */
+export function resolveGroups(
+  answer: readonly string[],
+  groupRoots: ReadonlyMap<string, string>,
+  learned: ReadonlyMap<string, number>,
+): Set<string> | null {
+  const picked = answer.flatMap((slug) => groupRoots.get(slug) ?? []);
+  if (picked.length > 0) return new Set(picked);
+  const ids = [...groupRoots.values()];
+  const total = ids.reduce((n, id) => n + (learned.get(id) ?? 0), 0);
+  if (total < INFERRED_GROUP_MIN_POINTS) return null;
+  const top = ids.find((id) => (learned.get(id) ?? 0) / total >= INFERRED_GROUP_SHARE);
+  return top ? new Set([top]) : null;
+}
+
 /** Newest items in the last 7 days make up the "new" pile. */
 export const NEW_PILE_DAYS = 7;
 

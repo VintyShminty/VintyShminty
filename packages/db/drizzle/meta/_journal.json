@@ -92,6 +92,13 @@
       "when": 1792074646436,
       "tag": "0012_lumpy_sir_ram",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792159886137,
+      "tag": "0013_normal_molten_man",
+      "breakpoints": true
     }
   ]
 }

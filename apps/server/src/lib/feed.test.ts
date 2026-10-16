@@ -1,4 +1,4 @@
-import type { AffinityFeature } from "@vinty/shared";
+import { type AffinityFeature, OTHER_GROUP_MINUS, resolveGroups } from "@vinty/shared";
 import { describe, expect, it } from "vitest";
 import { bestTerm, buildTaste, type Candidate, scoreCandidate, type Taste } from "./feed.js";
 
@@ -76,6 +76,7 @@ const candidate = (over: Partial<Candidate> = {}): Candidate => ({
 
 const taste = (over: Partial<Taste> = {}): Taste => ({
   ...buildTaste([], new Set(), now),
+  groups: null,
   follows: new Set(),
   pickedBrands: new Set(),
   chosenSizes: new Set(),
@@ -83,7 +84,73 @@ const taste = (over: Partial<Taste> = {}): Taste => ({
   ...over,
 });
 
-const ctx = { now, seed: "t", maxPop: 1, parentsOf: () => [] as string[] };
+const ctx = { now, seed: "t", maxPop: 1, parentsOf: () => [] as string[], groupRoots: new Set<string>() };
+
+describe("shopping groups", () => {
+  const roots = new Map([
+    ["women", "W"],
+    ["men", "M"],
+    ["kids", "K"],
+  ]);
+  // Women > Sports > Cycling, Women > Dresses, Men > Shirts, and Home with no group.
+  const parents: Record<string, string[]> = {
+    cycling: ["sports", "W"],
+    dresses: ["W"],
+    shirts: ["M"],
+    lamps: ["home"],
+  };
+  const groupCtx = {
+    ...ctx,
+    parentsOf: (id: string) => parents[id] ?? [],
+    groupRoots: new Set(["W", "M", "K"]),
+  };
+  const man = (lines: ReturnType<typeof line>[] = []) =>
+    taste({ ...buildTaste(lines, new Set(["W", "M", "K"]), now), groups: new Set(["M"]) });
+  const score = (categoryId: string, t: Taste) =>
+    scoreCandidate(candidate({ categoryId }), t, groupCtx).score;
+
+  it("keeps the answer, and otherwise works the group out once it is clear", () => {
+    expect(resolveGroups(["men"], roots, new Map([["W", 50]]))).toEqual(new Set(["M"]));
+    expect(resolveGroups([], roots, new Map([["W", 2]]))).toBeNull();
+    expect(
+      resolveGroups(
+        [],
+        roots,
+        new Map([
+          ["W", 8],
+          ["M", 2],
+        ]),
+      ),
+    ).toEqual(new Set(["W"]));
+    expect(
+      resolveGroups(
+        [],
+        roots,
+        new Map([
+          ["W", 5],
+          ["M", 5],
+        ]),
+      ),
+    ).toBeNull();
+  });
+
+  it("moves another group a bit lower, never items with no group", () => {
+    const t = man();
+    expect(score("shirts", t) - score("dresses", t)).toBeCloseTo(OTHER_GROUP_MINUS);
+    expect(score("lamps", t)).toBeCloseTo(score("shirts", t));
+  });
+
+  it("lowers nothing when the groups are unknown", () => {
+    const t = taste();
+    expect(score("dresses", t)).toBeCloseTo(score("shirts", t));
+  });
+
+  it("lifts the corner the person opened and not the rest of that group", () => {
+    const t = man([line("category", "cycling", 4), line("parent_category", "sports", 2)]);
+    const cycling = score("cycling", t);
+    expect(cycling).toBeGreaterThan(score("dresses", t) + OTHER_GROUP_MINUS - 0.01);
+  });
+});
 
 describe("scoreCandidate", () => {
   it("scores a visitor with the general score only", () => {

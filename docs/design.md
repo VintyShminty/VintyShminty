@@ -710,6 +710,17 @@ Proposals, not rules, until explicitly promoted above.
 
 ## Superseded decisions
 
+
+### D-048 : Home and search show your shopping groups first
+
+- **Date:** 2026-10-16
+- **Area:** Home feed, search, Settings (Shopping preferences), app and website
+- **Status:** Built on branch feat/shopping-groups, waiting for review.
+- **Decision:** The answer to "What do you shop for?" (Women, Men, Kids) is a lasting setting, shown at the top of Shopping preferences as three switches with the note "Home and search show these first. Everything else still shows, just a little lower". Items from other groups move a bit lower on Home and are never hidden. Surprise cards stay inside the person's groups, or come from the whole site while those have too few items. Liking something outside your groups lifts only that corner (women's cycling clothes, not dresses), fading at the normal speed. The default order of a word search puts, among items that match the words about as well, the person's groups first, then their taste, then their set sizes. A picked sort (Cheapest, Newest) stays exact. Visitors and people with "Tailor Home to what I do" off see the same order as everyone.
+- **Rationale:** A man mostly does not want women's clothes on Home unless he went looking for them, and then only the kind he looked at. Lowering instead of hiding keeps Home full while stock is small.
+- **Trade-off:** Without an answer, the groups are worked out from behaviour only once one group holds 60 percent of it, so a mixed shopper sees nothing lowered.
+- **Implementation:** `docs/plans/home-feed.md` section 11. `user_settings.shops_for`, `GET` and `PUT /v1/me/personalisation/shops-for`, `resolveGroups` and the group values in `packages/shared/src/recommendations.ts`, `apps/server/src/lib/feed.ts` (score, surprise pile, `searchPersonal`), `lib/events.ts` (corners), `lib/discovery.ts` (`sortSpec`).
+- **References:** D-022, D-042, `docs/plans/home-feed.md`
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13

@@ -38,7 +38,7 @@ import {
 } from "../lib/discovery.js";
 import { ApiError } from "../lib/errors.js";
 import { recordEvents } from "../lib/events.js";
-import { feedConditions, homeFeedPage } from "../lib/feed.js";
+import { feedConditions, homeFeedPage, searchPersonal } from "../lib/feed.js";
 import { type ListingRow, loadListingDetail } from "../lib/listings.js";
 import { optionalViewerId } from "../lib/viewer.js";
 
@@ -78,8 +78,11 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
       const reference = await app.reference.get();
       const { cursor, limit, sort, ...filters } = request.query;
       const where = searchConditions(filters, reference, viewerId);
+      // Only the default order of a word search knows the person. A picked sort stays exact (plan section 11.4).
+      const personal =
+        sort === "relevance" && filters.q?.trim() ? await searchPersonal(app, viewerId, reference) : null;
       const [page, counts] = await Promise.all([
-        queryCardRows(db, { where, sort: sortSpec(sort, filters.q), cursor, limit }),
+        queryCardRows(db, { where, sort: sortSpec(sort, filters.q, personal), cursor, limit }),
         countMatches(db, where),
       ]);
       return {

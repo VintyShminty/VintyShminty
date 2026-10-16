@@ -6,6 +6,8 @@ import {
   hiddenItemSchema,
   hiddenListSchema,
   type OnboardingPick,
+  type ShopsFor,
+  shopsForSchema,
 } from "@vinty/shared";
 import type { z } from "zod";
 import { api } from "@/lib/api";
@@ -90,6 +92,39 @@ export function useSaveOnboardingPicks() {
   return useMutation({
     mutationFn: (picks: OnboardingPick[]) =>
       api("/v1/me/onboarding-picks", { method: "POST", body: { picks } }),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["feed"] }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["shops-for"] });
+    },
+  });
+}
+
+/** What the person shops for (Women, Men, Kids), kept as a setting. Home and search show these first. */
+export const shopsForQuery = () =>
+  queryOptions({
+    queryKey: ["shops-for"],
+    queryFn: () => api("/v1/me/personalisation/shops-for", { schema: shopsForSchema }),
+  });
+
+export function useSaveShopsFor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (shopsFor: OnboardingPick[]) =>
+      api<ShopsFor>("/v1/me/personalisation/shops-for", {
+        method: "PUT",
+        body: { shopsFor },
+        schema: shopsForSchema,
+      }),
+    onMutate: async (shopsFor) => {
+      await queryClient.cancelQueries({ queryKey: ["shops-for"] });
+      const previous = queryClient.getQueryData<ShopsFor>(["shops-for"]);
+      queryClient.setQueryData<ShopsFor>(["shops-for"], { shopsFor });
+      return { previous };
+    },
+    onError: (_err, _picks, context) => {
+      if (context?.previous) queryClient.setQueryData(["shops-for"], context.previous);
+    },
+    // Home builds a new list with the new groups.
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: ["feed"] }),
   });
 }

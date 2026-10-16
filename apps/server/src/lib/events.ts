@@ -19,6 +19,7 @@ import {
   findCategory,
   HALF_LIFE_DAYS,
   type ItemFeatures,
+  ONBOARDING_PICKS,
   priceBand,
   type ReferenceData,
   type UserEventType,
@@ -56,15 +57,45 @@ export function parentCategoryIds(tree: readonly CategoryNode[], categoryId: str
     .reverse();
 }
 
-/** Whether this person lets the feed learn from what they do. A missing settings row means yes. */
-export async function personalisationOn(app: Pick<App, "db">, userId: string): Promise<boolean> {
+/**
+ * What the feed needs from a person's settings: whether it may learn from what they do, and what they shop for
+ * (Women, Men, Kids slugs, empty when not answered). A missing settings row means yes and not answered.
+ */
+export async function feedSettings(
+  app: Pick<App, "db">,
+  userId: string,
+): Promise<{ on: boolean; shopsFor: string[] }> {
   const [row] = await app.db
-    .select({ on: userSettings.personaliseFeed })
+    .select({ on: userSettings.personaliseFeed, shopsFor: userSettings.shopsFor })
     .from(userSettings)
     .where(eq(userSettings.userId, userId))
     .limit(1);
-  return row ? row.on : true;
+  return row ? { on: row.on, shopsFor: row.shopsFor } : { on: true, shopsFor: [] };
 }
+
+/** Whether this person lets the feed learn from what they do. A missing settings row means yes. */
+export async function personalisationOn(app: Pick<App, "db">, userId: string): Promise<boolean> {
+  return (await feedSettings(app, userId)).on;
+}
+
+/** The shopping groups at the top of the tree (Women, Men, Kids), slug to category id. */
+export function groupRootIds(tree: readonly CategoryNode[]): Map<string, string> {
+  const slugs = new Set<string>(ONBOARDING_PICKS);
+  return new Map(tree.filter((n) => slugs.has(n.slug)).map((n) => [n.slug, n.id]));
+}
+
+/** The shopping group (its top category id) a category belongs to. Null outside Women, Men and Kids. */
+export function groupOf(tree: readonly CategoryNode[], categoryId: string): string | null {
+  const top = categoryTrail(tree, categoryId)[0];
+  return top && (ONBOARDING_PICKS as readonly string[]).includes(top.slug) ? top.id : null;
+}
+
+/**
+ * An action outside the person's groups opens only a small corner (plan section 11.3): it teaches the item's own
+ * category and the one directly above it, never the group itself or anything else higher up.
+ */
+const cornerParents = (parents: readonly string[]): string[] =>
+  parents.length > 1 && parents[0] ? [parents[0]] : [];
 
 export type ListingFeatures = ItemFeatures & {
   categoryId: string | null;
@@ -120,12 +151,24 @@ export async function loadListingFeatures(
   return result;
 }
 
-/** A category named directly: a leaf counts as the item's own category, a branch (Women) counts as a parent. */
-function categoryDeltas(weight: number, reference: ReferenceData, categoryId: string): AffinityDelta[] {
+/**
+ * A category named directly: a leaf counts as the item's own category, a branch (Women) counts as a parent. With
+ * `corner` (outside the person's groups) only the category and the one above it learn, and a group itself learns nothing.
+ */
+function categoryDeltas(
+  weight: number,
+  reference: ReferenceData,
+  categoryId: string,
+  corner: boolean,
+): AffinityDelta[] {
   const node = findCategory(reference.categories, categoryId);
   if (!node) return [];
-  const parents = parentCategoryIds(reference.categories, categoryId);
-  if (node.isLeaf) return affinityDeltas(weight, { categoryId, parentCategoryIds: parents });
+  const all = parentCategoryIds(reference.categories, categoryId);
+  if (node.isLeaf) {
+    return affinityDeltas(weight, { categoryId, parentCategoryIds: corner ? cornerParents(all) : all });
+  }
+  if (corner && all.length === 0) return [];
+  const parents = corner ? cornerParents(all) : all;
   return [
     { feature: "parent_category", key: categoryId, delta: weight },
     ...affinityDeltas(weight, { parentCategoryIds: parents }),
@@ -185,8 +228,17 @@ export async function applyAffinityDeltas(
 export async function recordEvents(app: App, userId: string, inputs: EventInput[]): Promise<RecordResult> {
   if (inputs.length === 0) return { recorded: 0, skipped: 0 };
   try {
-    if (!(await personalisationOn(app, userId))) return { recorded: 0, skipped: inputs.length };
+    const settings = await feedSettings(app, userId);
+    if (!settings.on) return { recorded: 0, skipped: inputs.length };
     const reference = await app.reference.get();
+    const roots = groupRootIds(reference.categories);
+    const mine = new Set(settings.shopsFor.flatMap((slug) => roots.get(slug) ?? []));
+    // Only a liking opens a corner. "Show less of this" lowers what it names as usual.
+    const outside = (weight: number, categoryId: string | null | undefined) => {
+      if (weight <= 0 || mine.size === 0 || !categoryId) return false;
+      const group = groupOf(reference.categories, categoryId);
+      return group !== null && !mine.has(group);
+    };
     const features = await loadListingFeatures(app, [
       ...new Set(inputs.flatMap((i) => (i.listingId ? [i.listingId] : [])).filter(Boolean)),
     ]);
@@ -211,7 +263,12 @@ export async function recordEvents(app: App, userId: string, inputs: EventInput[
           sellerId: f.sellerId,
           priceBand: f.priceBandValue,
         };
-        deltas = affinityDeltas(weight, f);
+        deltas = affinityDeltas(
+          weight,
+          outside(weight, f.categoryId)
+            ? { ...f, parentCategoryIds: cornerParents(f.parentCategoryIds ?? []) }
+            : f,
+        );
       } else {
         copied = {
           categoryId: input.categoryId ?? null,
@@ -219,7 +276,9 @@ export async function recordEvents(app: App, userId: string, inputs: EventInput[
           sellerId: input.sellerId ?? null,
         };
         deltas = [
-          ...(input.categoryId ? categoryDeltas(weight, reference, input.categoryId) : []),
+          ...(input.categoryId
+            ? categoryDeltas(weight, reference, input.categoryId, outside(weight, input.categoryId))
+            : []),
           ...affinityDeltas(weight, { brandId: input.brandId, sellerId: input.sellerId }),
         ];
       }
