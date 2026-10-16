@@ -34,4 +34,10 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Do the online database step before calling a schema PR ready.** Source: log 2026-10-14 (#42), memory `migrate-before-merge`. Also in `docs/playbook/git-and-github.md`.
 - **For motion bugs, record a frame by frame video.** Stills hid the real problem. Source: log 2026-10-14 (#38).
 - **Two sessions can pick the same decision number.** Check `docs/design.md` before taking the next id, and renumber on merge, keeping both sides. Source: log 2026-10-14 (D-030, D-026, D-024).
+- **Check the Mac's load before blaming the code.** Slow uploads and a frozen emulator were the Mac at load 400. Source: log 2026-10-15 (#88).
+- **When an AI guess looks biased, check what it was given.** The "Women jeans" guess was not about the seller, the AI only saw photos. The real fault was a list that hid Men. Source: log 2026-10-15 (#91).
+- **After an interruption, check what actually happened before redoing it.** A commit and push had gone through, only the PR was missing. Source: log 2026-10-15 (#73).
+- **Put the day's log in before asking for the merge.** A log pushed after the merge missed main. Source: log 2026-10-15 (#88).
+- **In a shared folder, commit exact paths and merge somewhere else.** Another session's unsaved work and branch switches sat in the same folder. Source: log 2026-10-15 (#92, #93).
+- **Match new motion to the speed of the app's page slides.** The Home search glide took three rounds until it moved at page speed. Source: log 2026-10-15 (#93).
 - **Test AI on messy real writing.** Half of the 60 listings were slang, typos and mixed Hebrew and English, and the answer key was written first. Source: log 2026-10-14.
