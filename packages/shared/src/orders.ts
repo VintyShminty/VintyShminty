@@ -84,8 +84,52 @@ export const bundleSchema = z.object({
   /** The next step of the seller's ladder, for "Add 2 items to get 5% off". Null at the top of the ladder. */
   nextTier: z.object({ addItems: z.number().int(), percentOff: z.number().int() }).nullable(),
   tiers: z.array(bundleTierSchema),
+  /** Sum of each item's own parcel price, what separate orders would cost in postage. */
+  postageSeparateMinor: z.number().int(),
+  /** The one parcel a bundle pays (the biggest parcel). */
+  postageTogetherMinor: z.number().int(),
 });
 export type Bundle = z.infer<typeof bundleSchema>;
+
+/** A seller's ladder as the item page, the profile and Settings read it. Off means no discount at all. */
+export const bundleLadderSchema = z.object({
+  on: z.boolean(),
+  tiers: z.array(bundleTierSchema),
+});
+export type BundleLadder = z.infer<typeof bundleLadderSchema>;
+
+export const BUNDLE_LADDER_MAX_STEPS = 5;
+export const BUNDLE_MIN_ITEMS_LIMIT = 20;
+export const BUNDLE_MAX_PERCENT = 50;
+
+/** What a seller saves: 1 to 5 steps, items from 2 to 20 and percent from 1 to 50, both growing step by step. */
+export const updateBundleLadderInputSchema = z
+  .object({
+    on: z.boolean(),
+    tiers: z
+      .array(
+        z.object({
+          minItems: z.number().int().min(2).max(BUNDLE_MIN_ITEMS_LIMIT),
+          percentOff: z.number().int().min(1).max(BUNDLE_MAX_PERCENT),
+        }),
+      )
+      .min(1)
+      .max(BUNDLE_LADDER_MAX_STEPS),
+  })
+  .superRefine((v, ctx) => {
+    for (let i = 1; i < v.tiers.length; i++) {
+      const a = v.tiers[i - 1];
+      const b = v.tiers[i];
+      if (a && b && (b.minItems <= a.minItems || b.percentOff <= a.percentOff)) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Each step needs more items and a bigger discount",
+          path: ["tiers", i],
+        });
+      }
+    }
+  });
+export type UpdateBundleLadderInput = z.infer<typeof updateBundleLadderInputSchema>;
 
 export const createBundleInputSchema = z.object({ sellerId: idSchema });
 export const bundleParamsSchema = z.object({ id: idSchema, listingId: idSchema });
@@ -146,6 +190,8 @@ export const checkoutQuoteSchema = orderTotalsSchema.extend({
   sellerId: idSchema,
   offerId: idSchema.nullable(),
   bundleId: idSchema.nullable(),
+  /** Postage a bundle saves against sending every item on its own. 0 when there is no saving. */
+  postageSavedMinor: z.number().int(),
   items: z.array(orderLineSchema),
   deliveryMethod: z.enum(DELIVERY_METHODS),
   deliveryOptions: z.array(

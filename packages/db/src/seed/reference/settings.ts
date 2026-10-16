@@ -48,7 +48,7 @@ export const platformSettingSeed: { key: string; value: unknown; description: st
     value: 5000,
     description: "Smallest order the referral voucher can be used on",
   },
-  { key: "bundle_min_items", value: 2, description: "Items needed before a closet deal can apply" },
+  { key: "bundle_min_items", value: 2, description: "Items needed before a bundle can apply" },
   {
     key: "single_market",
     value: true,

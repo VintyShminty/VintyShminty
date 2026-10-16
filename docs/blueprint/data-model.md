@@ -254,6 +254,7 @@ Used by: Settings (Language, Push notifications, Postage, Privacy), feed persona
 | `show_last_seen` | boolean | no | default true |
 | `ship_from_home` | boolean | no | default false. Seller option: a courier collects from the address |
 | `ship_from_dropoff` | boolean | no | default true. Seller option: take the parcel to a locker or shop |
+| `bundles_on` | boolean | no | default true. Seller option: buyers who take several items get the discount ladder (Settings, Bundles). When false the seller's ladder is empty (0 percent) everywhere |
 | `updated_at` | timestamptz | no | default now() |
 
 Face ID or Touch ID unlock is a device feature. Whether it is switched on is kept on the phone in secure storage, so there is no column for it.
@@ -1201,7 +1202,7 @@ Indexes:
 
 - `bundle_discount_tiers_seller_id_min_items_pk` (unique): btree on (seller_id, min_items)
 
-The default ladder is 2 items for 5 percent, 3 for 10 percent and 5 for 15 percent. The seller edits it under Bundle discounts.
+The default ladder is 2 items for 5 percent, 3 for 10 percent and 5 for 15 percent (`DEFAULT_BUNDLE_LADDER` in shared). A seller with no rows here gets the default ladder, so real sellers need no seeding. The seller edits the steps under Settings, Bundles (1 to 5 steps, items 2 to 20, percent 1 to 50, both growing), and `user_settings.bundles_on` switches the whole ladder off.
 
 ### `bundles`
 

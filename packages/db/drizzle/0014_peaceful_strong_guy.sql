@@ -1,0 +1,1 @@
+ALTER TABLE "user_settings" ADD COLUMN "bundles_on" boolean DEFAULT true NOT NULL;

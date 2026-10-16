@@ -1,7 +1,24 @@
-import { bundleSchema, createBundleInputSchema, errorResponseSchema, idSchema } from "@vinty/shared";
+import { profiles } from "@vinty/db";
+import {
+  bundleLadderSchema,
+  bundleSchema,
+  createBundleInputSchema,
+  errorResponseSchema,
+  idSchema,
+  updateBundleLadderInputSchema,
+} from "@vinty/shared";
+import { eq } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { addBundleItem, openBundle, ownBundle, presentBundle, removeBundleItem } from "../lib/bundles.js";
+import {
+  addBundleItem,
+  loadBundleLadder,
+  openBundle,
+  ownBundle,
+  presentBundle,
+  removeBundleItem,
+  saveBundleLadder,
+} from "../lib/bundles.js";
 import { ApiError } from "../lib/errors.js";
 
 const idParams = z.object({ id: idSchema });
@@ -22,6 +39,39 @@ const bundleRoutes: FastifyPluginAsyncZod = async (app) => {
     if (!request.session) throw ApiError.unauthenticated();
     return request.session.user.id;
   };
+
+  app.get(
+    "/v1/users/:id/bundle-ladder",
+    { schema: { params: idParams, response: { 200: bundleLadderSchema, 404: errorResponseSchema } } },
+    async (request) => {
+      const [seller] = await app.db
+        .select({ deletedAt: profiles.deletedAt })
+        .from(profiles)
+        .where(eq(profiles.userId, request.params.id))
+        .limit(1);
+      if (!seller || seller.deletedAt) throw ApiError.notFound();
+      return loadBundleLadder(app.db, request.params.id);
+    },
+  );
+
+  app.get(
+    "/v1/me/bundle-ladder",
+    { preHandler, schema: { response: { 200: bundleLadderSchema, 401: errorResponseSchema } } },
+    async (request) => loadBundleLadder(app.db, userIdOf(request)),
+  );
+
+  app.put(
+    "/v1/me/bundle-ladder",
+    {
+      preHandler,
+      config: WRITE_LIMIT,
+      schema: {
+        body: updateBundleLadderInputSchema,
+        response: { 200: bundleLadderSchema, 400: errorResponseSchema, 401: errorResponseSchema },
+      },
+    },
+    async (request) => saveBundleLadder(app, userIdOf(request), request.body),
+  );
 
   app.post(
     "/v1/bundles",

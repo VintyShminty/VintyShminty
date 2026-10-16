@@ -1,6 +1,5 @@
 import {
   addresses,
-  bundleDiscountTiers,
   bundleItems,
   bundles,
   conversations,
@@ -27,6 +26,7 @@ import {
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { awayNowSql } from "./away.js";
+import { bundlePostage, loadBundleLadder } from "./bundles.js";
 import { ApiError } from "./errors.js";
 import { isBlockedBetween } from "./messaging.js";
 import { isUniqueViolation } from "./offers.js";
@@ -178,10 +178,7 @@ export async function resolveTarget(
 
   let bundleDiscountPercent = 0;
   if (bundleId) {
-    const tiers = await db
-      .select({ minItems: bundleDiscountTiers.minItems, percentOff: bundleDiscountTiers.percentOff })
-      .from(bundleDiscountTiers)
-      .where(eq(bundleDiscountTiers.sellerId, sellerId));
+    const { tiers } = await loadBundleLadder(db, sellerId);
     bundleDiscountPercent = bundleDiscountPercentFor(tiers, lines.length);
   }
 
@@ -227,10 +224,17 @@ export async function quoteCheckout(app: App, buyerId: string, input: QuoteInput
   const { totals, postage } = await totalsFor(app.db, resolved);
   const settings = await loadOrderSettings(app.db);
   const method = input.deliveryMethod ?? "pickup_point";
+  const parcels = resolved.bundleId
+    ? await bundlePostage(
+        app.db,
+        resolved.lines.map((l) => l.parcelSizeId),
+      )
+    : { separateMinor: 0, togetherMinor: 0 };
   return {
     sellerId: resolved.sellerId,
     offerId: resolved.offerId,
     bundleId: resolved.bundleId,
+    postageSavedMinor: Math.max(0, parcels.separateMinor - parcels.togetherMinor),
     items: resolved.lines.map((l) => ({
       listingId: l.listingId,
       title: l.title,

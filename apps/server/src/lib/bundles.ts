@@ -1,10 +1,22 @@
-import { bundleDiscountTiers, bundleItems, bundles, listingPhotos, listings, profiles } from "@vinty/db";
+import {
+  bundleDiscountTiers,
+  bundleItems,
+  bundles,
+  listingPhotos,
+  listings,
+  parcelSizes,
+  profiles,
+  userSettings,
+} from "@vinty/db";
 import {
   type Bundle,
+  type BundleLadder,
   bundleDiscountPercentFor,
   calculateOrderTotals,
+  DEFAULT_BUNDLE_LADDER,
   DEFAULT_CURRENCY,
   nextBundleTier,
+  type UpdateBundleLadderInput,
 } from "@vinty/shared";
 import { and, asc, eq, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
@@ -14,6 +26,58 @@ import { isBlockedBetween } from "./messaging.js";
 
 type App = FastifyInstance;
 type BundleRecord = typeof bundles.$inferSelect;
+type Reader = Pick<App["db"], "select">;
+
+/**
+ * A seller's ladder. Sellers who never saved steps get the default ladder, and a seller who switched bundles off
+ * has an empty ladder, so the discount is 0 percent everywhere.
+ */
+export async function loadBundleLadder(db: Reader, sellerId: string): Promise<BundleLadder> {
+  const [[settings], rows] = await Promise.all([
+    db
+      .select({ on: userSettings.bundlesOn })
+      .from(userSettings)
+      .where(eq(userSettings.userId, sellerId))
+      .limit(1),
+    db
+      .select({ minItems: bundleDiscountTiers.minItems, percentOff: bundleDiscountTiers.percentOff })
+      .from(bundleDiscountTiers)
+      .where(eq(bundleDiscountTiers.sellerId, sellerId))
+      .orderBy(asc(bundleDiscountTiers.minItems)),
+  ]);
+  const on = settings?.on ?? true;
+  if (!on) return { on: false, tiers: [] };
+  return { on: true, tiers: rows.length > 0 ? rows : DEFAULT_BUNDLE_LADDER.map((t) => ({ ...t })) };
+}
+
+/** Replaces the seller's steps and the on switch in one go. */
+export async function saveBundleLadder(app: App, sellerId: string, input: UpdateBundleLadderInput) {
+  await app.db.transaction(async (tx) => {
+    await tx
+      .insert(userSettings)
+      .values({ userId: sellerId, bundlesOn: input.on })
+      .onConflictDoUpdate({
+        target: userSettings.userId,
+        set: { bundlesOn: input.on, updatedAt: new Date() },
+      });
+    await tx.delete(bundleDiscountTiers).where(eq(bundleDiscountTiers.sellerId, sellerId));
+    await tx.insert(bundleDiscountTiers).values(input.tiers.map((t) => ({ sellerId, ...t })));
+  });
+  return loadBundleLadder(app.db, sellerId);
+}
+
+/** What the parcels cost: each item's own parcel added up, and the one parcel a bundle pays (the biggest). */
+export async function bundlePostage(db: Reader, parcelSizeIds: (string | null)[]) {
+  const ids = [...new Set(parcelSizeIds.flatMap((id) => (id ? [id] : [])))];
+  if (ids.length === 0) return { separateMinor: 0, togetherMinor: 0 };
+  const parcels = await db
+    .select({ id: parcelSizes.id, priceMinor: parcelSizes.priceMinor })
+    .from(parcelSizes)
+    .where(sql`${parcelSizes.id} in ${ids}`);
+  const price = new Map(parcels.map((p) => [p.id, p.priceMinor]));
+  const each = parcelSizeIds.map((id) => (id ? (price.get(id) ?? 0) : 0));
+  return { separateMinor: each.reduce((a, b) => a + b, 0), togetherMinor: Math.max(0, ...each) };
+}
 
 export async function ownBundle(app: App, bundleId: string, buyerId: string): Promise<BundleRecord> {
   const [row] = await app.db
@@ -36,6 +100,7 @@ export async function presentBundle(app: App, bundle: BundleRecord): Promise<Bun
         priceMinor: listings.priceMinor,
         currency: listings.currency,
         reservedForUserId: listings.reservedForUserId,
+        parcelSizeId: listings.parcelSizeId,
         coverKey: sql<
           string | null
         >`(select ${listingPhotos.objectKey} from ${listingPhotos} where ${listingPhotos.listingId} = ${listings.id} order by ${listingPhotos.position} asc limit 1)`,
@@ -44,11 +109,7 @@ export async function presentBundle(app: App, bundle: BundleRecord): Promise<Bun
       .innerJoin(listings, eq(listings.id, bundleItems.listingId))
       .where(eq(bundleItems.bundleId, bundle.id))
       .orderBy(asc(bundleItems.addedAt), asc(bundleItems.listingId)),
-    app.db
-      .select({ minItems: bundleDiscountTiers.minItems, percentOff: bundleDiscountTiers.percentOff })
-      .from(bundleDiscountTiers)
-      .where(eq(bundleDiscountTiers.sellerId, bundle.sellerId))
-      .orderBy(asc(bundleDiscountTiers.minItems)),
+    loadBundleLadder(app.db, bundle.sellerId).then((l) => l.tiers),
     loadSellerSummaries(app, [bundle.sellerId]),
   ]);
   // Only items the buyer can still buy count towards the total.
@@ -58,6 +119,10 @@ export async function presentBundle(app: App, bundle: BundleRecord): Promise<Bun
       (r.status === "active" || (r.status === "reserved" && r.reservedForUserId === bundle.buyerId)),
   );
   const percent = bundleDiscountPercentFor(tiers, buyable.length);
+  const postage = await bundlePostage(
+    app.db,
+    buyable.map((r) => r.parcelSizeId),
+  );
   const totals = calculateOrderTotals({
     itemPricesMinor: buyable.map((r) => r.priceMinor as number),
     bundleDiscountPercent: percent,
@@ -88,6 +153,8 @@ export async function presentBundle(app: App, bundle: BundleRecord): Promise<Bun
     netMinor: totals.itemsNetMinor,
     nextTier: nextBundleTier(tiers, buyable.length),
     tiers,
+    postageSeparateMinor: postage.separateMinor,
+    postageTogetherMinor: postage.togetherMinor,
   };
 }
 
