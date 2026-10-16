@@ -1,5 +1,4 @@
 import { bundleSavedMinor } from "@vinty/shared";
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -19,7 +18,7 @@ function bundleBarVisible(seller: ReturnType<typeof useSellerBundle>) {
 
 /**
  * The slim dark bar at the bottom while the viewer has a bundle with this seller (D-049, decision 3: only on that
- * seller's item pages and profile). Small stacked photos, the count and saving, the next step and View bundle.
+ * seller's item pages and profile). The count and saving (no photos: on a phone they would cut off the saving), the next step and View bundle.
  */
 function BundleBar({ sellerId, seller }: { sellerId: string; seller: ReturnType<typeof useSellerBundle> }) {
   const { t } = useTranslation();
@@ -34,25 +33,12 @@ function BundleBar({ sellerId, seller }: { sellerId: string; seller: ReturnType<
     count: items.length,
     percent: bundle.discountPercent,
   });
-  const photos = items.filter((i) => i.photoUrl).slice(0, 3);
 
   return (
     <View
       className="absolute inset-x-0 bottom-0 flex-row items-center gap-md bg-primary px-lg pt-sm"
       style={{ paddingBottom: Math.max(insets.bottom, 12) }}
     >
-      <View className="flex-row items-center" accessibilityElementsHidden>
-        {photos.map((p, i) => (
-          <Image
-            key={p.listingId}
-            source={{ uri: p.photoUrl ?? undefined }}
-            style={{ width: 36, height: 36, borderRadius: 18, marginStart: i > 0 ? -12 : 0 }}
-            className="border-2 border-primary"
-            contentFit="cover"
-            accessibilityIgnoresInvertColors
-          />
-        ))}
-      </View>
       <View className="min-w-0 flex-1" accessibilityLiveRegion="polite">
         <Text variant="bodySmall" weight={600} numberOfLines={1} className="text-primary-foreground">
           {saved > 0

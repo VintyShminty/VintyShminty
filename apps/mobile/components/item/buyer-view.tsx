@@ -330,7 +330,8 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
 
             {moreFromSeller.length > 0 ? (
               <View className="pt-xl">
-                <Text variant="sectionLabel" className="px-lg pb-md">
+                {/* normal-case: a username is shown exactly as the seller wrote it, never in capitals. */}
+                <Text variant="sectionLabel" className="px-lg pb-md normal-case">
                   {t("item.moreFromSeller", { name: sellerName })}
                 </Text>
                 <FlatList

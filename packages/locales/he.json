@@ -621,7 +621,7 @@
       "note": "אתם מוגנים בכיסוי. אם הפריט לא מגיע או לא תואם לתיאור, אנחנו נכנסים לתמונה ועוזרים לפתור את זה."
     },
     "buyNow": "קנו עכשיו",
-    "moreFromSeller": "עוד מ{{name}}"
+    "moreFromSeller": "עוד מ-{{name}}"
   },
   "seller": {
     "more": "עוד אפשרויות",
@@ -1583,7 +1583,7 @@
     "continue": "המשך לתשלום",
     "openFailed": "לא הצלחנו להכין את זה",
     "changeFailed": "לא הצלחנו לשנות את הפריט. נסו שוב",
-    "boxTitle": "באנדל מ{{name}}",
+    "boxTitle": "באנדל מ-{{name}}",
     "yourBundle": "הבאנדל שלך",
     "stepItems_one": "פריט אחד",
     "stepItems_two": "שני פריטים",
@@ -1950,7 +1950,7 @@
       "nextPhoto": "התמונה הבאה",
       "buzzLoading": "טוענים את התוכניות",
       "loadMore": "הצגת עוד",
-      "moreFromSeller": "עוד מ{{name}}",
+      "moreFromSeller": "עוד מ-{{name}}",
       "seeAll": "לכל הפריטים",
       "similar": "פריטים דומים",
       "report": "דיווח על הפריט",

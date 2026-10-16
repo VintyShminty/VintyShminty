@@ -45,8 +45,10 @@ function Stepper({
 }) {
   const round = "h-9 w-9 items-center justify-center rounded-full border border-border active:bg-pressed";
   return (
-    <View className="flex-1 gap-xs">
-      <Text variant="cardMeta">{label}</Text>
+    <View className="flex-row items-center justify-between gap-md">
+      <Text variant="bodySmall" className="text-text-2">
+        {label}
+      </Text>
       <View className="flex-row items-center gap-sm">
         <Pressable
           role="button"
@@ -57,7 +59,7 @@ function Stepper({
         >
           <Icon as={Minus} size={16} />
         </Pressable>
-        <Text weight={600} className="min-w-[64px] text-center">
+        <Text weight={600} className="min-w-[80px] text-center">
           {valueText}
         </Text>
         <Pressable
@@ -137,10 +139,23 @@ function Editor({ initial }: { initial: BundleLadder }) {
               const minPercent = prev ? prev.percentOff + 1 : 1;
               const maxPercent = next ? next.percentOff - 1 : BUNDLE_MAX_PERCENT;
               return (
-                <View
-                  key={step.id}
-                  className="flex-row items-end gap-md rounded-control border border-border-subtle p-md"
-                >
+                // A step is stacked (title and remove, then items, then discount) so the buttons never touch on a phone.
+                <View key={step.id} className="gap-sm rounded-control border border-border-subtle p-md">
+                  <View className="flex-row items-center justify-between">
+                    <Text weight={600}>{t("bundleSettings.step", { number: i + 1 })}</Text>
+                    <Pressable
+                      role="button"
+                      accessibilityLabel={t("bundleSettings.removeStep", { number: i + 1 })}
+                      disabled={steps.length <= 1}
+                      onPress={() => setSteps((list) => list.filter((_, j) => j !== i))}
+                      className={cn(
+                        "h-9 w-9 items-center justify-center rounded-full active:bg-pressed",
+                        steps.length <= 1 && "opacity-40",
+                      )}
+                    >
+                      <Icon as={X} size={18} className="text-text-3" />
+                    </Pressable>
+                  </View>
                   <Stepper
                     label={t("bundleSettings.items")}
                     valueText={t("bundleSettings.itemsValue", { count: step.minItems })}
@@ -161,18 +176,6 @@ function Editor({ initial }: { initial: BundleLadder }) {
                     lessLabel={t("bundleSettings.fewerOff")}
                     moreLabel={t("bundleSettings.moreOff")}
                   />
-                  <Pressable
-                    role="button"
-                    accessibilityLabel={t("bundleSettings.removeStep", { number: i + 1 })}
-                    disabled={steps.length <= 1}
-                    onPress={() => setSteps((list) => list.filter((_, j) => j !== i))}
-                    className={cn(
-                      "h-9 w-9 items-center justify-center rounded-full active:bg-pressed",
-                      steps.length <= 1 && "opacity-40",
-                    )}
-                  >
-                    <Icon as={X} size={18} className="text-text-3" />
-                  </Pressable>
                 </View>
               );
             })}

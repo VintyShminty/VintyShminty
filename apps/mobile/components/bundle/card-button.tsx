@@ -27,10 +27,14 @@ function BundleCardButton({
     <Pressable
       role="button"
       hitSlop={6}
-      disabled={busy}
+      // Never disabled: a disabled pill lets the tap fall through to the card, which opens the item instead.
       accessibilityState={{ selected: inside, busy }}
       accessibilityLabel={t(inside ? "bundle.removeLabel" : "bundle.addLabel", { title })}
-      onPress={() => (inside ? remove(listingId) : add(listingId))}
+      onPress={() => {
+        if (busy) return;
+        if (inside) remove(listingId);
+        else add(listingId);
+      }}
       className={cn(
         "absolute bottom-sm end-sm h-7 flex-row items-center gap-xs rounded-full px-sm",
         inside ? "bg-primary" : "bg-background",
