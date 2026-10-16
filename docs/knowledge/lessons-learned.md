@@ -41,3 +41,6 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **In a shared folder, commit exact paths and merge somewhere else.** Another session's unsaved work and branch switches sat in the same folder. Source: log 2026-10-15 (#92, #93).
 - **Match new motion to the speed of the app's page slides.** The Home search glide took three rounds until it moved at page speed. Source: log 2026-10-15 (#93).
 - **Test AI on messy real writing.** Half of the 60 listings were slang, typos and mixed Hebrew and English, and the answer key was written first. Source: log 2026-10-14.
+- **Tests do not see layout or taps.** An agent's bundles build passed every test and still had overlapping buttons, cut off text, raw wording keys and a button that opened the wrong thing. Click through new screens at phone width and in Hebrew before calling them done. Source: log 2026-10-16 (bundles).
+- **A clickable mockup before building catches confusing states.** Eden spotted the bundle box "jumping" from 2 to 3 items in the mockup, before any code. Source: log 2026-10-16 (bundles).
+- **Start a payments search from who gets paid.** PayMe looked best until it turned out to expect business sellers, and ours are private people. Source: log 2026-10-16 (late afternoon).

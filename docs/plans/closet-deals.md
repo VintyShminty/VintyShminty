@@ -1,6 +1,6 @@
 # Plan: bundles that people find and feel
 
-Status: approved 2026-10-16, built on branch `feat/bundles` (D-049), waiting for review. Built: the rename to Bundle (app, website, English, Hebrew, Help), seller ladder with the default and an on switch (`bundles_on`, migration 0014, not yet run online) with Settings, Bundles on both, the item page box in three states, "+ Bundle" on a seller's other items, the bundle bar on that seller's item pages and profile, savings on the bundle page and checkout. Also added: `GET /v1/bundles/open` (looks for the open bundle without making one) and a "More from {seller}" row on the app item page (the website had it). Decisions in section 6. Live mockup (website look, clickable): https://claude.ai/artifact/EApCzYrtcGR3EYSGXqbkhd
+Status: approved 2026-10-16, merged 2026-10-16 (#107, D-049), migration 0014 run online before the merge. Built: the rename to Bundle (app, website, English, Hebrew, Help), seller ladder with the default and an on switch (`bundles_on`, migration 0014) with Settings, Bundles on both, the item page box in three states, "+ Bundle" on a seller's other items, the bundle bar on that seller's item pages and profile, savings on the bundle page and checkout. Also added: `GET /v1/bundles/open` (looks for the open bundle without making one) and a "More from {seller}" row on the app item page (the website had it). Decisions in section 6. Live mockup (website look, clickable): https://claude.ai/artifact/EApCzYrtcGR3EYSGXqbkhd
 
 ## Why
 

@@ -52,3 +52,8 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Claude Haiku.** The small, cheap Anthropic AI model behind every AI feature.
 - **Review list.** One page in the admin pages with user reports and the AI's listing flags, urgent first. Eden decides.
 - **Card copy / blur.** A small lighter copy of each uploaded photo and a soft colour blur shown while it loads.
+- **Bundle (באנדל).** Several items from one seller bought together, with the seller's discount steps and one postage fee. Was "Closet deal" (D-049).
+- **Bundle steps.** A seller's discount ladder, for example 2 items 5% off, 3 items 10%, 5 items 15%. Set in Settings, Bundles.
+- **Over the air update.** New screens, wording or fixes sent to installed apps without a TestFlight build (`pnpm update:live`). Native changes still need a build.
+- **Shopping groups.** Women, Men and Kids, the answer to "What do you shop for?". Home and search show your groups first (D-048).
+- **Corner.** A small part of another shopping group you showed interest in, for example women's cycling clothes. Only that corner moves up, not the whole group.

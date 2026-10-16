@@ -8,6 +8,9 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **Native package version mismatch.** Install Expo and native packages with `npx expo install`, plain JavaScript packages with `pnpm add`. Source: `CLAUDE.md`.
 - **CI fails on formatting or import order.** Run `pnpm format`. Source: `CLAUDE.md`, commit `00e4ad3`.
 - **Whole files reformatted after a format run.** Prettier was used. This project formats with Biome only, through `pnpm format`. Source: log 2026-10-15 (chat redesign).
+- **The test app shows "No script URL provided".** The development build on this Mac only loads its code from port 8081, a link or setting pointing elsewhere is ignored. Start Metro on 8081 (stop any other there first). Source: log 2026-10-16 (bundles).
+- **Metro ignores file changes.** It was started with `CI=1`, which turns off watching. Start it without `CI`. Source: log 2026-10-16 (bundles).
+- **A whole database test run fails with "too many clients".** Too many test files at once. Run the server tests with `--maxWorkers=2`. Source: log 2026-10-16 (bundles).
 
 ## Database
 
@@ -39,6 +42,9 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **The app crashes in the simulator right after switching branch.** The branch added a native piece (here a storage library) that the installed app lacks. Rebuild the app before testing. Source: log 2026-10-15 (chat redesign).
 - **Address suggestions give no postcode.** Google often has none for Israeli street addresses. A second lookup (Geocoding) fills it, which needs the Geocoding API switched on for the key. Source: log 2026-10-15 (#87).
 - **Close animation looks fine in stills but wrong to Eden.** Two guesses did not fix it, a frame by frame video showed the real cause. Record video for motion bugs. Source: log 2026-10-14 (#38).
+- **A button inside a card opens the card instead.** A React Native button switched off while busy lets the tap fall through to the card underneath. Keep it on and ignore taps while busy. Source: commit `01066ee`.
+- **The app shows "could not load" right after a wording change.** The local server restarts when the shared wording files change and drops the request in flight. Reopen the page. Source: log 2026-10-16 (bundles).
+- **Hebrew "חבילה" already means the postage parcel.** A bundle is "באנדל". Put a hyphen between a Hebrew prefix and a Latin name ("עוד מ-roni_dahan"). Source: D-049, commit `01066ee`.
 
 ## Libraries and CI
 
@@ -62,6 +68,8 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **The local website shows empty cards.** Docker (the app that runs the local database) is not running. Open Docker Desktop, then `pnpm db:up`. Source: log 2026-10-15.
 - **Website search acts like a plain search when tested.** The Browser pane was hidden, which stops the search box from waking up. Open the pane before testing interactions. Source: log 2026-10-14, memory `browser-pane-hidden-hydration`.
 - **"I see no difference" in review.** Two branches reviewed one after the other, and the local website showed the other one. Say which branch is on screen. Source: log 2026-10-15.
+- **The website shows raw keys like `bundleSettings.offer`.** The browser only gets the wording groups listed in `apps/web/lib/i18n.ts`. Add a new top-level group there. Source: commit `a8c3158`.
+- **New categories missing online for a few minutes.** The server keeps a saved copy of the reference data, it refreshes by itself. Source: log 2026-10-16 (evening).
 
 ## Sign in
 
