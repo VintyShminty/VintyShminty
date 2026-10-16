@@ -20,7 +20,8 @@ export function Composer({
 }: {
   conversationId: string;
   onSend: (text: string) => void;
-  onPickPhoto: (file: File) => void;
+  /** Only the seller of the item may send photos. Left out for the buyer. */
+  onPickPhoto?: (file: File) => void;
   /** The buyer's way to make an offer from the chat. Left out for the seller and for items that cannot take offers. */
   onOffer?: () => void;
 }) {
@@ -80,27 +81,31 @@ export function Composer({
   const picked = (event: ChangeEvent<HTMLInputElement>) => {
     const chosen = event.target.files?.[0];
     event.target.value = "";
-    if (chosen) onPickPhoto(chosen);
+    if (chosen) onPickPhoto?.(chosen);
   };
 
   return (
     <div className="border-t border-border-subtle bg-background">
       <div className="flex items-end gap-sm px-md py-sm">
-        <input
-          ref={file}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={picked}
-          className="hidden"
-        />
-        <button
-          type="button"
-          onClick={() => file.current?.click()}
-          aria-label={t("chat.addPhoto")}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
-        >
-          <ImagePlus size={24} aria-hidden />
-        </button>
+        {onPickPhoto ? (
+          <>
+            <input
+              ref={file}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={picked}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => file.current?.click()}
+              aria-label={t("chat.addPhoto")}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-2 hover:bg-pressed"
+            >
+              <ImagePlus size={24} aria-hidden />
+            </button>
+          </>
+        ) : null}
         {onOffer ? (
           <button
             type="button"
