@@ -44,6 +44,7 @@
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.3",
     "expo-system-ui": "~57.0.4",
+    "expo-updates": "~57.0.25",
     "expo-web-browser": "~57.0.3",
     "i18next": "^26.4.2",
     "lucide-react-native": "^1.52.0",
@@ -79,7 +80,8 @@
     "ios": "expo run:ios",
     "android": "expo run:android",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "update:live": "EXPO_PUBLIC_API_URL=https://vinty-shminty.vercel.app npx eas-cli@latest update --channel production --platform ios --auto"
   },
   "private": true
 }
