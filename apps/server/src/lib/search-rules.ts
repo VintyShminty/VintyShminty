@@ -456,3 +456,44 @@ export async function understandByRules(
     sort,
   };
 }
+
+// ---------- Category words in a plain word search ----------
+
+const categoryWordIndexes = new WeakMap<readonly CategoryNode[], Map<string, string[]>>();
+
+/** Each word of every category name (both languages, stemmed) to the categories that have it. Built once per tree. */
+function categoryWordIndex(tree: readonly CategoryNode[]): Map<string, string[]> {
+  const known = categoryWordIndexes.get(tree);
+  if (known) return known;
+  const words = new Map<string, string[]>();
+  const walk = (nodes: readonly CategoryNode[]) => {
+    for (const node of nodes) {
+      for (const word of [...wordsOf(node.name.en), ...wordsOf(node.name.he)]) {
+        if (word.length < 3 || FILLERS.has(word)) continue;
+        const key = stem(word);
+        const ids = words.get(key) ?? [];
+        if (!ids.includes(node.id)) ids.push(node.id);
+        words.set(key, ids);
+      }
+      walk(node.children);
+    }
+  };
+  walk(tree);
+  categoryWordIndexes.set(tree, words);
+  return words;
+}
+
+/**
+ * The categories a single search word names, so "shoes" or "נעליים" also finds every item listed under Shoes, not only
+ * the ones with the word in the title. Singular and plural meet (נעל, נעליים) and Hebrew prefixes are taken off.
+ * Empty when the word names no category.
+ */
+export function categoriesNamedBy(word: string, tree: readonly CategoryNode[]): string[] {
+  const index = categoryWordIndex(tree);
+  const ids = new Set<string>();
+  for (const variant of variants(plain(clean(word)))) {
+    if (variant.length < 3 || FILLERS.has(variant)) continue;
+    for (const id of index.get(stem(ALIASES[variant] ?? variant)) ?? []) ids.add(id);
+  }
+  return [...ids];
+}

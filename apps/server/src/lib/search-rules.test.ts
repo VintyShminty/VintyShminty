@@ -1,7 +1,12 @@
 import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { describe, expect, it } from "vitest";
 import type { BrandMatcher } from "./photo-assist.js";
-import { searchMentionsSize, searchRulesIndex, understandByRules } from "./search-rules.js";
+import {
+  categoriesNamedBy,
+  searchMentionsSize,
+  searchRulesIndex,
+  understandByRules,
+} from "./search-rules.js";
 
 const name = (en: string, he: string) => ({ en, he });
 const node = (id: string, en: string, he: string, children: CategoryNode[] = []): CategoryNode => ({
@@ -312,5 +317,29 @@ describe("searchMentionsSize", () => {
     ["levis 501 under 100", true],
   ])("%s", (text, expected) => {
     expect(searchMentionsSize(text)).toBe(expected);
+  });
+});
+
+describe("search rules: category words in a plain search", () => {
+  const named = (word: string) => categoriesNamedBy(word, reference.categories).sort();
+
+  it.each([
+    ["shoes", ["m-shoes", "w-shoes"]],
+    ["shoe", ["m-shoes", "w-shoes"]],
+    ["Shoes", ["m-shoes", "w-shoes"]],
+    ["נעליים", ["m-shoes", "w-shoes"]],
+    ["נעל", ["m-shoes", "w-shoes"]],
+    ["הנעליים", ["m-shoes", "w-shoes"]],
+    ["dress", ["g-dresses", "w-dresses", "w-mini"]],
+    ["שמלה", ["g-dresses", "w-dresses", "w-mini"]],
+    ["חצאית", ["w-skirts"]],
+  ])("%s", (word, expected) => {
+    expect(named(word)).toEqual(expected);
+  });
+
+  it("finds nothing for a word that names no category", () => {
+    expect(named("zara")).toEqual([]);
+    expect(named("and")).toEqual([]);
+    expect(named("ab")).toEqual([]);
   });
 });

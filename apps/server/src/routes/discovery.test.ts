@@ -123,6 +123,15 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(ids(await get(`/v1/listings?q=${word}%20ool`))).toEqual([coat.id]);
     });
 
+    it("finds items by the name of their category, in English and Hebrew", async () => {
+      const longestWord = (name: string) =>
+        name.split(/\s+/).reduce((a, b) => (b.length > a.length ? b : a), "");
+      for (const name of [sized.name.en, sized.name.he]) {
+        const q = encodeURIComponent(`${word} ${longestWord(name)}`);
+        expect(ids(await get(`/v1/listings?q=${q}`)).sort(), name).toEqual([dress.id, coat.id].sort());
+      }
+    });
+
     it("does not crash on Hebrew, punctuation or odd text", async () => {
       for (const q of ["שמלה", "שמלה כחולה!", "100%", "a & b | (c)", "'; drop table", "x:*", "\\"]) {
         const res = await get(`/v1/listings?q=${encodeURIComponent(q)}`);
