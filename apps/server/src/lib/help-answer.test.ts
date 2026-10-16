@@ -56,6 +56,23 @@ describe("cleaning a help answer", () => {
     expect(cleanHelpAnswer({ answered: true, answer: null }, codes).answered).toBe(false);
   });
 
+  it("drops an answer with a link, an email or a phone number, since no article has one", () => {
+    for (const answer of [
+      "Message us on WhatsApp at 050-123-4567.",
+      "Call +972 50 123 4567 for a refund.",
+      "See https://evil.example for details.",
+      "Go to www.refunds-now.com today.",
+      "Visit refunds.co.il for help.",
+      "Write to help@refunds.example for help.",
+    ]) {
+      expect(cleanHelpAnswer({ answered: true, answer, articles: ["A1"] }, codes).answered).toBe(false);
+    }
+    expect(
+      cleanHelpAnswer({ answered: true, answer: "Pay within 2 days, up to 1,000.", articles: [] }, codes)
+        .answered,
+    ).toBe(true);
+  });
+
   it("gives the empty answer when the model says it is not covered", () => {
     expect(cleanHelpAnswer({ answered: false, answer: "Something", articles: ["A1"] }, codes)).toEqual({
       answered: false,

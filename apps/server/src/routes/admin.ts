@@ -28,6 +28,7 @@ import { z } from "zod";
 import {
   currentMonth,
   isForeignKeyViolation,
+  likePattern,
   listUsers,
   loadAnalytics,
   loadDashboard,
@@ -157,7 +158,7 @@ const adminRoutes: FastifyPluginAsyncZod<{
             .limit(1);
           if (!target) throw ApiError.notFound("No such person");
           // Everything that belongs to the person goes with them (the tables cascade). Codes sent to their email too.
-          await tx.delete(verifications).where(like(verifications.identifier, `%${target.email}%`));
+          await tx.delete(verifications).where(like(verifications.identifier, likePattern(target.email)));
           await tx.delete(users).where(eq(users.id, id));
           await writeAudit(tx, adminId, "user_deleted", "user", id, {
             username: target.username,

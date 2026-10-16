@@ -248,6 +248,13 @@ export function cutAtSentence(text: string, max = HELP_ANSWER_MAX): string {
   return `${(lastSpace > 0 ? head.slice(0, lastSpace) : head).replace(/[,;:\s]+$/, "")}.`;
 }
 
+/**
+ * A link, an email address or a phone number. The help articles have none, so an answer with one was made up,
+ * most likely because a question tricked the model into it.
+ */
+const CONTACT_DETAIL =
+  /https?:|www\.|[\w.+-]+@[\w-]+\.[a-z]{2,}|\b[\w-]+\.(?:com|net|org|io|me|ly|co|il|app|link|info)\b|(?:\d[\s.-]?){7,}/i;
+
 /** Turns the model's raw answer into one the app can trust. */
 export function cleanHelpAnswer(
   raw: RawHelpAnswer,
@@ -255,7 +262,7 @@ export function cleanHelpAnswer(
 ): HelpAnswer {
   if (!raw.answered) return EMPTY_HELP_ANSWER;
   const answer = cutAtSentence(raw.answer ?? "");
-  if (!answer) return EMPTY_HELP_ANSWER;
+  if (!answer || CONTACT_DETAIL.test(answer)) return EMPTY_HELP_ANSWER;
   const articleIds: string[] = [];
   for (const item of raw.articles ?? []) {
     const key = item.trim();
