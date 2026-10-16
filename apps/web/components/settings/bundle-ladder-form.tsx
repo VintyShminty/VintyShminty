@@ -151,7 +151,7 @@ export function BundleLadderForm({ initial }: { initial: BundleLadder }) {
               return (
                 <li
                   key={step.id}
-                  className="flex items-end gap-md rounded-control border border-border-subtle p-md"
+                  className="flex flex-wrap items-end gap-md rounded-control border border-border-subtle p-md"
                 >
                   <Stepper
                     label={t("bundleSettings.items")}

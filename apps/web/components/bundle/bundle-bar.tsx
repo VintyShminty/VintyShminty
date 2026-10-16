@@ -35,7 +35,8 @@ export function BundleBar({ lang, sellerId }: { lang: string; sellerId: string }
         className="fixed inset-x-0 z-30 border-t border-primary bg-primary px-lg py-sm text-on-accent"
       >
         <div className="mx-auto flex max-w-[1280px] items-center gap-md">
-          <div aria-hidden className="flex shrink-0 items-center">
+          {/* On a phone the photos give their room to the text, so "You save" is never cut off. */}
+          <div aria-hidden className="hidden shrink-0 items-center sm:flex">
             {photos.map((p, i) => (
               // biome-ignore lint/performance/noImgElement: a small cover that comes ready sized
               <img
