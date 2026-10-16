@@ -1,6 +1,6 @@
 # Plan: a home feed that learns
 
-Status: built (server and app, Milestone 7, branch `milestone-7`). Decided by Eden on 2026-10-13. App decisions are in D-022 of `docs/design.md`.
+Status: built (server and app, Milestone 7, branch `milestone-7`). Decided by Eden on 2026-10-13. App decisions are in D-022 of `docs/design.md`. Section 11 (shopping groups and personal search) is planned, decided by Eden on 2026-10-16, not built.
 
 ## Why
 
@@ -396,9 +396,67 @@ Decided by Eden on 2026-10-13 (the chosen option is marked **Chosen**). These ov
 
 ## 10. Not changing
 
-- Search results keep their own order.
+- Search results keep their own order. Changed by section 11: the default search order becomes personal.
 - The Trending chip keeps "hearts times 5 plus views".
 - "Similar items" on the item page keeps its rules until stage 2.
 - People who are not signed in get the general feed, with no tracking.
 - Stages 2 and 3 are not built in this plan.
 - The Vercel scheduler fix is a separate task.
+
+## 11. Shopping groups and personal search (planned 2026-10-16, not built)
+
+### Why
+
+> as a man, i'm not too interested in women clothing [...] unless i was knowingly searching for it and giving likes. [...] it's still around the category i was looking.
+> (Eden)
+
+A "shopping group" is Women, Men or Kids, the top of the category tree. Today three things work against Eden's wish:
+
+- **The "What do you shop for?" answer fades.** It is saved as an onboarding action (weight 3), so after a few weeks Home has mostly forgotten it (half in 7 days, section 2.2).
+- **Surprise cards come from what the person never visits.** For a man that is mostly women's items (pile D, section 3.1).
+- **One heart outside your groups teaches the whole group.** A heart on women's cycling clothes adds half its weight to "Women" (parent category share 0.5, section 2.1), which is how dresses start to appear.
+
+### 11.1 Your groups are a lasting setting
+
+- The answer to "What do you shop for?" is stored as a setting (Women, Men, Kids, several allowed) and never fades. Settings, Shopping preferences shows it and lets the person change it, on the app and the website.
+- Skipped or never answered: the groups are worked out from behaviour, a group counts when it holds at least 60 percent of the person's learned category taste (starting value). Until then nothing is lowered.
+- Never guessed from a name, photo or anything else in the profile.
+
+### 11.2 Other groups move a bit lower, never hidden
+
+- Items in a group the person does not shop for get a small minus in the Home score: **a bit lower** (Eden, 2026-10-16). Starting value: -0.3 on a score where a strong taste match is about 1. It lives with the other weights in `packages/shared/src/recommendations.ts`.
+- Nothing is filtered out. While stock is small (today it is mostly women's items) a man still sees a full Home: the few men's items first, then the rest.
+- Items with no group (a category outside Women, Men and Kids) are never lowered.
+- Surprise cards (pile D) are picked only inside the person's groups. When those have too few recent items, the surprise slots fall back to the whole site.
+
+### 11.3 Interest outside your groups opens only that corner
+
+- An action on an item outside the person's groups teaches the item's own category and the one directly above it (for example Women, Sports, Cycling), and nothing higher. The share for the group itself (Women) is 0 for that action.
+- In that corner the minus of 11.2 does not apply while its taste score is above a small threshold. So hearting women's cycling clothes brings more women's cycling clothes, never dresses.
+- The corner fades at the normal speed, half in 7 days (Eden, 2026-10-16). Coming back keeps it open.
+
+### 11.4 Search order becomes personal
+
+Eden decided on 2026-10-16 that search should know the person: their groups, their taste profile and the sizes they set.
+
+- Applies only to the default order (relevance). When the person picks Cheapest, Newest or another sort, the results follow it exactly.
+- The text match still comes first: an item that matches the words better stays above one that only matches the person better. Inside items that match about as well, the personal score decides: own groups above other groups, then taste (category, brand, style, seller), then items in one of the person's set sizes.
+- Sizes only push up, never hide (D-022 plan decision 3). With shoe size 43 set, a 43 sits above a 44 that matches as well, and the 44 still shows. A size group with no size set changes nothing.
+- Signed out visitors and people with "Tailor Home to what I do" off get the same order as today.
+- Search actions keep teaching the taste profile as they do now (section 1.1).
+
+### 11.5 Testing
+
+- Sample data: a person who shops for Men and once hearted women's cycling clothes. Server tests check that Home puts men's items first, still fills the page with women's items when men's run out, lifts women's cycling items and not women's dresses.
+- Search test: the same person searching "shoes" sees men's shoes in their size first and women's shoes further down, all present. With Cheapest picked the order is by price only.
+
+### 11.6 Files (expected)
+
+- `packages/shared/src/recommendations.ts`: the group minus, the corner threshold, the group share rule.
+- `packages/db`: a "shops for" column on the person's settings (and `docs/blueprint/data-model.md` in the same commit).
+- `apps/server/src/lib/feed.ts`: the minus, the corner rule, surprise cards inside the groups.
+- `apps/server/src/lib/events.ts`: the group share rule when recording an action.
+- `apps/server/src/lib/discovery.ts`: the personal tiebreak in `sortSpec` for the default search order.
+- `apps/server/src/routes/events.ts`: save the onboarding answer as the setting.
+- App and website Settings, Shopping preferences: the groups row.
+
