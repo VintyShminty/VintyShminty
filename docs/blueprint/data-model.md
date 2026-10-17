@@ -588,10 +588,10 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Tops: T-shirts, Button-up shirts, Blouses, Tank tops and camis, Crop tops, Long sleeve tops, Bodysuits, Corsets and bustiers, Tunics, Overshirts
   - Sweatshirts and hoodies: Hoodies, Sweatshirts, Zip hoodies
   - Knitwear: Jumpers, Cardigans, Roll necks, Knit vests
-  - Jeans: Skinny jeans, Straight jeans, Wide leg jeans, Flared jeans, Relaxed and mom jeans
-  - Trousers: Tailored trousers, Wide leg trousers, Cargo trousers, Leggings, Joggers and sweatpants, Culottes
+  - Jeans: Skinny jeans, Straight jeans, Wide leg jeans, Flared jeans, Relaxed and mom jeans, Denim shorts
+  - Trousers: Tailored trousers, Wide leg trousers, Cargo trousers, Leggings, Joggers and sweatpants, Culottes, Leather and faux leather trousers, Cropped and capri trousers
   - Shorts
-  - Skirts: Mini skirts, Midi skirts, Maxi skirts, Pencil skirts, Pleated skirts
+  - Skirts: Mini skirts, Midi skirts, Maxi skirts, Pencil skirts, Pleated skirts, A-line skirts, Denim skirts
   - Coats: Wool coats, Trench coats, Parkas, Puffer coats, Raincoats, Capes and ponchos
   - Jackets: Denim jackets, Leather and biker jackets, Bomber jackets, Windbreakers, Utility and work jackets, Fleece jackets, Other jackets
   - Blazers
@@ -602,7 +602,7 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Kimonos and kaftans
   - Swimwear: Bikinis, One piece swimsuits, Tankinis, Swim shorts, Cover ups and sarongs
   - Surfwear: Wetsuits, Rash guards and swim tops, Board shorts, Surf ponchos and changing robes
-  - Underwear and sleepwear: Bras, Knickers, Shapewear, Tights and socks, Pyjamas, Nightdresses, Robes
+  - Underwear and sleepwear: Bras, Knickers, Shapewear, Tights and socks, Pyjamas, Nightdresses, Lingerie sets, Loungewear, Robes
   - Sportswear: Sports bras, Sports tops, Sports leggings, Sports shorts, Track jackets, Tracksuits, Team shirts, Running clothes, Cycling clothes, Gym and training clothes, Yoga and pilates clothes, Tennis and padel clothes, Ski and snowboard clothes, Hiking and outdoor clothes
   - Maternity
   - Uniforms and costumes: Military and surplus, Work uniforms, Costumes
@@ -611,7 +611,7 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Shirts: Button-up shirts, Short sleeve button-ups, Collarless shirts, Overshirts
   - Sweatshirts and hoodies: Hoodies, Sweatshirts, Zip hoodies
   - Knitwear: Jumpers, Cardigans, Roll necks, Knit vests
-  - Jeans: Slim jeans, Straight jeans, Relaxed and baggy jeans, Flared jeans
+  - Jeans: Slim jeans, Straight jeans, Relaxed and baggy jeans, Denim shorts, Flared jeans
   - Trousers: Chinos, Tailored trousers, Cargo trousers, Joggers and sweatpants, Work trousers
   - Shorts
   - Suits: Suits, Tuxedos, Blazers, Waistcoats
@@ -622,7 +622,7 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Dungarees
   - Swimwear: Swim shorts, Swim briefs
   - Surfwear: Wetsuits, Rash guards and swim tops, Board shorts, Surf ponchos and changing robes
-  - Underwear and sleepwear: Underwear, Socks, Pyjamas, Robes
+  - Underwear and sleepwear: Underwear, Socks, Thermal underwear, Pyjamas, Robes
   - Sportswear: Sports tops, Sports shorts, Sports trousers, Track jackets, Tracksuits, Team shirts, Running clothes, Cycling clothes, Gym and training clothes, Yoga and pilates clothes, Tennis and padel clothes, Ski and snowboard clothes, Hiking and outdoor clothes
   - Uniforms and costumes: Military and surplus, Work uniforms, Costumes
 - **Kids, Girls**
@@ -635,6 +635,7 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Dungarees
   - Jumpsuits
   - Coats and jackets: Coats, Puffer jackets, Raincoats, Denim and light jackets
+  - Formal and occasion wear
   - Swimwear
   - Pyjamas
   - Underwear and socks
@@ -648,6 +649,7 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Dungarees
   - Jumpsuits
   - Coats and jackets: Coats, Puffer jackets, Raincoats, Denim and light jackets
+  - Formal and occasion wear
   - Swimwear
   - Pyjamas
   - Underwear and socks
@@ -663,6 +665,8 @@ The clothing tree (D-033). A category says what the garment is, not its fabric, 
   - Knitwear
   - Coats and snowsuits
   - Sets and outfits
+  - Swimwear
+  - Socks and tights
   - Hats, mittens and booties
 
 Moving from the old tree: `packages/db/src/seed/reference/category-moves.ts` lists every old category and where it went. `pnpm db:seed:reference` runs `moveCategories` (in `packages/db/src/seed/category-moves.ts`) after the new categories are written: it moves listings to the new category (setting Material to Linen or Denim where the old category implied it and the listing had none), points saved searches, "not interested" rows and taste scores at the new categories, then deletes the old rows, only when nothing points at them. It is one transaction and does nothing on a second run or on a database that never had the old tree.
