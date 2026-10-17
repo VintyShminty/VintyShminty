@@ -11,6 +11,7 @@ import { useLoginPrompt } from "@/components/login-prompt";
 import { CoveredLine } from "@/components/price-pill";
 import { useConditionName, useViewer } from "@/components/site-context";
 import { clientApi } from "@/lib/api-client";
+import { brandSearchHref } from "@/lib/brand-link";
 import { cn } from "@/lib/utils";
 
 /**
@@ -232,6 +233,16 @@ export function ItemCard({
       </div>
       <div className="flex flex-col gap-[3px] pt-sm">
         <span className="truncate text-start text-body-sm font-semibold text-text-1">{listing.title}</span>
+        {listing.brandName && !preview ? (
+          // Above the card's cover link (z-10) and next to it, not inside it, so no link sits inside a link.
+          <Link
+            href={brandSearchHref(i18n.language, { id: listing.brandId, name: listing.brandName })}
+            prefetch={false}
+            className="relative z-10 w-fit max-w-full self-start truncate text-card-meta text-text-3 hover:text-text-1 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            {listing.brandName}
+          </Link>
+        ) : null}
         {meta ? <span className="truncate text-card-meta text-text-3">{meta}</span> : null}
         <CoveredLine amountMinor={listing.buyerPriceMinor} currency={listing.currency} muted={sold} />
       </div>
