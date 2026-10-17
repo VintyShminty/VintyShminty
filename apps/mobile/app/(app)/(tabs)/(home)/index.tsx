@@ -1,6 +1,6 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type FeedCard, type FeedMood, UNDER_50_MINOR } from "@vinty/shared";
+import { FEED_GROUPS, type FeedCard, type FeedGroup, type FeedMood, UNDER_50_MINOR } from "@vinty/shared";
 import { useNavigation, useRouter } from "expo-router";
 import { Bell, Bookmark } from "lucide-react-native";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -37,9 +37,8 @@ import { formatMoney } from "@/lib/money";
 import { meQuery } from "@/lib/queries";
 import { useSearchStore } from "@/lib/search-store";
 
-/** The mood chips, in order. The last two need an account (sizes and city). */
+/** The mood chips, in order. There is no For you chip: plain Home is For you. The last two need an account (sizes and city). */
 const MOODS: { key: FeedMood; needsAccount: boolean }[] = [
-  { key: "for_you", needsAccount: false },
   { key: "new_today", needsAccount: false },
   { key: "under_50", needsAccount: false },
   { key: "your_sizes", needsAccount: true },
@@ -164,6 +163,8 @@ export default function Home() {
   const [barY, setBarY] = useState<number | null>(null);
   const [cancelWidth, setCancelWidth] = useState(0);
   const [mood, setMood] = useState<FeedMood>("for_you");
+  // Women or Men, kept for this app session only. Works together with a mood.
+  const [group, setGroup] = useState<FeedGroup | null>(null);
   const { data: session } = authClient.useSession();
   const signedIn = Boolean(session);
   const me = useQuery({ ...meQuery(), enabled: signedIn });
@@ -200,7 +201,7 @@ export default function Home() {
 
   const activeMood: FeedMood =
     !signedIn && mood !== "for_you" && MOODS.find((m) => m.key === mood)?.needsAccount ? "for_you" : mood;
-  const feedOptions = feedQuery({ mood: activeMood });
+  const feedOptions = feedQuery({ mood: activeMood, group });
   const query = useInfiniteQuery(feedOptions);
   const queryClient = useQueryClient();
   // The list the cards came from. The app sends it with each "card seen".
@@ -221,9 +222,9 @@ export default function Home() {
     if (!loaded) return;
     for (const m of MOODS) {
       if (m.key === activeMood || (m.needsAccount && !signedIn)) continue;
-      void queryClient.prefetchInfiniteQuery(feedQuery({ mood: m.key }));
+      void queryClient.prefetchInfiniteQuery(feedQuery({ mood: m.key, group }));
     }
-  }, [loaded, activeMood, signedIn, queryClient]);
+  }, [loaded, activeMood, group, signedIn, queryClient]);
 
   // "Why you see this" on a long press.
   const reasonSheet = useRef<BottomSheetModal>(null);
@@ -318,12 +319,21 @@ export default function Home() {
         <SearchBar onPress={startSearch} />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-sm px-lg">
+        {FEED_GROUPS.map((g) => (
+          <Chip
+            key={g}
+            label={t(`browse.groups.${g}`)}
+            selected={group === g}
+            onPress={() => setGroup((now) => (now === g ? null : g))}
+          />
+        ))}
+        <View className="my-xs w-px self-stretch bg-border" />
         {MOODS.filter((m) => signedIn || !m.needsAccount).map((m) => (
           <Chip
             key={m.key}
             label={t(`home.moods.${m.key}`, { amount: formatMoney(UNDER_50_MINOR, "ILS") })}
             selected={activeMood === m.key}
-            onPress={() => setMood(m.key)}
+            onPress={() => setMood((now) => (now === m.key ? "for_you" : m.key))}
           />
         ))}
       </ScrollView>
