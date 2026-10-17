@@ -49,12 +49,14 @@ export function HomeFeed({
   const signedIn = Boolean(viewer);
   const moods = useMemo(() => MOODS.filter((m) => signedIn || !m.needsAccount), [signedIn]);
 
+  // There is no "For you" chip, it is the plain Home. Tapping the chosen mood again goes back to it.
   const choose = useCallback(
     (next: FeedMood) => {
-      setMood(next);
-      window.history.replaceState(window.history.state, "", homeHref(lang, next, group));
+      const value = mood === next ? "for_you" : next;
+      setMood(value);
+      window.history.replaceState(window.history.state, "", homeHref(lang, value, group));
     },
-    [lang, group],
+    [lang, mood, group],
   );
 
   // Women or Men: tapping the chosen one again clears it. It works together with the mood.
@@ -105,21 +107,6 @@ export function HomeFeed({
           aria-label={t("web.nav.feedNavigation")}
           className="-mx-lg flex gap-sm overflow-x-auto px-lg pb-xs md:mx-0 md:flex-wrap md:px-0"
         >
-          {moods.map((m) => (
-            <Chip
-              key={m.key}
-              href={homeHref(lang, m.key, group)}
-              onClick={() => choose(m.key)}
-              selected={mood === m.key}
-              label={t(`home.moods.${m.key}`, { amount: formatPrice(UNDER_50_MINOR, "ILS") })}
-              // Light pills on Home (D-039): a light outline, the chosen one near black.
-              className={cn(
-                "h-8 rounded-full px-[14px]",
-                mood === m.key ? "border-text-1 bg-text-1 font-semibold" : "border-border text-text-2",
-              )}
-            />
-          ))}
-          <span aria-hidden className="mx-xs my-1 w-px shrink-0 self-stretch bg-border" />
           {GROUPS.map((g) => (
             <Chip
               key={g}
@@ -127,12 +114,29 @@ export function HomeFeed({
               onClick={() => chooseGroup(g)}
               selected={group === g}
               label={t(`browse.groups.${g}`)}
+              // Light pills on Home (D-039): a light outline, the chosen one near black.
               className={cn(
                 "h-8 rounded-full px-[14px]",
                 group === g ? "border-text-1 bg-text-1 font-semibold" : "border-border text-text-2",
               )}
             />
           ))}
+          <span aria-hidden className="mx-xs my-1 w-px shrink-0 self-stretch bg-border" />
+          {moods
+            .filter((m) => m.key !== "for_you")
+            .map((m) => (
+              <Chip
+                key={m.key}
+                href={homeHref(lang, mood === m.key ? "for_you" : m.key, group)}
+                onClick={() => choose(m.key)}
+                selected={mood === m.key}
+                label={t(`home.moods.${m.key}`, { amount: formatPrice(UNDER_50_MINOR, "ILS") })}
+                className={cn(
+                  "h-8 rounded-full px-[14px]",
+                  mood === m.key ? "border-text-1 bg-text-1 font-semibold" : "border-border text-text-2",
+                )}
+              />
+            ))}
         </nav>
       </div>
       <InfiniteItemGrid
