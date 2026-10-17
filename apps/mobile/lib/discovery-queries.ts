@@ -1,6 +1,7 @@
 import { infiniteQueryOptions, queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   type CreateSavedSearchInput,
+  type FeedGroup,
   type FeedMood,
   homeFeedPageSchema,
   membersPageSchema,
@@ -51,15 +52,20 @@ export function filtersToQuery(filters: Partial<SearchFilters>): string {
   return parts.join("&");
 }
 
-export type FeedParams = { categoryId?: string; trending?: boolean; mood?: FeedMood };
+export type FeedParams = {
+  categoryId?: string;
+  trending?: boolean;
+  mood?: FeedMood;
+  group?: FeedGroup | null;
+};
 
-export const feedQuery = ({ categoryId, trending, mood }: FeedParams) =>
+export const feedQuery = ({ categoryId, trending, mood, group }: FeedParams) =>
   infiniteQueryOptions({
-    queryKey: ["feed", categoryId ?? null, trending ?? false, mood ?? null],
+    queryKey: ["feed", categoryId ?? null, trending ?? false, mood ?? null, group ?? null],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
       api(
-        `/v1/feed?${paging(pageParam)}${categoryId ? `&categoryId=${categoryId}` : ""}${trending ? "&trending=true" : ""}${mood ? `&mood=${mood}` : ""}`,
+        `/v1/feed?${paging(pageParam)}${categoryId ? `&categoryId=${categoryId}` : ""}${trending ? "&trending=true" : ""}${mood ? `&mood=${mood}` : ""}${group ? `&group=${group}` : ""}`,
         { schema: homeFeedPageSchema },
       ),
     getNextPageParam: (last) => last.nextCursor ?? undefined,

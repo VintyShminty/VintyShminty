@@ -7,6 +7,7 @@ describe("what is saved on the phone", () => {
   it("saves the plain For you feed and the reference data", () => {
     expect(shouldPersistQuery(q(["feed", null, false, null]))).toBe(true);
     expect(shouldPersistQuery(q(["feed", null, false, "for_you"]))).toBe(true);
+    expect(shouldPersistQuery(q(["feed", null, false, "for_you", null]))).toBe(true);
     expect(shouldPersistQuery(q(["reference"]))).toBe(true);
   });
 
@@ -14,6 +15,8 @@ describe("what is saved on the phone", () => {
     expect(shouldPersistQuery(q(["feed", null, false, "near_you"]))).toBe(false);
     expect(shouldPersistQuery(q(["feed", "cat-1", false, null]))).toBe(false);
     expect(shouldPersistQuery(q(["feed", null, true, null]))).toBe(false);
+    expect(shouldPersistQuery(q(["feed", null, false, null, "women"]))).toBe(false);
+    expect(shouldPersistQuery(q(["feed", null, false, "for_you", "men"]))).toBe(false);
     for (const key of ["me", "settings", "threads", "orders", "feed-hidden", "personalisation-sizes"])
       expect(shouldPersistQuery(q([key]))).toBe(false);
   });
