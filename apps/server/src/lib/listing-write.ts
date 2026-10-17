@@ -1,14 +1,17 @@
+import { randomUUID } from "node:crypto";
 import { brands, type Database, listingColours, listingPhotos } from "@vinty/db";
 import {
   findCategory,
+  formatBrandName,
   type ListingDraftInput,
   type ListingFieldErrors,
   type ListingPhotoInput,
   type ReferenceData,
+  slugifyBrand,
   stripHiddenAttributes,
   validateListing,
 } from "@vinty/shared";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { ApiError } from "./errors.js";
 import type { ListingRow } from "./listings.js";
@@ -198,7 +201,8 @@ export function createListingWriter({
       if (brand) brandName = brand.name;
       else fieldErrors.brandId = "validation.listing.brand.invalid";
     } else if (merged.brandName) {
-      brandName = merged.brandName;
+      brandName = formatBrandName(merged.brandName);
+      merged.brandName = brandName;
     }
 
     let photoSizes = new Map<string, number>();
@@ -211,7 +215,42 @@ export function createListingWriter({
     }
 
     if (Object.keys(fieldErrors).length > 0) throw invalid(fieldErrors);
+    // A typed brand joins the brand list once the listing goes live, so other sellers can pick it. Drafts wait.
+    if (publish && !merged.brandId && brandName) {
+      const brand = await findOrAddBrand(brandName);
+      if (brand) {
+        merged.brandId = brand.id;
+        merged.brandName = null;
+        brandName = brand.name;
+      }
+    }
     return { merged, brandName, photos, photoSizes, photoVariants };
+  }
+
+  /**
+   * The listed brand with this name (any capitals, or the same web address), or a new one added to the list. Null when
+   * the brand was switched off by hand, so the listing keeps its typed name and the brand does not come back.
+   */
+  async function findOrAddBrand(name: string): Promise<{ id: string; name: string } | null> {
+    const slug = slugifyBrand(name);
+    const find = async () => {
+      const [found] = await db
+        .select({ id: brands.id, name: brands.name, isActive: brands.isActive })
+        .from(brands)
+        .where(or(sql`lower(${brands.name}) = lower(${name})`, slug ? eq(brands.slug, slug) : undefined))
+        .limit(1);
+      return found;
+    };
+    let brand = await find();
+    if (!brand) {
+      // A Hebrew name has no Latin letters for a web address, so it gets a random one.
+      await db
+        .insert(brands)
+        .values({ slug: slug || `brand-${randomUUID().slice(0, 8)}`, name })
+        .onConflictDoNothing();
+      brand = await find();
+    }
+    return brand?.isActive ? { id: brand.id, name: brand.name } : null;
   }
 
   type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];

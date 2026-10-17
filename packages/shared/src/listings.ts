@@ -45,6 +45,38 @@ export type ListingPhotoInput = z.infer<typeof listingPhotoInputSchema>;
 export function cleanBrandName(raw: string): string {
   return raw.replace(/\p{C}/gu, " ").replace(/\s+/gu, " ").trim();
 }
+/**
+ * How a typed brand is saved: every word starts with a capital ("bla vintage" and "BLA VINTAGE" both become
+ * "Bla Vintage"), also after a hyphen, slash, ampersand, full stop or bracket ("h&m" becomes "H&M"). A word the seller
+ * typed in mixed case ("McQueen") is kept as typed. Hebrew has no capitals and stays as it is.
+ */
+export function formatBrandName(raw: string): string {
+  return cleanBrandName(raw)
+    .split(" ")
+    .map((word) =>
+      word === word.toLowerCase() || word === word.toUpperCase()
+        ? word
+            .toLowerCase()
+            .replace(
+              /(^|[-/&.(])(\p{L})/gu,
+              (_, before: string, letter: string) => before + letter.toUpperCase(),
+            )
+        : word,
+    )
+    .join(" ");
+}
+
+/** The brand's web address part, also used to spot the same brand typed twice ("Bla-Vintage" and "bla vintage"). */
+export function slugifyBrand(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export const brandNameSchema = z
   .string()
   .transform(cleanBrandName)

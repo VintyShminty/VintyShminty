@@ -189,10 +189,10 @@ describe.skipIf(!databaseUrl)("selling", () => {
       expect(res.json().size).toBeNull();
     });
 
-    it("accepts a brand that is not on the list, cleaned up, and keeps it through edits", async () => {
+    it("keeps a typed brand on a draft, cleaned up and capitalised, and keeps it through edits", async () => {
       const res = await create(
         seller.token,
-        complete(seller.id, { brandId: null, brandName: "  Old\u0000  Mill \n Co  ", publish: true }),
+        complete(seller.id, { brandId: null, brandName: "  OLD\u0000  mill \n co  ", publish: false }),
       );
       expect(res.statusCode).toBe(201);
       expect(res.json().brand).toEqual({ id: null, name: "Old Mill Co" });
@@ -226,6 +226,31 @@ describe.skipIf(!databaseUrl)("selling", () => {
         payload: { brandId: null, brandName: null },
       });
       if (sized.rules.brand === "required") expect(cleared.statusCode).toBe(400);
+    });
+
+    it("adds a typed brand to the brand list when the listing goes live, once", async () => {
+      const name = `fresh label ${Date.now()}`;
+      const first = await create(
+        seller.token,
+        complete(seller.id, { brandId: null, brandName: name, publish: true }),
+      );
+      expect(first.statusCode).toBe(201);
+      const brand = first.json().brand as { id: string | null; name: string };
+      expect(brand.id).not.toBeNull();
+      expect(brand.name).toBe(`Fresh Label ${name.split(" ")[2]}`);
+
+      // Typing it again in capitals finds the same brand, not a second one.
+      const again = await create(
+        seller.token,
+        complete(seller.id, { brandId: null, brandName: name.toUpperCase(), publish: true }),
+      );
+      expect(again.json().brand).toEqual(brand);
+
+      const search = await ctx.app.inject({
+        method: "GET",
+        url: `/v1/brands?q=${encodeURIComponent(brand.name)}`,
+      });
+      expect(search.json().items.map((b: { id: string }) => b.id)).toEqual([brand.id]);
     });
 
     it("refuses a typed brand that is too short or too long", async () => {

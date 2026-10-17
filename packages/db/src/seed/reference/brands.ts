@@ -1,3 +1,5 @@
+export { slugifyBrand } from "@vinty/shared";
+
 /** Starter brand list, most popular first. Popularity is derived from the order. */
 export const brandNames: string[] = [
   "Zara",
@@ -161,13 +163,3 @@ export const brandNames: string[] = [
   "Bullpadel",
   "Nox",
 ];
-
-export function slugifyBrand(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/&/g, " and ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
