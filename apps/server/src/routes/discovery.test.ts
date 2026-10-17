@@ -405,6 +405,21 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       await ctx.database.db.delete(listings).where(eq(listings.id, fresh.id));
     });
 
+    describe("Men and Women pills", () => {
+      it("keeps only items under that top category and rejects unknown groups", async () => {
+        const mine = await publish(alice, { title: `${word} group piece` });
+        const root = categoryTrail(reference.categories, sized.id)[0];
+        for (const group of ["women", "men"]) {
+          const res = await get(`/v1/feed?group=${group}&limit=50`);
+          expect(res.statusCode).toBe(200);
+          if (group === root?.slug) expect(ids(res)).toContain(mine.id);
+          else expect(ids(res)).not.toContain(mine.id);
+        }
+        expect((await get("/v1/feed?group=kids")).statusCode).toBe(400);
+        await ctx.database.db.delete(listings).where(eq(listings.id, mine.id));
+      });
+    });
+
     describe("mood chips", () => {
       it("for_you is the normal feed", async () => {
         const plain = ids(await get("/v1/feed?limit=50"));

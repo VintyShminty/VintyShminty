@@ -1,7 +1,7 @@
 {
   "tabs": {
     "home": "בית",
-    "browse": "גלישה",
+    "browse": "קטגוריות",
     "sell": "מכירה",
     "inbox": "הודעות",
     "profile": "פרופיל"
@@ -747,12 +747,6 @@
     }
   },
   "home": {
-    "greeting": {
-      "morning": "בוקר טוב,",
-      "afternoon": "צהריים טובים,",
-      "evening": "ערב טוב,"
-    },
-    "greetingGuest": "ברוכים הבאים",
     "moods": {
       "for_you": "בשבילך",
       "new_today": "חדש היום",
@@ -1878,7 +1872,7 @@
       "menu": "תפריט",
       "favourites": "מועדפים",
       "account": "החשבון שלך",
-      "browseTitle": "גלישה לפי סוג",
+      "browseTitle": "קטגוריות לפי סוג",
       "homeLink": "Yadii, דף הבית"
     },
     "dev": {
@@ -2023,6 +2017,7 @@
       "bellUnread_one": "התראות, {{count}} שלא נקרא",
       "bellUnread_two": "התראות, {{count}} שלא נקראו",
       "bellUnread_other": "התראות, {{count}} שלא נקראו",
+      "viewAllNotifications": "כל ההתראות",
       "backToInbox": "חזרה לתיבת ההודעות",
       "pickTitle": "בחרו שיחה",
       "pickNote": "ההודעות שלכם ייפתחו כאן",

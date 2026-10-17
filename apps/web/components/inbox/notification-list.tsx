@@ -60,7 +60,7 @@ const ICONS: Record<NotificationType, LucideIcon> = {
  * One notification: the person who caused it or an icon for the kind, the sentence, the time, and a dot with bolder
  * text while unread. A click marks it read and opens the item or chat it is about.
  */
-function Row({ lang, notification }: { lang: string; notification: AppNotification }) {
+export function NotificationRow({ lang, notification }: { lang: string; notification: AppNotification }) {
   const { t, i18n } = useTranslation();
   const markRead = useMarkNotificationsRead();
   const unread = notification.readAt === null;
@@ -151,7 +151,7 @@ export function NotificationList({ lang }: { lang: string }) {
     <div>
       {empty}
       {rows.map((n) => (
-        <Row key={n.id} lang={lang} notification={n} />
+        <NotificationRow key={n.id} lang={lang} notification={n} />
       ))}
       <div ref={more} aria-hidden className="flex h-10 items-center justify-center">
         {query.isFetchingNextPage ? (

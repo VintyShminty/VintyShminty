@@ -1,6 +1,6 @@
 import en from "@vinty/locales/en.json";
 import { describe, expect, it } from "vitest";
-import { feedPath, homeHref, pagePath, parseMood } from "../lib/feed-url";
+import { feedPath, homeHref, pagePath, parseGroup, parseMood } from "../lib/feed-url";
 import { homeEmptyText } from "../lib/home-empty";
 import { switchPath } from "../lib/i18n";
 import { loginHref, safeNext, signUpHref } from "../lib/login-links";
@@ -21,6 +21,17 @@ describe("feed addresses", () => {
     expect(feedPath("new_today")).toBe("/v1/feed?mood=new_today");
     expect(homeHref("en", "for_you")).toBe("/en");
     expect(homeHref("he", "under_50")).toBe("/he?mood=under_50");
+    expect(feedPath("for_you", "men")).toBe("/v1/feed?group=men");
+    expect(feedPath("new_today", "women")).toBe("/v1/feed?mood=new_today&group=women");
+    expect(homeHref("en", "for_you", "women")).toBe("/en?group=women");
+    expect(homeHref("en", "under_50", "men")).toBe("/en?mood=under_50&group=men");
+  });
+
+  it("reads the group and ignores anything else", () => {
+    expect(parseGroup("men")).toBe("men");
+    expect(parseGroup(["women", "men"])).toBe("women");
+    expect(parseGroup("kids")).toBeNull();
+    expect(parseGroup(undefined)).toBeNull();
   });
 
   it("adds paging with the right separator and encodes the cursor", () => {

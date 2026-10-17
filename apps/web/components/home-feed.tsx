@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  type FeedGroup,
   type FeedMood,
   formatPrice,
   type HomeFeedPage,
@@ -15,7 +16,7 @@ import { EmptyState } from "@/components/empty-state";
 import { InfiniteItemGrid } from "@/components/infinite-item-grid";
 import { useViewer } from "@/components/site-context";
 import { clientApi } from "@/lib/api-client";
-import { feedPath, homeHref, MOODS } from "@/lib/feed-url";
+import { feedPath, GROUPS, homeHref, MOODS } from "@/lib/feed-url";
 import { gridQueryOptions } from "@/lib/grid-query";
 import { homeEmptyText } from "@/lib/home-empty";
 import { cn } from "@/lib/utils";
@@ -29,11 +30,13 @@ import { cn } from "@/lib/utils";
 export function HomeFeed({
   lang,
   initialMood,
+  initialGroup,
   firstPage,
   city,
 }: {
   lang: string;
   initialMood: FeedMood;
+  initialGroup: FeedGroup | null;
   firstPage: HomeFeedPage | null;
   /** The viewer's city (null when not set), undefined for visitors. Only the empty Near you note needs it. */
   city?: string | null;
@@ -42,24 +45,35 @@ export function HomeFeed({
   const viewer = useViewer();
   const queryClient = useQueryClient();
   const [mood, setMood] = useState<FeedMood>(initialMood);
+  const [group, setGroup] = useState<FeedGroup | null>(initialGroup);
   const signedIn = Boolean(viewer);
   const moods = useMemo(() => MOODS.filter((m) => signedIn || !m.needsAccount), [signedIn]);
 
   const choose = useCallback(
     (next: FeedMood) => {
       setMood(next);
-      window.history.replaceState(window.history.state, "", homeHref(lang, next));
+      window.history.replaceState(window.history.state, "", homeHref(lang, next, group));
     },
-    [lang],
+    [lang, group],
+  );
+
+  // Women or Men: tapping the chosen one again clears it. It works together with the mood.
+  const chooseGroup = useCallback(
+    (next: FeedGroup) => {
+      const value = group === next ? null : next;
+      setGroup(value);
+      window.history.replaceState(window.history.state, "", homeHref(lang, mood, value));
+    },
+    [lang, mood, group],
   );
 
   // Load the other moods' first page in the background, after the page has settled.
   useEffect(() => {
     const warm = () => {
       for (const m of moods) {
-        if (m.key === initialMood) continue;
+        if (m.key === initialMood && group === initialGroup) continue;
         void queryClient.prefetchInfiniteQuery({
-          ...gridQueryOptions("feed", feedPath(m.key), lang),
+          ...gridQueryOptions("feed", feedPath(m.key, group), lang),
           pages: 1,
         });
       }
@@ -70,7 +84,7 @@ export function HomeFeed({
     }
     const id = window.setTimeout(warm, 800);
     return () => window.clearTimeout(id);
-  }, [queryClient, lang, initialMood, moods]);
+  }, [queryClient, lang, initialMood, initialGroup, group, moods]);
 
   // Only an empty "Your sizes" list needs to know whether sizes are set (the note differs).
   const sizes = useQuery({
@@ -83,7 +97,7 @@ export function HomeFeed({
     city,
   });
 
-  const endpoint = feedPath(mood);
+  const endpoint = feedPath(mood, group);
   return (
     <>
       <div className="mb-xl mt-lg">
@@ -94,7 +108,7 @@ export function HomeFeed({
           {moods.map((m) => (
             <Chip
               key={m.key}
-              href={homeHref(lang, m.key)}
+              href={homeHref(lang, m.key, group)}
               onClick={() => choose(m.key)}
               selected={mood === m.key}
               label={t(`home.moods.${m.key}`, { amount: formatPrice(UNDER_50_MINOR, "ILS") })}
@@ -105,12 +119,26 @@ export function HomeFeed({
               )}
             />
           ))}
+          <span aria-hidden className="mx-xs my-1 w-px shrink-0 self-stretch bg-border" />
+          {GROUPS.map((g) => (
+            <Chip
+              key={g}
+              href={homeHref(lang, mood, group === g ? null : g)}
+              onClick={() => chooseGroup(g)}
+              selected={group === g}
+              label={t(`browse.groups.${g}`)}
+              className={cn(
+                "h-8 rounded-full px-[14px]",
+                group === g ? "border-text-1 bg-text-1 font-semibold" : "border-border text-text-2",
+              )}
+            />
+          ))}
         </nav>
       </div>
       <InfiniteItemGrid
         endpoint={endpoint}
         kind="feed"
-        firstPage={mood === initialMood ? firstPage : null}
+        firstPage={mood === initialMood && group === initialGroup ? firstPage : null}
         empty={<EmptyState title={empty.title} message={empty.message} />}
       />
     </>
