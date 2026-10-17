@@ -4,6 +4,7 @@ import { ChevronDown, LayoutGrid } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { BrowseExpandProvider, BrowseRest } from "@/components/browse-more";
 import { Chip } from "@/components/chip";
 import { FOCUS_RING } from "@/lib/utils";
 
@@ -14,9 +15,21 @@ const GENDER_KEY = "yadii-browse-gender";
  * The top bar's Browse button (D-030). It opens a panel under the button with a Women and Men switch and the photo
  * tiles of the chosen side. The server passes both sides in (`women`, `men`) so every tile link is in the HTML even
  * while the panel is closed, and the switch only shows one. The last choice is remembered in this browser (D-052).
+ * More opens the rest of that side's categories inside the panel (`womenRest`, `menRest`) instead of leaving the page,
+ * and the panel scrolls when it is taller than the window (D-054).
  * Clicking outside or pressing Escape closes the panel, and so does going to another page.
  */
-export function BrowsePanel({ women, men }: { women: ReactNode; men: ReactNode }) {
+export function BrowsePanel({
+  women,
+  men,
+  womenRest,
+  menRest,
+}: {
+  women: ReactNode;
+  men: ReactNode;
+  womenRest: ReactNode;
+  menRest: ReactNode;
+}) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -24,6 +37,8 @@ export function BrowsePanel({ women, men }: { women: ReactNode; men: ReactNode }
   const panelId = useId();
   const pathname = usePathname();
   const [gender, setGender] = useState<Gender>("women");
+  const [expanded, setExpanded] = useState(false);
+  const toggle = useCallback(() => setExpanded((v) => !v), []);
 
   useEffect(() => {
     try {
@@ -45,6 +60,11 @@ export function BrowsePanel({ women, men }: { women: ReactNode; men: ReactNode }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: closing when the page changes is the point
   useEffect(() => setOpen(false), [pathname]);
+
+  // A closed panel opens again at its first ten tiles.
+  useEffect(() => {
+    if (!open) setExpanded(false);
+  }, [open]);
 
   // The tile photos wait lazily inside the closed panel. Once the page is idle, or the pointer or keyboard nears the
   // button, switch them to eager so they are already there when the panel opens.
@@ -104,22 +124,26 @@ export function BrowsePanel({ women, men }: { women: ReactNode; men: ReactNode }
         id={panelId}
         hidden={!open}
         aria-label={t("web.nav.browseTitle")}
-        className="absolute start-0 top-full z-50 mt-sm w-[min(calc(100vw-48px),720px)] rounded-window border border-border bg-background p-lg shadow-lg"
+        className="absolute start-0 top-full z-50 mt-sm max-h-[calc(100vh-96px)] w-[min(calc(100vw-48px),720px)] overflow-y-auto overscroll-contain rounded-window border border-border bg-background p-lg shadow-lg"
       >
-        <fieldset aria-label={t("web.nav.browseGender")} className="m-0 mb-md flex gap-sm border-0 p-0">
-          <Chip
-            label={t("browse.groups.women")}
-            selected={gender === "women"}
-            onClick={() => choose("women")}
-          />
-          <Chip label={t("browse.groups.men")} selected={gender === "men"} onClick={() => choose("men")} />
-        </fieldset>
-        <div data-gender="women" hidden={gender !== "women"}>
-          {women}
-        </div>
-        <div data-gender="men" hidden={gender !== "men"}>
-          {men}
-        </div>
+        <BrowseExpandProvider expanded={expanded} toggle={toggle}>
+          <fieldset aria-label={t("web.nav.browseGender")} className="m-0 mb-md flex gap-sm border-0 p-0">
+            <Chip
+              label={t("browse.groups.women")}
+              selected={gender === "women"}
+              onClick={() => choose("women")}
+            />
+            <Chip label={t("browse.groups.men")} selected={gender === "men"} onClick={() => choose("men")} />
+          </fieldset>
+          <div data-gender="women" hidden={gender !== "women"}>
+            {women}
+            <BrowseRest title={t("browse.moreTitle")}>{womenRest}</BrowseRest>
+          </div>
+          <div data-gender="men" hidden={gender !== "men"}>
+            {men}
+            <BrowseRest title={t("browse.moreTitle")}>{menRest}</BrowseRest>
+          </div>
+        </BrowseExpandProvider>
       </section>
     </div>
   );

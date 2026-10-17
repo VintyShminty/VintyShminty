@@ -703,6 +703,9 @@
     "all": "All",
     "more": "More",
     "moreTitle": "More to explore",
+    "less": "Show less",
+    "moreCount_one": "{{count}} more category",
+    "moreCount_other": "{{count}} more categories",
     "allCategories": "All categories",
     "groups": {
       "women": "Women",

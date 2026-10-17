@@ -59,6 +59,24 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
                 sizes="170px"
               />
             }
+            womenRest={
+              <BrowseTiles
+                lang={lang}
+                rest="women"
+                className="grid-cols-5 pt-sm"
+                tileClassName="h-[88px]"
+                sizes="130px"
+              />
+            }
+            menRest={
+              <BrowseTiles
+                lang={lang}
+                rest="men"
+                className="grid-cols-5 pt-sm"
+                tileClassName="h-[88px]"
+                sizes="130px"
+              />
+            }
           />
         </div>
         <search className="relative order-last flex h-10 w-full items-center gap-sm rounded-full border border-border bg-background focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">

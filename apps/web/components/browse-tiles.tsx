@@ -4,13 +4,16 @@ import {
   BROWSE_TILES,
   type BrowseGender,
   type BrowseTile,
+  browseRestFor,
   browseTilesFor,
   type CategoryNode,
   searchPageSchema,
   tileCategoryIds,
 } from "@vinty/shared";
+import { BrowseMoreTile } from "@/components/browse-more";
 import { PhotoTile } from "@/components/photo-tile";
 import { serverApi } from "@/lib/api";
+import { tilePhoto } from "@/lib/browse-photos";
 import { getT, type Lang } from "@/lib/i18n";
 import { getReference } from "@/lib/reference";
 import { cn } from "@/lib/utils";
@@ -38,13 +41,16 @@ async function coversOf(lang: Lang, ids: string[]): Promise<string[]> {
  * falls back to a stock photo when it has none, so no tile is ever blank. `withMore` adds the "More" tile that opens
  * `/[lang]/browse`. `more` shows the tiles behind More instead of the first ten (the Browse page lists both).
  * `gender` shows that side's tiles (the Browse panel's Women and Men), looking only at that side's listings and
- * opening the tile page on the same side. `tileClassName` sets the size of each tile, `className` the grid around them.
+ * opening the tile page on the same side. With `gender`, More shows small pictures of the rest and opens them inside
+ * the Browse panel (D-054). `rest` lists that side's tiles behind More instead (the part that opens).
+ * `tileClassName` sets the size of each tile, `className` the grid around them.
  */
 export async function BrowseTiles({
   lang,
   more = false,
   withMore = false,
   gender,
+  rest,
   className,
   tileClassName = "h-[120px]",
   sizes,
@@ -53,14 +59,23 @@ export async function BrowseTiles({
   more?: boolean;
   withMore?: boolean;
   gender?: BrowseGender;
+  rest?: BrowseGender;
   className?: string;
   tileClassName?: string;
   sizes?: string;
 }) {
   const t = getT(lang);
-  const tiles: BrowseTile[] = gender ? browseTilesFor(gender) : more ? BROWSE_MORE_TILES : BROWSE_TILES;
+  const tiles: (BrowseTile & { group?: BrowseGender })[] = rest
+    ? browseRestFor(rest)
+    : gender
+      ? browseTilesFor(gender).map((tile) => ({ ...tile, group: gender }))
+      : more
+        ? BROWSE_MORE_TILES
+        : BROWSE_TILES;
   const tree: readonly CategoryNode[] = (await getReference(lang).catch(() => null))?.categories ?? [];
-  const options = await Promise.all(tiles.map((tile) => coversOf(lang, tileCategoryIds(tree, tile, gender))));
+  const options = await Promise.all(
+    tiles.map((tile) => coversOf(lang, tileCategoryIds(tree, tile, tile.group))),
+  );
   // Each tile takes its newest cover that no tile before it already shows.
   const taken = new Set<string>();
   const covers = options.map((urls) => {
@@ -68,13 +83,17 @@ export async function BrowseTiles({
     if (url) taken.add(url);
     return url;
   });
-  const query = gender ? `?group=${gender}` : "";
+  const behindMore = gender ? browseRestFor(gender) : [];
+  const previews = behindMore.flatMap((tile) => {
+    const image = tilePhoto(tile.photo);
+    return image ? [image] : [];
+  });
   return (
     <div className={cn("grid gap-md", className)}>
       {tiles.map((tile, i) => (
         <PhotoTile
           key={tile.key}
-          href={`/${lang}/browse/${tile.key}${query}`}
+          href={`/${lang}/browse/${tile.key}${tile.group ? `?group=${tile.group}` : ""}`}
           label={t(`browse.tiles.${tile.key}`)}
           photo={covers[i] ? undefined : tile.photo}
           imageUrl={covers[i] ?? undefined}
@@ -82,7 +101,17 @@ export async function BrowseTiles({
           className={tileClassName}
         />
       ))}
-      {withMore ? (
+      {withMore && gender ? (
+        <BrowseMoreTile
+          href={`/${lang}/browse`}
+          label={t("browse.more")}
+          lessLabel={t("browse.less")}
+          countLabel={t("browse.moreCount", { count: behindMore.length })}
+          accessibleName={t("browse.moreTitle")}
+          previews={previews}
+          className={tileClassName}
+        />
+      ) : withMore ? (
         <PhotoTile
           href={`/${lang}/browse`}
           label={t("browse.more")}
