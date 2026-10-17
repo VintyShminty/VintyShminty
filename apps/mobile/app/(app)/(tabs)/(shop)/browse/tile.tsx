@@ -21,23 +21,25 @@ import { useSearchStore } from "@/lib/search-store";
 export default function BrowseTile() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { tile: tileKey } = useLocalSearchParams<{ tile: string }>();
+  const { tile: tileKey, group: side } = useLocalSearchParams<{ tile: string; group?: string }>();
   const tile = findTile(tileKey);
   const categories = useReference().data?.categories;
   const [group, setGroup] = useState<TileGroup | "all">("all");
   const [ready, setReady] = useState(false);
   const title = tile ? t(`browse.tiles.${tile.key}`) : undefined;
   const groups = tile ? tileGroups(tile) : [];
+  // Opened from the Women or Men side of Browse: start on that side (when the tile has it).
+  const startGroup: TileGroup | "all" = groups.find((g) => g === side) ?? "all";
 
   // Start a fresh browse search for this tile once the categories are known.
   useEffect(() => {
     if (!tile || !categories) return;
-    const ids = tileCategoryIds(categories, tile);
+    const ids = tileCategoryIds(categories, tile, startGroup === "all" ? undefined : startGroup);
     for (const id of ids.slice(0, 6)) trackCategoryVisit(id);
     useSearchStore.getState().reset("browse", { filters: { sort: "newest", categoryIds: ids } });
-    setGroup("all");
+    setGroup(startGroup);
     setReady(true);
-  }, [tile, categories]);
+  }, [tile, categories, startGroup]);
 
   const choose = (next: TileGroup | "all") => {
     if (!tile || !categories) return;

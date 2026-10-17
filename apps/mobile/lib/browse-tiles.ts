@@ -1,6 +1,9 @@
 import {
   BROWSE_MORE_TILES,
   BROWSE_TILES,
+  type BrowseGender,
+  browseRestFor,
+  browseTilesFor,
   findBrowseTile,
   groupOfSlug,
   type BrowseTile as SharedTile,
@@ -19,11 +22,15 @@ const PHOTOS: Record<string, ImageSourcePropType> = {
   "05-jeans.jpg": require("@vinty/design/browse/05-jeans.jpg"),
   "06-jeans.jpg": require("@vinty/design/browse/06-jeans.jpg"),
   "08-sneakers.jpg": require("@vinty/design/browse/08-sneakers.jpg"),
+  "09-sneakers.jpg": require("@vinty/design/browse/09-sneakers.jpg"),
   "14-handbag.jpg": require("@vinty/design/browse/14-handbag.jpg"),
   "15-handbag.jpg": require("@vinty/design/browse/15-handbag.jpg"),
   "16-sweater.jpg": require("@vinty/design/browse/16-sweater.jpg"),
+  "18-sweater.jpg": require("@vinty/design/browse/18-sweater.jpg"),
   "19-t-shirt.jpg": require("@vinty/design/browse/19-t-shirt.jpg"),
+  "20-t-shirt.jpg": require("@vinty/design/browse/20-t-shirt.jpg"),
   "22-coat.jpg": require("@vinty/design/browse/22-coat.jpg"),
+  "24-coat.jpg": require("@vinty/design/browse/24-coat.jpg"),
   "26-boots.jpg": require("@vinty/design/browse/26-boots.jpg"),
   "28-skirt.jpg": require("@vinty/design/browse/28-skirt.jpg"),
   "31-shirt.jpg": require("@vinty/design/browse/31-shirt.jpg"),
@@ -49,5 +56,16 @@ export const MORE_TILES: BrowseTile[] = BROWSE_MORE_TILES.map(withPhoto);
 
 export const findTile = (key: string | undefined) => [...TILES, ...MORE_TILES].find((t) => t.key === key);
 
-export type { TileGroup };
+/** A tile of one side (Women or Men). `group` makes its pages and covers look only at that side. */
+export type SideTile = BrowseTile & { group?: BrowseGender };
+
+/** The ten tiles of one side, with their pictures. */
+export const tilesFor = (gender: BrowseGender): SideTile[] =>
+  browseTilesFor(gender).map((tile) => ({ ...withPhoto(tile), group: gender }));
+
+/** The tiles behind More for one side. */
+export const restFor = (gender: BrowseGender): SideTile[] =>
+  browseRestFor(gender).map((tile) => ({ ...withPhoto(tile), group: tile.group }));
+
+export type { BrowseGender, TileGroup };
 export { findBrowseTile, groupOfSlug, TILE_GROUPS, tileCategoryIds, tileGroups };
