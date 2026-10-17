@@ -335,9 +335,9 @@
     "reservedNote": "קונים רואים שהפריט שמור ולא יכולים לקנות אותו.",
     "hiddenNote": "מוסתר מקונים עד שתציגו אותו שוב.",
     "soldNote": "סומן כנמכר. הוא כבר לא מופיע לקונים.",
-    "favourites_one": "מועדף אחד",
-    "favourites_two": "{{count}} מועדפים",
-    "favourites_other": "{{count}} מועדפים",
+    "favourites_one": "שמירה אחת",
+    "favourites_two": "{{count}} שמירות",
+    "favourites_other": "{{count}} שמירות",
     "views_one": "צפייה אחת",
     "views_two": "{{count}} צפיות",
     "views_other": "{{count}} צפיות",
@@ -431,7 +431,7 @@
     "showLastSeen": "להציג מתי הייתי מחובר לאחרונה",
     "showLastSeenHint": "אנשים אחרים יראו נראה לאחרונה בלשונית אודות.",
     "tailorFeed": "להתאים את דף הבית למה שאני עושה",
-    "tailorFeedHint": "דף הבית לומד מהמועדפים שלכם, ממה שאתם פותחים וממה שאתם מעיינים בו. כיבוי המתג מוחק גם את מה שנלמד"
+    "tailorFeedHint": "דף הבית לומד ממה שאתם שומרים, ממה שאתם פותחים וממה שאתם מעיינים בו. כיבוי המתג מוחק גם את מה שנלמד"
   },
   "languages": {
     "en": "English",
@@ -446,7 +446,7 @@
       "new_message": "הודעות חדשות",
       "review_received": "ביקורות חדשות",
       "favourite_price_drop": "ירידות מחיר בפריטים ששמרתם",
-      "listing_favourited": "מועדפים על הפריטים שלכם",
+      "listing_favourited": "שמירות של הפריטים שלכם",
       "favourite_sold": "פריט ששמרתם נמכר",
       "new_follower": "עוקבים חדשים",
       "followed_seller_new_item": "חדש ממי שאתם עוקבים אחריהם"
@@ -595,8 +595,8 @@
   "item": {
     "more": "עוד אפשרויות",
     "reportItem": "דיווח על הפריט",
-    "addFavourite": "הוספה למועדפים",
-    "removeFavourite": "הסרה מהמועדפים",
+    "addFavourite": "שמירה",
+    "removeFavourite": "הסרה מהשמורים",
     "soldNote": "הפריט הזה נמכר",
     "reservedNote": "הפריט הזה שמור למישהו אחר",
     "unavailable": "הפריט הזה לא זמין",
@@ -629,11 +629,11 @@
     "unavailable": "המוכר/ת הזה לא זמין/ה"
   },
   "favourites": {
-    "title": "מועדפים",
-    "search": "חיפוש במועדפים",
-    "empty": "אין עדיין מועדפים",
+    "title": "שמורים",
+    "search": "חיפוש בשמורים",
+    "empty": "עדיין לא שמרתם כלום",
     "emptyNote": "לחצו על הסימנייה בפריט כדי לשמור אותו כאן",
-    "noMatches": "אין במועדפים משהו שמתאים לחיפוש הזה"
+    "noMatches": "אין בשמורים משהו שמתאים לחיפוש הזה"
   },
   "buzz": {
     "action": "להקפיץ את המודעה",
@@ -711,8 +711,8 @@
     }
   },
   "browse": {
-    "favourite": "הוספה למועדפים",
-    "unfavourite": "הסרה מהמועדפים",
+    "favourite": "שמירה",
+    "unfavourite": "הסרה מהשמורים",
     "cardSaved": "שמור",
     "search": "חיפוש",
     "all": "הכול",
@@ -897,10 +897,10 @@
       "offer_countered": "קיבלתם הצעת נגד על {{title}}",
       "offer_counteredAmount": "קיבלתם הצעת נגד של {{amount}} על {{title}}",
       "offer_expired": "תוקף ההצעה על {{title}} פג",
-      "listing_favourited": "‏{{name}} הוסיף/ה את {{title}} למועדפים",
-      "listing_favouritedMany_one": "‏{{name}} ועוד אחד הוסיפו את {{title}} למועדפים",
-      "listing_favouritedMany_two": "‏{{name}} ועוד שניים הוסיפו את {{title}} למועדפים",
-      "listing_favouritedMany_other": "‏{{name}} ועוד {{count}} הוסיפו את {{title}} למועדפים",
+      "listing_favourited": "‏{{name}} שמר/ה את {{title}}",
+      "listing_favouritedMany_one": "‏{{name}} ועוד אחד שמרו את {{title}}",
+      "listing_favouritedMany_two": "‏{{name}} ועוד שניים שמרו את {{title}}",
+      "listing_favouritedMany_other": "‏{{name}} ועוד {{count}} שמרו את {{title}}",
       "favourite_sold": "{{title}} נמכר",
       "favourite_price_drop": "המחיר של {{title}} ירד",
       "favourite_price_dropNow": "{{title}} עכשיו ב-{{price}}",
@@ -1664,7 +1664,7 @@
     "scope_category": "קטגוריה",
     "undo": "ביטול",
     "resetTitle": "איפוס ההמלצות שלי",
-    "resetBody": "דף הבית ישכח את מה שלמד מהמועדפים, הצפיות והביקורים שלכם. המועדפים, המידות, המוכרים שאתם עוקבים אחריהם והפריטים המוסתרים נשארים.",
+    "resetBody": "דף הבית ישכח את מה שלמד מהשמירות, הצפיות והביקורים שלכם. הפריטים השמורים, המידות, המוכרים שאתם עוקבים אחריהם והפריטים המוסתרים נשארים.",
     "resetAction": "איפוס",
     "resetDone": "דף הבית מתחיל מחדש"
   },
@@ -1806,7 +1806,7 @@
       },
       "saveItems": {
         "title": "שמירת פריטים וחיפושים",
-        "body": "לוחצים על הסימנייה בפריט כדי לשמור אותו. הפריטים השמורים מחכים לכם במועדפים, ותקבלו עדכון אם המחיר יורד או שהפריט נמכר.\n\nאפשר לשמור גם פריט של מוכר שנמצא בהפסקה. אפשר לשמור גם חיפוש, ונעדכן אתכם כשיופיע משהו חדש שמתאים."
+        "body": "לוחצים על הסימנייה בפריט כדי לשמור אותו. הפריטים השמורים מחכים לכם בשמורים, ותקבלו עדכון אם המחיר יורד או שהפריט נמכר.\n\nאפשר לשמור גם פריט של מוכר שנמצא בהפסקה. אפשר לשמור גם חיפוש, ונעדכן אתכם כשיופיע משהו חדש שמתאים."
       },
       "listAnItem": {
         "title": "איך מעלים פריט",
@@ -1888,7 +1888,7 @@
       "mainNavigation": "ראשי",
       "feedNavigation": "הפיד בדף הבית",
       "menu": "תפריט",
-      "favourites": "מועדפים",
+      "favourites": "שמורים",
       "account": "החשבון שלך",
       "browseGender": "הצגת קטגוריות עבור",
       "browseTitle": "קטגוריות לפי סוג",
@@ -2005,7 +2005,7 @@
         "profile": "פרופיל",
         "orders": "ההזמנות שלי",
         "balance": "יתרה",
-        "favourites": "מועדפים",
+        "favourites": "שמורים",
         "savedSearches": "חיפושים שמורים",
         "settings": "הגדרות",
         "help": "עזרה",

@@ -33,9 +33,10 @@ Picked by Eden on 2026-10-13 in `docs/mockups/originality-choices.html` and `doc
 | 11 | Reviews (built) | One list of written reviews plus a single line for automatic ones ("36 smooth sales") | None |
 | 12 | Settings and notifications | Same list in the same order, renamed as in the mockup: Your profile, Shopping preferences, Sign in and safety, Your privacy, Alerts, Language | The rows inside Alerts (today "Push notifications", "High-priority notifications") were not in the mockup. "My sizes" (row 15) sits inside Shopping preferences |
 | 13 | Seller badges | Our own outline stamps, no progress rings | Final badge names |
-| 14 | Tab bar | A floating rounded bar (32 point shape) above the content, icons only, the active tab on a soft tint, and a raised round espresso Sell button with a price tag in the middle (a camera at first, changed by Eden 2026-10-13). Each tab keeps a hidden name that screen readers read aloud (round 2) | None |
+| 14 | Tab bar | A floating rounded bar (32 point shape) above the content, icons only, the active tab on a soft tint, and a raised round espresso Sell button with a price tag in the middle (a camera at first, changed by Eden 2026-10-13). Each tab keeps a hidden name that screen readers read aloud (round 2). The English names were Vinted's five, so Browse became Explore and Inbox became Chats (Eden, 2026-10-17). Hebrew already differed and stays | None |
 | 15 | Holiday mode and sizes | "Away mode" with a moon and a return date, and "My sizes" | None |
 | 16 | Order updates in chat (built) | Tracker card pinned at the top of the chat, mixing both round 2 options: the line of step icons (Paid, Sent, Arrived, Done) with send and arrival dates, plus the "Track parcel" and "I got it" buttons | None |
+| 17 | Saved items (built) | "Favourites" was Vinted's word, so the list and its buttons say Saved (Hebrew שמורים), with the bookmark icon (Eden, 2026-10-17) | None |
 
 ## Guidelines for our work
 
