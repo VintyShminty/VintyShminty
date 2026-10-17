@@ -340,8 +340,10 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                   keyExtractor={(c) => c.id}
                   showsHorizontalScrollIndicator={false}
                   contentContainerClassName="gap-md px-lg"
+                  // flex-row: the card fills its parent with flex-1, which in a plain column of unknown height
+                  // squashes it to nothing. In a row it fills the 150 width and takes its own height.
                   renderItem={({ item }) => (
-                    <View className="w-[150px]">
+                    <View className="w-[150px] flex-row">
                       <ListingCard listing={item} bundleSellerId={seller.id} />
                     </View>
                   )}

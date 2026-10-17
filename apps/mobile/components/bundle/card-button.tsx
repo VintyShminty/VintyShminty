@@ -38,7 +38,6 @@ function BundleCardButton({
       className={cn(
         "absolute bottom-sm end-sm h-7 flex-row items-center gap-xs rounded-full px-sm",
         inside ? "bg-primary" : "bg-background",
-        busy && "opacity-60",
       )}
     >
       {inside ? <Icon as={Check} size={13} strokeWidth={3} className="text-primary-foreground" /> : null}
