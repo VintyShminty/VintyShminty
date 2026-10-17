@@ -22,6 +22,7 @@ import {
   EXPLORE_GROUP_MIN,
   effectiveScore,
   type FeedCard,
+  type FeedGroup,
   type FeedMood,
   type FeedReason,
   type FeedReasonKind,
@@ -431,17 +432,24 @@ export type FeedScope = {
   viewerId: string | undefined;
   categoryId?: string | undefined;
   mood?: FeedMood | undefined;
+  /** Women or Men: only items in that top category and everything under it. */
+  group?: FeedGroup | undefined;
 };
 
 /** Every WHERE of the home feed: live listings, visibility, the chip, the mood, the person's own items and their hides. */
 export async function feedConditions(app: App, scope: FeedScope, reference: ReferenceData): Promise<SQL[]> {
-  const { viewerId, categoryId, mood } = scope;
+  const { viewerId, categoryId, mood, group } = scope;
   const where: SQL[] = [
     inArray(listings.status, [...BROWSABLE_STATUSES]),
     ...visibilityConditions(viewerId),
     ...filterConditions(categoryId ? { categoryId } : {}, reference),
     ...(await moodConditions(app.db, mood, viewerId)),
   ];
+  if (group) {
+    const root = reference.categories.find((c) => c.slug === group);
+    const ids = root ? categorySubtreeIds(reference.categories, root.id) : [];
+    where.push(ids.length > 0 ? inArray(listings.categoryId, ids) : sql`false`);
+  }
   if (viewerId) {
     where.push(sql`${listings.sellerId} <> ${viewerId}`);
     where.push(...(await hiddenConditions(app, viewerId, reference)));

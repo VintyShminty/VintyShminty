@@ -764,6 +764,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `apps/web/components/browse-tiles.tsx` (cover lookup), `browse-panel.tsx` (the switch), `packages/shared/src/browse-tiles.ts` (`browseTilesFor`), fallback photos and credits in `packages/design/browse/`.
 - **References:** D-019, D-030
 
+### D-053 : Website top bar bell panel, Men and Women pills on Home, no greeting, "Categories" in Hebrew
+
+- **Date:** 2026-10-17
+- **Area:** Website top bar and Home, Hebrew wording (app and website)
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The bell in the website top bar opens a small panel under it with the latest 5 notifications (unread ones tinted with a dot) and a "View all notifications" button to the full list. Home gets a small Women / Men pair of pills after the mood chips, separated by a thin line. They work together with the mood (for example New today and Men), tapping the chosen one again clears it, and the choice lives in the address (`?group=men`). The Home greeting is removed for now. In Hebrew the Browse button and the Browse panel title say "קטגוריות" instead of "גלישה" (which means surfing), which also changes the app's tab label.
+- **Rationale:** The bell used to jump to another page, a quick look is lighter. Men and Women are the first thing most shoppers filter by. The greeting pushed the feed down for little value.
+- **Implementation:** `BellLink` in `apps/web/components/inbox/inbox-link.tsx` (reuses `NotificationRow`), `HomeFeed` and `lib/feed-url.ts`, `GET /v1/feed?group=women|men` (`feedQuerySchema`, `feedConditions`: the top category and everything under it).
+- **References:** D-030, D-039
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13

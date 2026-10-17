@@ -732,12 +732,6 @@
     }
   },
   "home": {
-    "greeting": {
-      "morning": "Good morning,",
-      "afternoon": "Good afternoon,",
-      "evening": "Good evening,"
-    },
-    "greetingGuest": "Welcome in",
     "moods": {
       "for_you": "For you",
       "new_today": "New today",
@@ -1977,6 +1971,7 @@
       "iconUnread_other": "Inbox, {{count}} unread",
       "bellUnread_one": "Notifications, {{count}} unread",
       "bellUnread_other": "Notifications, {{count}} unread",
+      "viewAllNotifications": "View all notifications",
       "backToInbox": "Back to inbox",
       "pickTitle": "Pick a chat",
       "pickNote": "Your messages open here",

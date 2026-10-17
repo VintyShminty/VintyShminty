@@ -59,9 +59,14 @@ export type FeedMood = (typeof FEED_MOODS)[number];
 /** Under 50 means below 5000 minor units (50.00) in the default currency. */
 export const UNDER_50_MINOR = 5000;
 
-/** GET /v1/feed. A mood chip passes `mood`, a category passes `categoryId`, Trending passes `trending=true`. */
+/** The Men and Women pills on the website's Home. They narrow the feed to that top category. */
+export const FEED_GROUPS = ["women", "men"] as const;
+export type FeedGroup = (typeof FEED_GROUPS)[number];
+
+/** GET /v1/feed. A mood chip passes `mood`, a category passes `categoryId`, Men or Women passes `group`, Trending passes `trending=true`. */
 export const feedQuerySchema = paginationQuerySchema.extend({
   mood: z.enum(FEED_MOODS).optional(),
+  group: z.enum(FEED_GROUPS).optional(),
   categoryId: idSchema.optional(),
   trending: z
     .enum(["true", "false"])
