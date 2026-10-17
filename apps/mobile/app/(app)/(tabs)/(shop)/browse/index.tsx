@@ -1,7 +1,7 @@
 import { useRouter, useScrollToTop } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PhotoTile } from "@/components/photo-tile";
 import { SearchBar } from "@/components/search-bar";
@@ -57,7 +57,7 @@ function TileGrid({
 /**
  * The Browse tab: the search bar, a Women and Men switch and every category of that side as photo tiles, the main ten
  * first, each showing the newest listing's cover (stock photo until it arrives). No More on a phone: the screen scrolls,
- * so everything is simply there (D-055).
+ * so everything is simply there (D-055). All categories under the grid opens the whole category tree as rows.
  */
 export default function Browse() {
   const { t } = useTranslation();
@@ -103,6 +103,15 @@ export default function Browse() {
           ))}
         </View>
         <TileGrid tiles={all} covers={covers} onOpen={open} />
+        <Pressable
+          onPress={() => router.push("/browse/more")}
+          role="button"
+          className="h-12 items-center justify-center rounded-control active:bg-pressed"
+        >
+          <Text variant="button" weight={700} className="text-primary">
+            {t("browse.allCategories")}
+          </Text>
+        </Pressable>
       </ScrollView>
     </Screen>
   );
