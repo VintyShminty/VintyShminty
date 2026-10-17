@@ -758,6 +758,16 @@
       "your_sizes": "Your sizes",
       "near_you": "Near you"
     },
+    "price": {
+      "label": "Price",
+      "from": "From",
+      "to": "To",
+      "under": "Under {{to}}",
+      "range": "{{from}} to {{to}}",
+      "over": "{{from}} and up",
+      "clear": "Clear",
+      "show": "Show"
+    },
     "empty": {
       "newToday": {
         "title": "Nothing new yet today",

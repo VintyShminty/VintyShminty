@@ -774,6 +774,16 @@
       "your_sizes": "המידות שלך",
       "near_you": "לידך"
     },
+    "price": {
+      "label": "מחיר",
+      "from": "מ",
+      "to": "עד",
+      "under": "עד {{to}}",
+      "range": "{{from}} עד {{to}}",
+      "over": "{{from}} ומעלה",
+      "clear": "ניקוי",
+      "show": "הצגה"
+    },
     "empty": {
       "newToday": {
         "title": "עוד לא עלה כלום היום",
