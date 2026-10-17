@@ -2,6 +2,7 @@ import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ADMIN_UPLOAD_BATCH_MAX,
+  conditionWords,
   findCategory,
   LISTING_COLOURS_MAX,
   leafOptions,
@@ -580,7 +581,10 @@ export default function AdminUploadScreen() {
         ref={conditionRef}
         title={t("sell.condition")}
         mode="single"
-        options={ref.conditions.map((c) => ({ id: c.id, label: name(c.name) }))}
+        options={ref.conditions.map((c) => ({
+          id: c.id,
+          label: name(conditionWords(c, activeCategory).name),
+        }))}
         selected={active?.conditionId ? [active.conditionId] : []}
         onChange={([conditionId]) => patchActive({ conditionId: conditionId ?? null })}
       />

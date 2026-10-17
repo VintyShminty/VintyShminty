@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   attributeMode,
   categoryTrail,
+  conditionWords,
   findCategory,
   LISTING_COLOURS_MAX,
   LISTING_DESCRIPTION_MAX,
@@ -364,7 +365,9 @@ export default function SellForm() {
                 <Chip
                   className="self-start"
                   icon={Sparkles}
-                  label={t("sell.assist.guessName", { name: name(conditionGuess.name) })}
+                  label={t("sell.assist.guessName", {
+                    name: name(conditionWords(conditionGuess, category).name),
+                  })}
                   onPress={() => {
                     set({ conditionId: conditionGuess.id });
                     clearError("conditionId");
@@ -372,11 +375,10 @@ export default function SellForm() {
                 />
               ) : null}
               <ConditionSlider
-                stops={ref.conditions.map((c) => ({
-                  id: c.id,
-                  label: name(c.name),
-                  description: name(c.description),
-                }))}
+                stops={ref.conditions.map((c) => {
+                  const words = conditionWords(c, category);
+                  return { id: c.id, label: name(words.name), description: name(words.description) };
+                })}
                 value={values.conditionId}
                 onChange={(conditionId) => {
                   set({ conditionId });

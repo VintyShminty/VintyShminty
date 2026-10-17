@@ -73,7 +73,9 @@ export function ItemCard({
   const isOwn = Boolean(viewer) && listing.seller?.id === viewer?.id;
   const showSave = !preview && !isOwn && !hideSave && (!sold || saveOnSold);
 
-  const meta = [listing.sizeLabel, conditionName(listing.conditionSlug)].filter(Boolean).join(" · ");
+  const meta = [listing.sizeLabel, conditionName(listing.conditionSlug, listing.categoryId)]
+    .filter(Boolean)
+    .join(" · ");
 
   const onSave = () => {
     if (!viewer) {

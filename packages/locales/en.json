@@ -2464,5 +2464,27 @@
     "loadFailed": "We could not load your bundle steps",
     "saveFailed": "We could not save that. Try again",
     "off": "Bundles are off, so nobody gets a discount on your items"
+  },
+  "bookCondition": {
+    "new-with-tags": {
+      "name": "Brand new",
+      "description": "Never read, just as it came from the shop"
+    },
+    "new-without-tags": {
+      "name": "Like new",
+      "description": "Read once at most, no marks or creases"
+    },
+    "very-good": {
+      "name": "Very good",
+      "description": "Read with care, light signs on the cover or edges"
+    },
+    "good": {
+      "name": "Good",
+      "description": "Clearly read, a creased spine or worn cover, every page is there"
+    },
+    "satisfactory": {
+      "name": "Well read",
+      "description": "Read many times, notes, stains or a loose cover are shown in the photos"
+    }
   }
 }

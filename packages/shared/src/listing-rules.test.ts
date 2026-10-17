@@ -3,7 +3,9 @@ import { VALIDATION_MESSAGES } from "./auth.js";
 import {
   allowedSizeIds,
   categoryTrail,
+  conditionWords,
   findCategory,
+  isReadingCategory,
   LISTING_PRICE_MAX_MINOR,
   LISTING_VALIDATION_MESSAGES,
   listingLimits,
@@ -192,6 +194,30 @@ describe("listing rules", () => {
     for (const key of LISTING_VALIDATION_MESSAGES) expect(VALIDATION_MESSAGES).toContain(key);
     const errors = validateListing({ title: "ab", priceMinor: 1 }, reference, { publish: true });
     for (const key of Object.values(errors)) expect(VALIDATION_MESSAGES).toContain(key);
+  });
+});
+
+describe("condition words", () => {
+  const level = {
+    id: "c1",
+    slug: "satisfactory",
+    rank: 5,
+    name: { en: "Well loved", he: "אהוב ומשומש" },
+    description: { en: "Has lived a full life", he: "עבר הרבה" },
+    forBooks: {
+      name: { en: "Well read", he: "נקרא הרבה" },
+      description: { en: "Read many times", he: "נקרא" },
+    },
+  };
+
+  it("uses reading words for books and magazines only", () => {
+    expect(isReadingCategory({ path: "media/books/fiction" })).toBe(true);
+    expect(isReadingCategory({ path: "media/magazines" })).toBe(true);
+    expect(isReadingCategory({ path: "media/music/vinyl" })).toBe(false);
+    expect(isReadingCategory({ path: "women/clothing/books-print-tees" })).toBe(false);
+    expect(conditionWords(level, { path: "media/books/kids" }).name.en).toBe("Well read");
+    expect(conditionWords(level, { path: "women/clothing/dresses" }).name.en).toBe("Well loved");
+    expect(conditionWords(level, null).name.en).toBe("Well loved");
   });
 });
 

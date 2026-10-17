@@ -2,6 +2,7 @@
 
 import {
   attributeMode,
+  conditionWords,
   findCategory,
   formatMoney,
   LISTING_COLOURS_MAX,
@@ -317,7 +318,7 @@ export function UploadRowCard({
                 <option value="">{t("admin.upload.choose")}</option>
                 {reference.conditions.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name[lang]}
+                    {conditionWords(c, category).name[lang]}
                   </option>
                 ))}
               </select>
