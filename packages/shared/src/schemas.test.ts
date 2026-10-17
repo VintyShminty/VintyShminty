@@ -1,10 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { errorResponseSchema, paginationQuerySchema } from "./common.js";
-import { createListingInputSchema, searchFiltersSchema } from "./listings.js";
+import { createListingInputSchema, formatBrandName, searchFiltersSchema, slugifyBrand } from "./listings.js";
 import { bundleSavedMinor, updateBundleLadderInputSchema } from "./orders.js";
 import { addressInputSchema, usernameSchema } from "./users.js";
 
 describe("shared schemas", () => {
+  it("capitalises a typed brand the way it is saved", () => {
+    expect(formatBrandName("bla vintage")).toBe("Bla Vintage");
+    expect(formatBrandName("  BLA   VINTAGE ")).toBe("Bla Vintage");
+    expect(formatBrandName("h&m")).toBe("H&M");
+    expect(formatBrandName("levi's")).toBe("Levi's");
+    expect(formatBrandName("re-made goods")).toBe("Re-Made Goods");
+    expect(formatBrandName("McQueen vintage")).toBe("McQueen Vintage");
+    expect(formatBrandName("בלה וינטג'")).toBe("בלה וינטג'");
+    expect(slugifyBrand("Bla Vintage")).toBe(slugifyBrand("bla-vintage"));
+    expect(slugifyBrand("בלה")).toBe("");
+  });
+
   it("accepts a draft with almost nothing filled in", () => {
     expect(createListingInputSchema.safeParse({ title: "Blue jeans" }).success).toBe(true);
   });

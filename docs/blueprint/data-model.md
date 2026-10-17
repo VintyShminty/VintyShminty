@@ -806,7 +806,7 @@ Constraints:
 
 ### `brands`
 
-The brand list. Starts with about 160 common brands, can grow as members ask.
+The brand list. Starts with about 160 common brands, grows as sellers list items under brands that are not on it yet.
 
 Used by: Sell form (Brand), Filter (Brand, with a search field), Personalisation (Follow), brand page.
 
@@ -829,7 +829,7 @@ Indexes:
 - `brands_name_prefix_idx`: btree on (lower(name) text_pattern_ops)
 - `brands_popularity_idx`: btree on (popularity DESC NULLS LAST, name)
 
-A listing also copies the brand name into `listings.brand_name`, so cards and search never need a join. Members cannot add brands themselves. They send a request (`brand_requests`) and Eden extends the list (decided for Milestone 2, open decision 7).
+A listing also copies the brand name into `listings.brand_name`, so cards and search never need a join. A brand a seller types that is not on the list joins it when that listing goes live (capitalised word by word, matched to an existing brand by name in any capitals or by slug, a Hebrew name gets a random slug), so other sellers can pick it. Drafts keep the typed text only. A brand switched off by hand (`is_active` false) is never added back. `brand_requests` stays for asking without listing (2026-10-17, replaces the Milestone 2 rule that only Eden adds brands).
 
 ### `brand_requests`
 
