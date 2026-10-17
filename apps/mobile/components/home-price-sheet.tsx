@@ -15,8 +15,8 @@ export type PriceRange = { min: number | null; max: number | null };
 
 export const NO_PRICE: PriceRange = { min: null, max: null };
 
-/** The "Under" pick stops one cent short of ₪50, so it does not overlap the next pick. */
-const UNDER_MAX = 4999;
+/** The "Under" pick includes ₪50 itself, the same as the website (whole shekels in its address). */
+const UNDER_MAX = 5000;
 
 /** The four quick picks. */
 const PRICE_PICKS = [
@@ -28,7 +28,7 @@ const PRICE_PICKS = [
 
 export const hasPrice = (r: PriceRange) => r.min !== null || r.max !== null;
 
-/** Shekels shown in the boxes (whole numbers). 4999 shows as 50, which types back as 5000. */
+/** Shekels shown in the boxes (whole numbers). */
 const toText = (minor: number | null) => (minor === null ? "" : String(Math.ceil(minor / 100)));
 const toMinor = (text: string) => {
   const n = Number.parseInt(text.replace(/\D/g, ""), 10);
@@ -37,17 +37,13 @@ const toMinor = (text: string) => {
 
 type Translate = (key: string, options?: Record<string, string>) => string;
 
-/** The words on the Home chip: "Price", "Under ₪50", "₪50 to ₪100", "₪200 and up", "Up to ₪80". */
+/** The words on the Home chip, the same as the website: "Price", "Under ₪80", "₪50 to ₪100", "₪200 and up". */
 export function priceLabel(r: PriceRange, t: Translate): string {
   const money = (minor: number) => formatMoney(minor, "ILS");
-  if (r.min === null && r.max === null) return t("home.price.chip");
-  if (r.min === null && r.max !== null) {
-    return r.max === UNDER_MAX
-      ? t("home.price.under", { amount: money(5000) })
-      : t("home.price.upTo", { amount: money(r.max) });
-  }
-  if (r.min !== null && r.max === null) return t("home.price.andUp", { amount: money(r.min) });
-  return t("home.price.range", { min: money(r.min as number), max: money(r.max as number) });
+  if (r.min === null && r.max === null) return t("home.price.label");
+  if (r.min === null && r.max !== null) return t("home.price.under", { to: money(r.max) });
+  if (r.min !== null && r.max === null) return t("home.price.over", { from: money(r.min) });
+  return t("home.price.range", { from: money(r.min as number), to: money(r.max as number) });
 }
 
 type Props = {
@@ -75,7 +71,7 @@ export function HomePriceSheet({ ref, value, onApply }: Props) {
   return (
     <Sheet
       ref={ref}
-      title={t("home.price.title")}
+      title={t("home.price.label")}
       snapPoints={["58%"]}
       onChange={(index) => {
         // Opening starts from the range that is on now.
