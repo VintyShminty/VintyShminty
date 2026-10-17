@@ -10,6 +10,7 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **Whole files reformatted after a format run.** Prettier was used. This project formats with Biome only, through `pnpm format`. Source: log 2026-10-15 (chat redesign).
 - **The test app shows "No script URL provided".** The development build on this Mac only loads its code from port 8081, a link or setting pointing elsewhere is ignored. Start Metro on 8081 (stop any other there first). Source: log 2026-10-16 (bundles).
 - **Metro ignores file changes.** It was started with `CI=1`, which turns off watching. Start it without `CI`. Source: log 2026-10-16 (bundles).
+- **A list of file names in one shell variable is not split.** zsh (the Mac's shell) keeps it as one word, so the change list came out empty. Write the names out, or loop over them. Source: log 2026-10-17 (evening).
 - **A whole database test run fails with "too many clients".** Too many test files at once. Run the server tests with `--maxWorkers=2`. Source: log 2026-10-16 (bundles).
 
 ## Database
@@ -17,6 +18,7 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **Server tests fail only when all files run together.** They share one database. The server test files run one at a time (`--no-file-parallelism`). Source: commit `828ab96`.
 - **An "online" migration quietly ran on the Mac's database.** drizzle-kit loads `.env` first and a loaded value is not replaced. `drizzle.online.config.ts` now reads `.env.online` itself. Check the table count online after a migration. Source: log 2026-10-13 late evening, commit `ed31472`.
 
+- **The first live seed fails with "Couldn't connect to compute node".** The live Neon database was asleep and waking up. Run it again, the failed try saved nothing. Source: log 2026-10-17 (evening).
 - **Seed or reset refuses to run.** By design. It runs only in development against a local database. Source: `CLAUDE.md`.
 - **Schema changed but a test fails.** The table list in `docs/blueprint/data-model.md` must match the schema. Update it in the same commit. Source: `docs/blueprint/data-model.md`, "Keeping this page true".
 - **After editing the schema** run `pnpm db:generate` before `pnpm db:migrate`. Source: `CLAUDE.md`.
@@ -44,11 +46,14 @@ Traps in our stack. Format: symptom, cause, fix, source. Added by the `compile-m
 - **Close animation looks fine in stills but wrong to Eden.** Two guesses did not fix it, a frame by frame video showed the real cause. Record video for motion bugs. Source: log 2026-10-14 (#38).
 - **A button inside a card opens the card instead.** A React Native button switched off while busy lets the tap fall through to the card underneath. Keep it on and ignore taps while busy. Source: commit `01066ee`.
 - **The app shows "could not load" right after a wording change.** The local server restarts when the shared wording files change and drops the request in flight. Reopen the page. Source: log 2026-10-16 (bundles).
+- **A new feature "does nothing" or the app cannot load it locally.** The local data server on port 3000 is an old copy from the main folder, from before the feature. Run the server from the same copy as the app or website you are testing (another port if needed). Source: log 2026-10-17 (morning and night).
+- **A row of cards that scrolls sideways shows only its heading.** The cards stretch to fill their holder, and in a sideways row with no set height that is zero. Lay each card's holder out as a row so the card keeps its own height. Source: log 2026-10-17 (morning, #109).
+- **A silent app update does not show.** It downloads on one open and shows on the next full restart: flick the card up in the iPhone app switcher and open again. It only reaches builds whose runtime version matches (build 7 is `7f56999f`), anything else needs a new Xcode build. Source: log 2026-10-17 (afternoon), memory `ota-update-eden-runs`.
 - **Hebrew "חבילה" already means the postage parcel.** A bundle is "באנדל". Put a hyphen between a Hebrew prefix and a Latin name ("עוד מ-roni_dahan"). Source: D-049, commit `01066ee`.
 
 ## Libraries and CI
 
-- **Installing a very new library version fails.** Versions younger than 7 days are refused on purpose. Wait, or add a temporary exception in `pnpm-workspace.yaml` with a date to remove it. Exceptions due: 2026-10-13 (overdue, still in the file on 2026-10-13 night) and 2026-10-19. Source: `docs/playbook/security-and-safety.md`, log 2026-10-12 evening.
+- **Installing a very new library version fails.** Versions younger than 7 days are refused on purpose. Wait, or add a temporary exception in `pnpm-workspace.yaml` with a date to remove it. The comment in the file says the Oct 12 releases can go on 2026-10-19 and the Oct 6 releases on 2026-10-13. Four lines were still listed on 2026-10-17. Source: `docs/playbook/security-and-safety.md`, log 2026-10-12 evening.
 - **The pull request check fails on a vulnerability scan.** It blocks on serious findings. Two build-tool findings (node-forge and braces, only on the developer machine) are accepted by name with a reason and a weekly recheck, anything new still blocks. Source: commit `4c4e85f`, `pnpm-workspace.yaml`.
 
 ## Vercel (the online server)
