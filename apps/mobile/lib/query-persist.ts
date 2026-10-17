@@ -9,17 +9,19 @@ export const PERSIST_KEY = "vinty-query-cache";
 /** A saved copy older than this is thrown away. */
 export const PERSIST_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
-/** Saves the successful reference data and the plain For you feed (no category, no trending, no mood chip, no Women or Men). */
+/** Saves the successful reference data and the plain For you feed (no category, no trending, no mood chip, no Women or Men, no price range). */
 export function shouldPersistQuery(query: Pick<Query, "queryKey" | "state">): boolean {
   if (query.state.status !== "success") return false;
-  const [head, categoryId, trending, mood, group] = query.queryKey;
+  const [head, categoryId, trending, mood, group, priceMin, priceMax] = query.queryKey;
   if (head === "reference") return true;
   return (
     head === "feed" &&
     (categoryId ?? null) === null &&
     !trending &&
     (mood ?? "for_you") === "for_you" &&
-    (group ?? null) === null
+    (group ?? null) === null &&
+    (priceMin ?? null) === null &&
+    (priceMax ?? null) === null
   );
 }
 

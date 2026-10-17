@@ -742,6 +742,20 @@
       "your_sizes": "Your sizes",
       "near_you": "Near you"
     },
+    "price": {
+      "label": "Price",
+      "from": "From",
+      "to": "To",
+      "under": "Under {{to}}",
+      "range": "{{from}} to {{to}}",
+      "over": "{{from}} and up",
+      "clear": "Clear",
+      "show": "Show",
+      "noLimit": "No limit",
+      "invalid": "The first price must be lower than the second",
+      "emptyTitle": "Nothing in this price range",
+      "emptyNote": "Try a wider range to see more"
+    },
     "empty": {
       "newToday": {
         "title": "Nothing new yet today",

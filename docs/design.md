@@ -794,6 +794,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `apps/mobile/app/(app)/(tabs)/(shop)/browse/index.tsx`, `tile.tsx` (`group` parameter), `lib/browse-covers.ts`, `lib/browse-tiles.ts` (`tilesFor`, `restFor`).
 - **References:** D-019, D-052, D-054
 
+### D-056 : Home gets a Price chip instead of Under 50
+
+- **Date:** 2026-10-18
+- **Area:** Home on the website and in the app
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The Under 50 chip on Home becomes a Price chip in the same place and style. It opens a small panel with From and To fields in whole shekels, four quick picks (Under 50, 50 to 100, 100 to 200, 200 and up), Clear and Show. With a range set the chip is filled and shows it ("Under ₪50", "₪50 to ₪100", "₪200 and up", "₪30 to ₪80"). It works together with Women, Men and the other moods. On the website the range stays in the address (`?priceMin=50&priceMax=100`, whole shekels) so a reload keeps it, and an old `?mood=under_50` link becomes the Price chip with a top of 50. The feed takes `priceMinMinor` and `priceMaxMinor` (inclusive, minor units, swapped when the first is higher). The server keeps the `under_50` mood so installed apps that still send it keep working.
+- **Rationale:** Under 50 was one fixed price. A range lets people shop the budget they have, and the chip row stays the same length.
+- **Implementation:** `packages/shared/src/discovery.ts` (`feedQuerySchema`), `apps/server/src/lib/feed.ts` (`feedConditions`), `apps/web/components/home-price-chip.tsx`, `home-feed.tsx`, `lib/feed-url.ts`. The panel is drawn on the page body, not inside the chip row, because the row scrolls sideways on a phone and would cut it off. The app side is built separately against the same feed query.
+- **References:** D-019, D-030, D-039
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
