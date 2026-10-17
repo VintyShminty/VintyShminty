@@ -9,12 +9,14 @@ type PhotoTileProps = {
   label: string;
   /** A picture bundled in the app. Without one the tile is a plain tint. */
   photo?: ImageSourcePropType;
+  /** A listing cover to show over the bundled photo once it has loaded. */
+  imageUrl?: string;
   onPress: () => void;
   className?: string;
 };
 
 /** A Browse tile: a photo with the name at the bottom over a soft dark gradient (D-019, row 5). */
-function PhotoTile({ label, photo, onPress, className }: PhotoTileProps) {
+function PhotoTile({ label, photo, imageUrl, onPress, className }: PhotoTileProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -27,6 +29,16 @@ function PhotoTile({ label, photo, onPress, className }: PhotoTileProps) {
           source={photo}
           contentFit="cover"
           transition={200}
+          style={{ position: "absolute", top: 0, bottom: 0, start: 0, end: 0 }}
+          accessibilityIgnoresInvertColors
+        />
+      ) : null}
+      {imageUrl ? (
+        <Image
+          source={{ uri: imageUrl }}
+          contentFit="cover"
+          // No fade: crossfading two different photos reads as a double exposure, and a loaded cover should just be there.
+          transition={0}
           style={{ position: "absolute", top: 0, bottom: 0, start: 0, end: 0 }}
           accessibilityIgnoresInvertColors
         />

@@ -784,6 +784,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `apps/web/components/browse-more.tsx` (`BrowseMoreTile`, `BrowseRest`), `browse-panel.tsx`, `browse-tiles.tsx` (`rest`), `browseRestFor` in `packages/shared/src/browse-tiles.ts`.
 - **References:** D-030, D-052
 
+### D-055 : The app's Browse tab gets the Women and Men switch, listing covers and shows every category
+
+- **Date:** 2026-10-18
+- **Area:** App Browse tab
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The Browse tab matches the website (D-052, D-054), adapted to a phone. Two chips, Women and Men, sit under the search bar and swap the ten tiles (remembered on the phone). Each tile shows the cover of the newest active listing in its categories, with the stock photo underneath until it arrives (and when there is none), and two tiles never show the same listing. Tapping a tile opens its results already on the same side. There is no More on the phone: every category of that side is shown in one grid, the main ten first (Eden, 2026-10-18).
+- **Rationale:** Keep the app and website the same where it fits. On a phone the screen scrolls anyway, so opening and closing More was an extra step for no gain.
+- **Implementation:** `apps/mobile/app/(app)/(tabs)/(shop)/browse/index.tsx`, `tile.tsx` (`group` parameter), `lib/browse-covers.ts`, `lib/browse-tiles.ts` (`tilesFor`, `restFor`).
+- **References:** D-019, D-052, D-054
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
