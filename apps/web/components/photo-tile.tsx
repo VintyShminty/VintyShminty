@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { tilePhoto } from "@/lib/browse-photos";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ export function PhotoTile({
   className,
   plain = false,
   imageUrl,
+  image: staticImage,
   selected = false,
   replace = false,
   scroll,
@@ -34,13 +35,15 @@ export function PhotoTile({
   plain?: boolean;
   /** A photo from the web (a listing cover) instead of a file from the shared tile list. */
   imageUrl?: string;
+  /** A ready static picture (the stock photo of an item type), used when `photo` names none. */
+  image?: StaticImageData;
   /** The chosen tile of a strip: outlined in espresso. */
   selected?: boolean;
   /** Changes the address without adding a history entry (the strip on a results page). */
   replace?: boolean;
   scroll?: boolean;
 }) {
-  const image = photo ? tilePhoto(photo) : undefined;
+  const image = staticImage ?? (photo ? tilePhoto(photo) : undefined);
   const hasPhoto = Boolean(image ?? imageUrl);
   return (
     <Link

@@ -1,4 +1,4 @@
-import { findBrowseTile, searchPageSchema, type TileGroup, tileGroups } from "@vinty/shared";
+import { findBrowseTile, searchPageSchema, type TileGroup, tileCategoryIds, tileGroups } from "@vinty/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,6 +9,7 @@ import { FilterBar, FilterProvider, PendingFade } from "@/components/filter-bar"
 import { InfiniteItemGrid } from "@/components/infinite-item-grid";
 import { PhotoTile } from "@/components/photo-tile";
 import { serverApi } from "@/lib/api";
+import { subTypePhoto } from "@/lib/browse-sub-photos";
 import { pagePath } from "@/lib/feed-url";
 import { buildFilterOptions, isGroup, listingQuery, paramValue, parseFilters } from "@/lib/filters";
 import { getT, isLang, type Lang } from "@/lib/i18n";
@@ -99,9 +100,10 @@ export default async function TilePage({
   const categoryIds = pageCategoryIds(reference.categories, tile, group, sub);
   const filters = parseFilters(sp, "newest");
   const endpoint = `/v1/listings?${listingQuery(filters, { categoryIds })}`;
-  const [firstPage, covers] = await Promise.all([
+  const [firstPage, covers, allCover] = await Promise.all([
     serverApi(pagePath(endpoint), { lang, schema: searchPageSchema }).catch(() => null),
     showStrip ? Promise.all(subs.map((s) => coverOf(lang, s.ids))) : Promise.resolve([]),
+    showStrip ? coverOf(lang, tileCategoryIds(reference.categories, tile, group)) : Promise.resolve(null),
   ]);
 
   const options = buildFilterOptions(
@@ -183,9 +185,10 @@ export default async function TilePage({
             href={typeHref(undefined)}
             replace
             scroll={false}
-            plain
             selected={!sub}
             label={t("filters.allIn", { name: tileName })}
+            imageUrl={allCover ?? undefined}
+            photo={allCover ? undefined : tile.photo}
             className="h-[100px] w-[150px] shrink-0"
           />
           {subs.map((s, i) => (
@@ -197,6 +200,8 @@ export default async function TilePage({
               selected={sub?.key === s.key}
               label={s.name[lang]}
               imageUrl={covers[i] ?? undefined}
+              image={covers[i] ? undefined : (subTypePhoto(s.key) ?? undefined)}
+              photo={covers[i] || subTypePhoto(s.key) ? undefined : tile.photo}
               className="h-[100px] w-[150px] shrink-0"
             />
           ))}
