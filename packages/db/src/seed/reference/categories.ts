@@ -102,7 +102,7 @@ const womenClothing = c(
       c("maxi", "Maxi skirts", "חצאיות מקסי"),
       c("pencil", "Pencil skirts", "חצאיות עיפרון"),
       c("pleated", "Pleated skirts", "חצאיות פליסה"),
-      c("a-line", "A-line skirts", "חצאיות A"),
+      c("a-line", "A-line skirts", "חצאיות בגזרת A"),
       c("denim", "Denim skirts", "חצאיות ג'ינס"),
     ]),
     c("coats", "Coats", "מעילים", [
