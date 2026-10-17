@@ -47,13 +47,13 @@ describe("notification sentences", () => {
   it("writes the grouped heart sentence with the count", async () => {
     const t = await make("en");
     expect(notificationText(row("listing_favourited", { title: "Coat", count: 1 }), t)).toBe(
-      "Someone favourited Coat",
+      "Someone saved Coat",
     );
     expect(notificationText(row("listing_favourited", { title: "Coat", count: 2 }), t)).toBe(
-      "Someone and 1 other favourited Coat",
+      "Someone and 1 other saved Coat",
     );
     expect(notificationText(row("listing_favourited", { title: "Coat", count: 5 }), t)).toBe(
-      "Someone and 4 others favourited Coat",
+      "Someone and 4 others saved Coat",
     );
   });
 

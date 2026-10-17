@@ -1,9 +1,9 @@
 {
   "tabs": {
     "home": "Home",
-    "browse": "Browse",
+    "browse": "Explore",
     "sell": "Sell",
-    "inbox": "Inbox",
+    "inbox": "Chats",
     "profile": "Profile"
   },
   "common": {
@@ -333,8 +333,8 @@
     "reservedNote": "Buyers see it as reserved and cannot buy it.",
     "hiddenNote": "Hidden from buyers until you show it again.",
     "soldNote": "Marked as sold. It no longer shows up for buyers.",
-    "favourites_one": "{{count}} favourite",
-    "favourites_other": "{{count}} favourites",
+    "favourites_one": "{{count}} save",
+    "favourites_other": "{{count}} saves",
     "views_one": "{{count}} view",
     "views_other": "{{count}} views",
     "hide": "Hide",
@@ -427,7 +427,7 @@
     "showLastSeen": "Show when I was last online",
     "showLastSeenHint": "Other people see Last seen on your About tab.",
     "tailorFeed": "Tailor Home to what I do",
-    "tailorFeedHint": "Home learns from your favourites, what you open and what you browse. Turning this off also clears what it learned"
+    "tailorFeedHint": "Home learns from what you save, what you open and what you browse. Turning this off also clears what it learned"
   },
   "languages": {
     "en": "English",
@@ -441,8 +441,8 @@
     "types": {
       "new_message": "New messages",
       "review_received": "New reviews",
-      "favourite_price_drop": "Price drops on your favourites",
-      "listing_favourited": "Favourites on your pieces",
+      "favourite_price_drop": "Price drops on pieces you saved",
+      "listing_favourited": "Saves on your pieces",
       "favourite_sold": "A saved piece sells",
       "new_follower": "New followers",
       "followed_seller_new_item": "New from people you follow"
@@ -586,8 +586,8 @@
   "item": {
     "more": "More options",
     "reportItem": "Report this item",
-    "addFavourite": "Add to favourites",
-    "removeFavourite": "Remove from favourites",
+    "addFavourite": "Save",
+    "removeFavourite": "Remove from saved",
     "soldNote": "This item has been sold",
     "reservedNote": "This item is reserved for someone else",
     "unavailable": "This item is not available",
@@ -620,11 +620,11 @@
     "unavailable": "This seller is not available"
   },
   "favourites": {
-    "title": "Favourites",
-    "search": "Search your favourites",
-    "empty": "No favourites yet",
+    "title": "Saved",
+    "search": "Search what you saved",
+    "empty": "Nothing saved yet",
     "emptyNote": "Tap the bookmark on an item to keep it here",
-    "noMatches": "Nothing in your favourites matches that search"
+    "noMatches": "Nothing you saved matches that search"
   },
   "buzz": {
     "action": "Boost this listing",
@@ -696,8 +696,8 @@
     }
   },
   "browse": {
-    "favourite": "Add to favourites",
-    "unfavourite": "Remove from favourites",
+    "favourite": "Save",
+    "unfavourite": "Remove from saved",
     "cardSaved": "Saved",
     "search": "Search",
     "all": "All",
@@ -852,7 +852,7 @@
     "notifications": "Notifications",
     "archived": "Archived",
     "archive": "Archive",
-    "unarchive": "Move to inbox",
+    "unarchive": "Move to chats",
     "mute": "Mute",
     "unmute": "Unmute",
     "muted": "Muted",
@@ -879,9 +879,9 @@
       "offer_countered": "You got a counter offer on {{title}}",
       "offer_counteredAmount": "You got a counter offer of {{amount}} on {{title}}",
       "offer_expired": "The offer on {{title}} expired",
-      "listing_favourited": "{{name}} favourited {{title}}",
-      "listing_favouritedMany_one": "{{name}} and {{count}} other favourited {{title}}",
-      "listing_favouritedMany_other": "{{name}} and {{count}} others favourited {{title}}",
+      "listing_favourited": "{{name}} saved {{title}}",
+      "listing_favouritedMany_one": "{{name}} and {{count}} other saved {{title}}",
+      "listing_favouritedMany_other": "{{name}} and {{count}} others saved {{title}}",
       "favourite_sold": "{{title}} has been sold",
       "favourite_price_drop": "The price of {{title}} dropped",
       "favourite_price_dropNow": "{{title}} is now {{price}}",
@@ -1621,7 +1621,7 @@
     "scope_category": "Category",
     "undo": "Undo",
     "resetTitle": "Reset my recommendations",
-    "resetBody": "Home forgets what it learned from your favourites, opens and visits. Your favourites, sizes, follows and hidden items stay.",
+    "resetBody": "Home forgets what it learned from your saves, opens and visits. Your saved items, sizes, follows and hidden items stay.",
     "resetAction": "Reset",
     "resetDone": "Home is starting fresh"
   },
@@ -1763,7 +1763,7 @@
       },
       "saveItems": {
         "title": "Saving items and searches",
-        "body": "Tap the bookmark on an item to save it. Saved items wait for you in Favourites, and you hear about it if the price drops or the item sells.\n\nAn item from a seller who is away can still be saved. You can also save a search, and we tell you when something new matches."
+        "body": "Tap the bookmark on an item to save it. Saved items wait for you in Saved, and you hear about it if the price drops or the item sells.\n\nAn item from a seller who is away can still be saved. You can also save a search, and we tell you when something new matches."
       },
       "listAnItem": {
         "title": "Listing an item",
@@ -1845,10 +1845,10 @@
       "mainNavigation": "Main",
       "feedNavigation": "Home feed",
       "menu": "Menu",
-      "favourites": "Favourites",
+      "favourites": "Saved",
       "account": "Your account",
       "browseGender": "Show tiles for",
-      "browseTitle": "Browse by type",
+      "browseTitle": "Explore by type",
       "homeLink": "Yadii, home"
     },
     "dev": {
@@ -1959,7 +1959,7 @@
         "profile": "Profile",
         "orders": "My orders",
         "balance": "Balance",
-        "favourites": "Favourites",
+        "favourites": "Saved",
         "savedSearches": "Saved searches",
         "settings": "Settings",
         "help": "Help",
@@ -1984,12 +1984,12 @@
       "favouritesEmptyNote": "Tap the bookmark on an item to keep it here"
     },
     "inbox": {
-      "iconUnread_one": "Inbox, {{count}} unread",
-      "iconUnread_other": "Inbox, {{count}} unread",
+      "iconUnread_one": "Chats, {{count}} unread",
+      "iconUnread_other": "Chats, {{count}} unread",
       "bellUnread_one": "Notifications, {{count}} unread",
       "bellUnread_other": "Notifications, {{count}} unread",
       "viewAllNotifications": "View all notifications",
-      "backToInbox": "Back to inbox",
+      "backToInbox": "Back to chats",
       "pickTitle": "Pick a chat",
       "pickNote": "Your messages open here",
       "loading": "Loading",
