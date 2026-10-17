@@ -776,7 +776,7 @@ Proposals, not rules, until explicitly promoted above.
 
 ### D-054 : More shows what is behind it and opens inside the Browse panel
 
-- **Date:** 2026-10-18
+- **Date:** 2026-10-17
 - **Area:** Website top bar, Browse panel
 - **Status:** Proposed, waiting for Eden's merge.
 - **Decision:** The More tile is a small grid of four pictures of the categories behind it, with "More" and how many there are ("9 more categories"), instead of one T-shirt photo. Clicking it no longer leaves the page: the panel grows in place with a short slide and shows the rest under a "More to explore" line as smaller tiles, and More turns into "Show less". The rest follows the Women and Men switch (Men has no Dresses or Skirts, gender-free ones like Home and Kids show on both). The panel scrolls when it is taller than the window and opens at the first ten again next time. With Reduce Motion the slide is off. Without JavaScript More is still a link to the Browse page.
@@ -786,17 +786,17 @@ Proposals, not rules, until explicitly promoted above.
 
 ### D-055 : The app's Browse tab gets the Women and Men switch, listing covers and shows every category
 
-- **Date:** 2026-10-18
+- **Date:** 2026-10-17
 - **Area:** App Browse tab
 - **Status:** Proposed, waiting for Eden's merge.
-- **Decision:** The Browse tab matches the website (D-052, D-054), adapted to a phone. Two chips, Women and Men, sit under the search bar and swap the ten tiles (remembered on the phone). Each tile shows the cover of the newest active listing in its categories, with the stock photo underneath until it arrives (and when there is none), and two tiles never show the same listing. Tapping a tile opens its results already on the same side. There is no More on the phone: every category of that side is shown in one grid, the main ten first (Eden, 2026-10-18).
+- **Decision:** The Browse tab matches the website (D-052, D-054), adapted to a phone. Two chips, Women and Men, sit under the search bar and swap the ten tiles (remembered on the phone). Each tile shows the cover of the newest active listing in its categories, with the stock photo underneath until it arrives (and when there is none), and two tiles never show the same listing. Tapping a tile opens its results already on the same side. There is no More on the phone: every category of that side is shown in one grid, the main ten first (Eden, 2026-10-17).
 - **Rationale:** Keep the app and website the same where it fits. On a phone the screen scrolls anyway, so opening and closing More was an extra step for no gain.
 - **Implementation:** `apps/mobile/app/(app)/(tabs)/(shop)/browse/index.tsx`, `tile.tsx` (`group` parameter), `lib/browse-covers.ts`, `lib/browse-tiles.ts` (`tilesFor`, `restFor`).
 - **References:** D-019, D-052, D-054
 
 ### D-056 : Home gets a Price chip instead of Under 50
 
-- **Date:** 2026-10-18
+- **Date:** 2026-10-17
 - **Area:** Home on the website and in the app
 - **Status:** Proposed, waiting for Eden's merge.
 - **Decision:** The Under 50 chip on Home becomes a Price chip in the same place and style. It opens a small panel with From and To fields in whole shekels, four quick picks (Under 50, 50 to 100, 100 to 200, 200 and up), Clear and Show. With a range set the chip is filled and shows it ("Under ₪50", "₪50 to ₪100", "₪200 and up", "₪30 to ₪80"). It works together with Women, Men and the other moods. On the website the range stays in the address (`?priceMin=50&priceMax=100`, whole shekels) so a reload keeps it, and an old `?mood=under_50` link becomes the Price chip with a top of 50. The feed takes `priceMinMinor` and `priceMaxMinor` (inclusive, minor units, swapped when the first is higher). The server keeps the `under_50` mood so installed apps that still send it keep working.
