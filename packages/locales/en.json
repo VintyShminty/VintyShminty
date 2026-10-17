@@ -735,6 +735,22 @@
     }
   },
   "home": {
+    "price": {
+      "chip": "Price",
+      "title": "Price",
+      "from": "From",
+      "to": "To",
+      "noLimit": "No limit",
+      "invalid": "The first price must be lower than the second",
+      "under": "Under {{amount}}",
+      "upTo": "Up to {{amount}}",
+      "andUp": "{{amount}} and up",
+      "range": "{{min}} to {{max}}",
+      "clear": "Clear",
+      "show": "Show",
+      "emptyTitle": "Nothing in this price range",
+      "emptyNote": "Try a wider range to see more"
+    },
     "moods": {
       "for_you": "For you",
       "new_today": "New today",

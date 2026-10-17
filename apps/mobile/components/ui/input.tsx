@@ -23,6 +23,8 @@ type InputProps = Omit<React.ComponentProps<typeof TextInput>, "placeholderTextC
   containerClassName?: string;
   /** Something small at the end of the label line, for example the "Use it" chip. */
   labelEnd?: React.ReactNode;
+  /** Inside a bottom sheet pass the sheet's own text box, so the sheet lifts above the keyboard. */
+  inputComponent?: React.ElementType;
 };
 
 /**
@@ -38,6 +40,7 @@ function Input({
   secureToggle,
   containerClassName,
   labelEnd,
+  inputComponent: Field = TextInput,
   className,
   editable = true,
   multiline,
@@ -80,7 +83,7 @@ function Input({
             {prefix}
           </Text>
         ) : null}
-        <TextInput
+        <Field
           ref={ref}
           editable={editable}
           multiline={multiline}
@@ -88,11 +91,11 @@ function Input({
           placeholderTextColor={colors.text4}
           selectionColor={colors.accent}
           accessibilityLabel={label}
-          onFocus={(e) => {
+          onFocus={(e: Parameters<NonNullable<React.ComponentProps<typeof TextInput>["onFocus"]>>[0]) => {
             setFocused(true);
             props.onFocus?.(e);
           }}
-          onBlur={(e) => {
+          onBlur={(e: Parameters<NonNullable<React.ComponentProps<typeof TextInput>["onFocus"]>>[0]) => {
             setFocused(false);
             props.onBlur?.(e);
           }}

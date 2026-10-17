@@ -57,15 +57,26 @@ export type FeedParams = {
   trending?: boolean;
   mood?: FeedMood;
   group?: FeedGroup | null;
+  /** Price range in minor units, inclusive. Missing means no limit on that side. */
+  priceMinMinor?: number | null;
+  priceMaxMinor?: number | null;
 };
 
-export const feedQuery = ({ categoryId, trending, mood, group }: FeedParams) =>
+export const feedQuery = ({ categoryId, trending, mood, group, priceMinMinor, priceMaxMinor }: FeedParams) =>
   infiniteQueryOptions({
-    queryKey: ["feed", categoryId ?? null, trending ?? false, mood ?? null, group ?? null],
+    queryKey: [
+      "feed",
+      categoryId ?? null,
+      trending ?? false,
+      mood ?? null,
+      group ?? null,
+      priceMinMinor ?? null,
+      priceMaxMinor ?? null,
+    ],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
       api(
-        `/v1/feed?${paging(pageParam)}${categoryId ? `&categoryId=${categoryId}` : ""}${trending ? "&trending=true" : ""}${mood ? `&mood=${mood}` : ""}${group ? `&group=${group}` : ""}`,
+        `/v1/feed?${paging(pageParam)}${categoryId ? `&categoryId=${categoryId}` : ""}${trending ? "&trending=true" : ""}${mood ? `&mood=${mood}` : ""}${group ? `&group=${group}` : ""}${priceMinMinor ? `&priceMinMinor=${priceMinMinor}` : ""}${priceMaxMinor ? `&priceMaxMinor=${priceMaxMinor}` : ""}`,
         { schema: homeFeedPageSchema },
       ),
     getNextPageParam: (last) => last.nextCursor ?? undefined,

@@ -1,9 +1,9 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FEED_GROUPS, type FeedCard, type FeedGroup, type FeedMood, UNDER_50_MINOR } from "@vinty/shared";
+import { FEED_GROUPS, type FeedCard, type FeedGroup, type FeedMood } from "@vinty/shared";
 import { useNavigation, useRouter } from "expo-router";
 import { Bell, Bookmark } from "lucide-react-native";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Keyboard, Pressable, ScrollView, type TextInput, View } from "react-native";
 import Animated, {
@@ -16,6 +16,13 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { scheduleOnRN } from "react-native-worklets";
 import { FeedReasonSheet } from "@/components/feed-reason-sheet";
+import {
+  HomePriceSheet,
+  hasPrice,
+  NO_PRICE,
+  type PriceRange,
+  priceLabel,
+} from "@/components/home-price-sheet";
 import { ListingGrid } from "@/components/listing-grid";
 import {
   SaveSearchButton,
@@ -33,14 +40,12 @@ import { authClient } from "@/lib/auth-client";
 import { feedQuery } from "@/lib/discovery-queries";
 import { personalisationSizesQuery } from "@/lib/item-queries";
 import { unreadQuery } from "@/lib/messaging-queries";
-import { formatMoney } from "@/lib/money";
 import { meQuery } from "@/lib/queries";
 import { useSearchStore } from "@/lib/search-store";
 
 /** The mood chips, in order. There is no For you chip: plain Home is For you. The last two need an account (sizes and city). */
 const MOODS: { key: FeedMood; needsAccount: boolean }[] = [
   { key: "new_today", needsAccount: false },
-  { key: "under_50", needsAccount: false },
   { key: "your_sizes", needsAccount: true },
   { key: "near_you", needsAccount: true },
 ];
@@ -165,6 +170,9 @@ export default function Home() {
   const [mood, setMood] = useState<FeedMood>("for_you");
   // Women or Men, kept for this app session only. Works together with a mood.
   const [group, setGroup] = useState<FeedGroup | null>(null);
+  // The price range from the Price chip, in minor units. Also for this app session only.
+  const [price, setPrice] = useState<PriceRange>(NO_PRICE);
+  const priceSheet = useRef<BottomSheetModal>(null);
   const { data: session } = authClient.useSession();
   const signedIn = Boolean(session);
   const me = useQuery({ ...meQuery(), enabled: signedIn });
@@ -201,7 +209,12 @@ export default function Home() {
 
   const activeMood: FeedMood =
     !signedIn && mood !== "for_you" && MOODS.find((m) => m.key === mood)?.needsAccount ? "for_you" : mood;
-  const feedOptions = feedQuery({ mood: activeMood, group });
+  const feedOptions = feedQuery({
+    mood: activeMood,
+    group,
+    priceMinMinor: price.min,
+    priceMaxMinor: price.max,
+  });
   const query = useInfiniteQuery(feedOptions);
   const queryClient = useQueryClient();
   // The list the cards came from. The app sends it with each "card seen".
@@ -222,9 +235,11 @@ export default function Home() {
     if (!loaded) return;
     for (const m of MOODS) {
       if (m.key === activeMood || (m.needsAccount && !signedIn)) continue;
-      void queryClient.prefetchInfiniteQuery(feedQuery({ mood: m.key, group }));
+      void queryClient.prefetchInfiniteQuery(
+        feedQuery({ mood: m.key, group, priceMinMinor: price.min, priceMaxMinor: price.max }),
+      );
     }
-  }, [loaded, activeMood, group, signedIn, queryClient]);
+  }, [loaded, activeMood, group, price, signedIn, queryClient]);
 
   // "Why you see this" on a long press.
   const reasonSheet = useRef<BottomSheetModal>(null);
@@ -245,12 +260,12 @@ export default function Home() {
   let emptyTitle = t("home.emptyTitle");
   let emptyMessage: string | undefined = t("home.emptyMessage");
   let emptyAction: React.ReactElement | null = null;
-  if (activeMood === "new_today") {
+  if (hasPrice(price)) {
+    emptyTitle = t("home.price.emptyTitle");
+    emptyMessage = t("home.price.emptyNote");
+  } else if (activeMood === "new_today") {
     emptyTitle = t("home.empty.newToday.title");
     emptyMessage = t("home.empty.newToday.note");
-  } else if (activeMood === "under_50") {
-    emptyTitle = t("home.empty.under50.title", { amount: formatMoney(UNDER_50_MINOR, "ILS") });
-    emptyMessage = t("home.empty.under50.note");
   } else if (activeMood === "your_sizes") {
     if (sizes.isSuccess && !hasSizes) {
       emptyTitle = t("home.empty.sizesUnset.title");
@@ -329,12 +344,21 @@ export default function Home() {
         ))}
         <View className="my-xs w-px self-stretch bg-border" />
         {MOODS.filter((m) => signedIn || !m.needsAccount).map((m) => (
-          <Chip
-            key={m.key}
-            label={t(`home.moods.${m.key}`, { amount: formatMoney(UNDER_50_MINOR, "ILS") })}
-            selected={activeMood === m.key}
-            onPress={() => setMood((now) => (now === m.key ? "for_you" : m.key))}
-          />
+          <Fragment key={m.key}>
+            <Chip
+              label={t(`home.moods.${m.key}`)}
+              selected={activeMood === m.key}
+              onPress={() => setMood((now) => (now === m.key ? "for_you" : m.key))}
+            />
+            {/* Price sits second, where Under 50 used to be. */}
+            {m.key === "new_today" ? (
+              <Chip
+                label={priceLabel(price, t)}
+                selected={hasPrice(price)}
+                onPress={() => priceSheet.current?.present()}
+              />
+            ) : null}
+          </Fragment>
         ))}
       </ScrollView>
     </View>
@@ -373,6 +397,7 @@ export default function Home() {
           onClosed={closedSearch}
         />
       ) : null}
+      <HomePriceSheet ref={priceSheet} value={price} onApply={setPrice} />
       {signedIn ? <FeedReasonSheet ref={reasonSheet} card={whyCard} /> : null}
     </Screen>
   );
