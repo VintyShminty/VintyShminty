@@ -150,6 +150,43 @@ export const BROWSE_MORE_TILES: BrowseTile[] = [
   { key: "hobbies", photo: "45-camera.jpg", slugs: ["hobbies"] },
 ];
 
+/** The picture of the "More" tile (a fallback file in `packages/design/browse/`, never a listing). */
+export const BROWSE_MORE_PHOTO = "20-t-shirt.jpg";
+
+/** The two sides of the website's Browse panel. */
+export const BROWSE_GENDERS = ["women", "men"] as const;
+export type BrowseGender = (typeof BROWSE_GENDERS)[number];
+
+/** Men's tiles that need their own fallback picture, because the shared one shows a woman or a woman's item. */
+const MEN_PHOTOS: Record<string, string> = {
+  coats: "24-coat.jpg",
+  knitwear: "18-sweater.jpg",
+  sneakers: "09-sneakers.jpg",
+};
+
+/** Tiles that sit behind More for everyone else but are among the ten for Men (Men has no Dresses or Skirts). */
+const MEN_EXTRA_KEYS = ["accessories", "sportswear"];
+
+/**
+ * The ten tiles of the website's Browse panel for one side. Each tile keeps only that side's categories (so Jeans for
+ * Men covers just the men's jeans), and a tile that side has nothing for is left out (no Dresses or Skirts for Men).
+ * The tile pages take `?group=women|men` to open on the same side.
+ */
+export function browseTilesFor(gender: BrowseGender): BrowseTile[] {
+  const pool = [...BROWSE_TILES, ...BROWSE_MORE_TILES];
+  const keys = BROWSE_TILES.map((t) => t.key);
+  if (gender === "men") keys.push(...MEN_EXTRA_KEYS);
+  const out: BrowseTile[] = [];
+  for (const key of keys) {
+    const tile = pool.find((t) => t.key === key);
+    if (!tile) continue;
+    const slugs = tile.slugs.filter((s) => groupOfSlug(s) === gender);
+    if (slugs.length === 0) continue;
+    out.push({ key, photo: (gender === "men" && MEN_PHOTOS[key]) || tile.photo, slugs });
+  }
+  return out.slice(0, 10);
+}
+
 export const findBrowseTile = (key: string | undefined) =>
   [...BROWSE_TILES, ...BROWSE_MORE_TILES].find((t) => t.key === key);
 

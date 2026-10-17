@@ -4,20 +4,44 @@ import { ChevronDown, LayoutGrid } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Chip } from "@/components/chip";
 import { FOCUS_RING } from "@/lib/utils";
 
+type Gender = "women" | "men";
+const GENDER_KEY = "yadii-browse-gender";
+
 /**
- * The top bar's Browse button (D-030). It opens a panel under the button with the photo tiles, which the server
- * page passes in as `children` (so the tile links are in the HTML even while the panel is closed). Clicking outside
- * or pressing Escape closes it, and so does going to another page.
+ * The top bar's Browse button (D-030). It opens a panel under the button with a Women and Men switch and the photo
+ * tiles of the chosen side. The server passes both sides in (`women`, `men`) so every tile link is in the HTML even
+ * while the panel is closed, and the switch only shows one. The last choice is remembered in this browser (D-052).
+ * Clicking outside or pressing Escape closes the panel, and so does going to another page.
  */
-export function BrowsePanel({ children }: { children: ReactNode }) {
+export function BrowsePanel({ women, men }: { women: ReactNode; men: ReactNode }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const panelId = useId();
   const pathname = usePathname();
+  const [gender, setGender] = useState<Gender>("women");
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(GENDER_KEY);
+      if (saved === "women" || saved === "men") setGender(saved);
+    } catch {
+      // Storage can be blocked, the panel then starts on Women every time.
+    }
+  }, []);
+
+  const choose = (next: Gender) => {
+    setGender(next);
+    try {
+      window.localStorage.setItem(GENDER_KEY, next);
+    } catch {
+      // Not remembered, the switch still works for this visit.
+    }
+  };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: closing when the page changes is the point
   useEffect(() => setOpen(false), [pathname]);
@@ -26,10 +50,11 @@ export function BrowsePanel({ children }: { children: ReactNode }) {
   // button, switch them to eager so they are already there when the panel opens.
   const panel = useRef<HTMLElement>(null);
   const warm = useCallback(() => {
-    for (const img of panel.current?.querySelectorAll<HTMLImageElement>('img[loading="lazy"]') ?? []) {
+    const shown = panel.current?.querySelector(`[data-gender="${gender}"]`);
+    for (const img of shown?.querySelectorAll<HTMLImageElement>('img[loading="lazy"]') ?? []) {
       img.loading = "eager";
     }
-  }, []);
+  }, [gender]);
   useEffect(() => {
     if (typeof window.requestIdleCallback === "function") {
       const id = window.requestIdleCallback(warm, { timeout: 4000 });
@@ -81,7 +106,20 @@ export function BrowsePanel({ children }: { children: ReactNode }) {
         aria-label={t("web.nav.browseTitle")}
         className="absolute start-0 top-full z-50 mt-sm w-[min(calc(100vw-48px),720px)] rounded-window border border-border bg-background p-lg shadow-lg"
       >
-        {children}
+        <fieldset aria-label={t("web.nav.browseGender")} className="m-0 mb-md flex gap-sm border-0 p-0">
+          <Chip
+            label={t("browse.groups.women")}
+            selected={gender === "women"}
+            onClick={() => choose("women")}
+          />
+          <Chip label={t("browse.groups.men")} selected={gender === "men"} onClick={() => choose("men")} />
+        </fieldset>
+        <div data-gender="women" hidden={gender !== "women"}>
+          {women}
+        </div>
+        <div data-gender="men" hidden={gender !== "men"}>
+          {men}
+        </div>
       </section>
     </div>
   );

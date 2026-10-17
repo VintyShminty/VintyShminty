@@ -38,15 +38,28 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
           Yadii
         </Link>
         <div className="hidden md:block">
-          <BrowsePanel>
-            <BrowseTiles
-              lang={lang}
-              withMore
-              className="grid-cols-4"
-              tileClassName="h-[120px]"
-              sizes="170px"
-            />
-          </BrowsePanel>
+          <BrowsePanel
+            women={
+              <BrowseTiles
+                lang={lang}
+                gender="women"
+                withMore
+                className="grid-cols-4"
+                tileClassName="h-[120px]"
+                sizes="170px"
+              />
+            }
+            men={
+              <BrowseTiles
+                lang={lang}
+                gender="men"
+                withMore
+                className="grid-cols-4"
+                tileClassName="h-[120px]"
+                sizes="170px"
+              />
+            }
+          />
         </div>
         <search className="relative order-last flex h-10 w-full items-center gap-sm rounded-full border border-border bg-background focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">
           <SearchField lang={lang} />
