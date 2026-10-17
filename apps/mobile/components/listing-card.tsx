@@ -12,6 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 import { formatMoney } from "@/lib/money";
+import { openBrandSearch } from "@/lib/open-brand";
 import { useToggleFavourite } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
 import { cn } from "@/lib/utils";
@@ -159,6 +160,22 @@ function ListingCard({
         <Text variant="bodySmall" weight={600} numberOfLines={1}>
           {listing.title}
         </Text>
+        {listing.brandName ? (
+          // Its own button, so a tap on the brand does not open the item.
+          <Pressable
+            onPress={() =>
+              openBrandSearch(router, { id: listing.brandId, name: listing.brandName as string })
+            }
+            role="link"
+            accessibilityLabel={listing.brandName}
+            hitSlop={6}
+            className="self-start active:opacity-70"
+          >
+            <Text variant="cardMeta" numberOfLines={1}>
+              {listing.brandName}
+            </Text>
+          </Pressable>
+        ) : null}
         {meta ? (
           <Text variant="cardMeta" numberOfLines={1}>
             {meta}

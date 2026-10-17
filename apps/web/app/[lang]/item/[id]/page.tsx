@@ -3,6 +3,7 @@ import { Check, Clock, EyeOff, Moon, Pencil, TrendingDown } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { Badge } from "@/components/badge";
 import { BundleBar } from "@/components/bundle/bundle-bar";
 import { BundleBox } from "@/components/bundle/bundle-box";
@@ -20,6 +21,7 @@ import { SellerAvatar } from "@/components/seller-avatar";
 import { SellerStamp } from "@/components/seller-stamp";
 import { StarRating } from "@/components/star-rating";
 import { ApiClientError } from "@/lib/api";
+import { brandSearchHref } from "@/lib/brand-link";
 import { hasBuyActions } from "@/lib/buy-actions";
 import { getT, isLang, type Lang } from "@/lib/i18n";
 import { getListing, getProfile, getSellerItems, getSimilar } from "@/lib/listing-data";
@@ -89,7 +91,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-function Row({ label, value }: { label: string; value: string | null | undefined }) {
+function Row({ label, value }: { label: string; value: ReactNode }) {
   if (!value) return null;
   return (
     <div className="flex gap-md border-b border-border-subtle py-sm">
@@ -264,7 +266,19 @@ export default async function ItemPage({
                 <h1 className="text-[24px] font-bold leading-[28px] text-text-1">{listing.title}</h1>
                 {meta ? (
                   <p className="mt-xs text-card-meta font-semibold uppercase tracking-wide text-text-3">
-                    {meta}
+                    {listing.brand ? (
+                      <>
+                        <Link
+                          href={brandSearchHref(lang, listing.brand)}
+                          className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                        >
+                          {listing.brand.name}
+                        </Link>
+                        {meta.slice(listing.brand.name.length)}
+                      </>
+                    ) : (
+                      meta
+                    )}
                   </p>
                 ) : null}
               </div>
@@ -429,7 +443,19 @@ export default async function ItemPage({
                 label={t("sell.category")}
                 value={listing.category?.breadcrumb.map((b) => localName(b.name, lang)).join(", ")}
               />
-              <Row label={t("sell.brand")} value={listing.brand?.name} />
+              <Row
+                label={t("sell.brand")}
+                value={
+                  listing.brand ? (
+                    <Link
+                      href={brandSearchHref(lang, listing.brand)}
+                      className="underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                    >
+                      {listing.brand.name}
+                    </Link>
+                  ) : null
+                }
+              />
               <Row label={t("sell.size")} value={listing.size?.label} />
               <Row label={t("sell.condition")} value={localName(listing.condition?.name, lang)} />
               <Row

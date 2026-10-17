@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BuzzSheet } from "@/components/item/buzz-sheet";
-import { DetailRow } from "@/components/item/detail-row";
+import { DetailRow, subtitleRest } from "@/components/item/detail-row";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { PriceBlock } from "@/components/price-pill";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { describeApiError } from "@/lib/auth-errors";
+import { openBrandSearch } from "@/lib/open-brand";
 import { ownListingQuery, useDeleteListing, useListingStatus } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
 import { formatDateTime, timeAgo } from "@/lib/time";
@@ -140,9 +141,17 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
               {listing.title || t("listing.untitled")}
             </Text>
             <Text variant="bodySmall" className="text-text-3">
-              {[listing.brand?.name, listing.size?.label, name(listing.condition?.name)]
-                .filter(Boolean)
-                .join(" · ")}
+              {listing.brand ? (
+                <Text
+                  variant="bodySmall"
+                  role="link"
+                  className="text-text-3 underline"
+                  onPress={() => openBrandSearch(router, listing.brand)}
+                >
+                  {listing.brand.name}
+                </Text>
+              ) : null}
+              {subtitleRest(listing, name, Boolean(listing.brand))}
             </Text>
           </View>
 
@@ -244,7 +253,11 @@ export function OwnListingView({ id, placeholder }: { id: string; placeholder?: 
               label={t("sell.category")}
               value={listing.category?.breadcrumb.map((b) => name(b.name)).join(", ")}
             />
-            <DetailRow label={t("sell.brand")} value={listing.brand?.name} />
+            <DetailRow
+              label={t("sell.brand")}
+              value={listing.brand?.name}
+              onPress={listing.brand ? () => openBrandSearch(router, listing.brand) : undefined}
+            />
             <DetailRow label={t("sell.size")} value={listing.size?.label} />
             <DetailRow label={t("sell.condition")} value={name(listing.condition?.name)} />
             <DetailRow

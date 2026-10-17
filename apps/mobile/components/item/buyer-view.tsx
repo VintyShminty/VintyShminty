@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, FlatList, Pressable, View } from "react-native";
 import { BUNDLE_BAR_HEIGHT, BundleBar, bundleBarVisible } from "@/components/bundle/bundle-bar";
 import { BundleBox } from "@/components/bundle/bundle-box";
-import { DetailRow } from "@/components/item/detail-row";
+import { DetailRow, subtitleRest } from "@/components/item/detail-row";
 import { FavouritePill } from "@/components/item/favourite-pill";
 import { MoreMenu } from "@/components/item/more-menu";
 import { ListingCard } from "@/components/listing-card";
@@ -30,6 +30,7 @@ import { useSellerBundle } from "@/lib/bundle-queries";
 import { similarQuery } from "@/lib/item-queries";
 import { useStartConversation } from "@/lib/messaging-queries";
 import { formatMoney } from "@/lib/money";
+import { openBrandSearch } from "@/lib/open-brand";
 import { useSendOffer } from "@/lib/order-flow-queries";
 import { userListingsQuery } from "@/lib/queries";
 import { useLocalName } from "@/lib/reference";
@@ -180,9 +181,17 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                     {listing.title}
                   </Text>
                   <Text variant="bodySmall" className="text-text-3">
-                    {[listing.brand?.name, listing.size?.label, name(listing.condition?.name)]
-                      .filter(Boolean)
-                      .join(" · ")}
+                    {listing.brand ? (
+                      <Text
+                        variant="bodySmall"
+                        role="link"
+                        className="text-text-3 underline"
+                        onPress={() => openBrandSearch(router, listing.brand)}
+                      >
+                        {listing.brand.name}
+                      </Text>
+                    ) : null}
+                    {subtitleRest(listing, name, Boolean(listing.brand))}
                   </Text>
                 </View>
                 {sold ? null : <FavouritePill listing={listing} />}
@@ -265,7 +274,11 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
                   label={t("sell.category")}
                   value={listing.category?.breadcrumb.map((b) => name(b.name)).join(", ")}
                 />
-                <DetailRow label={t("sell.brand")} value={listing.brand?.name} />
+                <DetailRow
+                  label={t("sell.brand")}
+                  value={listing.brand?.name}
+                  onPress={listing.brand ? () => openBrandSearch(router, listing.brand) : undefined}
+                />
                 <DetailRow label={t("sell.size")} value={listing.size?.label} />
                 <DetailRow label={t("sell.condition")} value={name(listing.condition?.name)} />
                 <DetailRow
