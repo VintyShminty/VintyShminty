@@ -1,5 +1,6 @@
 import {
   attributeMode,
+  conditionWords,
   findCategory,
   LISTING_TITLE_MAX,
   type ReferenceData,
@@ -62,7 +63,8 @@ function ItemCard({
   const category = item.categoryId ? findCategory(reference.categories, item.categoryId) : null;
   const mode = (field: "brand" | "size" | "condition" | "colour") => attributeMode(category, field);
   const sizeLabel = sizeOptionsFor(reference, category).find((s) => s.id === item.sizeId)?.label;
-  const conditionName = name(reference.conditions.find((c) => c.id === item.conditionId)?.name);
+  const condition = reference.conditions.find((c) => c.id === item.conditionId);
+  const conditionName = condition ? name(conditionWords(condition, category).name) : "";
   const colourNames = item.colourIds
     .map((id) => name(reference.colours.find((c) => c.id === id)?.name))
     .filter(Boolean)

@@ -20,9 +20,9 @@ const mediaRules: CategoryRules = {
   pattern: "hidden",
 };
 
-const womenClothingSizes = ["clothing-letter", "women-numeric"];
+const womenClothingSizes = ["clothing-letter", "women-numeric", "one-size"];
 const womenJeansSizes = ["women-waist", "women-numeric", "clothing-letter"];
-const menClothingSizes = ["clothing-letter"];
+const menClothingSizes = ["clothing-letter", "one-size"];
 const menTrouserSizes = ["men-waist", "clothing-letter"];
 
 const womenClothing = c(
@@ -813,7 +813,8 @@ const media = c(
       [
         c("fiction", "Fiction", "ספרי קריאה"),
         c("non-fiction", "Non fiction", "ספרי עיון"),
-        c("kids", "Children's books", "ספרי ילדים"),
+        c("kids", "Children's and young adult books", "ספרי ילדים ונוער"),
+        c("activity", "Activity and colouring books", "חוברות פעילות וצביעה"),
         c("comics", "Comics and manga", "קומיקס ומנגה"),
         c("textbooks", "Textbooks and study", "ספרי לימוד"),
         c("hebrew", "Hebrew literature", "ספרות עברית"),

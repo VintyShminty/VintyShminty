@@ -1,5 +1,5 @@
 import type { AttributeMode } from "./enums.js";
-import type { CategoryNode, ReferenceData } from "./reference-data.js";
+import type { CategoryNode, Condition, ReferenceData } from "./reference-data.js";
 
 /**
  * The selling rules, written once and used by both the phone (inline errors while typing) and the server
@@ -94,6 +94,19 @@ export function listingLimits(reference: Pick<ReferenceData, "settings">): Listi
 }
 
 /** Finds one node anywhere in the category tree. */
+/** Books and magazines are read, not worn, so their condition levels use reading words. */
+export function isReadingCategory(category: Pick<CategoryNode, "path"> | null | undefined): boolean {
+  return !!category && /^media\/(books|magazines)(\/|$)/.test(category.path);
+}
+
+/** The name and description of a condition level as the given category shows it. */
+export function conditionWords(
+  condition: Condition,
+  category: Pick<CategoryNode, "path"> | null | undefined,
+): Pick<Condition, "name" | "description"> {
+  return isReadingCategory(category) && condition.forBooks ? condition.forBooks : condition;
+}
+
 export function findCategory(tree: readonly CategoryNode[], id: string): CategoryNode | null {
   for (const node of tree) {
     if (node.id === id) return node;

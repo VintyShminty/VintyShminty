@@ -14,6 +14,8 @@ import {
   sizeGroups,
   sizes,
 } from "@vinty/db";
+import en from "@vinty/locales/en.json" with { type: "json" };
+import he from "@vinty/locales/he.json" with { type: "json" };
 import type { CategoryNode, ReferenceData } from "@vinty/shared";
 import { asc, desc, eq } from "drizzle-orm";
 
@@ -26,6 +28,21 @@ const PUBLIC_SETTINGS = [
   "listing_min_price_minor",
   "single_market",
 ];
+
+type BookCondition = Record<string, { name: string; description: string } | undefined>;
+
+/** The reading words for a condition level (books and magazines), from the shared wording. */
+function bookWords(slug: string) {
+  const inEn = (en.bookCondition as BookCondition)[slug];
+  const inHe = (he.bookCondition as BookCondition)[slug];
+  if (!inEn || !inHe) return {};
+  return {
+    forBooks: {
+      name: { en: inEn.name, he: inHe.name },
+      description: { en: inEn.description, he: inHe.description },
+    },
+  };
+}
 
 /** Reads every reference table and shapes it the way GET /v1/reference answers. Names always carry both languages. */
 export async function buildReferenceData(db: Db): Promise<ReferenceData> {
@@ -129,6 +146,7 @@ export async function buildReferenceData(db: Db): Promise<ReferenceData> {
       name: { en: c.nameEn, he: c.nameHe },
       description: { en: c.descriptionEn, he: c.descriptionHe },
       rank: c.rank,
+      ...bookWords(c.slug),
     })),
     colours: colourRows.map((c) => ({
       id: c.id,

@@ -55,6 +55,8 @@ export const conditionSchema = z.object({
   name: localisedNameSchema,
   description: localisedNameSchema,
   rank: z.number().int(),
+  /** The same level in reading words, shown for books and magazines ("Well read" instead of "Well loved"). */
+  forBooks: z.object({ name: localisedNameSchema, description: localisedNameSchema }).optional(),
 });
 
 export const colourSchema = z.object({

@@ -11,6 +11,7 @@ import {
 import {
   buyerPriceMinor,
   categoryTrail,
+  conditionWords,
   type ListingDetail,
   type MyListingCard,
   type Photo,
@@ -185,7 +186,9 @@ export async function loadListingDetail(
           breadcrumb: trail.map((n) => ({ id: n.id, slug: n.slug, name: n.name })),
         }
       : null,
-    condition: condition ? { id: condition.id, slug: condition.slug, name: condition.name } : null,
+    condition: condition
+      ? { id: condition.id, slug: condition.slug, name: conditionWords(condition, leaf).name }
+      : null,
     size: sizeRef,
     brand: row.brandName ? { id: row.brandId ?? null, name: row.brandName } : null,
     material: material ? { id: material.id, slug: material.slug, name: material.name } : null,

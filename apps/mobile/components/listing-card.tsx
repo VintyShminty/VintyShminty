@@ -1,4 +1,4 @@
-import type { ListingCard as ListingCardData } from "@vinty/shared";
+import { conditionWords, findCategory, type ListingCard as ListingCardData } from "@vinty/shared";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Bookmark, Check, TrendingDown, Zap } from "lucide-react-native";
@@ -59,9 +59,18 @@ function ListingCard({
   const isOwn = Boolean(viewerId) && listing.seller?.id === viewerId;
   const showSave = Boolean(viewerId) && !isOwn && !hideSave && (!sold || saveOnSold);
 
-  const conditionName = listing.conditionSlug
-    ? name(reference.data?.conditions.find((c) => c.slug === listing.conditionSlug)?.name)
-    : "";
+  const condition = listing.conditionSlug
+    ? reference.data?.conditions.find((c) => c.slug === listing.conditionSlug)
+    : undefined;
+  const conditionName =
+    condition && reference.data
+      ? name(
+          conditionWords(
+            condition,
+            listing.categoryId ? findCategory(reference.data.categories, listing.categoryId) : null,
+          ).name,
+        )
+      : "";
   const meta = [listing.sizeLabel, conditionName].filter(Boolean).join(" · ");
   const price = formatMoney(listing.priceMinor, listing.currency);
   const label = [listing.title, price, meta, saved && showSave ? t("browse.cardSaved") : ""]

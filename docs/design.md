@@ -743,6 +743,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `apps/mobile/components/bundle/bundle-bar.tsx`, `bundle-box.tsx` (SmoothHeight), `steps.tsx`, `card-button.tsx`, `lib/bundle-queries.ts` (count and inBundle include changes on their way, the pill's per seller switch), `components/item/buyer-view.tsx`. The website is unchanged.
 - **References:** D-019, D-049
 
+### D-051 : Books and magazines describe condition in reading words
+
+- **Date:** 2026-10-17
+- **Area:** Sell form, item page, item cards, admin upload (app and website)
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** Books and magazines keep the same five condition levels as everything else, but once a book or magazine category is picked the levels read as Brand new, Like new, Very good, Good and Well read, each with a line about reading instead of wearing ("Read once at most, no marks or creases"). The item page, cards and admin upload use the same words. Filters keep the usual names, since one filter covers every category.
+- **Rationale:** "Unworn with tags" and "Well loved" are clothing words and read oddly on a book. Eden chose book words on the same levels over a separate list, so the condition filter, search and the AI helper keep working across all items.
+- **Implementation:** The wording is `bookCondition` in `packages/locales`. The server sends it with each condition as `forBooks` (`apps/server/src/lib/reference.ts`), and `conditionWords` and `isReadingCategory` in `packages/shared/src/listing-rules.ts` pick the words for a category (paths under `media/books` and `media/magazines`).
+- **References:** D-019
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13

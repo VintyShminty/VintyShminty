@@ -6,6 +6,7 @@ import {
   type CategoryNode,
   categoryGuesses,
   categoryTrail,
+  conditionWords,
   findCategory,
   formatPrice,
   LISTING_COLOURS_MAX,
@@ -577,17 +578,18 @@ export function SellForm({
                   <div>
                     <GuessChip
                       sparkle
-                      label={t("sell.assist.guessName", { name: name(conditionGuess.name) })}
+                      label={t("sell.assist.guessName", {
+                        name: name(conditionWords(conditionGuess, category).name),
+                      })}
                       onClick={() => set({ conditionId: conditionGuess.id }, "conditionId")}
                     />
                   </div>
                 ) : null}
                 <ConditionSlider
-                  stops={reference.conditions.map((c) => ({
-                    id: c.id,
-                    label: name(c.name),
-                    description: name(c.description),
-                  }))}
+                  stops={reference.conditions.map((c) => {
+                    const words = conditionWords(c, category);
+                    return { id: c.id, label: name(words.name), description: name(words.description) };
+                  })}
                   value={values.conditionId}
                   onChange={(conditionId) => set({ conditionId }, "conditionId")}
                   error={err("conditionId")}
