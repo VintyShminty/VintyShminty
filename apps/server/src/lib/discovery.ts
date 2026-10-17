@@ -92,7 +92,11 @@ function textConditions(tokens: string[], tree: readonly CategoryNode[]): SQL[] 
 type Filters = Omit<SearchFilters, "sort" | "q"> & { sort?: SearchFilters["sort"]; q?: string };
 
 /** The filters the person set (category, brand, size, price, text and so on). No visibility rules. */
-export function filterConditions(filters: Filters, reference: Pick<ReferenceData, "categories">): SQL[] {
+export function filterConditions(
+  filters: Filters,
+  reference: Pick<ReferenceData, "categories">,
+  textBrand?: { id: string; name: string } | null,
+): SQL[] {
   const conditions: SQL[] = [];
   if (filters.categoryId) {
     const ids = categorySubtreeIds(reference.categories, filters.categoryId);
@@ -119,7 +123,16 @@ export function filterConditions(filters: Filters, reference: Pick<ReferenceData
     ];
     conditions.push(ids.length > 0 ? inArray(listings.categoryId, ids) : sql`false`);
   }
-  conditions.push(...textConditions(searchTokens(filters.q), reference.categories));
+  const text = textConditions(searchTokens(filters.q), reference.categories);
+  if (text.length > 0 && textBrand) {
+    // The whole search text is a brand (in any spelling or language): its items match even when the words are not in
+    // their titles ("מייקל קורס" finds the items listed under Michael Kors).
+    conditions.push(
+      sql`(${eq(listings.brandId, textBrand.id)} or lower(coalesce(${listings.brandName}, '')) = lower(${textBrand.name}) or (${and(...text)}))`,
+    );
+  } else {
+    conditions.push(...text);
+  }
   return conditions;
 }
 
@@ -128,11 +141,12 @@ export function searchConditions(
   filters: Filters,
   reference: Pick<ReferenceData, "categories">,
   viewerId: string | undefined,
+  textBrand?: { id: string; name: string } | null,
 ): SQL[] {
   return [
     inArray(listings.status, [...BROWSABLE_STATUSES]),
     ...visibilityConditions(viewerId),
-    ...filterConditions(filters, reference),
+    ...filterConditions(filters, reference, textBrand),
   ];
 }
 

@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { cleanBrands, describeCleanup } from "./brands-cleanup.js";
 import { assertDevelopment, connect, databaseUrl } from "./connection.js";
 import { seedReference } from "./reference.js";
 import { seedSample } from "./sample/index.js";
@@ -18,6 +19,11 @@ try {
   if (command === "reference") {
     // Reference data is safe anywhere. It only inserts or updates.
     print("Reference data", await seedReference(db));
+  } else if (command === "brands-cleanup") {
+    // Safe anywhere and safe to run again. Add --dry-run to see what it would do without saving.
+    const dryRun = process.argv.includes("--dry-run");
+    console.log(`Brand cleanup on ${new URL(databaseUrl()).host}${dryRun ? " (dry run)" : ""}`);
+    console.log(describeCleanup(await cleanBrands(db, { dryRun }), dryRun).join("\n"));
   } else if (command === "seed") {
     assertDevelopment("seed sample data");
     print("Reference data", await seedReference(db));
@@ -33,7 +39,7 @@ try {
     print("Reference data", await seedReference(db));
     print("Sample data", await seedSample(db));
   } else {
-    console.error("Usage: cli.ts <reference | seed | reset>");
+    console.error("Usage: cli.ts <reference | brands-cleanup | seed | reset>");
     process.exitCode = 1;
   }
 } catch (error) {

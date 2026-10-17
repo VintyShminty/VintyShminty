@@ -818,7 +818,9 @@ Used by: Sell form (Brand), Filter (Brand, with a search field), Personalisation
 |---|---|---|---|
 | `id` | uuid | no | primary key. default gen_random_uuid() |
 | `slug` | text | no |  |
-| `name` | text | no |  |
+| `name` | text | no | Properly capitalised ("Michael Kors"), with the starter list's own spelling for "H&M", "COS", "IKEA" |
+| `name_he` | text | yes | How Israelis write the brand in Hebrew ("מייקל קורס"). Filled for every starter brand, empty for brands sellers add later (the search then reads the Hebrew by sound) |
+| `aliases` | text[] | no | default {}. Other spellings and nicknames ("MK", "Levis"), searched like the name |
 | `logo_key` | text | yes | Object key of a logo, not used in version 1 |
 | `popularity` | integer | no | default 0. Higher shows first in pickers |
 | `is_active` | boolean | no | default true |
@@ -831,7 +833,11 @@ Constraints:
 Indexes:
 
 - `brands_name_prefix_idx`: btree on (lower(name) text_pattern_ops)
+- `brands_name_he_trgm_idx`: gin on (lower(name_he) gin_trgm_ops)
+- `brands_name_trgm_idx`: gin on (lower(name) gin_trgm_ops)
 - `brands_popularity_idx`: btree on (popularity DESC NULLS LAST, name)
+
+The two trigram indexes need the `pg_trgm` extension (created by migration 0015). Brand search (2026-10-18): the brand picker and search match the English name, the Hebrew name and the aliases in any capitals. When nothing starts with the text, `pg_trgm` similarity forgives typos and missing spaces ("michaelkors"), and a Hebrew spelling no name has is compared to the English names by sound (consonant skeleton, `packages/shared/src/brand-match.ts`). A search whose whole text names a brand also returns that brand's items even when the words are not in their titles. `pnpm db:brands:cleanup` (and `:online`) rewrites names, merges duplicates that differ only in capitals and links typed brand names.
 
 A listing also copies the brand name into `listings.brand_name`, so cards and search never need a join. A brand a seller types that is not on the list joins it when that listing goes live (capitalised word by word, matched to an existing brand by name in any capitals or by slug, a Hebrew name gets a random slug), so other sellers can pick it. Drafts keep the typed text only. A brand switched off by hand (`is_active` false) is never added back. `brand_requests` stays for asking without listing (2026-10-17, replaces the Milestone 2 rule that only Eden adds brands).
 

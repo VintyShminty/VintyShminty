@@ -22,6 +22,7 @@ import {
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { brandNameMatches, brandStartsWith } from "../lib/brand-search.js";
 import { decodeCursor, encodeCursor } from "../lib/cursor.js";
 import {
   BROWSABLE_STATUSES,
@@ -40,6 +41,7 @@ import { ApiError } from "../lib/errors.js";
 import { recordEvents } from "../lib/events.js";
 import { feedConditions, homeFeedPage, searchPersonal } from "../lib/feed.js";
 import { type ListingRow, loadListingDetail } from "../lib/listings.js";
+import { createBrandMatcher } from "../lib/photo-assist.js";
 import { optionalViewerId } from "../lib/viewer.js";
 
 const idParams = z.object({ id: idSchema });
@@ -49,6 +51,17 @@ const notFound = { 404: errorResponseSchema };
 /** Feed, search, suggestions, the item page, similar items and the Members tab (Milestone 3). */
 const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
   const { db } = app;
+  const brandMatcher = createBrandMatcher(db);
+
+  /**
+   * The brand a whole search text names, in any capitals, in Hebrew, by nickname, with a small typo or by sound (no AI,
+   * only the brand list). Null when it names none, then the words are searched as they are.
+   */
+  async function textBrandOf(q: string | undefined) {
+    const text = q?.trim();
+    if (!text || text.length < 2) return null;
+    return brandMatcher.match(text, { fuzzy: true, wholeOnly: true }).catch(() => null);
+  }
 
   // ---- Feed ----
 
@@ -77,7 +90,7 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
       const viewerId = await optionalViewerId(app, request);
       const reference = await app.reference.get();
       const { cursor, limit, sort, ...filters } = request.query;
-      const where = searchConditions(filters, reference, viewerId);
+      const where = searchConditions(filters, reference, viewerId, await textBrandOf(filters.q));
       // Only the default order of a word search knows the person. A picked sort stays exact (plan section 11.4).
       const personal =
         sort === "relevance" && filters.q?.trim() ? await searchPersonal(app, viewerId, reference) : null;
@@ -106,7 +119,7 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
       const viewerId = await optionalViewerId(app, request);
       const reference = await app.reference.get();
       const { sort: _sort, ...filters } = request.query;
-      return countMatches(db, searchConditions(filters, reference, viewerId));
+      return countMatches(db, searchConditions(filters, reference, viewerId, await textBrandOf(filters.q)));
     },
   );
 
@@ -140,17 +153,8 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
       const brandRows = await db
         .select({ id: brands.id, name: brands.name })
         .from(brands)
-        .where(
-          and(
-            eq(brands.isActive, true),
-            sql`(lower(${brands.name}) like ${`${pattern}%`} or lower(${brands.name}) like ${`% ${pattern}%`})`,
-          ),
-        )
-        .orderBy(
-          sql`(lower(${brands.name}) like ${`${pattern}%`}) desc`,
-          desc(brands.popularity),
-          asc(brands.name),
-        )
+        .where(and(eq(brands.isActive, true), brandNameMatches(pattern)))
+        .orderBy(sql`${brandStartsWith(pattern)} desc`, desc(brands.popularity), asc(brands.name))
         .limit(4);
 
       const categoryHits: Suggestion[] = [];

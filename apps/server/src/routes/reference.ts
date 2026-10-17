@@ -10,20 +10,20 @@ import {
   pricePreviewSchema,
   referenceDataSchema,
 } from "@vinty/shared";
-import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, type SQL, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
+import { brandNameMatches, brandStartsWith, likeEscape } from "../lib/brand-search.js";
 import { decodeCursor, encodeCursor } from "../lib/cursor.js";
 import { ApiError } from "../lib/errors.js";
+import { createBrandMatcher } from "../lib/photo-assist.js";
 
 const brandsQuery = paginationQuerySchema.extend({ q: z.string().trim().max(60).optional() });
-
-/** Escapes the characters that mean something to LIKE, so a search for "100%" finds "100%". */
-const likeEscape = (text: string) => text.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 /** Reference data for the sell form, brand search, and the buyer price preview. */
 const referenceRoutes: FastifyPluginAsyncZod = async (app) => {
   const { db } = app;
+  const brandMatcher = createBrandMatcher(db);
 
   app.get(
     "/v1/reference",
@@ -47,26 +47,29 @@ const referenceRoutes: FastifyPluginAsyncZod = async (app) => {
     async (request) => {
       const { q, limit } = request.query;
       const offset = decodeCursor<{ o: number }>(request.query.cursor)?.o ?? 0;
-      const term = q ? likeEscape(q) : null;
-      const rows = await db
-        .select()
-        .from(brands)
-        .where(
-          and(
-            eq(brands.isActive, true),
-            // A name that starts with the text, or has a word that starts with it ("Ralph" finds "Polo Ralph Lauren").
-            term ? or(ilike(brands.name, `${term}%`), ilike(brands.name, `% ${term}%`)) : undefined,
-          ),
-        )
-        .orderBy(
-          // Names that start with the text come before names that only contain a word with it.
-          ...(term ? [sql`(${brands.name} ilike ${`${term}%`}) desc`] : []),
-          desc(brands.popularity),
-          asc(brands.name),
-          asc(brands.id),
-        )
-        .limit(limit + 1)
-        .offset(offset);
+      const term = q ? likeEscape(q.toLowerCase()) : null;
+      const list = (where: SQL | undefined) =>
+        db
+          .select()
+          .from(brands)
+          .where(and(eq(brands.isActive, true), where))
+          .orderBy(
+            // Names that start with the text come before names that only contain a word with it.
+            ...(term ? [sql`${brandStartsWith(term)} desc`] : []),
+            desc(brands.popularity),
+            asc(brands.name),
+            asc(brands.id),
+          )
+          .limit(limit + 1)
+          .offset(offset);
+      // The English name, the Hebrew name or an alias starts with the text, or has a word that starts with it
+      // ("Ralph" finds "Polo Ralph Lauren", "מייקל" finds Michael Kors). Capitals do not matter.
+      let rows = await list(term ? brandNameMatches(term) : undefined);
+      if (rows.length === 0 && q && offset === 0) {
+        // Nothing starts with it: forgive typos and spacing ("michaelkors"), or read a Hebrew spelling by its sound.
+        const close = await brandMatcher.match(q, { fuzzy: true, wholeOnly: true });
+        if (close) rows = await list(eq(brands.id, close.id));
+      }
       const page = rows.slice(0, limit);
       return {
         items: page.map((b) => ({

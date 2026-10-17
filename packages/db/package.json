@@ -14,7 +14,9 @@
     "seed": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts seed",
     "seed:reference": "tsx --env-file-if-exists=.env src/seed/cli.ts reference",
     "reset": "NODE_ENV=${NODE_ENV:-development} tsx --env-file-if-exists=.env src/seed/cli.ts reset",
-    "seed:reference:online": "tsx --env-file=.env.online src/seed/cli.ts reference"
+    "seed:reference:online": "tsx --env-file=.env.online src/seed/cli.ts reference",
+    "brands:cleanup": "tsx --env-file-if-exists=.env src/seed/cli.ts brands-cleanup",
+    "brands:cleanup:online": "tsx --env-file=.env.online src/seed/cli.ts brands-cleanup"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.3",
