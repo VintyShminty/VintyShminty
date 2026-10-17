@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { HomeFeed } from "@/components/home-feed";
 import { getViewer, serverApi } from "@/lib/api";
-import { feedPath, MOODS, pagePath, parseGroup, parseMood } from "@/lib/feed-url";
+import { feedPath, hasPrice, MOODS, pagePath, parseGroup, parseMood, parsePrice } from "@/lib/feed-url";
 import { getT, isLang } from "@/lib/i18n";
 import { alternatesFor } from "@/lib/seo";
 
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return {
     title: "Yadii",
     description: getT(lang)("web.meta.homeDescription"),
-    // ?mood= and ?group= are views of the same page.
+    // ?mood=, ?group= and ?priceMin= are views of the same page.
     alternates: alternatesFor(lang, ""),
   };
 }
@@ -28,7 +28,12 @@ export default async function HomePage({
   searchParams,
 }: {
   params: Promise<{ lang: string }>;
-  searchParams: Promise<{ mood?: string | string[]; group?: string | string[] }>;
+  searchParams: Promise<{
+    mood?: string | string[];
+    group?: string | string[];
+    priceMin?: string | string[];
+    priceMax?: string | string[];
+  }>;
 }) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
@@ -39,7 +44,14 @@ export default async function HomePage({
   const group = parseGroup(query.group);
   if (!me && MOODS.find((m) => m.key === mood)?.needsAccount) mood = "for_you";
 
-  const endpoint = feedPath(mood, group);
+  let price = parsePrice(query.priceMin, query.priceMax);
+  // Old links to the Under 50 chip become the Price chip with a top of 50.
+  if (mood === "under_50") {
+    mood = "for_you";
+    if (!hasPrice(price)) price = { max: 50 };
+  }
+
+  const endpoint = feedPath(mood, group, price);
   const firstPage: HomeFeedPage | null = await serverApi(pagePath(endpoint), {
     lang,
     schema: homeFeedPageSchema,
@@ -51,6 +63,7 @@ export default async function HomePage({
         lang={lang}
         initialMood={mood}
         initialGroup={group}
+        initialPrice={price}
         firstPage={firstPage}
         city={me ? (me.profile.city?.trim() ?? null) : undefined}
       />

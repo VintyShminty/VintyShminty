@@ -434,6 +434,9 @@ export type FeedScope = {
   mood?: FeedMood | undefined;
   /** Women or Men: only items in that top category and everything under it. */
   group?: FeedGroup | undefined;
+  /** The Price chip: item price from and to (inclusive, minor units). Swapped when from is above to. */
+  priceMinMinor?: number | undefined;
+  priceMaxMinor?: number | undefined;
 };
 
 /** Every WHERE of the home feed: live listings, visibility, the chip, the mood, the person's own items and their hides. */
@@ -450,6 +453,12 @@ export async function feedConditions(app: App, scope: FeedScope, reference: Refe
     const ids = root ? categorySubtreeIds(reference.categories, root.id) : [];
     where.push(ids.length > 0 ? inArray(listings.categoryId, ids) : sql`false`);
   }
+  let { priceMinMinor, priceMaxMinor } = scope;
+  if (priceMinMinor !== undefined && priceMaxMinor !== undefined && priceMinMinor > priceMaxMinor) {
+    [priceMinMinor, priceMaxMinor] = [priceMaxMinor, priceMinMinor];
+  }
+  if (priceMinMinor !== undefined) where.push(sql`${listings.priceMinor} >= ${priceMinMinor}`);
+  if (priceMaxMinor !== undefined) where.push(sql`${listings.priceMinor} <= ${priceMaxMinor}`);
   if (viewerId) {
     where.push(sql`${listings.sellerId} <> ${viewerId}`);
     where.push(...(await hiddenConditions(app, viewerId, reference)));

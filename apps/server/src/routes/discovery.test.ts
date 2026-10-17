@@ -420,6 +420,58 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       });
     });
 
+    describe("Price chip", () => {
+      const rows: { id: string; priceMinor: number }[] = [];
+      beforeAll(async () => {
+        for (const priceMinor of [3000, 7000, 15000]) {
+          const l = await publish(alice, { title: `${word} price piece ${priceMinor}`, priceMinor });
+          rows.push({ id: l.id, priceMinor });
+        }
+      });
+      afterAll(async () => {
+        for (const r of rows) await ctx.database.db.delete(listings).where(eq(listings.id, r.id));
+      });
+      const mine = (res: Awaited<ReturnType<typeof get>>) =>
+        ids(res).filter((id) => rows.some((r) => r.id === id));
+      const at = (priceMinor: number) => rows.find((r) => r.priceMinor === priceMinor)?.id;
+
+      it("from only keeps items at or above it", async () => {
+        const res = await get("/v1/feed?priceMinMinor=7000&limit=50");
+        expect(mine(res).sort()).toEqual([at(7000), at(15000)].sort());
+        for (const item of res.json().items) expect(item.priceMinor).toBeGreaterThanOrEqual(7000);
+      });
+
+      it("to only keeps items at or below it", async () => {
+        const res = await get("/v1/feed?priceMaxMinor=7000&limit=50");
+        expect(mine(res).sort()).toEqual([at(3000), at(7000)].sort());
+        for (const item of res.json().items) expect(item.priceMinor).toBeLessThanOrEqual(7000);
+      });
+
+      it("both make an inclusive range", async () => {
+        const res = await get("/v1/feed?priceMinMinor=3000&priceMaxMinor=7000&limit=50");
+        expect(mine(res).sort()).toEqual([at(3000), at(7000)].sort());
+      });
+
+      it("swaps from and to when from is higher", async () => {
+        const res = await get("/v1/feed?priceMinMinor=7000&priceMaxMinor=3000&limit=50");
+        expect(res.statusCode).toBe(200);
+        expect(mine(res).sort()).toEqual([at(3000), at(7000)].sort());
+      });
+
+      it("works with a group, a mood and trending, and rejects bad values", async () => {
+        const root = categoryTrail(reference.categories, sized.id)[0];
+        const other = root?.slug === "women" ? "men" : "women";
+        const inGroup = await get(`/v1/feed?group=${root?.slug}&priceMaxMinor=7000&limit=50`);
+        expect(mine(inGroup).sort()).toEqual([at(3000), at(7000)].sort());
+        expect(mine(await get(`/v1/feed?group=${other}&priceMaxMinor=7000&limit=50`))).toEqual([]);
+        const cheap = await get("/v1/feed?mood=under_50&priceMinMinor=1000&limit=50");
+        expect(mine(cheap)).toEqual([at(3000)]);
+        const trending = await get("/v1/feed?trending=true&priceMinMinor=7000&priceMaxMinor=7000&limit=50");
+        expect(mine(trending)).toEqual([at(7000)]);
+        expect((await get("/v1/feed?priceMinMinor=-5")).statusCode).toBe(400);
+      });
+    });
+
     describe("mood chips", () => {
       it("for_you is the normal feed", async () => {
         const plain = ids(await get("/v1/feed?limit=50"));

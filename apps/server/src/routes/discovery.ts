@@ -70,11 +70,13 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
     { schema: { querystring: feedQuerySchema, response: { 200: homeFeedPageSchema } } },
     async (request) => {
       const viewerId = await optionalViewerId(app, request);
-      const { categoryId, trending, mood, group, limit, cursor } = request.query;
-      if (!trending) return homeFeedPage(app, { viewerId, categoryId, mood, group }, { cursor, limit });
+      const { categoryId, trending, mood, group, priceMinMinor, priceMaxMinor, limit, cursor } =
+        request.query;
+      const scope = { viewerId, categoryId, mood, group, priceMinMinor, priceMaxMinor };
+      if (!trending) return homeFeedPage(app, scope, { cursor, limit });
       // Trending keeps its own order: hearts times 5 plus views, no saved list, no reasons.
       const reference = await app.reference.get();
-      const where = await feedConditions(app, { viewerId, categoryId, mood, group }, reference);
+      const where = await feedConditions(app, scope, reference);
       const { rows, nextCursor } = await queryCardRows(db, { where, sort: trendingSort(), cursor, limit });
       const cards = await toCards(app, reference, rows, { viewerId, withSeller: true });
       return { items: cards.map((card) => ({ ...card, reason: null })), nextCursor, feedId: null };

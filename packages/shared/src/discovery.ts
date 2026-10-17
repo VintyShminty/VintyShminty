@@ -68,6 +68,9 @@ export const feedQuerySchema = paginationQuerySchema.extend({
   mood: z.enum(FEED_MOODS).optional(),
   group: z.enum(FEED_GROUPS).optional(),
   categoryId: idSchema.optional(),
+  /** The Price chip: item price from and to, inclusive, in minor units. Swapped when from is above to. */
+  priceMinMinor: queryMinor,
+  priceMaxMinor: queryMinor,
   trending: z
     .enum(["true", "false"])
     .transform((v) => v === "true")
