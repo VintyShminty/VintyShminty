@@ -187,6 +187,24 @@ export function browseTilesFor(gender: BrowseGender): BrowseTile[] {
   return out.slice(0, 10);
 }
 
+/**
+ * The tiles behind the website panel's More for one side: every other tile that side has something in (kept to that
+ * side's categories, `group` set), plus the tiles that belong to no side (Kids, Home, Designer...). A tile only the
+ * other side has (Dresses for Men) is left out.
+ */
+export function browseRestFor(gender: BrowseGender): (BrowseTile & { group?: BrowseGender })[] {
+  const shown = new Set(browseTilesFor(gender).map((t) => t.key));
+  const other = gender === "women" ? "men" : "women";
+  const out: (BrowseTile & { group?: BrowseGender })[] = [];
+  for (const tile of [...BROWSE_TILES, ...BROWSE_MORE_TILES]) {
+    if (shown.has(tile.key)) continue;
+    const mine = tile.slugs.filter((s) => groupOfSlug(s) === gender);
+    if (mine.length > 0) out.push({ ...tile, slugs: mine, group: gender });
+    else if (!tile.slugs.some((s) => groupOfSlug(s) === other)) out.push(tile);
+  }
+  return out;
+}
+
 export const findBrowseTile = (key: string | undefined) =>
   [...BROWSE_TILES, ...BROWSE_MORE_TILES].find((t) => t.key === key);
 

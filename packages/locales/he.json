@@ -718,6 +718,10 @@
     "all": "הכול",
     "more": "עוד",
     "moreTitle": "עוד לגלות",
+    "less": "הצגת פחות",
+    "moreCount_one": "עוד קטגוריה אחת",
+    "moreCount_two": "עוד שתי קטגוריות",
+    "moreCount_other": "עוד {{count}} קטגוריות",
     "allCategories": "כל הקטגוריות",
     "groups": {
       "women": "נשים",

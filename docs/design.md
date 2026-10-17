@@ -774,6 +774,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `BellLink` in `apps/web/components/inbox/inbox-link.tsx` (reuses `NotificationRow`), `HomeFeed` and `lib/feed-url.ts`, `GET /v1/feed?group=women|men` (`feedQuerySchema`, `feedConditions`: the top category and everything under it).
 - **References:** D-030, D-039
 
+### D-054 : More shows what is behind it and opens inside the Browse panel
+
+- **Date:** 2026-10-18
+- **Area:** Website top bar, Browse panel
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The More tile is a small grid of four pictures of the categories behind it, with "More" and how many there are ("9 more categories"), instead of one T-shirt photo. Clicking it no longer leaves the page: the panel grows in place with a short slide and shows the rest under a "More to explore" line as smaller tiles, and More turns into "Show less". The rest follows the Women and Men switch (Men has no Dresses or Skirts, gender-free ones like Home and Kids show on both). The panel scrolls when it is taller than the window and opens at the first ten again next time. With Reduce Motion the slide is off. Without JavaScript More is still a link to the Browse page.
+- **Rationale:** Eden: the More picture should hint at the other categories, and opening them in the same window is nicer than moving to a page.
+- **Implementation:** `apps/web/components/browse-more.tsx` (`BrowseMoreTile`, `BrowseRest`), `browse-panel.tsx`, `browse-tiles.tsx` (`rest`), `browseRestFor` in `packages/shared/src/browse-tiles.ts`.
+- **References:** D-030, D-052
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
