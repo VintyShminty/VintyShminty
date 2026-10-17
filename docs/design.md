@@ -732,6 +732,17 @@ Proposals, not rules, until explicitly promoted above.
 - **Trade-off:** Items are not held while they sit in a bundle, only checkout holds them, so an item in a bundle can sell to someone else (the bundle page greys it with "Sold, removed from your bundle").
 - **Implementation:** `docs/plans/closet-deals.md`. `user_settings.bundles_on`, `DEFAULT_BUNDLE_LADDER` and `bundleSavedMinor` in `packages/shared`, `loadBundleLadder` and `bundlePostage` in `apps/server/src/lib/bundles.ts` (used by the bundle reply and by `checkout.ts`), `GET /v1/users/:id/bundle-ladder`, `GET` and `PUT /v1/me/bundle-ladder`, `GET /v1/bundles/open`, `postageSeparateMinor`, `postageTogetherMinor` on the bundle and `postageSavedMinor` on the checkout quote. Website: `apps/web/components/bundle/` (box, bar, card button, profile button), `lib/bundle-queries.ts`, `components/settings/bundle-ladder-form.tsx`. App: `apps/mobile/components/bundle/`, `lib/bundle-queries.ts`, `settings/bundles.tsx`.
 - **References:** D-019, D-032, `docs/originality.md`, `docs/plans/closet-deals.md`
+### D-050 : The bundle pill appears when you add, and the bundle box moves smoothly
+
+- **Date:** 2026-10-17
+- **Area:** Item page and seller page, app
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The slim dark bundle bar of D-049 is now an espresso pill floating just above the tab bar, with the same height, rounded shape and shadow as the tab bar (Eden, 2026-10-17). It shows only after you tap "+ Bundle" or "Add to bundle" in this visit to the app, and goes away when the bundle is empty, so an old bundle never pops it up by itself. Its first line is "2 items, 5% off", which becomes "2 items · You save ₪37" once the server has the prices, and the second line is the next step. In the item page box, "this item is in" stacks View bundle over Remove (no longer side by side), so it is as tall as the "not in yet" state and adding does not shift the page. The box, the steps, the "+ Bundle" pills and the pill change the moment you tap, and the server catches up behind them. The box grows and shrinks over about a quarter of a second, lit steps fade in, and the pill rises in and sinks away. All motion is off with Reduce Motion. The seller's other items row on the item page shows again (it had collapsed to nothing).
+- **Rationale:** Eden found the full width brown block heavy and the bar showing up on its own confusing. Recorded taps showed the jumpiness came from waiting for the server, the box blanking and the page snapping.
+- **Trade-off:** For a moment after a tap the screen shows what the server is about to confirm. If it refuses, the box goes back and shows "That item could not be changed". "View bundle" now sits where the add button was, so a fast double tap opens the bundle page.
+- **Implementation:** `apps/mobile/components/bundle/bundle-bar.tsx`, `bundle-box.tsx` (SmoothHeight), `steps.tsx`, `card-button.tsx`, `lib/bundle-queries.ts` (count and inBundle include changes on their way, the pill's per seller switch), `components/item/buyer-view.tsx`. The website is unchanged.
+- **References:** D-019, D-049
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
