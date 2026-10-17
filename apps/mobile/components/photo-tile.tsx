@@ -37,7 +37,8 @@ function PhotoTile({ label, photo, imageUrl, onPress, className }: PhotoTileProp
         <Image
           source={{ uri: imageUrl }}
           contentFit="cover"
-          transition={250}
+          // No fade: crossfading two different photos reads as a double exposure, and a loaded cover should just be there.
+          transition={0}
           style={{ position: "absolute", top: 0, bottom: 0, start: 0, end: 0 }}
           accessibilityIgnoresInvertColors
         />

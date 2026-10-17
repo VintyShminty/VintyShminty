@@ -29,15 +29,15 @@ export function useTileCovers(tiles: SideTile[], enabled = true): (string | unde
       staleTime: 5 * 60 * 1000,
     })),
   });
-  const data = results.map((r) => r.data);
+  // One string for every tile's covers, so the list can change length (Women and Men have a different number of tiles).
+  const key = JSON.stringify(results.map((r) => r.data ?? null));
   // Each tile takes its newest cover that no tile before it already shows.
   return useMemo(() => {
     const taken = new Set<string>();
-    return data.map((urls) => {
+    return (JSON.parse(key) as (string[] | null)[]).map((urls) => {
       const url = urls?.find((u) => !taken.has(u));
       if (url) taken.add(url);
       return url;
     });
-    // biome-ignore lint/correctness/useExhaustiveDependencies: `data` is rebuilt every render, its items are what matter
-  }, data);
+  }, [key]);
 }
