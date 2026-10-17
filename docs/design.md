@@ -753,6 +753,17 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** The wording is `bookCondition` in `packages/locales`. The server sends it with each condition as `forBooks` (`apps/server/src/lib/reference.ts`), and `conditionWords` and `isReadingCategory` in `packages/shared/src/listing-rules.ts` pick the words for a category (paths under `media/books` and `media/magazines`).
 - **References:** D-019
 
+### D-052 : Browse tiles show real listings, and the website panel has a Women and Men switch
+
+- **Date:** 2026-10-17
+- **Area:** Website Browse panel, drawer and Browse page
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** Each website Browse tile shows the card-sized cover of the newest active listing in its categories, so the pictures stay real as listings come and go. A tile whose categories have no listing yet shows a stock photo instead, so no tile is ever a blank colour square. The "More" tile now has a photo too. The Browse panel has two pills at the top, Women and Men (the same chips as the filters), that swap the ten tiles to that side. Women keeps Dresses and Skirts, Men swaps them for Accessories and Sportswear. Each side's tiles only look at that side's listings and open the tile page already on that side. The last choice is remembered in the visitor's browser and Women is the start. The app's Browse tab is unchanged.
+- **Rationale:** Stock pictures made the site feel empty next to real items. Men and Women shop different shelves.
+- **Trade-off:** The website asks the server for one listing per tile, kept for five minutes. Fallback photos still ship with the site.
+- **Implementation:** `apps/web/components/browse-tiles.tsx` (cover lookup), `browse-panel.tsx` (the switch), `packages/shared/src/browse-tiles.ts` (`browseTilesFor`), fallback photos and credits in `packages/design/browse/`.
+- **References:** D-019, D-030
+
 ### D-053 : Website top bar bell panel, Men and Women pills on Home, no greeting, "Categories" in Hebrew
 
 - **Date:** 2026-10-17
