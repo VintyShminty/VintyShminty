@@ -184,6 +184,10 @@ export const brands = pgTable(
     id: pk(),
     slug: text("slug").notNull().unique(),
     name: text("name").notNull(),
+    /** How Israelis write the brand in Hebrew ("מייקל קורס"). Empty for brands added later, the search then transliterates. */
+    nameHe: text("name_he"),
+    /** Other spellings and nicknames ("MK", "Levis"). Searched like the name. */
+    aliases: text("aliases").array().notNull().default(sql`'{}'::text[]`),
     logoKey: text("logo_key"),
     /** Higher shows first in pickers. */
     popularity: integer("popularity").notNull().default(0),
@@ -194,6 +198,9 @@ export const brands = pgTable(
     index("brands_popularity_idx").on(t.popularity.desc(), t.name),
     // Brand picker search ("Search for brands").
     index("brands_name_prefix_idx").on(sql`lower(${t.name}) text_pattern_ops`),
+    // Typos and spacing ("michaelkors", "adiddas") through pg_trgm similarity.
+    index("brands_name_trgm_idx").using("gin", sql`lower(${t.name}) gin_trgm_ops`),
+    index("brands_name_he_trgm_idx").using("gin", sql`lower(${t.nameHe}) gin_trgm_ops`),
   ],
 );
 

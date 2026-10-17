@@ -24,6 +24,8 @@
     "db:seed:reference": "pnpm --filter @vinty/db seed:reference",
     "db:reset": "pnpm --filter @vinty/db reset",
     "db:seed:reference:online": "pnpm --filter @vinty/db seed:reference:online",
+    "db:brands:cleanup": "pnpm --filter @vinty/db brands:cleanup",
+    "db:brands:cleanup:online": "pnpm --filter @vinty/db brands:cleanup:online",
     "admin:grant": "pnpm --filter @vinty/server admin-grant",
     "admin:grant:online": "pnpm --filter @vinty/server admin-grant:online",
     "db:dev-users": "pnpm --filter @vinty/server dev-users",

@@ -93,7 +93,7 @@ The CATEGORIES list is a tree: indentation shows which group a category belongs 
 
 Rules:
 - category: one code (looks like C12) or null. Pick the most specific category the words clearly name. Pick a kind inside a group only when the words name that kind ("skinny jeans", "ankle boots", "tote bag"). When they name only the type, such as "jeans", "dress", "shoes" or "bag", pick the whole group (for example Women > Dresses), because a narrower guess hides good items. A brand or model name is not a kind ("levis 501 jeans" is the Jeans group). Use gender and age words: "for my daughter" means girls, "men's jackets" means the Men > Jackets group. null if the words do not name a type of item.
-- brands: up to 2 brand names the shopper named, as plain text. Expand well known nicknames ("MK" is Michael Kors). Never guess a brand from the type of item.
+- brands: up to 2 brand names the shopper named, as plain text. Expand well known nicknames ("MK" is Michael Kors). A brand written in Hebrew letters ("מייקל קורס") is answered in its usual Latin spelling ("Michael Kors"). Never guess a brand from the type of item.
 - sizes: only if the words name a size, each written as a size group code, a colon and the size exactly as listed in that group, for example "G6: 42" or "G8: 8y". If you found a category, use the size groups that fit it (men's shoes for men's sneakers, kids' sizes by age for a child's coat, where "size 8" means "8y"). When the gender is unclear, give the size in both the women's and the men's group. Empty if no size is named.
 - colours: codes (K3) the words name, at most 3.
 - conditions: codes (Q2) only if the words say something about condition. "new" means the unworn ones.

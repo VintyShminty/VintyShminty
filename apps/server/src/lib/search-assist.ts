@@ -146,7 +146,8 @@ export async function resolveSearchUnderstanding(
   for (const text of (raw.brands ?? []).slice(0, 2)) {
     const trimmed = text?.replace(/\s+/g, " ").trim().slice(0, 80);
     if (!trimmed) continue;
-    const found = await brandMatcher.match(trimmed);
+    // The model may spell it a little off or in Hebrew letters, so typos and sounds are forgiven here.
+    const found = await brandMatcher.match(trimmed, { fuzzy: true });
     if (found && !brandIds.includes(found.id)) {
       brandIds.push(found.id);
       brands.push({ id: found.id, name: found.name });

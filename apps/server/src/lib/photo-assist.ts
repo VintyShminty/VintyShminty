@@ -3,6 +3,7 @@ import {
   type CategoryNode,
   EMPTY_PHOTO_SUGGESTION,
   EMPTY_TEXT_SUGGESTION,
+  hasHebrew,
   LISTING_COLOURS_MAX,
   PHOTO_ASSIST_MAX_CATEGORIES,
   PHOTO_TIP_KINDS,
@@ -11,9 +12,11 @@ import {
   type PhotoTip,
   type PhotoTipKind,
   type ReferenceData,
+  skeletonsMatch,
+  skeletonsOf,
   type TextSuggestion,
 } from "@vinty/shared";
-import { eq } from "drizzle-orm";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import type { PhotoMediaType, PhotoReader, RawCheck, RawReading } from "./photo-reader.js";
 import type { RawTextReading, TextReader } from "./text-reader.js";
@@ -131,40 +134,124 @@ export function normaliseBrand(text: string): string {
     .replace(/[^\p{L}\p{N}]/gu, "");
 }
 
+/** `exact` is true when the text IS one of the brand's names (English, Hebrew or an alias), in any capitals or spacing. */
+export type BrandMatch = { id: string; name: string; exact?: boolean };
+
 export type BrandMatcher = {
-  match(text: string): Promise<{ id: string; name: string } | null>;
+  /**
+   * The brand the text names. Always tries the exact names first (English, Hebrew, aliases) and then the first words.
+   * With `wholeOnly` the first-words step is skipped. With `fuzzy` it also forgives typos and spacing (pg_trgm) and reads Hebrew spellings of brands that have no Hebrew
+   * name yet (by sound). Fuzzy costs a database query, so it is for searches, not for tags.
+   */
+  match(text: string, options?: { fuzzy?: boolean; wholeOnly?: boolean }): Promise<BrandMatch | null>;
 };
 
-/** Matches a brand read from a tag against our brands table, in memory (a few hundred rows, refreshed every 5 minutes). */
+/** A typo or a missing space still passes at this similarity (0 to 1, pg_trgm). */
+const BRAND_SIMILARITY_MIN = 0.5;
+
+type BrandRow = { id: string; name: string; nameHe: string | null; aliases: string[] };
+
+/** Matches a text against our brands table, mostly in memory (a few hundred rows, refreshed every 5 minutes). */
 export function createBrandMatcher(db: Db, ttlMs = 5 * 60_000): BrandMatcher {
-  let cached: { at: number; byKey: Map<string, { id: string; name: string }> } | null = null;
-  const load = async () => {
-    if (cached && Date.now() - cached.at < ttlMs) return cached.byKey;
-    const rows = await db
-      .select({ id: brands.id, name: brands.name })
+  type Loaded = {
+    at: number;
+    byKey: Map<string, BrandMatch>;
+    /** Sound skeletons of every Latin name and alias, for Hebrew spellings that no name or alias has. */
+    sounds: { skeleton: string; brand: BrandMatch }[];
+    fuzzy: Map<string, BrandMatch | null>;
+  };
+  let cached: Loaded | null = null;
+  const load = async (): Promise<Loaded> => {
+    if (cached && Date.now() - cached.at < ttlMs) return cached;
+    const rows: BrandRow[] = await db
+      .select({ id: brands.id, name: brands.name, nameHe: brands.nameHe, aliases: brands.aliases })
       .from(brands)
       .where(eq(brands.isActive, true));
-    const byKey = new Map<string, { id: string; name: string }>();
+    const byKey = new Map<string, BrandMatch>();
+    const add = (text: string | null | undefined, row: BrandRow) => {
+      const key = text ? normaliseBrand(text) : "";
+      if (key && !byKey.has(key)) byKey.set(key, { id: row.id, name: row.name, exact: true });
+    };
+    // Real names first, so one brand's nickname never hides another brand's name.
+    for (const row of rows) add(row.name, row);
+    for (const row of rows) add(row.nameHe, row);
+    for (const row of rows) for (const alias of row.aliases) add(alias, row);
+    const sounds: Loaded["sounds"] = [];
     for (const row of rows) {
-      const key = normaliseBrand(row.name);
-      if (key && !byKey.has(key)) byKey.set(key, row);
+      for (const text of [row.name, ...row.aliases.filter((a) => !hasHebrew(a))]) {
+        for (const skeleton of skeletonsOf(text)) {
+          sounds.push({ skeleton, brand: { id: row.id, name: row.name } });
+        }
+      }
     }
-    cached = { at: Date.now(), byKey };
-    return byKey;
+    cached = { at: Date.now(), byKey, sounds, fuzzy: new Map() };
+    return cached;
   };
+
+  /** Typos and spacing: the closest name by trigram similarity, unless two brands are about as close. */
+  const byTrigram = async (text: string): Promise<BrandMatch | null> => {
+    const q = text.toLowerCase().replace(/\s+/g, " ").trim();
+    const squeezed = q.replace(/\s/g, "");
+    const score = sql<number>`greatest(
+      similarity(lower(${brands.name}), ${q}),
+      similarity(replace(lower(${brands.name}), ' ', ''), ${squeezed}),
+      coalesce(similarity(lower(${brands.nameHe}), ${q}), 0)
+    )`;
+    const rows = await db
+      .select({ id: brands.id, name: brands.name, score })
+      .from(brands)
+      .where(
+        and(
+          eq(brands.isActive, true),
+          or(
+            sql`lower(${brands.name}) % ${q}`,
+            sql`replace(lower(${brands.name}), ' ', '') % ${squeezed}`,
+            sql`lower(${brands.nameHe}) % ${q}`,
+          ),
+        ),
+      )
+      .orderBy(desc(score), desc(brands.popularity))
+      .limit(2);
+    const [best, next] = rows;
+    if (!best || best.score < BRAND_SIMILARITY_MIN) return null;
+    if (next && next.score >= best.score - 0.05) return null;
+    return { id: best.id, name: best.name };
+  };
+
   return {
-    async match(text) {
-      const byKey = await load();
-      const exact = byKey.get(normaliseBrand(text));
+    async match(text, options) {
+      const data = await load();
+      const exact = data.byKey.get(normaliseBrand(text));
       if (exact) return exact;
       // A tag often says more than the brand ("ZARA BASIC", "Nike Sportswear"). Try the first words alone, longest first.
-      const words = text.split(/\s+/).filter(Boolean);
+      // `wholeOnly` skips that: a search for "zara dress" must not turn into "Zara" alone.
+      const words = options?.wholeOnly ? [] : text.split(/\s+/).filter(Boolean);
       for (let n = words.length - 1; n >= 1; n--) {
         const key = normaliseBrand(words.slice(0, n).join(" "));
-        const found = key.length >= 3 ? byKey.get(key) : undefined;
-        if (found) return found;
+        const found = key.length >= 3 ? data.byKey.get(key) : undefined;
+        if (found) return { id: found.id, name: found.name };
       }
-      return null;
+      if (!options?.fuzzy) return null;
+
+      const key = normaliseBrand(text);
+      if (key.length < 3) return null;
+      if (data.fuzzy.has(key)) return data.fuzzy.get(key) ?? null;
+      let found: BrandMatch | null = null;
+      if (hasHebrew(text)) {
+        // No name or alias has this spelling: compare by sound, and only trust a single brand.
+        const wanted = skeletonsOf(text)[0];
+        const hits = new Map<string, BrandMatch>();
+        if (wanted) {
+          for (const sound of data.sounds) {
+            if (skeletonsMatch(wanted, sound.skeleton)) hits.set(sound.brand.id, sound.brand);
+          }
+        }
+        if (hits.size === 1) found = [...hits.values()][0] ?? null;
+      }
+      found ??= await byTrigram(text);
+      if (data.fuzzy.size > 500) data.fuzzy.clear();
+      data.fuzzy.set(key, found);
+      return found;
     },
   };
 }

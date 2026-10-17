@@ -410,7 +410,8 @@ export async function understandByRules(
         .join(" ");
       if (normaliseBrand(candidate).length < 2) continue;
       const found = await brandMatcher.match(candidate);
-      if (found && normaliseBrand(found.name) === normaliseBrand(candidate)) {
+      // Exact means the words ARE a name of the brand: English, Hebrew or an alias ("מייקל קורס", "MK").
+      if (found && (found.exact ?? normaliseBrand(found.name) === normaliseBrand(candidate))) {
         matched = found;
         used = size;
         break;

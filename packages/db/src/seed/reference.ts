@@ -20,6 +20,8 @@ import { moveCategories } from "./category-moves.js";
 import type { SeedDb } from "./connection.js";
 import {
   badgeSeed,
+  brandAliases,
+  brandHebrew,
   brandNames,
   bumpPlanSeed,
   colourSeed,
@@ -212,6 +214,8 @@ export async function seedReference(db: SeedDb): Promise<ReferenceCounts> {
   const brandRows = brandNames.map((name, i) => ({
     slug: slugifyBrand(name),
     name,
+    nameHe: brandHebrew[name] ?? null,
+    aliases: brandAliases[name] ?? [],
     popularity: (brandNames.length - i) * 10,
   }));
   await db
@@ -219,7 +223,12 @@ export async function seedReference(db: SeedDb): Promise<ReferenceCounts> {
     .values(brandRows)
     .onConflictDoUpdate({
       target: brands.slug,
-      set: { name: sql`excluded.name`, popularity: sql`excluded.popularity` },
+      set: {
+        name: sql`excluded.name`,
+        nameHe: sql`excluded.name_he`,
+        aliases: sql`excluded.aliases`,
+        popularity: sql`excluded.popularity`,
+      },
     });
   counts.brands = brandRows.length;
 

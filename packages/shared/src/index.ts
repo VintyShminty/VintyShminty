@@ -3,6 +3,7 @@ export * from "./admin-upload.js";
 export * from "./auth.js";
 export * from "./auth-errors.js";
 export * from "./bidi.js";
+export * from "./brand-match.js";
 export * from "./browse-tiles.js";
 export * from "./bumps.js";
 export * from "./chat-format.js";
