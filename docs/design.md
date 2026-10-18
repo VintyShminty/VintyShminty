@@ -825,6 +825,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `apps/mobile/app/(auth)/welcome.tsx` (`LanguageStep`, shown while the saved language is empty), wording `welcome.chooseLanguage` in both languages.
 - **References:** D-018, D-021, D-026
 
+### D-059 : Explore lists every category on the page, each with its own icon
+
+- **Date:** 2026-10-18
+- **Area:** App, Explore tab and the category lists (Explore, Filters, the sell form)
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** Under the photo tiles, the Explore tab shows the whole category list as rows on the same page (Women, Men, Kids, Home...), each opening its category screen. The "All categories" button that opened a separate screen is gone. Every category row has an icon that fits it (a dress for Dresses, trousers for Jeans, a tie for Ties, perfume for Fragrance, a stroller for Strollers...), taken from Lucide and Lucide Lab (Lucide's official extra set, which has the clothes, shoes and hats). A category with no icon of its own keeps its section's icon.
+- **Rationale:** Eden found almost every row in a section using the same icon (a shirt for all of Clothing, a watch for all of Men's accessories) and wanted the list on Explore itself, not one tap away.
+- **Implementation:** `apps/mobile/lib/category-icons.ts` (icon by the end of the category's slug, longest match wins), `app/(app)/(tabs)/(shop)/browse/index.tsx` (the list). The website shows no category icons and its Explore page has no separate list screen, so nothing changes there.
+- **References:** D-009, D-010, D-055
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
