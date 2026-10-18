@@ -202,6 +202,9 @@ describe.skipIf(!databaseUrl)("discovery", () => {
 
       it("does not turn a brand plus extra words into the brand alone", async () => {
         expect(await find(`${mangoName} ${own} xyzzy`)).toEqual([]);
+        // Even a short extra word, which would fit inside the room a typo gets.
+        expect(await find(`${mangoName} qz`)).toEqual([]);
+        expect(await find(`qz ${mangoName}`)).toEqual([]);
       });
 
       it("still forgives a typo in a brand", async () => {

@@ -138,11 +138,13 @@ export function normaliseBrand(text: string): string {
 export type BrandMatch = { id: string; name: string; exact?: boolean };
 
 /**
- * True when the typed text is not much longer than the brand it resembles. A whole search that is longer by more than
- * a couple of letters says more than the brand ("nike air" is not a misspelt "Nike"), so it must not turn into the
- * brand alone. Hebrew spellings get one more letter of room.
+ * True when the typed text could be a misspelling of the brand it resembles: no more words than the brand name has,
+ * and not longer by more than a couple of letters (one more for Hebrew spellings). A whole search with an extra word
+ * ("nike air", "zara xs", "תיק zara") says more than the brand, so it must not turn into the brand alone.
  */
 function aboutAsLong(typed: string, brandName: string): boolean {
+  const words = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
+  if (words(typed) > words(brandName)) return false;
   const room = hasHebrew(typed) ? 3 : 2;
   return normaliseBrand(typed).length <= normaliseBrand(brandName).length + room;
 }
