@@ -67,24 +67,107 @@ export function categorySubtreeIds(tree: readonly CategoryNode[], categoryId: st
   return ids;
 }
 
-/** Words of the search text: letters and digits only (Hebrew and English), so they are safe in a tsquery. */
-export function searchTokens(q: string | undefined): string[] {
+/**
+ * Characters that join the pieces of one word: H&M, Levi's, T-shirt, A.P.C., ג'ינס (the Hebrew geresh and
+ * gershayim too), 90/60, C++. A search for any of them is one word, not two or three.
+ */
+const JOINERS = "&'\u2019\u05f3\u05f4\".\\-/+";
+const WORD_RE = new RegExp(`[\\p{L}\\p{N}${JOINERS}]+`, "gu");
+const JOINER_RE = new RegExp(`[${JOINERS}]+`, "gu");
+const EDGE_JOINER_RE = new RegExp(`^[${JOINERS}]+|[${JOINERS}]+$`, "gu");
+/** The same joiners as a Postgres regular expression class (bound as a value, so nothing is escaped twice). */
+const SQL_JOINERS = "[&'’׳״\"./+-]";
+/** A search word of this length or shorter matches only whole words, never a piece of a longer one. */
+const SHORT_WORD = 2;
+
+/**
+ * One word of a search. `text` is the word with its joiners taken out ("hm", "levis", "tshirt", "גינס"). `parts` are
+ * the pieces around the joiners when there were any (["h", "m"]), so "H&M" also meets a title written "H & M" or a
+ * brand saved as "H&M", whose words the text index keeps apart.
+ */
+export type SearchTerm = { text: string; parts: string[] };
+
+/**
+ * The words of a search, letters and digits only (Hebrew and English), so they are safe in a tsquery. Joined words
+ * stay one word: "H&M" is "hm", never "h" and "m" (which matched every title with those letters in it).
+ */
+export function searchTerms(q: string | undefined): SearchTerm[] {
   if (!q) return [];
-  const clean = q.normalize("NFKC").toLowerCase().replace(/\p{M}/gu, "");
-  return (clean.match(/[\p{L}\p{N}]+/gu) ?? []).slice(0, MAX_TOKENS);
+  const clean = q
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/\p{M}/gu, "")
+    // Single letters around an ampersand are one name typed with spaces: "h & m" is "h&m".
+    .replace(/(?<![\p{L}\p{N}])(\p{L})\s*&\s*(\p{L})(?![\p{L}\p{N}])/gu, "$1&$2");
+  const terms: SearchTerm[] = [];
+  for (const raw of clean.match(WORD_RE) ?? []) {
+    const word = raw.replace(EDGE_JOINER_RE, "");
+    if (!word) continue;
+    const parts = word.split(JOINER_RE).filter(Boolean);
+    const text = parts.join("");
+    if (!text) continue;
+    terms.push({ text, parts: parts.length > 1 ? parts : [] });
+    if (terms.length >= MAX_TOKENS) break;
+  }
+  return terms;
+}
+
+/** The words of a search as plain text ("hm", "dress"), for callers that only need them. */
+export function searchTokens(q: string | undefined): string[] {
+  return searchTerms(q).map((t) => t.text);
 }
 
 export const likeEscape = (text: string) => text.replace(/[\\%_]/g, (c) => `\\${c}`);
 
+/** The tsquery for one term: a whole word for a short one, the start of a word otherwise, plus the pieces as a phrase. */
+export function termQuery(term: SearchTerm): string {
+  const short = term.text.length <= SHORT_WORD;
+  const alternatives = [short ? term.text : `${term.text}:*`];
+  if (term.parts.length > 1) {
+    const last = term.parts.length - 1;
+    alternatives.push(`(${term.parts.map((p, i) => (i === last && !short ? `${p}:*` : p)).join(" <-> ")})`);
+  }
+  return alternatives.join(" | ");
+}
+
+/** The title and brand lower cased with the joiners taken out, so "Levi's" and "levis" are the same. */
+const squashedText = sql`regexp_replace(lower(${listings.title} || ' ' || coalesce(${listings.brandName}, '')), ${SQL_JOINERS}, '', 'g')`;
+const squashedBrand = sql`regexp_replace(lower(coalesce(${listings.brandName}, '')), ${`${SQL_JOINERS}|\\s`}, '', 'g')`;
+
+/** What may sit next to a whole word: anything but a Latin or Hebrew letter or a digit. Spelled out, so the database locale does not decide. */
+const WORD_EDGE = "[^a-z0-9א-ת]";
+
+/** True when the title or brand has this term: as a whole word when it is short, anywhere in a word otherwise. */
+function termInText(term: SearchTerm): SQL {
+  if (term.text.length <= SHORT_WORD) {
+    // Only letters and digits reach here, so the term is safe inside a regular expression.
+    const whole = `(^|${WORD_EDGE})${term.text}($|${WORD_EDGE})`;
+    return sql`(${squashedText} ~ ${whole} or ${squashedBrand} = ${term.text})`;
+  }
+  return sql`${squashedText} like ${`%${likeEscape(term.text)}%`}`;
+}
+
+/** True when the title or brand has this term at the start of a word ("גינס" in "ג'ינס", not in "היגינס"). */
+function termStartsWord(term: SearchTerm): SQL {
+  return sql`${squashedText} ~ ${`(^|${WORD_EDGE})${term.text}`}`;
+}
+
 /**
- * Each word must match: as the start of a word (full text), anywhere in the title or brand (plain substring), or as the
- * name of the item's category or one above it ("shoes" finds everything under Shoes).
+ * Each word must match: as a word in the text index (title, brand and description), in the title or brand, or as the
+ * name of the item's category or one above it ("shoes" finds everything under Shoes). A short word (one or two
+ * letters, "hm", "xs", "38") only counts as a whole word, a longer one also as a piece of a word ("shirt" in "tshirt",
+ * "חולצה" in "בחולצה").
  */
-function textConditions(tokens: string[], tree: readonly CategoryNode[]): SQL[] {
-  return tokens.map((token) => {
-    const like = `%${likeEscape(token)}%`;
-    const text = sql`${listings.searchVector} @@ to_tsquery('simple', ${`${token}:*`}) or ${listings.title} ilike ${like} or coalesce(${listings.brandName}, '') ilike ${like}`;
-    const named = [...new Set(categoriesNamedBy(token, tree).flatMap((id) => categorySubtreeIds(tree, id)))];
+export function textConditions(terms: SearchTerm[], tree: readonly CategoryNode[]): SQL[] {
+  return terms.map((term) => {
+    // A single letter skips the text index, which keeps "H&M" as "h" and "m": a search for "m" is not a search for H&M.
+    const text =
+      term.text.length === 1
+        ? termInText(term)
+        : sql`${listings.searchVector} @@ to_tsquery('simple', ${termQuery(term)}) or ${termInText(term)}`;
+    const named = [
+      ...new Set(categoriesNamedBy(term.text, tree).flatMap((id) => categorySubtreeIds(tree, id))),
+    ];
     return named.length > 0 ? sql`(${text} or ${inArray(listings.categoryId, named)})` : sql`(${text})`;
   });
 }
@@ -123,7 +206,7 @@ export function filterConditions(
     ];
     conditions.push(ids.length > 0 ? inArray(listings.categoryId, ids) : sql`false`);
   }
-  const text = textConditions(searchTokens(filters.q), reference.categories);
+  const text = textConditions(searchTerms(filters.q), reference.categories);
   if (text.length > 0 && textBrand) {
     // The whole search text is a brand (in any spelling or language): its items match even when the words are not in
     // their titles ("מייקל קורס" finds the items listed under Michael Kors).
@@ -204,12 +287,13 @@ export function sortSpec(
 ): SortSpec {
   if (sort === "price_asc") return { key: sql`coalesce(${listings.priceMinor}, 0)::bigint`, dir: "asc" };
   if (sort === "price_desc") return { key: sql`coalesce(${listings.priceMinor}, 0)::bigint`, dir: "desc" };
-  const tokens = searchTokens(q);
-  if (sort === "relevance" && tokens.length > 0) {
-    const query = tokens.map((t) => `${t}:*`).join(" & ");
-    const titleHit = tokens.map((t) => sql`${listings.title} ilike ${`%${likeEscape(t)}%`}`);
-    const allInTitle = sql.join(titleHit, sql` and `);
-    const text = sql`(floor(ts_rank(${listings.searchVector}, to_tsquery('simple', ${query})) * 1000)::bigint + (case when ${allInTitle} then 300 else 0 end))`;
+  const terms = searchTerms(q);
+  if (sort === "relevance" && terms.length > 0) {
+    const query = terms.map((t) => `(${termQuery(t)})`).join(" & ");
+    // Title and brand first: every word at the start of a word beats every word buried inside one.
+    const allStartWords = sql.join(terms.map(termStartsWord), sql` and `);
+    const allInTitle = sql.join(terms.map(termInText), sql` and `);
+    const text = sql`(floor(ts_rank(${listings.searchVector}, to_tsquery('simple', ${query})) * 1000)::bigint + (case when ${allStartWords} then 300 when ${allInTitle} then 150 else 0 end))`;
     if (personal) {
       // The text match still comes first, in steps of 50 so items that match about as well count as equal. Inside a
       // step the person decides (0 to 11 points), then recency: step * 1e15 + points * 1e13 + bumped time in ms.
@@ -218,10 +302,7 @@ export function sortSpec(
         dir: "desc",
       };
     }
-    return {
-      key: sql`(floor(ts_rank(${listings.searchVector}, to_tsquery('simple', ${query})) * 1000)::bigint + (case when ${allInTitle} then 300 else 0 end)) * 10000000000000 + ${bumpedMs}`,
-      dir: "desc",
-    };
+    return { key: sql`${text} * 10000000000000 + ${bumpedMs}`, dir: "desc" };
   }
   return { key: bumpedMs, dir: "desc" };
 }

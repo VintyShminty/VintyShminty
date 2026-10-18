@@ -137,6 +137,16 @@ export function normaliseBrand(text: string): string {
 /** `exact` is true when the text IS one of the brand's names (English, Hebrew or an alias), in any capitals or spacing. */
 export type BrandMatch = { id: string; name: string; exact?: boolean };
 
+/**
+ * True when the typed text is not much longer than the brand it resembles. A whole search that is longer by more than
+ * a couple of letters says more than the brand ("nike air" is not a misspelt "Nike"), so it must not turn into the
+ * brand alone. Hebrew spellings get one more letter of room.
+ */
+function aboutAsLong(typed: string, brandName: string): boolean {
+  const room = hasHebrew(typed) ? 3 : 2;
+  return normaliseBrand(typed).length <= normaliseBrand(brandName).length + room;
+}
+
 export type BrandMatcher = {
   /**
    * The brand the text names. Always tries the exact names first (English, Hebrew, aliases) and then the first words.
@@ -235,7 +245,10 @@ export function createBrandMatcher(db: Db, ttlMs = 5 * 60_000): BrandMatcher {
 
       const key = normaliseBrand(text);
       if (key.length < 3) return null;
-      if (data.fuzzy.has(key)) return data.fuzzy.get(key) ?? null;
+      if (data.fuzzy.has(key)) {
+        const known = data.fuzzy.get(key) ?? null;
+        return known && options?.wholeOnly && !aboutAsLong(text, known.name) ? null : known;
+      }
       let found: BrandMatch | null = null;
       if (hasHebrew(text)) {
         // No name or alias has this spelling: compare by sound, and only trust a single brand.
@@ -251,7 +264,7 @@ export function createBrandMatcher(db: Db, ttlMs = 5 * 60_000): BrandMatcher {
       found ??= await byTrigram(text);
       if (data.fuzzy.size > 500) data.fuzzy.clear();
       data.fuzzy.set(key, found);
-      return found;
+      return found && options?.wholeOnly && !aboutAsLong(text, found.name) ? null : found;
     },
   };
 }

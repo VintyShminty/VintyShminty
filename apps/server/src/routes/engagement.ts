@@ -33,7 +33,7 @@ import {
 import { and, desc, eq, inArray, notInArray, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
-import { queryCardRows, searchTokens, toCards } from "../lib/discovery.js";
+import { queryCardRows, searchTerms, textConditions, toCards } from "../lib/discovery.js";
 import { ApiError } from "../lib/errors.js";
 import { recordEvents } from "../lib/events.js";
 import { notifyUser } from "../lib/notify.js";
@@ -183,16 +183,13 @@ const engagementRoutes: FastifyPluginAsyncZod<{ reportSorter: ReportSorter }> = 
       const userId = userIdOf(request);
       const reference = await app.reference.get();
       const { q, limit, cursor } = request.query;
-      const tokens = searchTokens(q);
       const where = [
         sql`exists (select 1 from ${favourites} where ${favourites.userId} = ${userId} and ${favourites.listingId} = ${listings.id})`,
         // Sold items stay in the list (green band). Drafts, hidden and removed ones do not.
         inArray(listings.status, ["active", "reserved", "sold"]),
         sql`not exists (select 1 from ${blocks} where (${blocks.blockerId} = ${userId} and ${blocks.blockedId} = ${listings.sellerId}) or (${blocks.blockerId} = ${listings.sellerId} and ${blocks.blockedId} = ${userId}))`,
-        ...tokens.map((t) => {
-          const like = `%${t.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
-          return sql`(${listings.title} ilike ${like} or coalesce(${listings.brandName}, '') ilike ${like})`;
-        }),
+        // The same word matching as search, so "H&M" and "Levi's" find the same items here.
+        ...textConditions(searchTerms(q), reference.categories),
       ];
       // Newest heart first.
       const key = sql`(select (extract(epoch from ${favourites.createdAt}) * 1000)::bigint from ${favourites} where ${favourites.userId} = ${userId} and ${favourites.listingId} = ${listings.id})`;

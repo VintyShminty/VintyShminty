@@ -804,6 +804,17 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `packages/shared/src/discovery.ts` (`feedQuerySchema`), `apps/server/src/lib/feed.ts` (`feedConditions`), `apps/web/components/home-price-chip.tsx`, `home-feed.tsx`, `lib/feed-url.ts`. The panel is drawn on the page body, not inside the chip row, because the row scrolls sideways on a phone and would cut it off. The app side is built separately against the same feed query.
 - **References:** D-019, D-030, D-039
 
+### D-057 : Search words stay whole, short words match whole words only
+
+- **Date:** 2026-10-18
+- **Area:** Search, app and website (one server rule)
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** A search word keeps the marks that join its pieces: "H&M", "Levi's", "T-shirt", "A.P.C.", "ג'ינס" (also with the Hebrew ׳ and ״ marks) are each one word, and "h & m" typed with spaces is "H&M". Each word must appear in the item: as a word in the title, brand or description, inside a word of the title or brand (only for words of 3 letters or more, so "shirt" finds "tshirt" and "חולצה" finds "בחולצה"), or as the name of its category. A word of 1 or 2 letters ("hm", "xs", "38") matches whole words only, and a single letter never looks inside the brand name. The joined spellings meet: "levis" finds "Levi's", "גינס" finds "ג׳ינס" and "ג'ינס", "HM" finds "H&M". A whole search that only resembles a brand turns into that brand only when it is about as long as the brand name: "nikee" is Nike, "nike air" is not. In the default order, items with every word at the start of a word in the title or brand come first, then items with the words buried inside longer words, then the rest, newest first within each.
+- **Rationale:** The search used to cut "H&M" into "h" and "m" and accept any item with those letters anywhere, so "H&M" found Tommy Hilfiger jeans, and the same happened to "Levi's" and to Hebrew words with an apostrophe. Short pieces inside long words are noise, and the Hebrew spellings with and without the mark are the same word to the person typing.
+- **Trade-off:** A word of 3 letters still matches inside longer words, so "גינס" also finds a book by "היגינס" (now at the bottom, not the top). Real Hebrew prefixes need that, so it stays.
+- **Implementation:** `apps/server/src/lib/discovery.ts` (`searchTerms`, `termQuery`, `textConditions`, `sortSpec`), `apps/server/src/lib/photo-assist.ts` (`aboutAsLong`), Favourites search in `routes/engagement.ts` uses the same matching. Tests in `lib/discovery.test.ts` and `routes/discovery.test.ts`.
+- **References:** D-037
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
