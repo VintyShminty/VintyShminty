@@ -9,29 +9,31 @@ import { Icon } from "@/components/ui/icon";
 import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
-import { markFaceIdOffered } from "@/lib/lock-store";
+import { closeOffer, pendingLoginFor } from "@/lib/saved-login";
 import { useFaceId } from "@/lib/use-face-id";
 
-/** Shown once, right after the first log in on this phone. */
+/** Shown once per person on this phone, right after logging in with a password. */
 export default function FaceIdOffer() {
   const { t } = useTranslation();
   const router = useRouter();
   const { data: session } = authClient.useSession();
-  const userId = session?.user.id;
-  const faceId = useFaceId(userId);
+  const user = session?.user;
+  const userId = user?.id;
+  const faceId = useFaceId(user);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const method = t(`biometric.${faceId.kind}`);
 
   const close = () => {
-    if (userId) markFaceIdOffered(userId);
+    if (userId) closeOffer(userId);
     router.back();
   };
 
   const turnOn = async () => {
     setBusy(true);
     setFailed(false);
-    const ok = await faceId.enable();
+    const login = pendingLoginFor(userId);
+    const ok = login ? await faceId.save(login.password) : false;
     setBusy(false);
     if (ok) close();
     else setFailed(true);

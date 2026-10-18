@@ -4,19 +4,14 @@ import { useTranslation } from "react-i18next";
 import { Modal, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "@/components/ui/icon";
-import { authClient } from "@/lib/auth-client";
-import { useIsLocked } from "@/lib/lock-store";
 
 /** A chat photo full screen. Tap anywhere or the cross to close. */
 function PhotoViewer({ uri, onClose }: { uri: string | null; onClose: () => void }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  // A native window opens above the Face ID lock, so it stays hidden while the app is locked.
-  const { data: session } = authClient.useSession();
-  const locked = useIsLocked(session?.user.id);
   return (
     <Modal
-      visible={uri !== null && !locked}
+      visible={uri !== null}
       transparent
       animationType="fade"
       onRequestClose={onClose}

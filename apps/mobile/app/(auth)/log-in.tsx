@@ -1,7 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type SignInInput, signInInputSchema } from "@vinty/shared";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { ScanFace } from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { TextInput } from "react-native";
@@ -11,11 +12,13 @@ import { FormInput } from "@/components/form-input";
 import { SocialButtons } from "@/components/social-buttons";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { ScreenScroll } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 import { describeAuthError } from "@/lib/auth-errors";
-import { useLockStore } from "@/lib/lock-store";
+import { useBiometricSupport } from "@/lib/biometrics";
+import { forgetLogin, notePasswordLogin, readSavedLogin, useSavedLogin } from "@/lib/saved-login";
 
 export default function LogIn() {
   const { t } = useTranslation();
@@ -23,7 +26,13 @@ export default function LogIn() {
   const params = useLocalSearchParams<{ reset?: string; email?: string }>();
   const [banner, setBanner] = useState<string | null>(null);
   const passwordRef = useRef<TextInput>(null);
-  const { control, handleSubmit, formState } = useForm<SignInInput>({
+  const support = useBiometricSupport();
+  const saved = useSavedLogin();
+  const method = t(`biometric.${support?.kind ?? "generic"}`);
+  const canUseFaceId = Boolean(saved) && Boolean(support?.available);
+  const [faceIdBusy, setFaceIdBusy] = useState(false);
+  const askedOnce = useRef(false);
+  const { control, handleSubmit, formState, setValue } = useForm<SignInInput>({
     resolver: zodResolver(signInInputSchema),
     mode: "onTouched",
     defaultValues: { email: params.email ?? "", password: "" },
@@ -31,13 +40,46 @@ export default function LogIn() {
 
   const onSubmit = handleSubmit(async (values) => {
     setBanner(null);
-    const { error } = await authClient.signIn.email({ email: values.email, password: values.password });
+    const { data, error } = await authClient.signIn.email({ email: values.email, password: values.password });
     if (error) {
       setBanner(t(describeAuthError(error).key));
       return;
     }
-    useLockStore.getState().unlock();
+    notePasswordLogin(
+      { email: values.email, password: values.password, userId: data.user.id },
+      t("lock.prompt"),
+    );
   });
+
+  const logInWithFaceId = async () => {
+    if (faceIdBusy) return;
+    setBanner(null);
+    setFaceIdBusy(true);
+    const login = await readSavedLogin(t("lock.prompt"), t("common.cancel"));
+    if (!login) {
+      setFaceIdBusy(false);
+      return;
+    }
+    const { error } = await authClient.signIn.email(login);
+    setFaceIdBusy(false);
+    if (!error) return;
+    if (error.status === 401) {
+      // The password changed somewhere else (a reset by email code, another phone). Forget it and ask for the new one.
+      forgetLogin();
+      setValue("email", login.email);
+      setBanner(t("faceId.loginStale", { method }));
+      return;
+    }
+    setBanner(t(describeAuthError(error).key));
+  };
+
+  // Arriving here with a saved login asks for Face ID straight away, once.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs once, when Face ID login becomes possible
+  useEffect(() => {
+    if (!canUseFaceId || askedOnce.current || params.reset) return;
+    askedOnce.current = true;
+    void logInWithFaceId();
+  }, [canUseFaceId]);
 
   return (
     <AuthSheet>
@@ -57,6 +99,12 @@ export default function LogIn() {
           <Banner variant="error" className="mb-lg">
             {banner}
           </Banner>
+        ) : null}
+        {canUseFaceId ? (
+          <Button size="lg" className="mb-xl" loading={faceIdBusy} onPress={logInWithFaceId}>
+            {!faceIdBusy ? <Icon as={ScanFace} size={20} className="text-primary-foreground" /> : null}
+            <Text>{t("faceId.logIn", { method })}</Text>
+          </Button>
         ) : null}
         <View className="gap-lg">
           <FormInput

@@ -242,20 +242,19 @@
     "generic": "זיהוי ביומטרי"
   },
   "lock": {
-    "title": "Yadii נעולה",
-    "subtitle": "השתמשו ב-{{method}} כדי לפתוח את האפליקציה.",
-    "failed": "‏{{method}} לא הצליח. נסו שוב או התחברו עם סיסמה.",
-    "unlock": "פתיחה עם {{method}}",
-    "usePassword": "התחברות עם סיסמה",
-    "prompt": "פתיחת Yadii",
+    "prompt": "התחברות ל-Yadii",
     "confirmEnable": "הפעלת {{method}} עבור Yadii"
   },
   "faceId": {
-    "offerTitle": "פותחים את Yadii עם {{method}}",
-    "offerBody": "בלי להקליד סיסמה. Yadii תבקש {{method}} כשתפתחו אותה.",
+    "offerTitle": "בפעם הבאה נכנסים עם {{method}}",
+    "offerBody": "אתם נשארים מחוברים בטלפון הזה. אם תצטרכו להתחבר שוב, {{method}} יעשה את זה במקום הסיסמה.",
     "turnOn": "הפעלת {{method}}",
     "notNow": "לא עכשיו",
-    "turnOnFailed": "לא הצלחנו להפעיל את {{method}}. אפשר לנסות שוב בהגדרות, אבטחה."
+    "turnOnFailed": "לא הצלחנו להפעיל את {{method}}. אפשר לנסות שוב בהגדרות, אבטחה.",
+    "logIn": "התחברות עם {{method}}",
+    "loginStale": "הסיסמה שלכם השתנתה. התחברו עם החדשה ו-{{method}} יזכור אותה.",
+    "passwordTitle": "הקלידו את הסיסמה שלכם",
+    "passwordBody": "‏{{method}} שומר אותה בטלפון הזה, כך שלא תצטרכו להקליד אותה שוב."
   },
   "profile": {
     "reviewCount_one": "ביקורת אחת",
@@ -369,8 +368,8 @@
   },
   "settings": {
     "title": "הגדרות",
-    "promoTitle": "בטוח יותר, ופותח מהר יותר",
-    "promoBody": "השתמשו ב-{{method}} כדי לפתוח את Yadii בטלפון הזה.",
+    "promoTitle": "בלי להקליד סיסמה שוב",
+    "promoBody": "התחברו עם {{method}} אם תתנתקו אי פעם בטלפון הזה.",
     "promoButton": "הגדרת {{method}}",
     "profileDetails": "הפרופיל שלכם",
     "account": "החשבון שלכם",
@@ -414,8 +413,8 @@
   },
   "security": {
     "title": "כניסה וביטחון",
-    "faceId": "פתיחה עם {{method}}",
-    "faceIdHint": "Yadii תבקש {{method}} כשתפתחו אותה או תחזרו אליה אחרי זמן מה.",
+    "faceId": "התחברות עם {{method}}",
+    "faceIdHint": "אם תצטרכו להתחבר שוב, השתמשו ב-{{method}} במקום להקליד סיסמה.",
     "sessions": "איפה אתם מחוברים",
     "unknownDevice": "מכשיר לא מוכר",
     "activeNow": "פעיל עכשיו",

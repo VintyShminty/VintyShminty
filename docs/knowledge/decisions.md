@@ -115,6 +115,7 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | A search word that names a category also finds everything in that category, both languages, singular or plural | 2026-10-16 | Merged (#104) |
 | Bundle steps: the biggest parcel sets postage, an offer on the whole bundle comes later, the bar shows only on that seller's pages, 5/10/15% on by default | 2026-10-16 | Decided (Eden approved the mockup), `docs/plans/closet-deals.md` section 6 |
 | Face ID lock closes the sell form, welcome questions and Face ID offer while locked, rather than drawing the lock as its own native layer | 2026-10-16 | Merged (#96) |
+| Face ID is for logging in, not a lock on opening: a signed in person goes straight in, and after a password login (not a new account) the app offers to keep the login behind Face ID | 2026-10-18 | PR pending |
 | Help answers drop any answer with a link, an email address or a phone number | 2026-10-16 | Decided (Eden), merged (#96) |
 | Only the seller can send photos in chat, enforced by the server | 2026-10-16 | Merged (#99) |
 | Photo rotate and crop live in the full-screen photo view, crop is our own screen (no native package) | 2026-10-16 | Decided (Eden), merged (#97, #100) |
