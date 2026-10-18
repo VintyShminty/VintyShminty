@@ -205,6 +205,16 @@ export function browseRestFor(gender: BrowseGender): (BrowseTile & { group?: Bro
   return out;
 }
 
+/** Which list of tiles a covers call is for: one side (its ten plus the rest), or everything without a side. */
+export const COVER_SIDES = ["all", ...BROWSE_GENDERS] as const;
+export type CoverSide = (typeof COVER_SIDES)[number];
+
+/** Every tile of one side, in the order the screens show them, each with the side it looks at. Keys are unique. */
+export function browseSideTiles(side: CoverSide): (BrowseTile & { group?: BrowseGender })[] {
+  if (side === "all") return [...BROWSE_TILES, ...BROWSE_MORE_TILES];
+  return [...browseTilesFor(side).map((tile) => ({ ...tile, group: side })), ...browseRestFor(side)];
+}
+
 export const findBrowseTile = (key: string | undefined) =>
   [...BROWSE_TILES, ...BROWSE_MORE_TILES].find((t) => t.key === key);
 

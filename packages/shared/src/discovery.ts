@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { COVER_SIDES } from "./browse-tiles.js";
 import {
   idSchema,
   isoDateTimeSchema,
@@ -40,6 +41,14 @@ export const searchFiltersQuerySchema = searchFiltersSchema.extend({
 /** GET /v1/listings. Filters plus the page query. */
 export const searchQuerySchema = searchFiltersQuerySchema.extend(paginationQuerySchema.shape);
 export type SearchQuery = z.infer<typeof searchQuerySchema>;
+
+/**
+ * GET /v1/browse/covers?side=women. The cover photos of the newest listings under every tile of one side, in one call
+ * instead of one per tile (each call can start a server copy). `covers` maps a tile key to up to six photo addresses.
+ */
+export const browseCoversQuerySchema = z.object({ side: z.enum(COVER_SIDES).default("all") });
+export const browseCoversSchema = z.object({ covers: z.record(z.string(), z.array(z.string())) });
+export type BrowseCovers = z.infer<typeof browseCoversSchema>;
 
 /** Search answers carry the number of matches, counted up to 500. */
 export const SEARCH_TOTAL_CAP = 500;

@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 import { blocks, brands, listings, listingViews, profiles, recentSearches, users } from "@vinty/db";
 import {
+  browseCoversQuerySchema,
+  browseCoversSchema,
+  browseSideTiles,
   categoryTrail,
   errorResponseSchema,
   feedPageSchema,
@@ -18,6 +21,7 @@ import {
   searchQuerySchema,
   suggestionsQuerySchema,
   suggestionsSchema,
+  tileCategoryIds,
 } from "@vinty/shared";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
@@ -105,6 +109,39 @@ const discoveryRoutes: FastifyPluginAsyncZod = async (app) => {
         nextCursor: page.nextCursor,
         ...counts,
       };
+    },
+  );
+
+  // The Explore tiles' cover photos, all of one side in one call. The same for everyone (no viewer), so Vercel's cache
+  // answers repeats for five minutes without starting the server, which is what used to fill the database.
+  app.get(
+    "/v1/browse/covers",
+    {
+      config: SEARCH_LIMIT,
+      schema: { querystring: browseCoversQuerySchema, response: { 200: browseCoversSchema } },
+    },
+    async (request, reply) => {
+      const reference = await app.reference.get();
+      const tiles = browseSideTiles(request.query.side);
+      const covers: Record<string, string[]> = {};
+      for (const tile of tiles) {
+        const categoryIds = tileCategoryIds(reference.categories, tile, tile.group);
+        if (categoryIds.length === 0) {
+          covers[tile.key] = [];
+          continue;
+        }
+        const where = searchConditions({ categoryIds }, reference, undefined);
+        const { rows } = await queryCardRows(db, {
+          where,
+          sort: sortSpec("newest", undefined, null),
+          cursor: undefined,
+          limit: 6,
+        });
+        const cards = await toCards(app, reference, rows);
+        covers[tile.key] = cards.flatMap((card) => (card.cover ? [card.cover.url] : []));
+      }
+      reply.header("Cache-Control", "public, max-age=300, s-maxage=300, stale-while-revalidate=600");
+      return { covers };
     },
   );
 

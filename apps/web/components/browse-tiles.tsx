@@ -4,35 +4,32 @@ import {
   BROWSE_TILES,
   type BrowseGender,
   type BrowseTile,
+  browseCoversSchema,
   browseRestFor,
   browseTilesFor,
-  type CategoryNode,
-  searchPageSchema,
-  tileCategoryIds,
+  type CoverSide,
 } from "@vinty/shared";
 import { BrowseMoreTile } from "@/components/browse-more";
 import { PhotoTile } from "@/components/photo-tile";
 import { serverApi } from "@/lib/api";
 import { tilePhoto } from "@/lib/browse-photos";
 import { getT, type Lang } from "@/lib/i18n";
-import { getReference } from "@/lib/reference";
 import { cn } from "@/lib/utils";
 
 /**
- * The covers of the newest active listings in the given categories (card-sized, they come ready sized from the server).
- * Asked anonymously and kept for five minutes, so the pictures follow the listings without a call per page view.
- * Empty when there is no such listing (the tile then shows its fallback photo). A few are asked for so that two tiles
- * covering the same items (Sneakers and Shoes) can each take a different one.
+ * The covers of the newest active listings under every tile of one side, by tile key (card-sized, they come ready
+ * sized from the server). One call per side, asked anonymously and kept for five minutes, so the pictures follow the
+ * listings without a call per tile or per page view. A tile with no listing gets none and shows its fallback photo.
+ * A few are sent per tile so that two tiles covering the same items (Sneakers and Shoes) can each take a different one.
  */
-async function coversOf(lang: Lang, ids: string[]): Promise<string[]> {
-  if (ids.length === 0) return [];
-  const page = await serverApi(`/v1/listings?sort=newest&categoryIds=${ids.join(",")}&limit=6`, {
+async function coversOf(lang: Lang, side: CoverSide): Promise<Record<string, string[]>> {
+  const page = await serverApi(`/v1/browse/covers?side=${side}`, {
     lang,
-    schema: searchPageSchema,
+    schema: browseCoversSchema,
     anonymous: true,
     revalidate: 300,
   }).catch(() => null);
-  return (page?.items ?? []).flatMap((item) => (item.cover ? [item.cover.url] : []));
+  return page?.covers ?? {};
 }
 
 /**
@@ -72,10 +69,8 @@ export async function BrowseTiles({
       : more
         ? BROWSE_MORE_TILES
         : BROWSE_TILES;
-  const tree: readonly CategoryNode[] = (await getReference(lang).catch(() => null))?.categories ?? [];
-  const options = await Promise.all(
-    tiles.map((tile) => coversOf(lang, tileCategoryIds(tree, tile, tile.group))),
-  );
+  const byKey = await coversOf(lang, rest ?? gender ?? "all");
+  const options = tiles.map((tile) => byKey[tile.key] ?? []);
   // Each tile takes its newest cover that no tile before it already shows.
   const taken = new Set<string>();
   const covers = options.map((urls) => {

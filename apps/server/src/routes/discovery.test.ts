@@ -240,6 +240,18 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(ids(res)[0]).toBe(coat.id);
     });
 
+    it("gives every tile's covers of one side in one cacheable answer", async () => {
+      for (const side of ["all", "women", "men"]) {
+        const res = await get(`/v1/browse/covers?side=${side}`);
+        expect(res.statusCode).toBe(200);
+        expect(res.headers["cache-control"]).toContain("s-maxage=300");
+        const { covers } = res.json() as { covers: Record<string, string[]> };
+        expect(Object.keys(covers).length).toBeGreaterThan(5);
+        for (const urls of Object.values(covers)) expect(urls.length).toBeLessThanOrEqual(6);
+      }
+      expect((await get("/v1/browse/covers?side=kids")).statusCode).toBe(400);
+    });
+
     it("applies the filters", async () => {
       const base = `/v1/listings?q=${word}`;
       expect(ids(await get(`${base}&priceMaxMinor=20000`))).toEqual([dress.id]);

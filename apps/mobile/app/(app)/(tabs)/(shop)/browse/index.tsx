@@ -72,7 +72,7 @@ export default function Browse() {
   const rest = useMemo(() => restFor(gender), [gender]);
   // The main ten first, then the rest, in one list so covers never repeat.
   const all = useMemo(() => [...tiles, ...rest], [tiles, rest]);
-  const covers = useTileCovers(all, true);
+  const covers = useTileCovers(gender, all, true);
 
   const choose = useCallback((next: BrowseGender) => {
     setGender(next);

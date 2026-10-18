@@ -180,8 +180,12 @@ export async function buildReferenceData(db: Db): Promise<ReferenceData> {
   return { version, ...data };
 }
 
-/** The reference data kept in memory for a short while. It changes by reseeding, not while people use the app. */
-export function createReferenceCache(db: Db, ttlMs = 60_000) {
+/**
+ * The reference data kept in memory for ten minutes. It changes by reseeding, not while people use the app. Every load
+ * reads about 300 KB from the database, so a short time here multiplied by many server copies used up the hosted
+ * database's monthly transfer allowance.
+ */
+export function createReferenceCache(db: Db, ttlMs = 10 * 60_000) {
   let cached: { at: number; value: ReferenceData } | null = null;
   let pending: Promise<ReferenceData> | null = null;
   return {
