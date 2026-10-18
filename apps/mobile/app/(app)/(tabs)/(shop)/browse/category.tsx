@@ -40,8 +40,8 @@ export default function BrowseCategory() {
     router.push({ pathname: "/browse/results", params: { categoryId: row.id, title: name(row.name) } });
   };
   const iconFor = (row: CategoryNode) => {
-    if (row.icon) return categoryIcon(row.icon);
-    return categoryIcon(categoryTrail(all, row.id).findLast((p) => p.icon)?.icon);
+    if (row.icon) return categoryIcon(row.icon, row.slug);
+    return categoryIcon(categoryTrail(all, row.id).findLast((p) => p.icon)?.icon, row.slug);
   };
 
   return (

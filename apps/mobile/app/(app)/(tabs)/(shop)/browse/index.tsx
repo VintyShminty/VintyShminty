@@ -1,8 +1,9 @@
 import { useRouter, useScrollToTop } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CategoryRow } from "@/components/category-row";
 import { PhotoTile } from "@/components/photo-tile";
 import { SearchBar } from "@/components/search-bar";
 import { Chip } from "@/components/ui/chip";
@@ -10,6 +11,8 @@ import { Screen } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { useTileCovers } from "@/lib/browse-covers";
 import { type BrowseGender, restFor, type SideTile, tilesFor } from "@/lib/browse-tiles";
+import { categoryIcon } from "@/lib/category-icons";
+import { useLocalName, useReference } from "@/lib/reference";
 import { readPref, writePref } from "@/lib/secure-prefs";
 
 const GENDER_PREF = "browse.gender";
@@ -57,12 +60,14 @@ function TileGrid({
 /**
  * The Browse tab: the search bar, a Women and Men switch and every category of that side as photo tiles, the main ten
  * first, each showing the newest listing's cover (stock photo until it arrives). No More on a phone: the screen scrolls,
- * so everything is simply there (D-055). All categories under the grid opens the whole category tree as rows.
+ * so everything is simply there (D-055). Under the grid the whole category list follows as rows, on the same page (D-059).
  */
 export default function Browse() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const name = useLocalName();
+  const categories = useReference().data?.categories ?? [];
   // Tapping the Browse tab again scrolls back to the top.
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
@@ -103,15 +108,24 @@ export default function Browse() {
           ))}
         </View>
         <TileGrid tiles={all} covers={covers} onOpen={open} />
-        <Pressable
-          onPress={() => router.push("/browse/more")}
-          role="button"
-          className="h-12 items-center justify-center rounded-control active:bg-pressed"
-        >
-          <Text variant="button" weight={700} className="text-primary">
-            {t("browse.allCategories")}
-          </Text>
-        </Pressable>
+        {categories.length > 0 ? (
+          <View className="-mx-lg pt-lg">
+            <Text variant="sectionLabel" className="px-lg pb-sm" accessibilityRole="header">
+              {t("browse.allCategories")}
+            </Text>
+            {categories.map((category) => (
+              <CategoryRow
+                key={category.id}
+                kind="branch"
+                label={name(category.name)}
+                icon={categoryIcon(category.icon, category.slug)}
+                onPress={() =>
+                  router.push({ pathname: "/browse/category", params: { parent: category.id, depth: "1" } })
+                }
+              />
+            ))}
+          </View>
+        ) : null}
       </ScrollView>
     </Screen>
   );

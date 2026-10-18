@@ -134,9 +134,9 @@ export default function CategoryPanel() {
 
   // The icon of a row: its own, or the nearest one above it.
   const iconFor = (row: CategoryNode) => {
-    if (row.icon) return categoryIcon(row.icon);
+    if (row.icon) return categoryIcon(row.icon, row.slug);
     const trail = categoryTrail(allCategories, row.id);
-    return categoryIcon(trail.findLast((p) => p.icon)?.icon);
+    return categoryIcon(trail.findLast((p) => p.icon)?.icon, row.slug);
   };
 
   const closeButton = (
@@ -196,7 +196,7 @@ export default function CategoryPanel() {
               kind="leaf"
               label={name(item.node.name)}
               detail={item.path}
-              icon={categoryIcon(item.icon)}
+              icon={categoryIcon(item.icon, item.node.slug)}
               selected={item.node.id === selectedId}
               onPress={() => choose(item.node)}
             />

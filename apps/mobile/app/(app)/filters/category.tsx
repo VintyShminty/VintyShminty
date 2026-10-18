@@ -47,8 +47,8 @@ export default function FilterCategory() {
     router.dismiss(depth);
   };
   const iconFor = (row: CategoryNode) => {
-    if (row.icon) return categoryIcon(row.icon);
-    return categoryIcon(categoryTrail(all, row.id).findLast((p) => p.icon)?.icon);
+    if (row.icon) return categoryIcon(row.icon, row.slug);
+    return categoryIcon(categoryTrail(all, row.id).findLast((p) => p.icon)?.icon, row.slug);
   };
 
   const closeButton = (
