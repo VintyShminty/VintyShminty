@@ -8,15 +8,12 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { AppState, LogBox, View } from "react-native";
+import { LogBox, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AppLock } from "@/components/app-lock";
 import { authClient } from "@/lib/auth-client";
-import { useBiometricSupport } from "@/lib/biometrics";
 import { useAppFonts } from "@/lib/fonts";
-import { useIsLocked, useLockStore } from "@/lib/lock-store";
-import { queryClient, wipeLocalData } from "@/lib/query-client";
+import { queryClient } from "@/lib/query-client";
 import { ensureNativeLtr, layoutDirection } from "@/lib/rtl";
 import { Warmup } from "@/lib/warmup";
 import { colors } from "@/theme";
@@ -30,10 +27,7 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useAppFonts();
   const { i18n } = useTranslation();
   const { data: session, isPending } = authClient.useSession();
-  const userId = session?.user.id;
   const signedIn = Boolean(session);
-  const locked = useIsLocked(userId);
-  const support = useBiometricSupport();
 
   // The phone's own direction stays left to right. The app sets the direction below (D-018).
   useEffect(() => {
@@ -52,21 +46,7 @@ export default function RootLayout() {
     if (ready) void SplashScreen.hideAsync();
   }, [ready]);
 
-  // Coming back after a while asks for Face ID again.
-  useEffect(() => {
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state === "background") useLockStore.getState().noteBackground();
-      else if (state === "active") useLockStore.getState().noteForeground(userId);
-    });
-    return () => sub.remove();
-  }, [userId]);
-
   if (!ready) return null;
-
-  const usePassword = async () => {
-    await authClient.signOut();
-    await wipeLocalData();
-  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1, direction }}>
@@ -92,10 +72,6 @@ export default function RootLayout() {
             </View>
             <PortalHost />
           </BottomSheetModalProvider>
-          {/* After the sheet host and PortalHost, so open sheets and popovers sit under the lock, not above it. */}
-          {signedIn && locked ? (
-            <AppLock kind={support?.kind ?? "generic"} onUsePassword={usePassword} />
-          ) : null}
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

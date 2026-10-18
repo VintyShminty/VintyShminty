@@ -1,7 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import { uuid } from "expo-modules-core";
 import { authClient } from "@/lib/auth-client";
-import { useLockStore } from "@/lib/lock-store";
 import { markOnboardingPending } from "@/lib/onboarding";
 import { socialErrorKey } from "@/lib/social-errors";
 
@@ -17,13 +16,12 @@ const NEW_ACCOUNT_MS = 2 * 60 * 1000;
 
 type SignedInUser = { id?: string; createdAt?: string | number | Date } | null | undefined;
 
-/** Unlocks the app and starts the sign up questions for a brand new account. */
+/** Starts the sign up questions for a brand new account. */
 export function finishSocialSignIn(user: SignedInUser) {
   if (user?.id && user.createdAt) {
     const age = Date.now() - new Date(user.createdAt).getTime();
     if (age >= 0 && age < NEW_ACCOUNT_MS) markOnboardingPending(user.id);
   }
-  useLockStore.getState().unlock();
 }
 
 /** Apple's sheet gives an ID token, the server checks it and signs the person in. Name and email only come the first time. */

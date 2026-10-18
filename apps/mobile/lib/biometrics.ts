@@ -46,7 +46,7 @@ export type BiometricResult = { success: boolean; error?: string };
  * has none). In development inside Expo Go we ask with a plain dialog instead, so the whole flow can still be tried.
  * A development build or the App Store build uses the real thing.
  */
-const isExpoGoOnIos =
+export const isExpoGoOnIos =
   __DEV__ && Platform.OS === "ios" && Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 function simulatedPrompt(promptMessage: string): Promise<BiometricResult> {

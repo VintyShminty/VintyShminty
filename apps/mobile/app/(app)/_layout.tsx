@@ -6,9 +6,9 @@ import { useAppStore } from "@/lib/app-store";
 import { authClient } from "@/lib/auth-client";
 import { useBiometricSupport } from "@/lib/biometrics";
 import { events } from "@/lib/events";
-import { isFaceIdEnabled, useIsLocked, wasFaceIdOffered } from "@/lib/lock-store";
 import { useOnboardingPending } from "@/lib/onboarding";
 import { meQuery, settingsQuery } from "@/lib/queries";
+import { pendingLoginFor, wasOffered } from "@/lib/saved-login";
 import { readPref, writePref } from "@/lib/secure-prefs";
 import { beforeSignOut } from "@/lib/sign-out-hooks";
 import { useMessagingSession } from "@/lib/use-messaging-session";
@@ -27,7 +27,6 @@ export default function AppLayout() {
   const { data: settings } = useQuery({ ...settingsQuery(), enabled: Boolean(userId) });
   const onboarding = useOnboardingPending(userId);
   const onboardingShown = useRef(false);
-  const locked = useIsLocked(userId);
 
   // The small "card seen" and "time on item" actions are collected only for a signed in person whose personalised
   // feed is on. They go out when the app goes to the background and just before sign out.
@@ -48,13 +47,11 @@ export default function AppLayout() {
   }, []);
 
   // Right after a new account is made: the two short questions, then Home.
-  // The lock closes it (below), so it opens again once Face ID lets the person back in.
   useEffect(() => {
-    if (locked) onboardingShown.current = false;
-    if (!onboarding || locked || onboardingShown.current) return;
+    if (!onboarding || onboardingShown.current) return;
     onboardingShown.current = true;
     router.push("/onboarding");
-  }, [onboarding, locked, router]);
+  }, [onboarding, router]);
 
   // Your language on the server wins right after you log in, so Hebrew stays Hebrew on a new phone.
   useEffect(() => {
@@ -66,10 +63,10 @@ export default function AppLayout() {
     if (me.locale !== language) setLanguage(me.locale);
   }, [me, sessionId]);
 
-  // The first time after logging in, offer Face ID (once per person per phone).
+  // Right after a password login, offer to log in with Face ID next time (once per person per phone).
   useEffect(() => {
     if (offered.current || onboarding || !userId || !me || !support?.available) return;
-    if (isFaceIdEnabled(userId) || wasFaceIdOffered(userId)) return;
+    if (!pendingLoginFor(userId) || wasOffered(userId)) return;
     offered.current = true;
     router.push("/face-id-offer");
   }, [userId, me, support, router, onboarding]);
@@ -77,16 +74,9 @@ export default function AppLayout() {
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
       <Stack.Screen name="(tabs)" />
-      {/* Native modals open above the whole app, so above the Face ID lock too. While the app is locked they are
-          closed and cannot be opened, not even from a link like vinty://sell-form. */}
-      <Stack.Protected guard={!locked}>
-        <Stack.Screen
-          name="onboarding"
-          options={{ presentation: "fullScreenModal", gestureEnabled: false }}
-        />
-        <Stack.Screen name="face-id-offer" options={{ presentation: "modal" }} />
-        <Stack.Screen name="sell-form" options={{ presentation: "fullScreenModal" }} />
-      </Stack.Protected>
+      <Stack.Screen name="onboarding" options={{ presentation: "fullScreenModal", gestureEnabled: false }} />
+      <Stack.Screen name="face-id-offer" options={{ presentation: "modal" }} />
+      <Stack.Screen name="sell-form" options={{ presentation: "fullScreenModal" }} />
       <Stack.Screen name="filters" />
       <Stack.Screen name="conversation/[id]" />
       <Stack.Screen name="checkout/index" />
