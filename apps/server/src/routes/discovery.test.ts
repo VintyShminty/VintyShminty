@@ -139,6 +139,80 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       }
     });
 
+    describe("joined words and brands", () => {
+      const own = `qjv${stamp}`;
+      let frank: Person;
+      const find = async (q: string) => ids(await get(`/v1/listings?q=${encodeURIComponent(q)}`));
+      let hm: { id: string };
+      let tommy: { id: string };
+      let levis: { id: string };
+      let hebrew: { id: string };
+      let plain: { id: string };
+      let mangoName: string;
+
+      const brandNamed = async (q: string) => {
+        const item = (await get(`/v1/brands?q=${encodeURIComponent(q)}`)).json().items[0] as {
+          id: string;
+          name: string;
+        };
+        expect(item.name.toLowerCase(), q).toBe(q.toLowerCase());
+        return item;
+      };
+
+      beforeAll(async () => {
+        frank = (await signUpTestUser(ctx, "frank", createdIds)) as Person;
+        const [hmBrand, tommyBrand, mango] = await Promise.all([
+          brandNamed("H&M"),
+          brandNamed("Tommy Hilfiger"),
+          brandNamed("Mango"),
+        ]);
+        mangoName = mango.name;
+        hm = await publish(frank, { title: `${own} H&M top`, brandId: hmBrand.id });
+        tommy = await publish(frank, { title: `${own} Tommy Hilfiger shirt`, brandId: tommyBrand.id });
+        levis = await publish(frank, { title: `${own} Levi's jeans` });
+        hebrew = await publish(frank, { title: `${own} ג'ינס כחול` });
+        plain = await publish(frank, { title: `${own} plain thing`, brandId: mango.id });
+      });
+
+      it("finds H&M however it is typed, and nothing else", async () => {
+        for (const q of ["H&M", "HM", "h & m"]) {
+          expect(await find(`${own} ${q}`), q).toEqual([hm.id]);
+        }
+      });
+
+      it("finds Tommy without finding H&M", async () => {
+        expect(await find(`${own} Tommy`)).toEqual([tommy.id]);
+      });
+
+      it("finds Levi's however it is typed", async () => {
+        for (const q of ["levis", "Levi's", "levi"]) {
+          expect(await find(`${own} ${q}`), q).toEqual([levis.id]);
+        }
+      });
+
+      it("finds a Hebrew word with or without its geresh", async () => {
+        for (const q of ["גינס", "ג'ינס"]) {
+          expect(await find(`${own} ${q}`), q).toEqual([hebrew.id]);
+        }
+      });
+
+      it("never matches a single letter against a piece of a word or a brand", async () => {
+        expect(await find(`${own} m`)).toEqual([]);
+      });
+
+      it("does not turn a brand plus extra words into the brand alone", async () => {
+        expect(await find(`${mangoName} ${own} xyzzy`)).toEqual([]);
+        // Even a short extra word, which would fit inside the room a typo gets.
+        expect(await find(`${mangoName} qz`)).toEqual([]);
+        expect(await find(`qz ${mangoName}`)).toEqual([]);
+      });
+
+      it("still forgives a typo in a brand", async () => {
+        const typo = `${mangoName.slice(0, 3)}${mangoName[2]}${mangoName.slice(3)}`;
+        expect(await find(typo)).toContain(plain.id);
+      });
+    });
+
     it("sorts by price and newest, and pages with a cursor", async () => {
       const asc = await get(`/v1/listings?q=${word}&sort=price_asc`);
       expect(ids(asc)).toEqual([dress.id, coat.id]);

@@ -63,6 +63,7 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-054 | Website Browse panel: More shows four pictures and a count and opens inside the panel | Merged, 2026-10-17 (#119) |
 | D-055 | App Browse tab: Women and Men switch, listing covers, every category in one grid with no More | Merged, 2026-10-17 (#122) |
 | D-056 | Home gets a Price chip with quick picks and From and To boxes instead of Under ₪50, app and website | Merged, 2026-10-17 (#123) |
+| D-057 | Search words stay whole (H&M, Levi's, ג'ינס), short words match whole words only, word-start matches rank first | Proposed, 2026-10-18 |
 | O-003 | Hebrew font pairing | Closed by D-011 |
 
 General rule: where a design question is not decided, follow the product spec (the Vinted UX deconstruction) for how things work only, never its names, wording, icons or looks. Source: `docs/design.md`, D-019, `docs/originality.md`.
