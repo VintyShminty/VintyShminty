@@ -815,6 +815,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `apps/server/src/lib/discovery.ts` (`searchTerms`, `termQuery`, `textConditions`, `sortSpec`), `apps/server/src/lib/photo-assist.ts` (`aboutAsLong`), Favourites search in `routes/engagement.ts` uses the same matching. Tests in `lib/discovery.test.ts` and `routes/discovery.test.ts`.
 - **References:** D-037
 
+### D-058 : The first screen asks for the language
+
+- **Date:** 2026-10-18
+- **Area:** Welcome, first time on a phone
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The first time the app opens on a phone (no language picked yet), the welcome photo shows a language step before anything else: "Choose your language" and "בחרו את השפה שלכם" one under the other, centred, then two big buttons, English and עברית, each written in its own language and font. Tapping one switches the whole app (and its direction) and the normal welcome screen appears. It is shown once per phone. The language can still be changed later in Settings.
+- **Rationale:** Eden wants people to start in the language they are comfortable with. The phone's own language guessed it before, which picks English for many Hebrew speakers whose phone is in English. Choosing first also gives a new account the right language for its emails and the welcome questions.
+- **Implementation:** `apps/mobile/app/(auth)/welcome.tsx` (`LanguageStep`, shown while the saved language is empty), wording `welcome.chooseLanguage` in both languages.
+- **References:** D-018, D-021, D-026
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13
