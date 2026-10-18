@@ -15,7 +15,6 @@ import { ScreenScroll } from "@/components/ui/screen";
 import { Text } from "@/components/ui/text";
 import { authClient } from "@/lib/auth-client";
 import { describeAuthError } from "@/lib/auth-errors";
-import { useLockStore } from "@/lib/lock-store";
 import { markOnboardingPending } from "@/lib/onboarding";
 
 export default function SignUp() {
@@ -48,8 +47,7 @@ export default function SignUp() {
     }
     // A new account gets the two short questions once, before Home (lib/onboarding.ts).
     if (data?.user.id) markOnboardingPending(data.user.id);
-    // Logged in. The app switches to the tabs by itself.
-    useLockStore.getState().unlock();
+    // Logged in. The app switches to the tabs by itself. No Face ID offer for a brand new account.
   });
 
   return (

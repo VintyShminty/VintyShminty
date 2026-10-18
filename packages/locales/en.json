@@ -242,20 +242,19 @@
     "generic": "biometrics"
   },
   "lock": {
-    "title": "Yadii is locked",
-    "subtitle": "Use {{method}} to open the app.",
-    "failed": "{{method}} did not work. Try again or log in with your password.",
-    "unlock": "Unlock with {{method}}",
-    "usePassword": "Log in with password",
-    "prompt": "Unlock Yadii",
+    "prompt": "Log in to Yadii",
     "confirmEnable": "Turn on {{method}} for Yadii"
   },
   "faceId": {
-    "offerTitle": "Use {{method}} to unlock Yadii",
-    "offerBody": "Skip typing your password. Yadii asks for {{method}} when you open it.",
+    "offerTitle": "Log in with {{method}} next time",
+    "offerBody": "You stay logged in on this phone. If you ever need to log in again, {{method}} does it for you instead of your password.",
     "turnOn": "Turn on {{method}}",
     "notNow": "Not now",
-    "turnOnFailed": "We could not turn on {{method}}. You can try again in Settings, Security."
+    "turnOnFailed": "We could not turn on {{method}}. You can try again in Settings, Security.",
+    "logIn": "Log in with {{method}}",
+    "loginStale": "Your password has changed. Log in with the new one and {{method}} will remember it.",
+    "passwordTitle": "Enter your password",
+    "passwordBody": "{{method}} keeps it safe on this phone, so you never have to type it again."
   },
   "profile": {
     "reviewCount_one": "{{count}} review",
@@ -365,8 +364,8 @@
   },
   "settings": {
     "title": "Settings",
-    "promoTitle": "Safer, and quicker to open",
-    "promoBody": "Use {{method}} to unlock Yadii on this phone.",
+    "promoTitle": "Never type your password again",
+    "promoBody": "Log in with {{method}} if you are ever logged out on this phone.",
     "promoButton": "Set up {{method}}",
     "profileDetails": "Your profile",
     "account": "Your account",
@@ -410,8 +409,8 @@
   },
   "security": {
     "title": "Sign in and safety",
-    "faceId": "Unlock with {{method}}",
-    "faceIdHint": "Yadii asks for {{method}} when you open it or come back after a while.",
+    "faceId": "Log in with {{method}}",
+    "faceIdHint": "If you need to log in again, use {{method}} instead of typing your password.",
     "sessions": "Where you are logged in",
     "unknownDevice": "Unknown device",
     "activeNow": "Active now",

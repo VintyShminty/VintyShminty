@@ -15,6 +15,7 @@ import { ApiClientError, api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { describeApiError } from "@/lib/auth-errors";
 import { wipeLocalData } from "@/lib/query-client";
+import { forgetLogin, hasSavedLoginFor } from "@/lib/saved-login";
 
 const formSchema = z.object({
   password: z.string().min(1, "validation.password.required").max(PASSWORD_MAX),
@@ -25,6 +26,7 @@ type Values = z.infer<typeof formSchema>;
 export default function DeleteAccount() {
   const { t } = useTranslation();
   const [banner, setBanner] = useState<string | null>(null);
+  const { data: session } = authClient.useSession();
   const { control, handleSubmit, setError, formState } = useForm<Values>({
     resolver: zodResolver(formSchema),
     mode: "onTouched",
@@ -43,6 +45,7 @@ export default function DeleteAccount() {
       return;
     }
     // The account is closed on the server. Clear this phone too, which sends the person to the welcome screen.
+    if (hasSavedLoginFor(session?.user.id)) forgetLogin();
     await authClient.signOut().catch(() => {});
     await wipeLocalData();
   });

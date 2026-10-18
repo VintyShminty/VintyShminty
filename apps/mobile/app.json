@@ -55,7 +55,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow Yadii to use Face ID to unlock the app."
+          "faceIDPermission": "Allow Yadii to use Face ID to log you in."
         }
       ],
       "expo-font",

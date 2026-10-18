@@ -14,12 +14,14 @@ import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { authClient } from "@/lib/auth-client";
 import { describeAuthError } from "@/lib/auth-errors";
+import { hasSavedLoginFor, storeLogin } from "@/lib/saved-login";
 
 export default function ChangePassword() {
   const { t } = useTranslation();
   const router = useRouter();
   const [banner, setBanner] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const { data: session } = authClient.useSession();
   const newRef = useRef<TextInput>(null);
   const confirmRef = useRef<TextInput>(null);
   const { control, handleSubmit, setError, formState } = useForm<ChangePasswordForm>({
@@ -43,6 +45,11 @@ export default function ChangePassword() {
       else if (problem.field === "password") setError("newPassword", { message: problem.key });
       else setBanner(t(problem.key));
       return;
+    }
+    // Face ID login keeps working with the new password.
+    const user = session?.user;
+    if (user && hasSavedLoginFor(user.id)) {
+      void storeLogin({ email: user.email, password: values.newPassword, userId: user.id }, t("lock.prompt"));
     }
     setDone(true);
   });

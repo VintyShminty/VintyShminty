@@ -36,7 +36,7 @@ export default function Settings() {
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const { data: me } = useQuery(meQuery());
-  const faceId = useFaceId(session?.user.id);
+  const faceId = useFaceId(session?.user);
   const [turningOn, setTurningOn] = useState(false);
   const method = t(`biometric.${faceId.kind}`);
 
@@ -58,7 +58,7 @@ export default function Settings() {
     <Screen>
       <TopBar title={t("settings.title")} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-2xl">
-        {faceId.available && !faceId.enabled ? (
+        {faceId.available && faceId.canEnableHere && !faceId.enabled ? (
           <View className="mx-lg mt-sm flex-row gap-md rounded-control bg-accent-tint p-lg">
             <Icon as={ScanFace} size={24} className="text-primary" />
             <View className="flex-1 gap-sm">

@@ -32,7 +32,7 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Freeze the data a test reads before starting.** A category list changed mid test and made one model look far worse. Source: log 2026-10-14.
 - **Check a PR is unmerged before sending it more work.** Three PRs got improvements after merge and needed new PRs (#36 to #38). Source: log 2026-10-14. Also in `docs/playbook/git-and-github.md`.
 - **Do the online database step before calling a schema PR ready.** Source: log 2026-10-14 (#42), memory `migrate-before-merge`. Also in `docs/playbook/git-and-github.md`.
-- **For motion bugs, record a frame by frame video.** Stills hid the real problem. Source: log 2026-10-14 (#38).
+- **For motion bugs, record a frame by frame video.** Stills hid the real problem. The bundle pill took three rounds, each fixed from the frame timings. Source: log 2026-10-14 (#38), log 2026-10-17 (morning, #109).
 - **Two sessions can pick the same decision number.** Check `docs/design.md` before taking the next id, and renumber on merge, keeping both sides. Source: log 2026-10-14 (D-030, D-026, D-024).
 - **Check the Mac's load before blaming the code.** Slow uploads and a frozen emulator were the Mac at load 400. Source: log 2026-10-15 (#88).
 - **When an AI guess looks biased, check what it was given.** The "Women jeans" guess was not about the seller, the AI only saw photos. The real fault was a list that hid Men. Source: log 2026-10-15 (#91).
@@ -43,4 +43,7 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Test AI on messy real writing.** Half of the 60 listings were slang, typos and mixed Hebrew and English, and the answer key was written first. Source: log 2026-10-14.
 - **Tests do not see layout or taps.** An agent's bundles build passed every test and still had overlapping buttons, cut off text, raw wording keys and a button that opened the wrong thing. Click through new screens at phone width and in Hebrew before calling them done. Source: log 2026-10-16 (bundles).
 - **A clickable mockup before building catches confusing states.** Eden spotted the bundle box "jumping" from 2 to 3 items in the mockup, before any code. Source: log 2026-10-16 (bundles).
+- **Stop only the servers you started, by their own process.** A helper stopped every local dev server by name, including one another session used. Source: log 2026-10-17 (night).
+- **Split parallel helpers by file, and wording keys count as files.** The website and app price helpers both added the same wording names with different placeholders, and git kept only one. Source: log 2026-10-17 (night).
+- **Look again at the Vinted gap after big design steps.** The look moved far away, but the words (tab names, Favourites) stayed Vinted's until a fresh comparison caught them. Words outlast looks. Source: log 2026-10-17 (Vinted renames), #124.
 - **Start a payments search from who gets paid.** PayMe looked best until it turned out to expect business sellers, and ours are private people. Source: log 2026-10-16 (late afternoon).

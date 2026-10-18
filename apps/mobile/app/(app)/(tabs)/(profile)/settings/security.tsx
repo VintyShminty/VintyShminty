@@ -30,12 +30,12 @@ function deviceName(userAgent: string | null | undefined, fallback: string) {
   return inside || fallback;
 }
 
-/** Settings, Security: Face ID switch and the devices that are logged in. */
+/** Settings, Security: the Log in with Face ID switch and the devices that are logged in. */
 export default function Security() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
-  const faceId = useFaceId(session?.user.id);
+  const faceId = useFaceId(session?.user);
   const [failed, setFailed] = useState(false);
   const method = t(`biometric.${faceId.kind}`);
 
@@ -67,7 +67,7 @@ export default function Security() {
     setFailed(false);
     if (!on) return faceId.disable();
     const ok = await faceId.enable();
-    if (!ok) setFailed(true);
+    if (ok === false) setFailed(true);
   };
 
   const currentToken = session?.session.token;
@@ -78,7 +78,7 @@ export default function Security() {
     <Screen>
       <TopBar title={t("security.title")} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-2xl">
-        {faceId.available ? (
+        {faceId.available && (faceId.canEnableHere || faceId.enabled) ? (
           <>
             <SwitchRow
               label={t("security.faceId", { method })}
