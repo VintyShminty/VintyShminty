@@ -1,6 +1,6 @@
 # Decisions index
 
-Last compiled: 2026-10-16 (evening). Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections), `docs/log/2026-10-16.md` (all six sections, through bundles).
+Last compiled: 2026-10-17 (night). Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections), `docs/log/2026-10-16.md` (all six sections, through bundles), `docs/log/2026-10-17.md` (morning and afternoon, plus the evening, night and Vinted renames sections from the open log PRs #125 and #126).
 
 An index only. The full text and reasoning live where the link points. When a decision is replaced, mark it "Superseded by" and keep the line.
 
@@ -56,6 +56,13 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-047 | Home top is the wordmark, a bell and a bookmark, then a full width search that works in place | Merged, 2026-10-15 (#93) |
 | D-048 | Home and search show your shopping groups (Women, Men, Kids) first, other groups a bit lower, never hidden | Merged, 2026-10-16 (#106) |
 | D-049 | Closet deal is now Bundle: item page box, + Bundle on cards, bundle bar, postage saving shown, sellers' steps on by default (Hebrew: באנדל) | Merged, 2026-10-16 (#107) |
+| D-050 | The bundle pill floats above the tab bar, appears after an add tap, leaves when the bundle is empty, and the bundle box moves smoothly | Merged, 2026-10-17 (#109). App only, the website bar is an open question |
+| D-051 | Books and magazines describe the same five condition levels in reading words | Merged, 2026-10-17 (#112) |
+| D-052 | Browse tiles show real listing photos (stock photo when empty), the website panel has a Women and Men switch | Merged, 2026-10-17 (#115) |
+| D-053 | Website top bar: bell quick view of the 5 latest, Women and Men pills on Home, no greeting, Browse is קטגוריות in Hebrew | Merged, 2026-10-17 (#116) |
+| D-054 | Website Browse panel: More shows four pictures and a count and opens inside the panel | Merged, 2026-10-17 (#119) |
+| D-055 | App Browse tab: Women and Men switch, listing covers, every category in one grid with no More | Merged, 2026-10-17 (#122) |
+| D-056 | Home gets a Price chip with quick picks and From and To boxes instead of Under ₪50, app and website | Merged, 2026-10-17 (#123) |
 | O-003 | Hebrew font pairing | Closed by D-011 |
 
 General rule: where a design question is not decided, follow the product spec (the Vinted UX deconstruction) for how things work only, never its names, wording, icons or looks. Source: `docs/design.md`, D-019, `docs/originality.md`.
@@ -92,7 +99,7 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Browse tile photos ship inside the app, not online | 2026-10-14 | Decided (Eden) |
 | Speed: remember the last feed, card photo copies with colour blur, no splash wait for logged in users | 2026-10-14 | Decided (Eden), done (#41, #42) |
 | Fonts stay as they are after comparing four alternatives | 2026-10-14 | Decided (Eden and partner) |
-| Keep the word "Favourites", no "heart" wording anywhere | 2026-10-14 | Decided (Eden), #52 |
+| No "heart" wording anywhere | 2026-10-14 | Decided (Eden), #52. The word Favourites itself became Saved on 2026-10-17 (see below) |
 | Category tree overlaps (running shoes, backpacks, designer bags sit in two places) | 2026-10-14 | Open, first check whether #45 already fixed them, `docs/unfinished-work.md` |
 | Should sellers be told when Eden hides or removes their listing? | 2026-10-14 | Open, default not yet |
 | Filter buttons on other website pages get the Home pill look? Sell, Sign up and Log in stay soft cornered? | 2026-10-15 | Open, defaults yes and no (log 2026-10-15) |
@@ -114,6 +121,19 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Admin listing edits use admin-only routes. Delete keeps a listing that was in an order. Removed listings vanish from the admin list | 2026-10-16 | Decided (Eden), merged (#98, #103) |
 | Launch under Eden's personal Apple account. A company account needs a Ltd and can take the app over later with Apple's app transfer | 2026-10-16 | Decided (Eden), log 2026-10-16 |
 | Payments: no provider chosen. Ask Rapyd and PayMe the four questions in the log first (sellers are private people) | 2026-10-16 | Open, log 2026-10-16 |
+| A brand a seller types joins the shared brand list when the listing goes live, capitals fixed word by word. Drafts add nothing | 2026-10-17 | Decided (Eden), merged (#111), `docs/blueprint/data-model.md` brands |
+| One size for all adult clothing, not kids | 2026-10-17 | Decided (Eden), merged (#112) |
+| About 100 new categories, nothing old renamed or removed. Denim shorts sit under Jeans | 2026-10-17 | Merged (#113) |
+| Brand names on cards and item pages open that brand's search | 2026-10-17 | Merged (#114) |
+| Home has no For you chip, the plain Home is For you. Tapping a chosen chip clears it | 2026-10-17 | Merged (#118, #121) |
+| The price chip is called "Price" for now. Under ₪50 includes ₪50 on both website and app. Older app versions keep their Under ₪50 chip | 2026-10-17 | Decided (Eden), D-056 |
+| The bell quick view stays website only, on a phone the bell already opens the full list | 2026-10-17 | Decided, log 2026-10-17 night |
+| English tabs Browse and Inbox become Explore and Chats (they were Vinted's names). Hebrew tabs stay | 2026-10-17 | Decided (Eden), merged (#124), `docs/originality.md` row 14 |
+| Favourites becomes Saved (שמורים) everywhere people read it, app and website. Addresses and code names stay | 2026-10-17 | Decided (Eden), merged (#124), `docs/originality.md` row 17 |
+| The price with a protection line under it stays for now. The final name for Coverage comes later | 2026-10-17 | Open (Eden), `docs/originality.md` rows 2 and 8 |
+| Should the website bundle bar become the pill too? | 2026-10-17 | Open, default yes as a small separate change |
+| Keep the brand line on item cards (slightly taller cards)? | 2026-10-17 | Open, default keep |
+| Women and Men switch on the website's full Browse page and phone menu too? | 2026-10-17 | Open, default add it next |
 
 ## Process (`docs/playbook/`)
 
@@ -133,9 +153,15 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | TestFlight builds are made with local Xcode, not EAS. Build 7 went up on 2026-10-16, next is 8 | 2026-10-14 | Active (Eden), memory, `CLAUDE.md` |
 | Use Sonnet helpers for work that does not need Opus | 2026-10-14 | Active (Eden), memory |
 | Run the online database step before calling a schema PR ready | 2026-10-14 | Active, memory `migrate-before-merge` |
+| Every note Eden gives applies to both the website and the app unless it cannot | 2026-10-17 | Active (Eden), memory `changes-apply-to-app-and-web` |
+| Over the air updates go out from a clean copy of the latest main, after checking the runtime version matches the installed build. When the permission system blocks the agent, Eden runs `pnpm update:live`. Live database changes the same way | 2026-10-17 | Active, memory `ota-update-eden-runs`, log 2026-10-17 |
 
 ## Superseded
 
+- "Keep the word Favourites" (2026-10-14, #52): superseded by Saved on 2026-10-17 (#124).
+- "Only Eden adds brands" (Milestone 2): superseded on 2026-10-17 by typed brands joining the list (#111).
+- The Under ₪50 mood chip and the For you chip on Home: superseded on 2026-10-17 by the Price chip (D-056) and the plain Home being For you (#118).
+- "The agent cannot send over the air updates, Eden runs them" (morning of 2026-10-17): the block is not consistent, the agent sent several later the same day. Try first, hand Eden the command if refused.
 - "Closet deal" as the user-facing name for a bundle (Milestone 5): superseded by "Bundle" (Hebrew באנדל) in D-049 on 2026-10-16.
 
 - FilterSheet as a bottom sheet (D-004 list and components): superseded by D-014 on 2026-10-12.

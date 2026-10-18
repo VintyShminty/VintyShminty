@@ -47,13 +47,17 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Place suggestions.** Google's city and address guesses while you type a profile city or delivery address, fetched through our server.
 - **Away mode.** A Settings switch that hides your items, with an optional return date.
 - **Invite code.** A personal code a friend types when joining. After their first order above the minimum both get a 50 shekel voucher.
-- **Mood chips.** The row of filters on Home (For you, New today, Under 50 shekels, Your sizes, Near you).
+- **Mood chips.** The row of filters on Home: Women and Men first, a divider, then New today, Price, Your sizes, Near you. The plain Home is For you. Until 2026-10-17 there were For you and Under 50 shekels chips (#118, D-056).
+- **Price chip.** The Home chip that opens a small panel (a sheet on the phone) with quick price picks and From and To boxes, then shows the range chosen (D-056).
 - **Looks like.** The first group in a picker, showing the AI's best guesses. It never fills anything in by itself.
 - **Claude Haiku.** The small, cheap Anthropic AI model behind every AI feature.
 - **Review list.** One page in the admin pages with user reports and the AI's listing flags, urgent first. Eden decides.
 - **Card copy / blur.** A small lighter copy of each uploaded photo and a soft colour blur shown while it loads.
 - **Bundle (באנדל).** Several items from one seller bought together, with the seller's discount steps and one postage fee. Was "Closet deal" (D-049).
+- **Bundle pill.** The rounded espresso bar that floats above the tab bar once you add something to a bundle (D-050).
 - **Bundle steps.** A seller's discount ladder, for example 2 items 5% off, 3 items 10%, 5 items 15%. Set in Settings, Bundles.
-- **Over the air update.** New screens, wording or fixes sent to installed apps without a TestFlight build (`pnpm update:live`). Native changes still need a build.
+- **Over the air update (silent app update).** New screens, wording or fixes sent to installed apps without a TestFlight build (`pnpm update:live`). Native changes still need a build.
+- **Runtime version (native fingerprint).** A code that says which native parts an app build has. An over the air update only reaches builds with the same code (build 7 is `7f56999f`).
+- **Explore, Chats, Saved.** The English names of the Browse tab, the Inbox tab and the Favourites list since 2026-10-17, so they no longer match Vinted's (#124). Inside the code they are still browse, inbox and favourites.
 - **Shopping groups.** Women, Men and Kids, the answer to "What do you shop for?". Home and search show your groups first (D-048).
 - **Corner.** A small part of another shopping group you showed interest in, for example women's cycling clothes. Only that corner moves up, not the whole group.
