@@ -74,7 +74,7 @@ export default function BrowseMore() {
                 key={category.id}
                 kind="branch"
                 label={name(category.name)}
-                icon={categoryIcon(category.icon)}
+                icon={categoryIcon(category.icon, category.slug)}
                 onPress={() =>
                   router.push({ pathname: "/browse/category", params: { parent: category.id, depth: "1" } })
                 }
