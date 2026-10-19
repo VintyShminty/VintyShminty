@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { Env } from "./env.js";
 import { AiMeter } from "./lib/ai-cost.js";
+import { type CaptchaChecker, createCaptchaChecker } from "./lib/captcha.js";
 import {
   type ChatCheckReader,
   createChatChecker,
@@ -37,6 +38,7 @@ import { createSearchReader, meteredSearchReader, type SearchReader } from "./li
 import { createStorage, type Storage } from "./lib/storage.js";
 import { createTextReader, meteredTextReader, type TextReader } from "./lib/text-reader.js";
 import authPlugin from "./plugins/auth.js";
+import captchaPlugin from "./plugins/captcha.js";
 import dbPlugin, { type DatabaseHandle } from "./plugins/db.js";
 import errorsPlugin from "./plugins/errors.js";
 import jobsPlugin from "./plugins/jobs.js";
@@ -96,6 +98,8 @@ export type BuildAppOptions = {
   /** Suggested replies in a chat (D-041). Tests pass a fake. */
   /** Defaults to the log transport (see PUSH_TRANSPORT). Tests pass a memory pusher. */
   pusher?: Pusher;
+  /** The bot check. Defaults to Cloudflare Turnstile from the environment (off without a secret). Tests pass a fake. */
+  captchaChecker?: CaptchaChecker;
 };
 
 export async function buildApp({
@@ -112,6 +116,7 @@ export async function buildApp({
   reportSortReader,
   orderSummaryReader,
   chatCheckReader,
+  captchaChecker,
 }: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
@@ -126,6 +131,7 @@ export async function buildApp({
   await app.register(healthRoutes);
   await app.register(authProvidersRoutes, { env });
   await app.register(authErrorRoutes, { env });
+  await app.register(captchaPlugin, { checker: captchaChecker ?? createCaptchaChecker(env) });
 
   // Accounts need the query builder. The health tests build the app with a database that only answers ping.
   if (database.db) {

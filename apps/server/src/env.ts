@@ -114,6 +114,15 @@ const envSchema = z
     ANTHROPIC_API_KEY: optionalText,
     PHOTO_READER_MODEL: optionalText,
 
+    // Bot check on sign up, log in, code requests and Help questions (Cloudflare Turnstile). Empty secret means off.
+    TURNSTILE_SECRET_KEY: optionalText,
+    // True refuses those calls when they carry no answer at all. Keep it false until every app version in use sends
+    // one, otherwise older apps cannot sign up or log in. A wrong answer is always refused.
+    CAPTCHA_REQUIRED: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
+
     // Google Places (API New) for city and address suggestions. Empty key means no suggestions, typing works as before.
     GOOGLE_MAPS_API_KEY: optionalText,
 

@@ -6,6 +6,7 @@ export * from "./bidi.js";
 export * from "./brand-match.js";
 export * from "./browse-tiles.js";
 export * from "./bumps.js";
+export * from "./captcha.js";
 export * from "./chat-format.js";
 export * from "./common.js";
 export * from "./discovery.js";

@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
-import { EMPTY_HELP_ANSWER, type HelpAnswer, helpAnswerSchema } from "@vinty/shared";
+import { CAPTCHA_HEADER, EMPTY_HELP_ANSWER, type HelpAnswer, helpAnswerSchema } from "@vinty/shared";
 import { api } from "@/lib/api";
+import { getCaptchaToken } from "@/lib/captcha";
 
 /**
  * One answer per question and language, kept while the person reads articles and comes back. Never refetched by
@@ -9,12 +10,15 @@ import { api } from "@/lib/api";
 export const helpAskQuery = (question: string, language: "en" | "he") =>
   queryOptions({
     queryKey: ["help-ask", language, question],
-    queryFn: () =>
-      api<HelpAnswer>("/v1/help/ask", {
+    queryFn: async () => {
+      const token = await getCaptchaToken();
+      return api<HelpAnswer>("/v1/help/ask", {
         method: "POST",
         body: { question, language },
         schema: helpAnswerSchema,
-      }).catch((): HelpAnswer => EMPTY_HELP_ANSWER),
+        ...(token ? { headers: { [CAPTCHA_HEADER]: token } } : {}),
+      }).catch((): HelpAnswer => EMPTY_HELP_ANSWER);
+    },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: 30 * 60 * 1000,
     retry: false,

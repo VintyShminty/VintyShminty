@@ -20,6 +20,7 @@ const CODE_TO_KEY: Record<string, string> = {
   TOO_MANY_ATTEMPTS: "errors.tooManyAttempts",
   EMAIL_NOT_VERIFIED: "errors.emailNotVerified",
   BANNED_USER: "errors.banned",
+  CAPTCHA_FAILED: "errors.botCheck",
 };
 
 /** Where a server problem belongs on a form: under one field, or in the banner at the top. */
