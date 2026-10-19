@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  CAPTCHA_HEADER,
   EMPTY_HELP_ANSWER,
   HELP_QUESTION_MAX,
   helpAnswerSchema,
@@ -11,6 +12,7 @@ import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { clientApi } from "@/lib/api-client";
+import { getCaptchaToken } from "@/lib/captcha";
 
 export type HelpAskLabels = {
   title: string;
@@ -44,13 +46,16 @@ export function HelpAsk({
     retry: false,
   });
   const ask = useMutation({
-    mutationFn: (question: string) =>
-      clientApi("/v1/help/ask", {
+    mutationFn: async (question: string) => {
+      const token = await getCaptchaToken();
+      return clientApi("/v1/help/ask", {
         method: "POST",
         body: { question, language: lang },
         lang,
         schema: helpAnswerSchema,
-      }),
+        ...(token ? { headers: { [CAPTCHA_HEADER]: token } } : {}),
+      });
+    },
   });
 
   if (!status.data?.helpAssist) return null;

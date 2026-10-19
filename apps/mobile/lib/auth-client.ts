@@ -1,10 +1,12 @@
 import { expoClient } from "@better-auth/expo/client";
+import { CAPTCHA_HEADER, needsCaptcha } from "@vinty/shared";
 import { emailOTPClient, usernameClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as SecureStore from "expo-secure-store";
 import i18n from "@/i18n";
+import { getCaptchaToken } from "@/lib/captcha";
 import { API_URL } from "@/lib/config";
 import { runBeforeSignOut } from "@/lib/sign-out-hooks";
 
@@ -26,6 +28,11 @@ export const authClient = createAuthClient({
       const headers = new Headers(init?.headers);
       headers.set("Accept-Language", i18n.language);
       headers.set("User-Agent", userAgent);
+      // Sign up, log in and code requests also carry the bot check answer (lib/captcha.ts).
+      if ((init?.method ?? "GET").toUpperCase() === "POST" && needsCaptcha(String(input))) {
+        const token = await getCaptchaToken();
+        if (token) headers.set(CAPTCHA_HEADER, token);
+      }
       return fetch(input, { ...init, headers });
     },
   },

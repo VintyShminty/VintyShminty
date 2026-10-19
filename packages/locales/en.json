@@ -231,11 +231,15 @@
     "codeExpired": "That code has expired. Ask for a new one.",
     "tooManyAttempts": "Too many tries. Ask for a new code.",
     "tooManyRequests": "Too many tries. Wait a minute and try again.",
+    "botCheck": "We could not check that you are a person. Try again in a moment.",
     "emailNotVerified": "Confirm your email first",
     "banned": "This account is not available",
     "checkFields": "Some details need another look",
     "sessionExpired": "You were logged out. Please log in again.",
     "loadFailed": "We could not load this. Pull down to try again."
+  },
+  "captcha": {
+    "title": "Quick check that you are a person"
   },
   "biometric": {
     "faceId": "Face ID",

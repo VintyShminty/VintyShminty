@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { LogBox, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { CaptchaHost } from "@/components/captcha-host";
 import { authClient } from "@/lib/auth-client";
 import { useAppFonts } from "@/lib/fonts";
 import { queryClient } from "@/lib/query-client";
@@ -71,6 +72,8 @@ export default function RootLayout() {
               </LocaleProvider>
             </View>
             <PortalHost />
+            {/* The hidden bot check page (lib/captcha.ts). Last, so its card covers the log in screens when it shows. */}
+            <CaptchaHost />
           </BottomSheetModalProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

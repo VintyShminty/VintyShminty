@@ -28,9 +28,48 @@ function forwardAuth(request: NextRequest) {
   });
 }
 
+const DEV = process.env.NODE_ENV === "development";
+
+/**
+ * The browser's rule for what a page may load and run (Content Security Policy). Scripts only run when they come from
+ * this website and carry this visit's random number (Next adds it to its own scripts), so a script someone sneaks into
+ * a listing or message never runs. Cloudflare's bot check is loaded by our own script, which `strict-dynamic` allows.
+ * No other site may show our pages inside a frame. Development adds what the hot reloading needs.
+ */
+function contentSecurityPolicy(nonce: string) {
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com${DEV ? " 'unsafe-eval'" : ""}`,
+    "style-src 'self' 'unsafe-inline'",
+    `img-src 'self' blob: data: https:${DEV ? " http:" : ""}`,
+    "font-src 'self' data:",
+    // The live chat connects to the server directly, photos upload straight to the storage bucket.
+    `connect-src 'self' https: wss:${DEV ? " http: ws:" : ""}`,
+    "frame-src https://challenges.cloudflare.com",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    ...(DEV ? [] : ["upgrade-insecure-requests"]),
+  ].join("; ");
+}
+
+/** A page in a language folder: render it with the rule above. */
+function withSecurityPolicy(request: NextRequest) {
+  const nonce = btoa(crypto.randomUUID());
+  const policy = contentSecurityPolicy(nonce);
+  const headers = new Headers(request.headers);
+  // Next reads the rule from the request to find the number, and puts it on every script it writes.
+  headers.set("content-security-policy", policy);
+  const response = NextResponse.next({ request: { headers } });
+  response.headers.set("content-security-policy", policy);
+  return response;
+}
+
 /** Any address without /en or /he in front goes to the right language: cookie, then browser language, then English. */
 export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/auth/")) return forwardAuth(request);
+  if (isLang(request.nextUrl.pathname.split("/")[1])) return withSecurityPolicy(request);
   const cookie = request.cookies.get(LANG_COOKIE)?.value;
   const lang = isLang(cookie)
     ? cookie
@@ -41,7 +80,13 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Log in calls, then everything except the language folders, the other forwarded server calls, Next's own files, the default link preview
-  // picture and files with an extension.
-  matcher: ["/api/auth/:path*", "/((?!en(?:/|$)|he(?:/|$)|api/|v1/|_next/|opengraph-image|.*\\..*).*)"],
+  // Log in calls, the language folders (for the security rule), then everything else except the other forwarded server
+  // calls, Next's own files, the default link preview picture, the app's bot check page (app/app-check) and files with
+  // an extension.
+  matcher: [
+    "/api/auth/:path*",
+    "/(en|he)",
+    "/(en|he)/:path*",
+    "/((?!en(?:/|$)|he(?:/|$)|api/|v1/|_next/|opengraph-image|app-check$|.*\\..*).*)",
+  ],
 };

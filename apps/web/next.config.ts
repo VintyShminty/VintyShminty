@@ -17,6 +17,24 @@ const config: NextConfig = {
     };
     return webpackConfig;
   },
+  poweredByHeader: false,
+  // On every answer: always use the secure connection (HTTPS) for two years, never guess a file's type, send only the
+  // site name to other sites, no other site may frame our pages, and no camera, microphone or location. The script rule
+  // (Content Security Policy) is set per page in proxy.ts, because it needs a fresh random number each time.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     return [{ source: "/v1/:path*", destination: `${apiUrl}/v1/:path*` }];
   },
