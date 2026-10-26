@@ -19,7 +19,7 @@
     "brands:cleanup:online": "tsx --env-file=.env.online src/seed/cli.ts brands-cleanup"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.3",
+    "drizzle-orm": "^0.45.4",
     "postgres": "^3.4.9",
     "@vinty/shared": "workspace:*"
   },
@@ -28,6 +28,6 @@
     "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.5"
   }
 }
