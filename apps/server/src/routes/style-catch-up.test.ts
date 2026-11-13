@@ -19,8 +19,8 @@ const SECRET = "test-cron-secret-0123456789";
 const stamp = Date.now().toString(36);
 const log = { info: () => undefined, warn: () => undefined };
 
-// Runs only when DATABASE_URL points at a migrated local database. The listings it makes are dated 1970 so they come
-// first in "oldest first", whatever else is in the database.
+// Runs only when DATABASE_URL points at a migrated local database. The listings it makes are dated 2100 so they come
+// first in "newest first", whatever else is in the database.
 describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
   let ctx: TestContext;
   let call: ReturnType<typeof apiCaller>;
@@ -63,11 +63,11 @@ describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
     await settleBackground();
     return id;
   }
-  /** Back to "never tagged", dated 1970 so the catch-up meets it first. */
+  /** Back to "never tagged", dated 2100 so the catch-up meets it first. A higher day is newer. */
   const reset = (ids: string[], day: number) =>
     db()
       .update(listings)
-      .set({ styles: [], stylesTaggedAt: null, createdAt: new Date(Date.UTC(1970, 0, day)) })
+      .set({ styles: [], stylesTaggedAt: null, createdAt: new Date(Date.UTC(2100, 0, day)) })
       .where(inArray(listings.id, ids));
   const row = async (id: string) =>
     (await db().select().from(listings).where(eq(listings.id, id)))[0] as typeof listings.$inferSelect;
@@ -94,7 +94,7 @@ describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
     await ctx.close();
   });
 
-  it("tags only untagged live listings, oldest first, and respects the limit", async () => {
+  it("tags only untagged live listings, newest first, and respects the limit", async () => {
     const [a, b, c, draft, sold] = [
       await createListing(`Catch A ${stamp}`),
       await createListing(`Catch B ${stamp}`),
@@ -104,12 +104,12 @@ describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
     ] as [string, string, string, string, string];
     await db().update(listings).set({ status: "draft" }).where(eq(listings.id, draft));
     await db().update(listings).set({ status: "sold" }).where(eq(listings.id, sold));
-    // A is the oldest, then B, then C. The draft and the sold one are older still but not live.
+    // C is the newest, then B, then A. The draft and the sold one are not live.
     await reset([draft, sold], 1);
     await reset([a], 2);
     await reset([b], 3);
     await reset([c], 4);
-    // Make C already tagged, so only A and B are waiting.
+    // Make C already tagged, so only B and A are waiting.
     await db()
       .update(listings)
       .set({ stylesTaggedAt: new Date(), styles: ["goth"] })
@@ -120,12 +120,12 @@ describe.skipIf(!databaseUrl)("the nightly style catch-up (D-042)", () => {
     const result = await tagUntaggedListings(ctx.app, checker, log, 1);
     expect(result).toEqual({ tagged: 1, failed: 0, stoppedEarly: false });
     expect(checkReader.calls.length).toBe(before + 1);
-    expect((await row(a)).styles).toEqual(["y2k", "streetwear"]);
-    expect((await row(b)).stylesTaggedAt).toBeNull();
-
-    // A member's listing keeps its flag; the second run tags B and leaves the others alone.
-    expect(await tagUntaggedListings(ctx.app, checker, log, 1)).toMatchObject({ tagged: 1 });
     expect((await row(b)).styles).toEqual(["y2k", "streetwear"]);
+    expect((await row(a)).stylesTaggedAt).toBeNull();
+
+    // A member's listing keeps its flag; the second run tags A and leaves the others alone.
+    expect(await tagUntaggedListings(ctx.app, checker, log, 1)).toMatchObject({ tagged: 1 });
+    expect((await row(a)).styles).toEqual(["y2k", "streetwear"]);
     expect((await row(c)).styles).toEqual(["goth"]);
     expect((await row(draft)).stylesTaggedAt).toBeNull();
     expect((await row(sold)).stylesTaggedAt).toBeNull();

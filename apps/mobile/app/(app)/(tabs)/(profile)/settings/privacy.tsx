@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { LoadError } from "@/components/orders/states";
 import { SwitchRow } from "@/components/ui/row";
 import { Screen } from "@/components/ui/screen";
 import { Spinner } from "@/components/ui/spinner";
@@ -9,7 +10,7 @@ import { settingsQuery, useUpdateSettings } from "@/lib/queries";
 /** Settings, Privacy: the Last seen line on your About tab and the switch that lets Home learn from what you do. */
 export default function Privacy() {
   const { t } = useTranslation();
-  const { data: settings } = useQuery(settingsQuery());
+  const { data: settings, isError, refetch } = useQuery(settingsQuery());
   const update = useUpdateSettings();
   const queryClient = useQueryClient();
   return (
@@ -37,6 +38,8 @@ export default function Privacy() {
             last
           />
         </>
+      ) : isError ? (
+        <LoadError onRetry={() => void refetch()} />
       ) : (
         <Spinner />
       )}
