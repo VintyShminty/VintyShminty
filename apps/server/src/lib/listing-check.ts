@@ -10,7 +10,7 @@ import {
   type ReportReason,
   type ReportUrgency,
 } from "@vinty/shared";
-import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { Env } from "../env.js";
@@ -510,9 +510,10 @@ export function checkListingInBackground(
 export const STYLE_CATCH_UP_LIMIT = 100;
 
 /**
- * The nightly catch-up (D-042): tags live listings that were never tagged, oldest first, one at a time through the same
- * metered check. Listings an admin uploaded are only tagged, never flagged. Stops early when the AI is off or the meter
- * refuses (switch or cap), the next night continues. A listing whose check fails is tried again the next night.
+ * The nightly catch-up (D-042): tags live listings that were never tagged or missed their check, newest first, one at a
+ * time through the same metered check. Listings an admin uploaded are only tagged, never flagged. Stops early when the
+ * AI is off or the meter refuses (switch or cap), the next night continues. A listing whose check fails is tried again
+ * the next night. Newest first, so listings that keep failing sink to the end and never hold up the new ones.
  */
 export async function tagUntaggedListings(
   app: Pick<FastifyInstance, "db">,
@@ -525,7 +526,7 @@ export async function tagUntaggedListings(
     .from(listings)
     .leftJoin(adminUploads, eq(adminUploads.listingId, listings.id))
     .where(and(isNull(listings.stylesTaggedAt), inArray(listings.status, ["active", "reserved"])))
-    .orderBy(asc(listings.createdAt), asc(listings.id))
+    .orderBy(desc(listings.createdAt), desc(listings.id))
     .limit(limit);
   let tagged = 0;
   let failed = 0;

@@ -368,6 +368,7 @@ export async function answerOffer(
             title: listing.title,
           },
           at: now,
+          actorId: userId,
         }),
       );
 
@@ -410,7 +411,7 @@ export async function answerOffer(
   const created = counterOffer as OfferRecord | null;
   await afterCommit(app, async () => {
     await broadcastOfferUpdated(app, conversation, offer.id);
-    await broadcastNewMessages(app, conversation, messagesWritten);
+    await broadcastNewMessages(app, conversation, messagesWritten, userId);
     if (listingChanged) await broadcastListingUpdated(app, [offer.listingId]);
     const answerType = {
       accept: "offer_accepted",

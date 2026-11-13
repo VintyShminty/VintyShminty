@@ -8,7 +8,7 @@ import {
   type orders,
 } from "@vinty/db";
 import type { MessageKind, SystemMessageEvent } from "@vinty/shared";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { broadcastUnread, presentMessages } from "./messaging.js";
 
@@ -32,8 +32,11 @@ export async function insertSystemMessage(
     orderId?: string | null;
     payload?: Record<string, unknown>;
     at: Date;
+    /** The person whose action caused the divider, when there is one. It never shows as unread for them. */
+    actorId?: string | null;
   },
 ): Promise<MessageRecord> {
+  if (input.actorId) await keepReadFor(tx, input.conversationId, input.actorId, input.at);
   const [row] = await tx
     .insert(messages)
     .values({
@@ -49,6 +52,36 @@ export async function insertSystemMessage(
   if (!row) throw new Error("System message was not saved");
   await touchConversation(tx, input.conversationId, input.at);
   return row;
+}
+
+/** True when this person has something in the thread they have not read: the other side's or the system's messages. */
+const unreadFor = (userId: string) => sql`exists (
+  select 1 from ${messages}
+  where ${messages.conversationId} = ${conversations.id}
+    and ${messages.deletedAt} is null
+    and ${messages.senderId} is distinct from ${userId}
+    and ${messages.createdAt} > coalesce(
+      case when ${conversations.buyerId} = ${userId} then ${conversations.buyerLastReadAt} else ${conversations.sellerLastReadAt} end,
+      '-infinity'::timestamptz))`;
+
+/**
+ * A divider is about to be written because of something this person just did (paid, accepted an offer). If they
+ * had nothing unread, their read marker moves to the divider's time, so their own action never lights the red
+ * dot. If they did have something unread it stays unread.
+ */
+async function keepReadFor(tx: Tx, conversationId: string, actorId: string, at: Date) {
+  await tx
+    .update(conversations)
+    .set({ buyerLastReadAt: at })
+    .where(
+      sql`${conversations.id} = ${conversationId} and ${conversations.buyerId} = ${actorId} and not ${unreadFor(actorId)}`,
+    );
+  await tx
+    .update(conversations)
+    .set({ sellerLastReadAt: at })
+    .where(
+      sql`${conversations.id} = ${conversationId} and ${conversations.sellerId} = ${actorId} and not ${unreadFor(actorId)}`,
+    );
 }
 
 /** An offer bubble. The sender counts as having read the thread. */
@@ -91,6 +124,8 @@ export async function broadcastNewMessages(
   app: App,
   conversation: Pick<ConversationRecord, "id" | "buyerId" | "sellerId">,
   rows: MessageRecord[],
+  /** The person whose action wrote these dividers, when there is one (see `insertSystemMessage`). */
+  actorId?: string | null,
 ): Promise<void> {
   if (rows.length === 0) return;
   const presented = await presentMessages(app, rows);
@@ -99,13 +134,23 @@ export async function broadcastNewMessages(
   const last = rows.reduce((a, b) => (a.createdAt >= b.createdAt ? a : b));
   const lastKind = last.kind as MessageKind;
   for (const userId of [conversation.buyerId, conversation.sellerId]) {
+    let unread = last.senderId !== userId;
+    if (unread && actorId === userId) {
+      // Their own action: unread only if something older was already waiting for them.
+      const [state] = await app.db
+        .select({ unread: sql<boolean>`${unreadFor(userId)}` })
+        .from(conversations)
+        .where(eq(conversations.id, conversation.id))
+        .limit(1);
+      unread = state?.unread ?? false;
+    }
     app.realtime.toUser(userId).emit("conversation:updated", {
       conversationId: conversation.id,
       lastMessagePreview: null,
       lastMessageKind: lastKind,
       lastMessageAt: last.createdAt.toISOString(),
-      // A divider or someone else's bubble is unread for the person who did not write it.
-      unread: last.senderId !== userId,
+      // A divider or someone else's bubble is unread for the person who did not write or cause it.
+      unread,
     });
     await broadcastUnread(app, userId);
   }

@@ -47,6 +47,15 @@ const MANUAL_TRANSITIONS: Record<string, readonly string[]> = {
   reserved: ["active", "sold"],
 };
 
+/** True while the item is held for one buyer (an open checkout or an accepted offer) and that hold has not run out. */
+function heldForBuyer(row: { status: string; reservedForUserId: string | null; reservedUntil: Date | null }) {
+  return (
+    row.status === "reserved" &&
+    row.reservedForUserId !== null &&
+    (row.reservedUntil === null || row.reservedUntil.getTime() > Date.now())
+  );
+}
+
 /** The AI check reads only the first photos, so only a change among them is worth checking again. */
 function firstPhotosChanged(before: string[], after: string[]): boolean {
   const n = LISTING_CHECK_PHOTOS;
@@ -435,7 +444,10 @@ const listingRoutes: FastifyPluginAsyncZod<{ listingChecker: ListingChecker }> =
           "Our team hid this listing, so it cannot go live again",
         );
       }
-      await db
+      if (heldForBuyer(row)) {
+        throw ApiError.conflict("A buyer is in the middle of buying this item. Try again a little later");
+      }
+      const changed = await db
         .update(listings)
         .set({
           status: next,
@@ -444,7 +456,12 @@ const listingRoutes: FastifyPluginAsyncZod<{ listingChecker: ListingChecker }> =
           reservedUntil: null,
           ...(next === "sold" ? { soldAt: new Date() } : {}),
         })
-        .where(eq(listings.id, row.id));
+        // Only if nothing changed since it was read: a buyer may have started checkout in between.
+        .where(and(eq(listings.id, row.id), eq(listings.status, row.status)))
+        .returning({ id: listings.id });
+      if (changed.length === 0) {
+        throw ApiError.conflict("This listing just changed. Open it again and retry");
+      }
       await refreshSellerCounts(db, userId);
       return respond(row.id, userId);
     },
@@ -465,6 +482,10 @@ const listingRoutes: FastifyPluginAsyncZod<{ listingChecker: ListingChecker }> =
       // A listing that was part of an order stays, so the order keeps its history. The seller can hide it.
       if (row.status !== "draft" && (await hasOrders(db, row.id))) {
         throw ApiError.conflict("This listing has an order. Hide it instead");
+      }
+      // Deleting takes the chats and offers about the item with it, so not while a buyer holds it.
+      if (heldForBuyer(row)) {
+        throw ApiError.conflict("A buyer is in the middle of buying this item. Try again a little later");
       }
       const keys = await photoKeysOf(row.id);
       await db.delete(listings).where(eq(listings.id, row.id));
