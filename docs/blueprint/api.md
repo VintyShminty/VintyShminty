@@ -213,7 +213,7 @@ Routes: `apps/server/src/routes/discovery.ts` (feed, search, suggestions, item p
 - **Lists.** Saved searches and recent searches answer `{ items }` (no cursor, 50 and 10 at most). Saving the same search twice returns the existing one (200 instead of 201), a 51st is `409 conflict`, a search with no words and no filter is 400. `notifyOnNew` alerts are sent by Milestone 4 notifications.
 - **Reports.** 204 and one open report per person and target (sending it again changes nothing). You cannot report your own listing or yourself (400), a message only from inside its conversation, a review only by the person it is about. 10 an hour.
 - **Personalisation sizes.** `GET` was added next to `PUT /v1/me/personalisation/sizes`, both answer `{ sizeIds }`. Unknown sizes are 400.
-- **Not built.** `GET /v1/users/:id` follow and block routes from Milestone 1 do not exist yet, so the follow boost uses the `follows` table as the seed fills it.
+- **Follow and block.** `PUT` and `DELETE /v1/users/:id/follow` and `/v1/users/:id/block` exist (204, idempotent, yourself is 400, a closed or unknown account is 404, following across a block is `403 blocked`). Blocking removes the follow both ways and the counters follow. **Not built:** the three lists (`/followers`, `/following`, `/v1/me/blocks`) and the buttons in the app.
 
 ## Milestone 4: Messaging
 

@@ -178,8 +178,8 @@ export class AiMeter {
 
   /**
    * Throws AiRefusedError when the switch is off, or when this call (priced at its worst case) would pass a cap.
-   * Passing a cap also flips the switch off and writes an audit row, so nothing else gets through until an admin
-   * turns it back on.
+   * Passing the daily cap also flips the switch off and writes an audit row, so nothing else gets through until an
+   * admin turns it back on. Passing the hourly cap only refuses, and recovers by itself.
    */
   async assertAllowed(call: { model: string; maxOutputTokens: number; estimatedInputTokens: number }) {
     const state = await this.switchState();
@@ -202,10 +202,9 @@ export class AiMeter {
       throw new AiRefusedError("daily_cap", "Daily AI cap reached");
     }
     if (hourMicros + estimate > this.hourlyCapMicros) {
-      await this.tripSwitch(`Hourly AI cap of ${dollars(this.hourlyCapMicros)} reached`, {
-        hourMicros,
-        estimate,
-      });
+      // The hourly cap only refuses. It counts the last 60 minutes, so the AI comes back by itself as that spend
+      // ages out, and a busy hour (or one person hammering it) never leaves everything off until an admin notices.
+      this.logger.warn({ hourMicros, estimate }, "hourly AI cap reached, refusing until spend ages out");
       throw new AiRefusedError("hourly_cap", "Hourly AI cap reached");
     }
   }

@@ -131,7 +131,7 @@ describe.skipIf(!databaseUrl)("AI budget guard", () => {
     await expect(meter.assertAllowed(call)).rejects.toBeInstanceOf(AiRefusedError);
   });
 
-  it("flips the switch off and writes an audit row when the hourly cap would be passed", async () => {
+  it("refuses at the hourly cap but leaves the switch on, so the AI comes back by itself", async () => {
     const probe = new AiMeter(db, { hourlyCapMicros: BIG, dailyCapMicros: BIG });
     const { hourMicros } = await probe.spend();
     // This call is estimated at 1000 * 0.1 + 300 * 0.5 = 250 micro dollars. Leave room for 100.
@@ -139,23 +139,24 @@ describe.skipIf(!databaseUrl)("AI budget guard", () => {
     await addSpend(900);
     const before = (await autoDisabledRows()).length;
     await expect(meter.assertAllowed(call)).rejects.toMatchObject({ code: "hourly_cap" });
-    expect(await aiSwitch()).toMatchObject({ enabled: false, changedBy: null });
-    expect((await aiSwitch())?.reason).toMatch(/Hourly AI cap/);
-    const rows = await autoDisabledRows();
-    expect(rows.length).toBe(before + 1);
-    // Later calls are stopped by the switch, and a second audit row is not written.
-    await expect(meter.assertAllowed(call)).rejects.toMatchObject({ code: "switch_off" });
-    expect((await autoDisabledRows()).length).toBe(before + 1);
+    await expect(meter.assertAllowed(call)).rejects.toMatchObject({ code: "hourly_cap" });
+    expect((await aiSwitch())?.enabled ?? true).toBe(true);
+    expect((await autoDisabledRows()).length).toBe(before);
   });
 
-  it("flips the switch off when the daily cap would be passed", async () => {
+  it("flips the switch off and writes an audit row when the daily cap would be passed", async () => {
     const probe = new AiMeter(db, { hourlyCapMicros: BIG, dailyCapMicros: BIG });
     const { dayMicros } = await probe.spend();
     const meter = new AiMeter(db, { hourlyCapMicros: BIG, dailyCapMicros: dayMicros + 1000 });
     await addSpend(900);
+    const before = (await autoDisabledRows()).length;
     await expect(meter.assertAllowed(call)).rejects.toMatchObject({ code: "daily_cap" });
-    expect((await aiSwitch())?.enabled).toBe(false);
+    expect(await aiSwitch()).toMatchObject({ enabled: false, changedBy: null });
     expect((await aiSwitch())?.reason).toMatch(/Daily AI cap/);
+    expect((await autoDisabledRows()).length).toBe(before + 1);
+    // Later calls are stopped by the switch, and a second audit row is not written.
+    await expect(meter.assertAllowed(call)).rejects.toMatchObject({ code: "switch_off" });
+    expect((await autoDisabledRows()).length).toBe(before + 1);
   });
 
   it("does not count spend older than an hour towards the hourly cap", async () => {

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { PASSWORD_MAX } from "@vinty/shared";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -14,21 +15,26 @@ import { TopBar } from "@/components/ui/top-bar";
 import { ApiClientError, api } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { describeApiError } from "@/lib/auth-errors";
+import { meQuery } from "@/lib/queries";
 import { wipeLocalData } from "@/lib/query-client";
 import { forgetLogin, hasSavedLoginFor } from "@/lib/saved-login";
 
-const formSchema = z.object({
+const withPassword = z.object({
   password: z.string().min(1, "validation.password.required").max(PASSWORD_MAX),
 });
-type Values = z.infer<typeof formSchema>;
+/** An account made with Apple or Google has no password, so there is nothing to ask for. */
+const withoutPassword = z.object({ password: z.string().max(PASSWORD_MAX) });
+type Values = z.infer<typeof withPassword>;
 
 /** Settings, Account settings, Delete my account (open decision 15: close it, keep orders and reviews anonymous). */
 export default function DeleteAccount() {
   const { t } = useTranslation();
   const [banner, setBanner] = useState<string | null>(null);
   const { data: session } = authClient.useSession();
+  const { data: me } = useQuery(meQuery());
+  const hasPassword = me?.hasPassword !== false;
   const { control, handleSubmit, setError, formState } = useForm<Values>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(hasPassword ? withPassword : withoutPassword),
     mode: "onTouched",
     defaultValues: { password: "" },
   });
@@ -36,7 +42,7 @@ export default function DeleteAccount() {
   const run = handleSubmit(async ({ password }) => {
     setBanner(null);
     try {
-      await api("/v1/me", { method: "DELETE", body: { password } });
+      await api("/v1/me", { method: "DELETE", body: hasPassword ? { password } : {} });
     } catch (err) {
       if (err instanceof ApiClientError && err.status === 403)
         setError("password", { message: "errors.wrongPassword" });
@@ -78,20 +84,22 @@ export default function DeleteAccount() {
             {banner}
           </Banner>
         ) : null}
-        <View className="mt-xl">
-          <FormInput
-            control={control}
-            name="password"
-            label={t("account.deletePassword")}
-            secureTextEntry
-            secureToggle={{ show: t("fields.showPassword"), hide: t("fields.hidePassword") }}
-            autoCapitalize="none"
-            autoComplete="current-password"
-            textContentType="password"
-            returnKeyType="go"
-            onSubmitEditing={confirm}
-          />
-        </View>
+        {hasPassword ? (
+          <View className="mt-xl">
+            <FormInput
+              control={control}
+              name="password"
+              label={t("account.deletePassword")}
+              secureTextEntry
+              secureToggle={{ show: t("fields.showPassword"), hide: t("fields.hidePassword") }}
+              autoCapitalize="none"
+              autoComplete="current-password"
+              textContentType="password"
+              returnKeyType="go"
+              onSubmitEditing={confirm}
+            />
+          </View>
+        ) : null}
         <Button
           size="lg"
           variant="destructive"

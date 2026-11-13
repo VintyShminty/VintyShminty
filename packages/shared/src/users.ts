@@ -60,6 +60,8 @@ export const meSchema = z.object({
   needsOnboarding: z.boolean(),
   /** True when the account has the admin role. The app only uses it to show or hide admin entries, the server still checks every admin route. */
   isAdmin: z.boolean(),
+  /** False for an account made with Apple or Google only. The app then never asks for a password (delete account). */
+  hasPassword: z.boolean(),
 });
 export type Me = z.infer<typeof meSchema>;
 
