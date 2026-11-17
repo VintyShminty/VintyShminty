@@ -9,6 +9,16 @@
       "distribution": "internal",
       "channel": "development"
     },
+    "apk": {
+      "distribution": "internal",
+      "channel": "production",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://vinty-shminty.vercel.app"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "channel": "production",
