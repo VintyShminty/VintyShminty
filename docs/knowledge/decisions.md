@@ -136,6 +136,7 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Should the website bundle bar become the pill too? | 2026-10-17 | Open, default yes as a small separate change |
 | Keep the brand line on item cards (slightly taller cards)? | 2026-10-17 | Open, default keep |
 | Women and Men switch on the website's full Browse page and phone menu too? | 2026-10-17 | Open, default add it next |
+| Live database moves from Neon's free plan to Launch (pay per use, about $13 to $20 a month), after the free 100 compute hours ran out and the app stopped working | 2026-10-24 | Done (Eden), log 2026-10-24 |
 
 ## Process (`docs/playbook/`)
 
@@ -160,6 +161,7 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 
 ## Superseded
 
+- "Stay on Neon's free plan for now" (2026-10-18): superseded on 2026-10-24, the database is on Launch.
 - "Keep the word Favourites" (2026-10-14, #52): superseded by Saved on 2026-10-17 (#124).
 - "Only Eden adds brands" (Milestone 2): superseded on 2026-10-17 by typed brands joining the list (#111).
 - The Under ₪50 mood chip and the For you chip on Home: superseded on 2026-10-17 by the Price chip (D-056) and the plain Home being For you (#118).
