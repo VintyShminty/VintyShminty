@@ -53,9 +53,14 @@ overrides:
 # expo-router 57, which uses query-string 7, which needs decode-uri-component 0.2. The only fixed release (0.5.1)
 # is a rewrite that query-string 7 cannot load, so forcing it would break links in the app. expo-router 58
 # (Expo SDK 58) no longer uses query-string. Recheck 2026-12-01 and remove with the SDK 58 upgrade.
+# GHSA-fc5q-39xc-vjpf (picomatch, high, slow-down on a crafted file pattern): only used by build and test tools
+# on the developer machine (Metro, Expo's command line tool, vite), with patterns we write ourselves. Not in the
+# app bundle, the server bundle or the website build. The advisory names 4.0.8 as the fix but no such release
+# exists on npm as of 2026-11-17 (latest is 4.0.7). Recheck 2026-11-24 and remove once a fixed version is out.
 auditConfig:
   ignoreGhsas:
     - GHSA-vfj7-8cjw-p6xm
     - GHSA-qr28-fpjm-wq7f
+    - GHSA-fc5q-39xc-vjpf
 # Transitive dependencies may not come from git or tarball links, only from the registry.
 blockExoticSubdeps: true
