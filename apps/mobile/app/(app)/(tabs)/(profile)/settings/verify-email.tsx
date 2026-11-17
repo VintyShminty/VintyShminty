@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import type { z } from "zod";
 import { FormInput } from "@/components/form-input";
+import { LoadError } from "@/components/orders/states";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
@@ -26,7 +27,7 @@ export default function VerifyEmail() {
   const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: me } = useQuery(meQuery());
+  const { data: me, isError, refetch } = useQuery(meQuery());
   const [banner, setBanner] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [done, setDone] = useState(false);
@@ -47,7 +48,7 @@ export default function VerifyEmail() {
     return (
       <Screen>
         <TopBar title={t("account.verifyEmail")} />
-        <Spinner />
+        {isError ? <LoadError onRetry={() => void refetch()} /> : <Spinner />}
       </Screen>
     );
   }

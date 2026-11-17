@@ -390,4 +390,71 @@ describe.skipIf(!databaseUrl)("offers", () => {
     const [chat] = await db().select().from(conversations).where(eq(conversations.id, conversationId));
     expect(chat).toBeDefined();
   });
+
+  describe("after the audit of 2026-11-13", () => {
+    // A buyer of their own: the main one has used up the day's offers by this point.
+    let fresh: TestPerson;
+    beforeAll(async () => {
+      fresh = (await signUpTestUser(ctx, "ofresh", createdIds)) as TestPerson;
+    });
+
+    const inboxRow = async (who: TestPerson, conversationId: string) =>
+      (await call("GET", "/v1/conversations", who.token))
+        .json()
+        .items.find((c: { id: string }) => c.id === conversationId);
+
+    it("accepting an offer is not unread for the seller who accepted, only for the buyer", async () => {
+      const { conversationId } = await chatAbout("own action", fresh);
+      const offer = (await offerOn(conversationId, 5000, fresh.token)).json();
+      await call("POST", `/v1/conversations/${conversationId}/read`, seller.token);
+      await call("POST", `/v1/conversations/${conversationId}/read`, fresh.token);
+      expect((await call("POST", `/v1/offers/${offer.id}/accept`, seller.token)).statusCode).toBe(200);
+      expect((await inboxRow(seller, conversationId)).unread).toBe(false);
+      expect((await inboxRow(fresh, conversationId)).unread).toBe(true);
+    });
+
+    it("keeps something the seller had not read yet unread after their own action", async () => {
+      const { conversationId } = await chatAbout("still unread", fresh);
+      const offer = (await offerOn(conversationId, 5000, fresh.token)).json();
+      // The seller never opened the chat, so the offer bubble is still unread for them.
+      expect((await call("POST", `/v1/offers/${offer.id}/accept`, seller.token)).statusCode).toBe(200);
+      expect((await inboxRow(seller, conversationId)).unread).toBe(true);
+    });
+
+    it("an offer whose time is up does not block a new one", async () => {
+      const { conversationId } = await chatAbout("overdue", fresh);
+      const first = (await offerOn(conversationId, 5000, fresh.token)).json();
+      await db()
+        .update(offers)
+        .set({ expiresAt: new Date(Date.now() - 1000) })
+        .where(eq(offers.id, first.id));
+      const second = await offerOn(conversationId, 5500, fresh.token);
+      expect(second.statusCode, second.body).toBe(201);
+      const [old] = await db().select().from(offers).where(eq(offers.id, first.id));
+      expect(old?.status).toBe("expired");
+    });
+
+    it("a seller cannot free or delete an item while it is held for a buyer", async () => {
+      const { listingId, conversationId } = await chatAbout("held", fresh);
+      const offer = (await offerOn(conversationId, 5000, fresh.token)).json();
+      await call("POST", `/v1/offers/${offer.id}/accept`, seller.token);
+      const free = await call("PATCH", `/v1/listings/${listingId}/status`, seller.token, {
+        status: "active",
+      });
+      expect(free.statusCode).toBe(409);
+      expect((await call("DELETE", `/v1/listings/${listingId}`, seller.token)).statusCode).toBe(409);
+      const [row] = await db().select().from(listings).where(eq(listings.id, listingId));
+      expect(row).toMatchObject({ status: "reserved", reservedForUserId: fresh.id });
+
+      // Once the hold has run out the seller is free again.
+      await db()
+        .update(listings)
+        .set({ reservedUntil: new Date(Date.now() - 1000) })
+        .where(eq(listings.id, listingId));
+      const later = await call("PATCH", `/v1/listings/${listingId}/status`, seller.token, {
+        status: "active",
+      });
+      expect(later.statusCode, later.body).toBe(200);
+    });
+  });
 });

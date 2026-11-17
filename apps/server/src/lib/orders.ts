@@ -519,6 +519,7 @@ export async function transitionOrder(
               ...(step.event === "open_dispute" && opts.note ? { details: opts.note } : {}),
             }),
             at: new Date(now.getTime() + tick),
+            actorId: actor.userId,
           }),
         );
       }
@@ -531,7 +532,7 @@ export async function transitionOrder(
     const sellerIds = [run.order.sellerId];
     for (const id of sellerIds) await refreshSellerCounts(app.db, id);
     if (run.conversation && run.written.length > 0) {
-      await broadcastNewMessages(app, run.conversation, run.written);
+      await broadcastNewMessages(app, run.conversation, run.written, actor.userId);
     }
     if (run.listingsChanged.size > 0) {
       await broadcastListingUpdated(app, [...run.listingsChanged], [run.order.buyerId]);

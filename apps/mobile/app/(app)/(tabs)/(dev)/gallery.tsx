@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { Check, Clock, Sparkles, TrendingDown, X } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -62,7 +62,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default function Gallery() {
+/** Development builds only. In a shipped app the link `vinty://gallery` goes Home. */
+export default function GalleryRoute() {
+  if (!__DEV__) return <Redirect href="/" />;
+  return <Gallery />;
+}
+
+function Gallery() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [on, setOn] = useState(true);

@@ -8,6 +8,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, View } from "react-native";
 import { FormInput } from "@/components/form-input";
+import { LoadError } from "@/components/orders/states";
 import { PlaceSuggestions } from "@/components/place-suggestions";
 import { Avatar } from "@/components/ui/avatar";
 import { Banner } from "@/components/ui/banner";
@@ -26,7 +27,7 @@ import { pickAvatar, uploadAvatar } from "@/lib/upload";
 export default function EditProfile() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { data: me } = useQuery(meQuery());
+  const { data: me, isError, refetch } = useQuery(meQuery());
   const update = useUpdateProfile();
   const [banner, setBanner] = useState<string | null>(null);
   // The photo is uploaded as soon as it is picked. It is saved on the profile with the Save button.
@@ -48,7 +49,7 @@ export default function EditProfile() {
     return (
       <Screen>
         <TopBar title={t("editProfile.title")} />
-        <Spinner />
+        {isError ? <LoadError onRetry={() => void refetch()} /> : <Spinner />}
       </Screen>
     );
   }

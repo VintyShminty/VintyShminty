@@ -120,6 +120,11 @@ export async function buildApp({
 }: BuildAppOptions) {
   const app = Fastify({
     logger: env.NODE_ENV === "test" ? false : loggerOptions(env),
+    // On Vercel the caller's connection is always Vercel's own proxy, and Vercel writes the visitor's real address
+    // into X-Forwarded-For, replacing anything the visitor sent (vercel.com/docs/headers/request-headers). Trusting
+    // it there makes `request.ip` the visitor, so the per-address limits and the bot check count people, not the
+    // proxy. Anywhere else the header could be made up, so it is ignored.
+    trustProxy: Boolean(env.VERCEL),
   }).withTypeProvider<ZodTypeProvider>();
 
   app.setValidatorCompiler(validatorCompiler);

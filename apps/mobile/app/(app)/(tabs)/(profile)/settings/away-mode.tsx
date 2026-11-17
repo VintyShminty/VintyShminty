@@ -3,6 +3,7 @@ import { Moon } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
+import { LoadError } from "@/components/orders/states";
 import { Banner } from "@/components/ui/banner";
 import { Chip } from "@/components/ui/chip";
 import { Icon } from "@/components/ui/icon";
@@ -30,7 +31,7 @@ const PRESETS = [
  */
 export default function AwayMode() {
   const { t, i18n } = useTranslation();
-  const { data: me } = useQuery(meQuery());
+  const { data: me, isError, refetch } = useQuery(meQuery());
   const setAway = useSetAwayMode(me?.id);
   const [failed, setFailed] = useState<string | null>(null);
 
@@ -38,7 +39,7 @@ export default function AwayMode() {
     return (
       <Screen>
         <TopBar title={t("away.title")} />
-        <Spinner />
+        {isError ? <LoadError onRetry={() => void refetch()} /> : <Spinner />}
       </Screen>
     );
   }

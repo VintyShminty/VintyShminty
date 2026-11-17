@@ -78,14 +78,29 @@ const jobRoutes: FastifyPluginAsync<{ listingChecker: ListingChecker }> = async 
     url: "/v1/jobs/all",
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
     preHandler: guard,
-    handler: async () => {
-      const orders = await runOrderJobs(app);
-      await refreshPopularity(app);
-      const cleanup = await cleanupFeedData(app);
-      const buzz = await endFinishedBuzzes(app);
-      const photos = await backfillPhotoVariants(app, { budgetMs: 6000 });
+    handler: async (_request, reply) => {
+      // One chore failing must not cancel the ones after it: each is tried, a failure is logged and reported.
+      const failed: string[] = [];
+      const attempt = async <T>(name: string, work: () => Promise<T>): Promise<T | null> => {
+        try {
+          return await work();
+        } catch (err) {
+          app.log.error({ err, job: name }, "nightly job failed");
+          failed.push(name);
+          return null;
+        }
+      };
+      const orders = await attempt("orders", () => runOrderJobs(app));
+      await attempt("popularity", () => refreshPopularity(app));
+      const cleanup = await attempt("cleanup", () => cleanupFeedData(app));
+      const buzz = await attempt("buzz", () => endFinishedBuzzes(app));
+      const photos = await attempt("photos", () => backfillPhotoVariants(app, { budgetMs: 6000 }));
       // Style tags for listings that were never tagged (D-042): up to 100 a night, stops when the AI is refused.
-      const styles = await tagUntaggedListings(app, listingChecker, app.log);
+      const styles = await attempt("styles", () => tagUntaggedListings(app, listingChecker, app.log));
+      // A 500 so the scheduler's own log shows the night as failed, with what did run in the answer.
+      if (failed.length > 0) {
+        return reply.code(500).send({ ok: false, failed, orders, cleanup, buzz, photos, styles });
+      }
       return { ok: true, orders, cleanup, buzz, photos, styles };
     },
   });
