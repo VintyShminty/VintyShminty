@@ -35,13 +35,27 @@ minimumReleaseAgeExclude:
 allowBuilds:
   esbuild: true
 nodeLinker: hoisted
+# Security fixes for packages we only get through other packages (added 2026-11-17).
+# Each rule only touches the unsafe versions, so it stops doing anything once the parent package moves on.
+overrides:
+  # Expo's command line tool before 57.0.33 brings zod 3, which has no fixed release (GHSA-mrhx-c7xc-m3w5).
+  # 57.0.33 drops zod and is inside the range expo 57 already asks for.
+  '@expo/cli@<57.0.33': ^57.0.33
+  # better-call (inside Better Auth) still resolves an old zod 4 (GHSA-mrhx-c7xc-m3w5).
+  'zod@>=4.0.0 <4.6.6': ^4.6.6
+  # Used by Expo's command line tool for code signing (seven advisories, fixed in 1.4.1).
+  'node-forge@<1.4.1': ^1.4.1
 # Accepted audit findings. Each entry needs a reason and a recheck date (docs/playbook/security-and-safety.md).
-# GHSA-86w9-cpqp-85rv (node-forge, high) and GHSA-vfj7-8cjw-p6xm (braces, high): only reached through Expo's
-# build tooling on the developer machine (@expo/cli code signing, Metro file map), never shipped in the app.
-# No patched release exists on npm as of 2026-10-12. Recheck weekly and remove once a patched version is out.
+# GHSA-vfj7-8cjw-p6xm (braces, high): only reached through Expo's build tooling on the developer machine
+# (Metro file map), never shipped in the app. No patched release exists on npm as of 2026-10-12.
+# Recheck weekly and remove once a patched version is out.
+# GHSA-qr28-fpjm-wq7f (decode-uri-component, high, slow-down on a crafted address): reached only through
+# expo-router 57, which uses query-string 7, which needs decode-uri-component 0.2. The only fixed release (0.5.1)
+# is a rewrite that query-string 7 cannot load, so forcing it would break links in the app. expo-router 58
+# (Expo SDK 58) no longer uses query-string. Recheck 2026-12-01 and remove with the SDK 58 upgrade.
 auditConfig:
   ignoreGhsas:
-    - GHSA-86w9-cpqp-85rv
     - GHSA-vfj7-8cjw-p6xm
+    - GHSA-qr28-fpjm-wq7f
 # Transitive dependencies may not come from git or tarball links, only from the registry.
 blockExoticSubdeps: true
