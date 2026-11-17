@@ -23,7 +23,7 @@ Where nothing here is decided, follow the product spec (the Vinted UX deconstruc
 
 ## Colour
 
-Palette: Espresso and cream (D-006). Light mode only for now (D-002). Requirements whatever the palette:
+Palette: Cobalt (D-060, replacing Espresso and cream from D-006). Light mode only for now (D-002). Requirements whatever the palette:
 - Every colour is a named token; no hard-coded values in components.
 - Tokens for: page background, raised surface, pressed surface, window fill, backdrop, border default, border subtle, text ladder (primary / secondary / muted / faint), accent, on-accent, and state (success, warning, error, destructive).
 - Text is a ladder of steps. When dark mode returns, light-mode values are solved to match dark-mode contrast, not mirrored.
@@ -33,19 +33,19 @@ Palette: Espresso and cream (D-006). Light mode only for now (D-002). Requiremen
 | Token | Hex | Used for |
 |---|---|---|
 | background | #FFFFFF | Page background |
-| surface | #FBF8F2 | Raised surface: search bar, banners, pressed rows |
-| pressed | #F1E9DA | Pressed surface, switch track when off |
-| border | #E4DACA | Border default |
-| border-subtle | #F0EADF | Border subtle, dividers, inactive chip outline |
-| text-1 | #241811 | Primary text |
-| text-2 | #54443A | Secondary text |
-| text-3 | #695A4F | Muted text |
-| text-4 | #7A6B60 | Faint text |
-| accent | #4B2E22 | Primary button fill, links, prices, active tab, outline button |
+| surface | #F6F8FD | Raised surface: search bar, banners, pressed rows |
+| pressed | #E3E9F7 | Pressed surface, switch track when off |
+| border | #DADFEC | Border default |
+| border-subtle | #EAEEF6 | Border subtle, dividers, inactive chip outline |
+| text-1 | #1F1D1C | Primary text |
+| text-2 | #4A4644 | Secondary text |
+| text-3 | #615C59 | Muted text |
+| text-4 | #736E6A | Faint text |
+| accent | #2446A8 | Primary button fill, links, prices, active tab, outline button |
 | on-accent | #FFFFFF | Text and icons on the accent fill |
-| accent-tint | #F7EEDC | Info banners, "New" badge |
-| chip-selected | #EFE0C3 | Promo banner fill (no longer the selected chip fill, see D-008) |
-| on-chip | #3A2218 | Label on the promo banner |
+| accent-tint | #E9EEFA | Info banners, "New" badge |
+| chip-selected | #D6E0F5 | Promo banner fill (no longer the selected chip fill, see D-008) |
+| on-chip | #172D70 | Label on the promo banner |
 | success | #1B7A43 | Sold badge text and outline, success text |
 | success-tint | #E6F4EA | Success background |
 | warning | #8A4F00 | Warning text |
@@ -270,6 +270,8 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 ### D-006 : Colour palette: Espresso and cream
 
+- **Superseded by D-060:** the colours are now Cobalt. The token names and roles below still apply.
+
 - **Date:** 2026-10-12
 - **Area:** Colour, Design system
 - **Status:** Approved
@@ -407,7 +409,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Rationale:** Legal and App Store risk. Nobody owns how an app works, but the look, names and wording must be ours. Research and the rule are in `docs/originality.md`.
 - **Implementation:** Phase A, wording (2026-10-13): every banned word is gone from both locale files, the server push text and the seed, with a test that keeps them out (`apps/mobile/tests/no-banned-words.test.ts`). Done in phase A: sellers instead of members, Buzz (names only, the feature is not built), the sell form words, condition names, Settings and Alerts names, Away mode with a moon and return date, My sizes under Shopping preferences, the "incl." line removed. The protection name is a placeholder in one key (`protectionName`, English "Coverage"), rename it there. Choices, open questions and the checklist in `docs/originality.md`, options in `docs/mockups/originality-choices.html` and `originality-round-2.html`. Changes parts of D-007 (item card), D-008 (Bumped badge) and D-009 (tab labels, Browse grid). The paid boost was "Buzz" for now (button "Give it buzz", badge "Buzzing"). On 2026-10-15 Eden renamed it "Boost": button "Boost this listing", badge "Boosted", in Hebrew "להקפיץ את המודעה" and "מוקפצת". The code still calls it buzz and bump inside. Still open: the protection name (wait for the app name), the voice guide.
 - **Superseded in part by D-032:** the item card (price tag card, heart, small capitals line, buyer price pill on cards) is now the price tag on photo card. The pill stays on the item page, sell form preview and offer sheet, with a BadgeCheck icon.
-- **Superseded in part by D-047:** the Home top (greeting and round search button) is now the Yadii wordmark with Alerts and Saved icons, a full-width search bar and the mood chips.
+- **Superseded in part by D-047:** the Home top (greeting and round search button) is now the Basta wordmark with Alerts and Saved icons, a full-width search bar and the mood chips.
 - **Implementation, card and item page (branch m6-card):** the buyer price pill (`components/price-pill.tsx`, check icon, "{price} with {protectionName}") replaces the shield and the "incl." line on cards, the sell form price preview, the offer sheet, the checkout line and the order note. The item card is the price tag card (big seller price with the heart at the end of that row, brand, size and condition in small capitals, pill, badges on the photo, "Buzzing" with a zap icon; the favourite count and the two line description left the card). The item page shows a breakdown card (Item, protection, You pay, how you are covered) and one "Buy for X" button with "Or make your price" as a link and a "Message" chip on the seller row. The sell form condition is a five stop slider (`components/sell/condition-slider.tsx`, drag, tap or VoiceOver adjustable, runs right to left in Hebrew). Seller badges are outline stamps (`components/seller-stamp.tsx`, no rings). The Bumped badge of D-008 is superseded in part by Buzzing.
 - **Implementation, navigation (m6-nav):** (1) Tab bar: `components/navigation/floating-tab-bar.tsx`, a custom `tabBar` for the Expo Router tabs. A 64 point bar with the 32 point `rounded-bar` shape, 95 percent white, hairline border, 16 points from each side, icons only, the active tab on an accent-tint pill, the Inbox count as a small espresso pill, and a raised round espresso Sell button with a price tag in the middle (a camera at first, changed by Eden 2026-10-13). Each tab keeps its name for screen readers. It hides while the keyboard is open. It overlays the content, so `TabStack` gives the screens inside a tab a bottom safe area that includes the bar (`lib/tab-bar.ts`). (2) Home: a large light greeting by time of day with the first name or username, a round search button, then the mood chips. `GET /v1/feed` takes `mood` (`for_you`, `new_today`, `under_50`, `your_sizes`, `near_you`). Signed out visitors see For you, New today and Under ₪50. Empty states for sizes and city link to My sizes and Edit profile. (3) Browse: `lib/browse-tiles.ts` is the one file that orders the tiles. Ten tiles, then More (the rest of the tiles plus the whole category tree as rows, so Designer and every deeper category stay reachable, D-015). A tile opens `browse/tile` with All, Women, Men and Kids chips, searching with the new `categoryIds` filter. Tile photos are the sample photos in object storage under `browse/` (Unsplash licence, development only, real photos before launch).
 - **Implementation, reviews and order tracker (m6-reviews):** (1) Reviews tab (`components/profile-view.tsx`): the list asks the server for written reviews only (`source=member`), the All, Written and Automatic chips are gone, and one success-tint line under the score reads "{count} smooth sales, no problems" from `summary.automatic.count` (plural forms in English and Hebrew, hidden at zero). The score and count above it are the written ones, so they match the list. No server change was needed, the summary already carries the automatic count. A seller with only automatic reviews sees just the line and "No written reviews yet". Reply and View order stay on your own page. (2) Order tracker (`components/chat/order-tracker.tsx`, pinned under the item strip in `app/(app)/conversation/[id].tsx`): four step icons Paid, Sent, Arrived, Done with their dates, the status in words on the top line, and the buttons the order allows (`actions`): Pay now, Mark as shipped, Track parcel (opens a line with the tracking code, or the order when there is no code) and I got it (same confirmation as the order page). Tapping the card opens the order. It reads the order query, so `order:updated` refreshes it live. Cancelled and refunded orders show the state in red instead of the steps, disputed show the steps and "Under review". The order dividers stay in the message list.
@@ -680,6 +682,8 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 ### D-046 : The logo is a gently tilted price tag with a bold Y
 
+- **Superseded in part by D-060:** the letter in the tag is now a bold B and the colours are cobalt.
+
 - **Date:** 2026-10-15
 - **Area:** Brand, app icon, website header
 - **Status:** Merged, 2026-10-15 (#89). A first logo "for now", while the name Yadii is not final.
@@ -694,7 +698,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Date:** 2026-10-15
 - **Area:** App, Home
 - **Status:** Merged, 2026-10-15 (#93). Changes the Home greeting of D-019 (implementation, navigation, item 2).
-- **Decision:** Eden picked direction C ("Wordmark and icons") over B ("Search first, no greeting"). The top of Home in the app is the Yadii wordmark at the start. For signed in people, Alerts (a bell with a small espresso dot when something is unread) opens Notifications as its own page that slides in over Home, with a back arrow and swipe back, so you never leave Home. The Inbox keeps its own Notifications section. Saved (a bookmark) opens saved items. Both sit at the end. Under them is a full-width rounded search bar, then the mood chips. The search bar works in place (Eden, 2026-10-15): tapping it types right there with no new page. The wordmark row and the chips step aside, the bar stays at the top with Cancel at its end, and suggestions, recent and saved searches and then the results with their filters replace the feed. Cancel brings the feed back, as it was. Browse still opens the Search page.
+- **Decision:** Eden picked direction C ("Wordmark and icons") over B ("Search first, no greeting"). The top of Home in the app is the Basta wordmark at the start. For signed in people, Alerts (a bell with a small espresso dot when something is unread) opens Notifications as its own page that slides in over Home, with a back arrow and swipe back, so you never leave Home. The Inbox keeps its own Notifications section. Saved (a bookmark) opens saved items. Both sit at the end. Under them is a full-width rounded search bar, then the mood chips. The search bar works in place (Eden, 2026-10-15): tapping it types right there with no new page. The wordmark row and the chips step aside, the bar stays at the top with Cancel at its end, and suggestions, recent and saved searches and then the results with their filters replace the feed. Cancel brings the feed back, as it was. Browse still opens the Search page.
 - **Rationale:** The big two line greeting took about a fifth of the screen before the first photo, the light and bold split felt loud, and the small round search button looked like an afterthought.
 - **Trade-off:** The personal greeting is gone. Saved items and notifications can now each be reached from two places. Eden first saw the bell switch to the Inbox tab and found that jump too direct, so it opens a page instead.
 - **Implementation:** `apps/mobile/app/(app)/(tabs)/(home)/index.tsx`. The page is `(home,inbox,profile,shop)/notifications.tsx`. The list lives in `components/inbox/notifications-list.tsx` and is shared with the Inbox tab (the empty, error and loading states are in `components/inbox/list-states.tsx`). The search under the bar is `components/search/search-panel.tsx` (the field, the save bookmark and the panel, plus `useSearchSession`), shared by Home and the Search page (`(home,inbox,profile,shop)/search/index.tsx`). `SearchBar` takes an `onPress` so Home can start the search in place while Browse keeps opening the page.
@@ -834,6 +838,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Rationale:** Eden found almost every row in a section using the same icon (a shirt for all of Clothing, a watch for all of Men's accessories) and wanted the list on Explore itself, not one tap away.
 - **Implementation:** `apps/mobile/lib/category-icons.ts` (icon by the end of the category's slug, longest match wins), `app/(app)/(tabs)/(shop)/browse/index.tsx` (the list). The website shows no category icons and its Explore page has no separate list screen, so nothing changes there.
 - **References:** D-009, D-010, D-055
+
+### D-060 : The name is Basta and the colour is Cobalt
+
+- **Date:** 2026-11-17
+- **Area:** Brand: app name, logo, colours, app and website
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The app is called Basta everywhere: the name under the app icon on iPhone and Android, the Home wordmark, the welcome screen, every email, the server's own pages, the website titles and the sharing preview. Hebrew screens also write it in Latin letters, "Basta", so the brand looks the same in both languages. The lead colour is Cobalt #2446A8 (from `docs/mockups/colour-options-4.html`) with white on it, a pale blue tint #E9EEFA, a blue white surface #F6F8FD, cool blue borders and neutral grey text (the warm brown text went with the espresso). Faint text is #736E6A, a touch darker than the mockup's, so it stays readable on the surface. The logo keeps the tilted tag of D-046 with a bold B in place of the Y. The app icon is the light tag on a cobalt square, the splash is the cobalt tag on white.
+- **Rationale:** Eden chose to drop Yadii and orange because Yad2 owns that name sound and that colour (log 2026-10-19). Basta is the stall at a market, which is what a second hand shop feels like. Cobalt was the brightest of the three blues and stands out on the photos.
+- **Implementation:** `packages/design/tokens.js` (all colours), `packages/design/brand/logo-mark.svg`, `apps/web/components/logo-mark.tsx`, `apps/web/app/opengraph-image.tsx`, the icons in `apps/mobile/assets/images/` and `apps/web/app/`, `apps/mobile/app.json` (name, Face ID text, Android icon background), the emails and server pages in `apps/server/src/lib/`, the wording in `packages/locales/`. The App Store Connect and Play Console listing names are changed by Eden in those sites.
+- **References:** D-006, D-046, D-047, `docs/originality.md` G10
 
 ### D-026 : Welcome turns into Log in and Sign up
 

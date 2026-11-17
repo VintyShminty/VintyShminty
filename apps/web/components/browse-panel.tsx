@@ -9,7 +9,7 @@ import { Chip } from "@/components/chip";
 import { FOCUS_RING } from "@/lib/utils";
 
 type Gender = "women" | "men";
-const GENDER_KEY = "yadii-browse-gender";
+const GENDER_KEY = "basta-browse-gender";
 
 /**
  * The top bar's Browse button (D-030). It opens a panel under the button with a Women and Men switch and the photo

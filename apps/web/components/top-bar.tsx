@@ -35,7 +35,7 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
           className="inline-flex items-center gap-xs text-[23px] font-bold tracking-tight text-text-1"
         >
           <LogoMark className="h-[30px] w-auto text-primary" />
-          Yadii
+          Basta
         </Link>
         <div className="hidden md:block">
           <BrowsePanel

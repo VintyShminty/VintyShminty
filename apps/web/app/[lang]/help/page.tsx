@@ -10,10 +10,10 @@ import { alternatesFor } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLang(lang)) return { title: "Yadii" };
+  if (!isLang(lang)) return { title: "Basta" };
   const t = getT(lang);
   return {
-    title: `${t("help.title")} | Yadii`,
+    title: `${t("help.title")} | Basta`,
     description: t("web.help.metaDescription"),
     alternates: alternatesFor(lang, "/help"),
   };

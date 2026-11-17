@@ -1,23 +1,23 @@
-// Single source of truth for design tokens (docs/design.md, D-006 Espresso and cream).
+// Single source of truth for design tokens (docs/design.md, D-006, colours from D-060 Cobalt).
 // Plain CommonJS so tailwind.config.js can read it. The mobile app imports it through apps/mobile/theme/index.ts.
 // Light mode only (D-002). Tokens are named by role so a dark set can be added later.
 
 /** Hex values, named by role (design.md Colour table). */
 const colors = {
   background: "#FFFFFF",
-  surface: "#FBF8F2",
-  pressed: "#F1E9DA",
-  border: "#E4DACA",
-  borderSubtle: "#F0EADF",
-  text1: "#241811",
-  text2: "#54443A",
-  text3: "#695A4F",
-  text4: "#7A6B60",
-  accent: "#4B2E22",
+  surface: "#F6F8FD",
+  pressed: "#E3E9F7",
+  border: "#DADFEC",
+  borderSubtle: "#EAEEF6",
+  text1: "#1F1D1C",
+  text2: "#4A4644",
+  text3: "#615C59",
+  text4: "#736E6A",
+  accent: "#2446A8",
   onAccent: "#FFFFFF",
-  accentTint: "#F7EEDC",
-  chipSelected: "#EFE0C3",
-  onChip: "#3A2218",
+  accentTint: "#E9EEFA",
+  chipSelected: "#D6E0F5",
+  onChip: "#172D70",
   success: "#1B7A43",
   successTint: "#E6F4EA",
   warning: "#8A4F00",
@@ -27,7 +27,7 @@ const colors = {
   destructive: "#B3261E",
   // Derived values, see D-006
   window: "#FFFFFF", // used at 96% opacity
-  backdrop: "#241811", // used at 25% opacity
+  backdrop: "#1F1D1C", // used at 25% opacity
 };
 
 const opacity = { window: 0.96, backdrop: 0.25 };

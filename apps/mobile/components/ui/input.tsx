@@ -29,7 +29,7 @@ type InputProps = Omit<React.ComponentProps<typeof TextInput>, "placeholderTextC
 
 /**
  * Labelled text box (docs/components.md, TextField). 48 tall, 12 radius, 16px text so iOS does not zoom.
- * States: default, focused (espresso outline), error (red outline plus message), disabled.
+ * States: default, focused (cobalt outline), error (red outline plus message), disabled.
  */
 function Input({
   label,

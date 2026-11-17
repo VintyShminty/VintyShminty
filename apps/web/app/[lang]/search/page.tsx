@@ -26,12 +26,12 @@ export async function generateMetadata({
   searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLang(lang)) return { title: "Yadii" };
+  if (!isLang(lang)) return { title: "Basta" };
   const sp = await searchParams;
   // Results for a word or with filters are not pages for Google. Plain /search is.
   const hasQuery = Object.values(sp).some((v) => (Array.isArray(v) ? v.length > 0 : Boolean(v)));
   return {
-    title: `${getT(lang)("search.items")} | Yadii`,
+    title: `${getT(lang)("search.items")} | Basta`,
     alternates: alternatesFor(lang, "/search"),
     robots: hasQuery ? { index: false, follow: true } : undefined,
   };

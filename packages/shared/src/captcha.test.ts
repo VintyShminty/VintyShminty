@@ -4,7 +4,7 @@ import { needsCaptcha } from "./captcha.js";
 describe("needsCaptcha", () => {
   it("covers sign up, log in, code requests and Help questions", () => {
     expect(needsCaptcha("/api/auth/sign-up/email")).toBe(true);
-    expect(needsCaptcha("https://yadii.app/api/auth/sign-in/email?x=1")).toBe(true);
+    expect(needsCaptcha("https://basta.app/api/auth/sign-in/email?x=1")).toBe(true);
     expect(needsCaptcha("http://localhost:3000/api/auth/email-otp/request-password-reset")).toBe(true);
     expect(needsCaptcha("/api/auth/email-otp/send-verification-otp")).toBe(true);
     expect(needsCaptcha("/v1/help/ask")).toBe(true);

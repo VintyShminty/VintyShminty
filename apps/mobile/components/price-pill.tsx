@@ -82,7 +82,7 @@ function CoveredLine({
 }
 
 /**
- * The item page price block (D-045), the same language as the card: the seller price in espresso, a drop shows the
+ * The item page price block (D-045), the same language as the card: the seller price in cobalt, a drop shows the
  * old price muted and struck with a "% off" badge, then the Coverage price as a quiet line. No pill, no fill.
  */
 function PriceBlock({

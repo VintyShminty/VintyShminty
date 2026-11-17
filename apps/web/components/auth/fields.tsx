@@ -108,7 +108,7 @@ export function Notice({ kind, children }: { kind: "error" | "success" | "info";
   );
 }
 
-/** The big espresso button of a form. Shows a spinner word instead of the label while it works. */
+/** The big cobalt button of a form. Shows a spinner word instead of the label while it works. */
 export function SubmitButton({
   children,
   busy,

@@ -59,7 +59,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
         <div className="flex items-center justify-between pb-md">
           <span className="inline-flex items-center gap-xs text-[22px] font-extrabold tracking-tight text-primary">
             <LogoMark className="h-[28px] w-auto" />
-            Yadii
+            Basta
           </span>
           <button
             type="button"

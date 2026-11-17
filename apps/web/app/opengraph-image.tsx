@@ -1,7 +1,7 @@
 import { colors } from "@vinty/design/tokens";
 import { ImageResponse } from "next/og";
 
-export const alt = "Yadii";
+export const alt = "Basta";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -37,10 +37,13 @@ export default function OpenGraphImage() {
         <g transform="rotate(-8 50 54)">
           <path d="M30 36 L50 20 L70 36 V82 a4 4 0 0 1 -4 4 H34 a4 4 0 0 1 -4 -4 Z" strokeWidth="5" />
           <circle cx="50" cy="34" r="4" strokeWidth="5" />
-          <path d="M40 50 L50 63 L60 50 M50 63 V75" strokeWidth="7" />
+          <path
+            d="M41 47 V75 M41 47 H50 a6.5 6.5 0 0 1 0 13 H41 M41 60 H51 a7.5 7.5 0 0 1 0 15 H41"
+            strokeWidth="7"
+          />
         </g>
       </svg>
-      Yadii
+      Basta
     </div>,
     size,
   );

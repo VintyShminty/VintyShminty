@@ -303,7 +303,7 @@ export default function Home() {
           className="text-text-1"
           style={{ fontSize: 28, lineHeight: 34, letterSpacing: -1 }}
         >
-          Yadii
+          Basta
         </Text>
         {signedIn ? (
           <View className="flex-row items-center gap-xs">

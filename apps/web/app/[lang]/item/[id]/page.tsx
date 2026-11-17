@@ -48,18 +48,18 @@ function detailsLine(listing: ListingDetail, lang: Lang) {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { lang, id } = await params;
-  if (!isLang(lang)) return { title: "Yadii" };
+  if (!isLang(lang)) return { title: "Basta" };
   const t = getT(lang);
   let listing: ListingDetail;
   try {
     listing = await getListing(lang, id);
   } catch (error) {
     // A missing item is Next's own not found page (notFound throws). Any other failure keeps a plain title.
-    if (error instanceof ApiClientError) return { title: "Yadii", robots: { index: false } };
+    if (error instanceof ApiClientError) return { title: "Basta", robots: { index: false } };
     throw error;
   }
   const price = formatPrice(listing.priceMinor ?? 0, listing.currency);
-  const title = `${listing.title} · ${price} · Yadii`;
+  const title = `${listing.title} · ${price} · Basta`;
   const description =
     listing.description.trim().replace(/\s+/g, " ").slice(0, 200) ||
     t("web.item.metaFallback", {
@@ -83,7 +83,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       title,
       description,
       url: `/${lang}${path}`,
-      siteName: "Yadii",
+      siteName: "Basta",
       images,
       locale: lang === "he" ? "he_IL" : "en_US",
     },
@@ -291,7 +291,7 @@ export default async function ItemPage({
               )}
             </div>
 
-            {/* The price reads like the item card (D-032): the seller price in espresso, a drop as the old price
+            {/* The price reads like the item card (D-032): the seller price in cobalt, a drop as the old price
                 struck and muted, then the Coverage price as a quiet line. No tinted backgrounds. */}
             <div className="flex flex-col gap-xs">
               <div className="flex flex-wrap items-baseline gap-x-sm gap-y-xs">

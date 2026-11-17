@@ -1,7 +1,7 @@
 import * as SwitchPrimitives from "@rn-primitives/switch";
 import { cn } from "@/lib/utils";
 
-// Track is the pressed surface when off and espresso when on. The thumb is placed with
+// Track is the pressed surface when off and cobalt when on. The thumb is placed with
 // justify-start / justify-end, not a translate, so it flips correctly in right-to-left layouts.
 function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimitives.Root>) {
   return (

@@ -16,7 +16,7 @@ import { colors } from "@/theme";
 
 const FIGURES: SizeFigure[] = ["women", "men", "kids"];
 
-/** The small row of dots at the end of the title row, the current one is longer and espresso. */
+/** The small row of dots at the end of the title row, the current one is longer and cobalt. */
 function Progress({ current, total }: { current: number; total: number }) {
   const { t } = useTranslation();
   const dots = Array.from({ length: total }, (_, i) => i);

@@ -126,7 +126,7 @@ export function WelcomeQuestions({
   );
 }
 
-/** The row of dots: the current one is longer and espresso. */
+/** The row of dots: the current one is longer and cobalt. */
 function Progress({ current, total }: { current: number; total: number }) {
   const { t } = useTranslation();
   return (

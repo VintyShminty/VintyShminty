@@ -33,7 +33,7 @@ export default function Welcome() {
           className="text-primary-foreground"
           style={{ fontSize: 28, lineHeight: 34, letterSpacing: -1 }}
         >
-          Yadii
+          Basta
         </Text>
         <View className="mt-md self-start rounded-full bg-background/95 px-md py-xs">
           <Text variant="cardMeta" weight={700} className="text-text-1">
@@ -95,7 +95,7 @@ function LanguageStep({ onChosen }: { onChosen: () => void }) {
           className="text-primary-foreground"
           style={{ fontSize: 28, lineHeight: 34, letterSpacing: -1 }}
         >
-          Yadii
+          Basta
         </Text>
         <View className="flex-1 justify-end">
           {SUPPORTED_LANGUAGES.map((language) => (

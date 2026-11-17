@@ -7,9 +7,9 @@ type ChipProps = {
   label: string;
   /** Shown after a dot, for example "All · 19". */
   count?: number;
-  /** The chosen one of a group: filled espresso with white text. */
+  /** The chosen one of a group: filled cobalt with white text. */
   selected?: boolean;
-  /** An applied filter (D-030, row 13): 1.5px espresso outline with a cross. Clicking it takes the filter off. */
+  /** An applied filter (D-030, row 13): 1.5px cobalt outline with a cross. Clicking it takes the filter off. */
   applied?: boolean;
   /** Makes the chip a link. Without it the chip is a button. With both, a plain click calls `onClick` and the link only serves as the address. */
   href?: string;
@@ -27,7 +27,7 @@ type ChipProps = {
 
 /**
  * The chip (D-008): 29px tall pill (10% under D-008, D-035), 13px side padding, 14px text, 1px outline in text-4 on white. `selected` fills it
- * with espresso, `applied` draws the 1.5px espresso outline with a cross. A link when it has `href`, else a button.
+ * with cobalt, `applied` draws the 1.5px cobalt outline with a cross. A link when it has `href`, else a button.
  */
 export function Chip({
   label,

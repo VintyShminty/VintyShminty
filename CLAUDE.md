@@ -106,7 +106,7 @@ Tokens live in `packages/design/tokens.js` (`@vinty/design/tokens`) as hex value
 | background | background (#FFFFFF) | |
 | foreground | text-1 | |
 | card, popover | background | card-foreground and popover-foreground are text-1 |
-| primary | accent (#4B2E22, espresso) | Our design "accent" is Reusables "primary". primary-foreground is on-accent |
+| primary | accent (#2446A8, cobalt) | Our design "accent" is Reusables "primary". primary-foreground is on-accent |
 | secondary | surface | secondary-foreground is text-1 |
 | muted | surface | muted-foreground is text-3 |
 | accent | pressed | Reusables "accent" is a hover and pressed surface, not our accent colour. accent-foreground is text-1. `accent-tint` is our info tint |

@@ -7,10 +7,10 @@ import { alternatesFor } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLang(lang)) return { title: "Yadii" };
+  if (!isLang(lang)) return { title: "Basta" };
   const doc = getLegalDoc(lang, "privacy");
   return {
-    title: `${doc.title} | Yadii`,
+    title: `${doc.title} | Basta`,
     description: doc.description,
     alternates: alternatesFor(lang, "/privacy"),
   };

@@ -14,7 +14,7 @@ type ChipProps = Omit<React.ComponentProps<typeof Pressable>, "children"> & {
 };
 
 // D-008: 32px tall, 14px side padding, fully rounded, 1px outline in text-4 on white.
-// Active: filled espresso with white text.
+// Active: filled cobalt with white text.
 function Chip({ label, count, selected = false, icon, className, disabled, ...props }: ChipProps) {
   const text = count === undefined ? label : `${label} · ${count}`;
   return (
