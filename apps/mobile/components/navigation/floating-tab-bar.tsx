@@ -23,7 +23,7 @@ const TABS: { route: string; icon: LucideIcon; label: string; sell?: boolean }[]
 
 /**
  * A floating rounded bar over the content with icons only (D-019, row 14). The active tab sits on a soft tint
- * pill and Sell is a raised round espresso button with a camera. Each tab keeps its name for screen readers.
+ * pill and Sell is a raised round cobalt button with a camera. Each tab keeps its name for screen readers.
  */
 export function FloatingTabBar({ state, navigation, descriptors }: BottomTabBarProps) {
   const { t } = useTranslation();

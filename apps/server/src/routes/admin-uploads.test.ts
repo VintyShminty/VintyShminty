@@ -493,7 +493,7 @@ describe.skipIf(!databaseUrl)("admin listing upload", () => {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       );
       expect(res.headers["content-disposition"]).toMatch(
-        /^attachment; filename="yadii-uploads-\d{4}-\d{2}-\d{2}\.xlsx"$/,
+        /^attachment; filename="basta-uploads-\d{4}-\d{2}-\d{2}\.xlsx"$/,
       );
 
       const book = new ExcelJS.Workbook();

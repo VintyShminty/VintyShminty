@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Yadii",
+    "name": "Basta",
     "slug": "vinty",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,7 +19,7 @@
     "android": {
       "package": "com.secondhand.marketplace",
       "adaptiveIcon": {
-        "backgroundColor": "#4B2E22",
+        "backgroundColor": "#2446A8",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -55,7 +55,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Allow Yadii to use Face ID to unlock the app."
+          "faceIDPermission": "Allow Basta to use Face ID to unlock the app."
         }
       ],
       "expo-font",

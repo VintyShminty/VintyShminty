@@ -37,7 +37,7 @@ export function PhotoTile({
   imageUrl?: string;
   /** A ready static picture (the stock photo of an item type), used when `photo` names none. */
   image?: StaticImageData;
-  /** The chosen tile of a strip: outlined in espresso. */
+  /** The chosen tile of a strip: outlined in cobalt. */
   selected?: boolean;
   /** Changes the address without adding a history entry (the strip on a results page). */
   replace?: boolean;

@@ -30,7 +30,7 @@ function bundleBarVisible(seller: ReturnType<typeof useSellerBundle>) {
 }
 
 /**
- * The espresso pill floating just above the tab bar, the same shape and shadow as the tab bar (D-050), on that seller's
+ * The cobalt pill floating just above the tab bar, the same shape and shadow as the tab bar (D-050), on that seller's
  * item pages and profile only (D-049, decision 3). The count and saving (no photos: on a phone they would cut off the
  * saving), the next step and View bundle.
  */

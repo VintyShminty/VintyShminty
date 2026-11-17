@@ -9,7 +9,7 @@ type TabsProps<K extends string> = {
   className?: string;
 };
 
-/** Text tabs with an espresso underline on the active one (Profile: Listings, Reviews, About). */
+/** Text tabs with an cobalt underline on the active one (Profile: Listings, Reviews, About). */
 function Tabs<K extends string>({ items, value, onChange, className }: TabsProps<K>) {
   return (
     <View className={cn("flex-row border-b border-border-subtle", className)} role="tablist">

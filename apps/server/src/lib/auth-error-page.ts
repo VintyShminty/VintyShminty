@@ -15,7 +15,7 @@ type Pair = { en: Message; he: Message };
 const GENERIC: Pair = {
   en: {
     title: "Something went wrong",
-    body: "We could not finish logging you in. Please go back to Yadii and try again.",
+    body: "We could not finish logging you in. Please go back to Basta and try again.",
   },
   he: {
     title: "משהו השתבש",
@@ -28,11 +28,11 @@ const MESSAGES = new Map<string, Pair>([
     "account_not_linked",
     {
       en: {
-        title: "This email already has a Yadii account",
+        title: "This email already has a Basta account",
         body: "Log in with your email and password, then confirm your email with the code we send you. After that, Google or Apple will connect to the same account.",
       },
       he: {
-        title: "לכתובת האימייל הזו כבר יש חשבון Yadii",
+        title: "לכתובת האימייל הזו כבר יש חשבון Basta",
         body: "התחברו עם האימייל והסיסמה, ואשרו את האימייל עם הקוד שנשלח אליכם. אחרי זה גוגל או אפל יתחברו לאותו חשבון.",
       },
     },
@@ -42,11 +42,11 @@ const MESSAGES = new Map<string, Pair>([
     {
       en: {
         title: "This login belongs to another account",
-        body: "That Google or Apple login is already connected to a different Yadii account. Log in with the email you used for that account.",
+        body: "That Google or Apple login is already connected to a different Basta account. Log in with the email you used for that account.",
       },
       he: {
         title: "ההתחברות הזו שייכת לחשבון אחר",
-        body: "ההתחברות עם גוגל או אפל כבר מחוברת לחשבון Yadii אחר. התחברו עם האימייל שבו השתמשתם בחשבון הזה.",
+        body: "ההתחברות עם גוגל או אפל כבר מחוברת לחשבון Basta אחר. התחברו עם האימייל שבו השתמשתם בחשבון הזה.",
       },
     },
   ],
@@ -68,7 +68,7 @@ const MESSAGES = new Map<string, Pair>([
     {
       en: {
         title: "Login cancelled",
-        body: "No problem. Go back to Yadii and try again whenever you are ready.",
+        body: "No problem. Go back to Basta and try again whenever you are ready.",
       },
       he: {
         title: "ההתחברות בוטלה",
@@ -83,15 +83,15 @@ export const KNOWN_AUTH_ERROR_CODES = [...MESSAGES.keys()];
 
 export const PAGE_STYLE = `
 *{box-sizing:border-box}
-body{margin:0;background:#FBF8F2;color:#241811;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
+body{margin:0;background:#F6F8FD;color:#1F1D1C;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
 main{max-width:480px;margin:0 auto;padding:32px 16px}
-.brand{font-size:28px;font-weight:300;letter-spacing:-0.5px;margin:0 0 24px;color:#4B2E22}
-section{background:#FFFFFF;border:1px solid #E4DACA;border-radius:20px;padding:24px;margin:0 0 16px}
+.brand{font-size:28px;font-weight:300;letter-spacing:-0.5px;margin:0 0 24px;color:#2446A8}
+section{background:#FFFFFF;border:1px solid #DADFEC;border-radius:20px;padding:24px;margin:0 0 16px}
 h1{font-size:22px;line-height:1.25;margin:0 0 8px;font-weight:700}
-p{margin:0 0 20px;color:#54443A;font-size:16px}
-a.btn{display:block;text-align:center;background:#4B2E22;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:16px;padding:14px 16px;border-radius:12px}
+p{margin:0 0 20px;color:#4A4644;font-size:16px}
+a.btn{display:block;text-align:center;background:#2446A8;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:16px;padding:14px 16px;border-radius:12px}
 a.btn:active{opacity:.85}
-.code{font-size:32px;font-weight:700;letter-spacing:4px;text-align:center;background:#F1E9DA;border-radius:12px;padding:16px;margin:0 0 20px;color:#4B2E22;direction:ltr}
+.code{font-size:32px;font-weight:700;letter-spacing:4px;text-align:center;background:#E3E9F7;border-radius:12px;padding:16px;margin:0 0 20px;color:#2446A8;direction:ltr}
 `.trim();
 
 /** Hash of the inline style, so the page's policy allows exactly this style and nothing else. */
@@ -113,7 +113,7 @@ function safeScheme(scheme: string): string {
 
 function block(lang: "en" | "he", message: Message, href: string): string {
   const he = lang === "he";
-  return `<section lang="${lang}"${he ? ' dir="rtl"' : ""}><h1>${message.title}</h1><p>${message.body}</p><a class="btn" href="${href}">${he ? "חזרה לאפליקציה" : "Back to Yadii"}</a></section>`;
+  return `<section lang="${lang}"${he ? ' dir="rtl"' : ""}><h1>${message.title}</h1><p>${message.body}</p><a class="btn" href="${href}">${he ? "חזרה לאפליקציה" : "Back to Basta"}</a></section>`;
 }
 
 /** Builds the page. `code` is only a lookup key, unknown codes (and anything hostile) get the generic message. */
@@ -126,12 +126,12 @@ export function authErrorPage(code: unknown, appScheme: string): string {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Yadii</title>
+<title>Basta</title>
 <style>${PAGE_STYLE}</style>
 </head>
 <body>
 <main>
-<p class="brand">Yadii</p>
+<p class="brand">Basta</p>
 ${block("en", pair.en, href)}
 ${block("he", pair.he, href)}
 </main>

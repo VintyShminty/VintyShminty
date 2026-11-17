@@ -29,7 +29,7 @@ function bubbleClass(side: Side) {
   );
 }
 
-/** A text bubble. Yours are filled espresso on the end side, theirs are white with a hairline on the start side. */
+/** A text bubble. Yours are filled cobalt on the end side, theirs are white with a hairline on the start side. */
 function TextBubble({ body, side }: { body: string; side: Side }) {
   return (
     <View className={bubbleClass(side)} style={tailStyle(side)}>

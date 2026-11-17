@@ -4,7 +4,7 @@ import { TextStyleContext } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import { colors } from "@/theme";
 
-// Restyled to docs/design.md: 12px radius, no shadows, espresso primary, hairline outlines.
+// Restyled to docs/design.md: 12px radius, no shadows, cobalt primary, hairline outlines.
 const buttonVariants = cva("shrink-0 flex-row items-center justify-center gap-sm rounded-control", {
   variants: {
     variant: {

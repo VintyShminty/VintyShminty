@@ -9,7 +9,7 @@ type Search = Promise<{ listing?: string; offer?: string; bundle?: string; order
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { lang } = await params;
-  if (!isLang(lang)) return { title: "Yadii" };
+  if (!isLang(lang)) return { title: "Basta" };
   return { title: getT(lang)("checkout.title"), robots: { index: false } };
 }
 

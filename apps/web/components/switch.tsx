@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * A switch: a pill with a round knob that sits at the start when off and at the end when on (so it mirrors in Hebrew
- * with no extra work). Espresso when on, a grey outline when off. Always give it a `label` for screen readers.
+ * with no extra work). Cobalt when on, a grey outline when off. Always give it a `label` for screen readers.
  */
 export function Switch({
   checked,
