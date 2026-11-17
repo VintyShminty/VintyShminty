@@ -120,6 +120,11 @@ export async function loadMe(deps: Deps, userId: string): Promise<Me | null> {
   if (!row) return null;
   const profile = await loadPublicProfile(deps, userId, userId);
   if (!profile) return null;
+  const [credential] = await deps.db
+    .select({ id: accounts.id })
+    .from(accounts)
+    .where(and(eq(accounts.userId, userId), eq(accounts.providerId, "credential")))
+    .limit(1);
   return {
     id: row.user.id,
     email: row.user.email,
@@ -130,6 +135,7 @@ export async function loadMe(deps: Deps, userId: string): Promise<Me | null> {
     profile,
     needsOnboarding: !row.user.username,
     isAdmin: row.user.role === "admin",
+    hasPassword: credential !== undefined,
   };
 }
 

@@ -14,6 +14,8 @@ export default function AccountSettings() {
   const { t } = useTranslation();
   const router = useRouter();
   const { data: me } = useQuery(meQuery());
+  // An account made with Apple or Google has no password to change.
+  const hasPassword = me?.hasPassword !== false;
 
   return (
     <Screen>
@@ -43,13 +45,16 @@ export default function AccountSettings() {
           label={t("fields.username")}
           value={me?.username ?? undefined}
           onPress={() => router.push("/settings/change-username")}
+          last={!hasPassword}
         />
-        <Row
-          icon={KeyRound}
-          label={t("account.changePassword")}
-          onPress={() => router.push("/settings/change-password")}
-          last
-        />
+        {hasPassword ? (
+          <Row
+            icon={KeyRound}
+            label={t("account.changePassword")}
+            onPress={() => router.push("/settings/change-password")}
+            last
+          />
+        ) : null}
         <SectionHeader>{t("account.dangerZone")}</SectionHeader>
         <Row
           icon={Trash2}

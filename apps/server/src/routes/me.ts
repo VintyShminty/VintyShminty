@@ -369,6 +369,14 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
             and(eq(listings.sellerId, userId), inArray(listings.status, ["active", "reserved", "hidden"])),
           );
 
+        // Hearts this person gave disappear with them, so the counters on those items go down too.
+        await tx.execute(sql`
+          update listings set favourite_count = greatest(favourite_count - 1, 0), updated_at = updated_at
+          where id in (select listing_id from favourites where user_id = ${userId})`);
+        // Every order is finished by now (checked above), so the delivery address copied onto the orders this
+        // person bought (name, street, phone) is no longer needed by anyone.
+        await tx.update(orders).set({ shippingAddress: null }).where(eq(orders.buyerId, userId));
+
         await Promise.all([
           tx.delete(favourites).where(eq(favourites.userId, userId)),
           tx.delete(savedSearches).where(eq(savedSearches.userId, userId)),

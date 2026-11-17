@@ -8,7 +8,7 @@ import {
   type OfferQuota,
   type OfferStatus,
 } from "@vinty/shared";
-import { and, count, eq, gt, ne, or, sql } from "drizzle-orm";
+import { and, count, eq, gt, lte, ne, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { isSellerAway } from "./away.js";
 import { ApiError } from "./errors.js";
@@ -155,6 +155,20 @@ export async function createOffer(
   checkAmount(amountMinor, listing.priceMinor);
   const settings = await loadOrderSettings(app.db);
   const now = new Date();
+
+  // An unanswered offer in this chat whose time is up is expired on the spot, so it never blocks the new one while
+  // the background job has not run yet.
+  const overdue = await app.db
+    .select({ id: offers.id })
+    .from(offers)
+    .where(
+      and(
+        eq(offers.conversationId, conversationId),
+        eq(offers.status, "pending"),
+        lte(offers.expiresAt, now),
+      ),
+    );
+  for (const old of overdue) await expireOffer(app, old.id, now);
 
   let created: { offer: OfferRecord; message: MessageRecord };
   try {

@@ -1,4 +1,4 @@
-import { listings, profiles, reviews, users } from "@vinty/db";
+import { blocks, follows, listings, profiles, reviews, users } from "@vinty/db";
 import {
   errorResponseSchema,
   feedPageSchema,
@@ -19,6 +19,13 @@ import { loadPublicProfile } from "../lib/profiles.js";
 import { optionalViewerId } from "../lib/viewer.js";
 
 const idParams = z.object({ id: idSchema });
+const WRITE_LIMIT = { rateLimit: { max: 60, timeWindow: "1 minute" } };
+const writeErrors = {
+  400: errorResponseSchema,
+  401: errorResponseSchema,
+  403: errorResponseSchema,
+  404: errorResponseSchema,
+};
 
 /**
  * Read only profile endpoints. They belong to Milestone 3 in docs/blueprint/api.md and arrive early
@@ -165,6 +172,137 @@ const userRoutes: FastifyPluginAsyncZod = async (app) => {
           total,
         },
       };
+    },
+  );
+
+  // ---- Follow and block ----
+
+  const userIdOf = (request: { session: { user: { id: string } } | null }) => {
+    if (!request.session) throw ApiError.unauthenticated();
+    return request.session.user.id;
+  };
+
+  /** The other person must exist and not have closed their account, and cannot be yourself. */
+  const requireOther = async (userId: string, otherId: string, selfMessage: string) => {
+    if (otherId === userId) throw ApiError.invalid(selfMessage);
+    const [other] = await db
+      .select({ deletedAt: profiles.deletedAt })
+      .from(profiles)
+      .where(eq(profiles.userId, otherId))
+      .limit(1);
+    if (!other || other.deletedAt) throw ApiError.notFound();
+  };
+
+  type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+  /** Removes one follow and lowers both counters. Does nothing when the follow is not there. */
+  const removeFollow = async (tx: Tx, followerId: string, followeeId: string) => {
+    const removed = await tx
+      .delete(follows)
+      .where(and(eq(follows.followerId, followerId), eq(follows.followeeId, followeeId)))
+      .returning({ id: follows.followeeId });
+    if (removed.length === 0) return;
+    await tx
+      .update(profiles)
+      .set({ followerCount: sql`greatest(${profiles.followerCount} - 1, 0)` })
+      .where(eq(profiles.userId, followeeId));
+    await tx
+      .update(profiles)
+      .set({ followingCount: sql`greatest(${profiles.followingCount} - 1, 0)` })
+      .where(eq(profiles.userId, followerId));
+  };
+
+  /** Follow a member. Doing it twice changes nothing. */
+  app.put(
+    "/v1/users/:id/follow",
+    {
+      preHandler: app.requireUser,
+      config: WRITE_LIMIT,
+      schema: { params: idParams, response: { 204: z.null(), ...writeErrors } },
+    },
+    async (request, reply) => {
+      const userId = userIdOf(request);
+      const otherId = request.params.id;
+      await requireOther(userId, otherId, "You cannot follow yourself");
+      const [blocked] = await db
+        .select({ id: blocks.blockerId })
+        .from(blocks)
+        .where(
+          or(
+            and(eq(blocks.blockerId, userId), eq(blocks.blockedId, otherId)),
+            and(eq(blocks.blockerId, otherId), eq(blocks.blockedId, userId)),
+          ),
+        )
+        .limit(1);
+      if (blocked) throw new ApiError(403, "blocked", "You cannot follow this person");
+      await db.transaction(async (tx) => {
+        const added = await tx
+          .insert(follows)
+          .values({ followerId: userId, followeeId: otherId })
+          .onConflictDoNothing()
+          .returning({ id: follows.followeeId });
+        if (added.length === 0) return;
+        await tx
+          .update(profiles)
+          .set({ followerCount: sql`${profiles.followerCount} + 1` })
+          .where(eq(profiles.userId, otherId));
+        await tx
+          .update(profiles)
+          .set({ followingCount: sql`${profiles.followingCount} + 1` })
+          .where(eq(profiles.userId, userId));
+      });
+      return reply.code(204).send(null);
+    },
+  );
+
+  app.delete(
+    "/v1/users/:id/follow",
+    {
+      preHandler: app.requireUser,
+      config: WRITE_LIMIT,
+      schema: { params: idParams, response: { 204: z.null(), ...writeErrors } },
+    },
+    async (request, reply) => {
+      const userId = userIdOf(request);
+      await db.transaction((tx) => removeFollow(tx, userId, request.params.id));
+      return reply.code(204).send(null);
+    },
+  );
+
+  /** Block a member. Also removes the follow in both directions. Doing it twice changes nothing. */
+  app.put(
+    "/v1/users/:id/block",
+    {
+      preHandler: app.requireUser,
+      config: WRITE_LIMIT,
+      schema: { params: idParams, response: { 204: z.null(), ...writeErrors } },
+    },
+    async (request, reply) => {
+      const userId = userIdOf(request);
+      const otherId = request.params.id;
+      await requireOther(userId, otherId, "You cannot block yourself");
+      await db.transaction(async (tx) => {
+        await tx.insert(blocks).values({ blockerId: userId, blockedId: otherId }).onConflictDoNothing();
+        await removeFollow(tx, userId, otherId);
+        await removeFollow(tx, otherId, userId);
+      });
+      return reply.code(204).send(null);
+    },
+  );
+
+  app.delete(
+    "/v1/users/:id/block",
+    {
+      preHandler: app.requireUser,
+      config: WRITE_LIMIT,
+      schema: { params: idParams, response: { 204: z.null(), ...writeErrors } },
+    },
+    async (request, reply) => {
+      const userId = userIdOf(request);
+      await db
+        .delete(blocks)
+        .where(and(eq(blocks.blockerId, userId), eq(blocks.blockedId, request.params.id)));
+      return reply.code(204).send(null);
     },
   );
 };

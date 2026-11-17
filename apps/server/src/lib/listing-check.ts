@@ -10,7 +10,7 @@ import {
   type ReportReason,
   type ReportUrgency,
 } from "@vinty/shared";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { Env } from "../env.js";
@@ -479,6 +479,16 @@ export function createListingChecker(
         { ms: Date.now() - startedAt, error: error instanceof Error ? error.name : "unknown" },
         "listing check failed",
       );
+      // A live listing that missed its check (AI off, capped or failing) is marked as not checked, so the nightly
+      // catch-up picks it up. Without this an edit made while the AI is off would never be looked at.
+      try {
+        await app.db
+          .update(listings)
+          .set({ stylesTaggedAt: null, updatedAt: sql`${listings.updatedAt}` })
+          .where(eq(listings.id, listingId));
+      } catch {
+        // The check itself never throws, and neither does this note for the catch-up.
+      }
       return error instanceof AiRefusedError ? "refused" : "failed";
     }
   };

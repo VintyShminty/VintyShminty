@@ -320,6 +320,7 @@ export async function createOrder(
         .where(and(eq(orders.buyerId, buyerId), eq(orders.status, "pending_payment")))
         .for("update");
       let reuse: OrderRecord | undefined;
+      const releasedIds: string[] = [];
       for (const old of open) {
         const items = await tx
           .select({ listingId: orderItems.listingId })
@@ -354,6 +355,22 @@ export async function createOrder(
             actorRole: "buyer",
             note: "Replaced by a new checkout",
           });
+          // Items of the dropped checkout that are not in the new one go back on sale right away.
+          const dropped = oldIds.filter((id) => !listingIds.includes(id));
+          if (dropped.length > 0) {
+            const back = await tx
+              .update(listings)
+              .set({ status: "active", reservedForUserId: null, reservedUntil: null })
+              .where(
+                and(
+                  inArray(listings.id, dropped),
+                  eq(listings.status, "reserved"),
+                  eq(listings.reservedForUserId, buyerId),
+                ),
+              )
+              .returning({ id: listings.id });
+            for (const { id } of back) releasedIds.push(id);
+          }
         }
       }
 
@@ -453,7 +470,7 @@ export async function createOrder(
         .update(listings)
         .set({ status: "reserved", reservedForUserId: buyerId, reservedUntil: payBy })
         .where(inArray(listings.id, listingIds));
-      return { order, created, listingIds };
+      return { order, created, listingIds: [...listingIds, ...releasedIds] };
     });
   } catch (err) {
     if (isUniqueViolation(err)) {
