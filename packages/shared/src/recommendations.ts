@@ -155,9 +155,28 @@ export function countsAsPriceDrop(drop: {
 }
 export const FIRST_CHANCE_HOURS = 72;
 export const FIRST_CHANCE_MAX_VIEWS = 50;
-/** Shown this many times in 7 days and never opened: the item drops. */
-export const SEEN_PENALTY_AFTER = 3;
+/**
+ * A card shown on Home in the last 7 days and never opened moves down a little more each time (plan section 15).
+ * Per view it loses a tenth of SEEN_PENALTY outright, which is what moves a card for a person Home knows little about,
+ * and its taste score counts SEEN_KEEP_PER_VIEW of what it did (never under SEEN_KEEP_MIN), which is what moves a
+ * strong taste match. Small steps on purpose: the first cards of Home are "seen" every time the app opens.
+ */
 export const SEEN_PENALTY = 0.5;
+/** The full SEEN_PENALTY is reached after this many views. */
+export const SEEN_PENALTY_VIEWS = 10;
+export const SEEN_KEEP_PER_VIEW = 0.95;
+export const SEEN_KEEP_MIN = 0.4;
+/** A new listing shown this many times and never opened gives up its kept spot (section 12.1). */
+export const FRESH_SLOT_MAX_VIEWS = 3;
+
+/** What `shown` views without an open do to a card: the share of its taste score it keeps and what it loses outright. */
+export function seenEffect(shown: number): { keep: number; minus: number } {
+  const views = Math.max(0, shown);
+  return {
+    keep: Math.max(SEEN_KEEP_MIN, SEEN_KEEP_PER_VIEW ** views),
+    minus: SEEN_PENALTY * Math.min(1, views / SEEN_PENALTY_VIEWS),
+  };
+}
 /**
  * An item the person opened in the last 7 days keeps only this share of its taste score on Home, so the same cards do
  * not sit on top on every visit (plan section 12.2). What the open taught about their taste stays.

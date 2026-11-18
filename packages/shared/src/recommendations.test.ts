@@ -9,6 +9,7 @@ import {
   HALF_LIFE_DAYS,
   priceBand,
   type ScoredItem,
+  seenEffect,
   VARIETY,
 } from "./recommendations.js";
 
@@ -103,6 +104,19 @@ describe("affinityDeltas", () => {
   });
   it("makes nothing for an impression", () => {
     expect(affinityDeltas(0, { categoryId: "dress" })).toEqual([]);
+  });
+});
+
+describe("cards shown and not opened", () => {
+  it("lose a little per view, in small steps", () => {
+    expect(seenEffect(0)).toEqual({ keep: 1, minus: 0 });
+    expect(seenEffect(1).keep).toBeCloseTo(0.95);
+    expect(seenEffect(1).minus).toBeCloseTo(0.05);
+    expect(seenEffect(3).keep).toBeCloseTo(0.857, 3);
+    expect(seenEffect(3).minus).toBeCloseTo(0.15);
+    // Both parts stop: the minus at a half after ten views, the taste at 40 percent.
+    expect(seenEffect(10).minus).toBeCloseTo(0.5);
+    expect(seenEffect(40)).toEqual({ keep: 0.4, minus: 0.5 });
   });
 });
 

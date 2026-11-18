@@ -224,20 +224,25 @@ describe("scoreCandidate", () => {
     expect(bestTerm(followed.terms)?.kind).toBe("follows_seller");
   });
 
-  it("drops an item shown 3 times in 7 days and never opened", () => {
+  it("moves a card down a little more each time it is shown and not opened", () => {
+    const shownTimes = (shown: number, opened = 0, over: Partial<Taste> = {}) =>
+      scoreCandidate(candidate(), taste({ ...over, seen: new Map([["i1", { shown, opened }]]) }), ctx).score;
     const clean = scoreCandidate(candidate(), taste(), ctx).score;
-    const ignored = scoreCandidate(
-      candidate(),
-      taste({ seen: new Map([["i1", { shown: 3, opened: 0 }]]) }),
-      ctx,
-    ).score;
-    const opened = scoreCandidate(
-      candidate(),
-      taste({ seen: new Map([["i1", { shown: 5, opened: 1 }]]) }),
-      ctx,
-    ).score;
-    expect(clean - ignored).toBeCloseTo(0.5);
-    expect(opened).toBeCloseTo(clean);
+    // With no taste to scale: a twentieth per view, up to a half after ten views.
+    expect(clean - shownTimes(1)).toBeCloseTo(0.05);
+    expect(clean - shownTimes(3)).toBeCloseTo(0.15);
+    expect(clean - shownTimes(10)).toBeCloseTo(0.5);
+    expect(clean - shownTimes(25)).toBeCloseTo(0.5);
+    // An opened card follows the opened rule instead, however often it was shown.
+    expect(shownTimes(5, 1)).toBeCloseTo(clean);
+
+    // A strong taste match (follows the seller 1, chosen size 0.6) also keeps 95 percent of its taste per view.
+    const likes = { follows: new Set(["s1"]), chosenSizes: new Set(["m"]) };
+    const liked = scoreCandidate(candidate(), taste(likes), ctx).score;
+    expect(liked - shownTimes(1, 0, likes)).toBeCloseTo(1.6 * 0.05 + 0.05);
+    expect(liked - shownTimes(4, 0, likes)).toBeCloseTo(1.6 * (1 - 0.95 ** 4) + 0.2);
+    // Both parts stop: at 40 percent of the taste and at a half outright.
+    expect(liked - shownTimes(100, 0, likes)).toBeCloseTo(1.6 * 0.6 + 0.5);
   });
 
   it("counts the taste of an item opened this week for half, and leaves the general score alone", () => {
