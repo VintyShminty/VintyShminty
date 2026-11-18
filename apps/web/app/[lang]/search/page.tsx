@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/empty-state";
 import { FilterBar, FilterProvider, PendingFade } from "@/components/filter-bar";
 import { InfiniteItemGrid } from "@/components/infinite-item-grid";
 import { SaveSearchButton } from "@/components/lists/save-search-button";
+import { SearchVisit } from "@/components/search-visit";
 import { serverApi } from "@/lib/api";
 import { pagePath } from "@/lib/feed-url";
 import { buildFilterOptions, listingQuery, paramValue, parseCategories, parseFilters } from "@/lib/filters";
@@ -72,6 +73,7 @@ export default async function SearchPage({
         </h1>
         {sellers ? null : <SaveSearchButton q={q} query={queryString(sp)} />}
       </div>
+      {sellers ? null : <SearchVisit q={q} query={queryString(sp)} />}
       <nav aria-label={t("web.search.tabsLabel")} className="mt-lg flex gap-sm">
         <Chip href={tabHref("items")} replace selected={!sellers} label={t("search.items")} />
         <Chip href={tabHref("sellers")} replace selected={sellers} label={t("search.sellers")} />

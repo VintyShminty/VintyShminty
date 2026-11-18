@@ -627,3 +627,60 @@ The spots kept for new listings (section 12.1) covered the last 72 hours. The li
 - The best match keeps its place for the whole week instead of three days.
 - The weaker match does worse in its first days. The sample shop has about 20 listings a week, so a longer window means more new listings compete for the same 4 spots, and the best fit goes first.
 - On live that competition does not exist yet (4 new listings a week). When listings arrive every day, the window should come down again.
+
+## 17. Home learns from searches and offers a bit of what was searched (2026-11-18)
+
+### Why
+
+> if a person searches for nike sneakers - then the algorithm should learn that to some extent, the user was interested in nike sneakers, and if such exists - we should offer him a bit of that.
+> (Eden)
+
+Eden also decided against a question on Home for people who skipped "What do you shop for": Home has to learn from what they do. Most of that worked already (opens, time on an item, hearts, messages, the shopping group worked out from behaviour, section 11.1). Searching did not:
+
+- A search taught Home something only when the person also picked a category or exactly one brand. The words taught nothing. All 7 searches recorded on live by 2026-11-18 were words only.
+- The website never reported a search.
+- One search is a small signal. Even when learned, it changed nothing a person could see on Home.
+
+### 17.1 What a search was about
+
+When a search by words is recorded (`POST /v1/me/recent-searches` and saved searches), the server reads its 20 best results (`searchAbout` in `apps/server/src/lib/search-intent.ts`, `searchIntent` in `packages/shared/src/recommendations.ts`):
+
+- **Brand:** the brand at least 60 percent of them share.
+- **Category:** the deepest category at least 80 percent of them are in. "nike sneakers" gives Sneakers, "shoes" gives Shoes. The bar is higher than for the brand, so "adidas", which finds mostly clothing and some shoes, is about Adidas and not about Adidas clothing.
+- **The same kind of item in several groups:** sneakers for women, men and kids are three categories in our tree. When no single one wins, they count together, and the search is about each of them (up to three).
+- **The person's own groups first:** when Home knows the person's shopping groups, the results inside those groups are read first. For a man, "sneakers" is about men's sneakers.
+- A category or a single brand the person picked wins over what the results say.
+- No results, or a bit of everything, is about nothing in particular. Nothing is learned and nothing is offered.
+
+It reads results, not the meaning of words, so Hebrew and English work the same. The action is written to the diary with the category and brand, one row per category, and teaches the taste profile as a search always did (weight 1, section 1.1).
+
+### 17.2 Up to 2 cards in 20 for what was searched
+
+- For 7 days after a search (`SEARCH_SLOT_DAYS`), each page of 20 keeps up to 2 spots (cards 4 and 10, `VARIETY.searchSlots`) for items that match it: the brand and the category when the search had both, otherwise the one it had. Home looks at the person's 6 latest searches.
+- A spot takes the best scoring matching item that is left. The score itself does not change.
+- An item already opened, or shown three times and never opened, does not take a spot (sections 12.2 and 15.1), so the spot moves on to the next match.
+- The newest 60 matching items join the candidates, so there is something to show also when the person's taste is elsewhere.
+- A search about a whole top category and no brand (all of Women) is too wide and gets no spots.
+- With nothing matching, no spot is used and the page is as it was.
+- People who are not signed in, and people with "Tailor Home to what I do" off, are not affected.
+
+The card's reason on the long press sheet is "You like Nike" or "You look at Sneakers a lot" (the wording that exists). A sentence of its own ("You searched for Nike") needs a new kind of reason. App versions that do not know a kind refuse the whole Home answer, so that waits until an app update has reached people.
+
+### 17.3 The website reports searches
+
+`SearchVisit` on the website's search page sends the same `POST /v1/me/recent-searches` as the app, for a logged in person, once per search. Website searches now also show in the app's recent searches.
+
+### 17.4 Measured (sample data)
+
+Matching cards among the first 20 on Home, before and after one search:
+
+| Search | By | Understood as | Before | After |
+|---|---|---|---|---|
+| "vans sneakers" | a man who has done nothing else | men's sneakers, Vans | 2 (cards 1, 17) | 2 (cards 1, 3), the shop has 2 for men |
+| "sneakers" | the same man | men's sneakers | 4 (cards 1, 3, 10, 12) | 4 (cards 1, 3, 4, 10) |
+| "sneakers" | someone Home knows nothing about | sneakers for men and women | 1 | 4 (cards 2, 4, 10, 20) |
+| "adidas" | someone Home knows nothing about | Adidas | 0 | 3 (cards 4, 10, 17) |
+| "adidas" | the active member (Zara, dresses) | Adidas | 0 | 2 (cards 4, 10) |
+| "blazer" | the same active member | women's blazers | 1 (card 10) | 2 (cards 4, 10) |
+
+The effect is clearest where it matters: a person whose Home was led by something else now sees two cards of what they just searched for.

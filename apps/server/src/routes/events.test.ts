@@ -377,6 +377,35 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
       expect(Math.min(...opened)).toBeGreaterThan(index(unseen.id));
     });
 
+    it("learns from a search by words and offers a bit of it on Home", async () => {
+      const p = await newPersonWith("srch");
+      // The word is in the title of every listing of this test file and nowhere else, all in one category.
+      expect((await call("POST", "/v1/me/recent-searches", p.token, { queryText: word })).statusCode).toBe(
+        204,
+      );
+      const [event] = await eventRows(p.id, "search");
+      expect(event?.categoryId).toBe(sized.id);
+      // Home learned the category from the words alone...
+      const lines = await affinityRows(p.id);
+      expect(lines.some((l) => l.feature === "category" && l.featureKey === sized.id && l.score > 0)).toBe(
+        true,
+      );
+      // ...and keeps a card for it. One search is far too little for a taste reason any other way.
+      const page = await feed(p.token, "limit=20");
+      expect(page.items[3]?.reason?.kind).toMatch(/like_category|like_brand/);
+
+      // A search that finds nothing teaches nothing and offers nothing.
+      const q = await newPersonWith("srch0");
+      await call("POST", "/v1/me/recent-searches", q.token, { queryText: "zzqqxx nothing here" });
+      const [none] = await eventRows(q.id, "search");
+      expect(none?.categoryId ?? null).toBeNull();
+      expect(none?.brandId ?? null).toBeNull();
+      const plain = await feed(q.token, "limit=20");
+      expect(plain.items.some((i) => ["like_category", "like_brand"].includes(i.reason?.kind ?? ""))).toBe(
+        false,
+      );
+    });
+
     it("gives a new person the general feed with no taste reasons", async () => {
       const p = await newPersonWith("fresh");
       const page = await feed(p.token, "limit=50");

@@ -224,7 +224,84 @@ export function resolveGroups(
 /** Newest items in the last 7 days make up the "new" pile. */
 export const NEW_PILE_DAYS = 7;
 
-export const PILES = { taste: 300, new: 150, popular: 100, explore: 50 } as const;
+export const PILES = { taste: 300, new: 150, popular: 100, explore: 50, searched: 60 } as const;
+
+/** How many of a search's best results are read to work out what it was about (plan section 17.1). */
+export const SEARCH_INTENT_SAMPLE = 20;
+/** A brand is what the search was about when it holds this share of those results. */
+export const SEARCH_INTENT_SHARE = 0.6;
+/**
+ * A category needs more of them. "adidas" finds mostly clothing and some shoes: that search is about Adidas, not about
+ * Adidas clothing. "nike sneakers" finds sneakers only.
+ */
+export const SEARCH_INTENT_CATEGORY_SHARE = 0.8;
+/** A search keeps its cards on Home for this many days (plan section 17.2). */
+export const SEARCH_SLOT_DAYS = 7;
+/** Home looks at this many of the person's latest searches (one search can be about three categories). */
+export const SEARCH_SLOT_SEARCHES = 6;
+
+/** One search is about at most this many categories (the same kind of item under Women, Men and Kids). */
+export const SEARCH_INTENT_CATEGORIES = 3;
+
+/**
+ * What a search was about, read from its best results. `trail` is the path of a result's category from the top
+ * (Women) down to its own (Sneakers), empty when it has none. `kinds` names the same steps without the top one
+ * ("", "Shoes", "Shoes > Sneakers"), so the same kind of item can be recognised under Women, Men and Kids.
+ *
+ * The category is the deepest one that holds enough of the results: "nike sneakers" gives Sneakers, "shoes" gives
+ * Shoes. When the results are the same kind of item spread over the groups (sneakers for women, men and kids), the
+ * search is about each of those. The brand is the one most of the results share. Nothing means nothing in particular:
+ * no results, or a bit of everything.
+ */
+export function searchIntent(
+  results: readonly { trail: readonly string[]; kinds?: readonly string[]; brandId: string | null }[],
+): { categoryIds: string[]; brandId: string | null } {
+  if (results.length === 0) return { categoryIds: [], brandId: null };
+  const need = results.length * SEARCH_INTENT_CATEGORY_SHARE;
+  const needBrand = results.length * SEARCH_INTENT_SHARE;
+  const nodes = new Map<string, { count: number; depth: number }>();
+  const kinds = new Map<string, { count: number; depth: number; ids: Map<string, number> }>();
+  const brands = new Map<string, number>();
+  for (const r of results) {
+    r.trail.forEach((id, depth) => {
+      const found = nodes.get(id);
+      if (found) found.count += 1;
+      else nodes.set(id, { count: 1, depth });
+      const kind = depth > 0 ? r.kinds?.[depth] : undefined;
+      if (!kind) return;
+      const family = kinds.get(kind) ?? { count: 0, depth, ids: new Map<string, number>() };
+      family.count += 1;
+      family.ids.set(id, (family.ids.get(id) ?? 0) + 1);
+      kinds.set(kind, family);
+    });
+    if (r.brandId) brands.set(r.brandId, (brands.get(r.brandId) ?? 0) + 1);
+  }
+  const deepest = <T extends { count: number; depth: number }>(all: Iterable<T>): T | null => {
+    let best: T | null = null;
+    for (const one of all) {
+      if (one.count < need) continue;
+      if (!best || one.depth > best.depth || (one.depth === best.depth && one.count > best.count)) best = one;
+    }
+    return best;
+  };
+  const one = deepest([...nodes].map(([id, node]) => ({ id, ...node })));
+  const family = deepest(kinds.values());
+  let categoryIds: string[] = [];
+  // One real category below the top wins. Then the same kind of item over several groups. Then a whole group.
+  if (one && one.depth > 0 && (!family || family.depth <= one.depth)) categoryIds = [one.id];
+  else if (family) {
+    categoryIds = [...family.ids]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, SEARCH_INTENT_CATEGORIES)
+      .map(([id]) => id);
+  } else if (one) categoryIds = [one.id];
+
+  let brandId: string | null = null;
+  for (const [id, count] of brands) {
+    if (count >= needBrand && count > (brandId ? (brands.get(brandId) ?? 0) : 0)) brandId = id;
+  }
+  return { categoryIds, brandId };
+}
 /** The first page builds one sorted list of this many items and saves it. After that the feed goes newest first. */
 export const SNAPSHOT_SIZE = 500;
 export const SNAPSHOT_TTL_MS = 2 * 60 * 60 * 1000;
@@ -239,6 +316,8 @@ export const VARIETY = {
   exploreSlots: [5, 12, 19],
   /** Up to 4 cards in 20 go to new listings that match the person, best fit first (plan section 12.1). */
   freshSlots: [1, 6, 11, 16],
+  /** Up to 2 cards in 20 go to what the person searched for in the last 7 days (plan section 17.2). */
+  searchSlots: [3, 9],
 } as const;
 
 /** Raw actions are kept this long. Impressions ("card seen") are kept a shorter time. */
@@ -260,24 +339,27 @@ export type ScoredItem = {
   isExplore: boolean;
   /** Eligible for the spots kept for new listings. */
   isFresh: boolean;
+  /** Eligible for the spots kept for what the person searched for lately. */
+  isSearched: boolean;
 };
 
 /**
  * Cuts one sorted list into pages that follow the variety rules. Items that do not fit a page stay for the next one.
- * The surprise slots take the best unused explore item and the new listing spots the best unused new one. When nothing
- * fits, the rules give way rather than leave a hole.
- * Returns the item ids in order together with whether each one was placed in a surprise slot or a new listing spot.
+ * The surprise slots take the best unused explore item, the new listing spots the best unused new one and the search
+ * spots the best unused item the person searched for. When nothing fits, the rules give way rather than leave a hole.
+ * Returns the item ids in order together with the kind of spot each one was placed in, if any.
  */
 export function arrangeFeed(
   sorted: readonly ScoredItem[],
   limit: number,
-  variety: Omit<typeof VARIETY, "exploreSlots" | "freshSlots"> & {
+  variety: Omit<typeof VARIETY, "exploreSlots" | "freshSlots" | "searchSlots"> & {
     exploreSlots: readonly number[];
     freshSlots: readonly number[];
+    searchSlots: readonly number[];
   } = VARIETY,
-): { id: string; explore: boolean; fresh: boolean }[] {
+): { id: string; explore: boolean; fresh: boolean; searched: boolean }[] {
   const pool = [...sorted];
-  const out: { id: string; explore: boolean; fresh: boolean }[] = [];
+  const out: { id: string; explore: boolean; fresh: boolean; searched: boolean }[] = [];
   const bumpedAt: number[] = [];
   while (out.length < limit && pool.length > 0) {
     const sellers = new Map<string, number>();
@@ -299,10 +381,14 @@ export function arrangeFeed(
       const surprise = index !== -1;
       if (!surprise && wantsFresh) index = pool.findIndex((i) => i.isFresh && fits(i));
       const fresh = !surprise && index !== -1;
+      if (index === -1 && variety.searchSlots.includes(slot)) {
+        index = pool.findIndex((i) => i.isSearched && fits(i));
+      }
+      const searched = !surprise && !fresh && index !== -1;
       if (index === -1) index = pool.findIndex(fits);
       if (index === -1) index = 0;
       const [item] = pool.splice(index, 1) as [ScoredItem];
-      out.push({ id: item.id, explore: surprise, fresh });
+      out.push({ id: item.id, explore: surprise, fresh, searched });
       sellers.set(item.sellerId, (sellers.get(item.sellerId) ?? 0) + 1);
       bump(brands, item.brandId);
       bump(categories, item.categoryId);

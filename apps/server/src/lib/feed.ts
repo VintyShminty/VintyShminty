@@ -46,6 +46,8 @@ import {
   type ReferenceData,
   resolveGroups,
   type ScoredItem,
+  SEARCH_SLOT_DAYS,
+  SEARCH_SLOT_SEARCHES,
   SHUFFLE_SIZE,
   SNAPSHOT_SIZE,
   SNAPSHOT_TTL_MS,
@@ -95,7 +97,29 @@ export type Taste = {
   chosenSizes: Set<string>;
   /** Listing id to how often it was shown in the last 7 days and how often it was opened. */
   seen: Map<string, { shown: number; opened: number }>;
+  /** What the person searched for in the last 7 days, newest first (plan section 17.2). */
+  searches: RecentSearch[];
 };
+
+/** One recent search as Home uses it: the category it was about (with everything under it) and the brand, either may be missing. */
+export type RecentSearch = {
+  categoryId: string | null;
+  categoryIds: Set<string> | null;
+  brandId: string | null;
+};
+
+/** The first recent search this item answers, or null. */
+export function searchedFor(
+  c: { categoryId: string | null; brandId: string | null },
+  searches: readonly RecentSearch[],
+): RecentSearch | null {
+  for (const s of searches) {
+    if (s.brandId && c.brandId !== s.brandId) continue;
+    if (s.categoryIds && !(c.categoryId && s.categoryIds.has(c.categoryId))) continue;
+    return s;
+  }
+  return null;
+}
 
 /** The fading taste lines of one person, as values from 0 to 1 plus the confidence. Pure, so it can be tested. */
 export function buildTaste(
@@ -158,7 +182,7 @@ async function loadTaste(
   const settings = await feedSettings(app, viewerId);
   if (!settings.on) return null;
   const { db } = app;
-  const [lines, followed, brandRows, sizeRows, seenRows] = await Promise.all([
+  const [lines, followed, brandRows, sizeRows, seenRows, searchRows] = await Promise.all([
     db.select().from(userAffinities).where(eq(userAffinities.userId, viewerId)),
     db.select({ id: follows.followeeId }).from(follows).where(eq(follows.followerId, viewerId)),
     db.select({ id: userBrands.brandId }).from(userBrands).where(eq(userBrands.userId, viewerId)),
@@ -178,8 +202,35 @@ async function loadTaste(
         ),
       )
       .groupBy(userEvents.listingId),
+    db
+      .select({ categoryId: userEvents.categoryId, brandId: userEvents.brandId })
+      .from(userEvents)
+      .where(
+        and(
+          eq(userEvents.userId, viewerId),
+          inArray(userEvents.type, ["search", "save_search"]),
+          sql`${userEvents.occurredAt} > now() - ${`${SEARCH_SLOT_DAYS} days`}::interval`,
+          sql`(${userEvents.categoryId} is not null or ${userEvents.brandId} is not null)`,
+        ),
+      )
+      .groupBy(userEvents.categoryId, userEvents.brandId)
+      .orderBy(sql`max(${userEvents.occurredAt}) desc`)
+      .limit(SEARCH_SLOT_SEARCHES),
   ]);
   const roots = new Set(reference.categories.map((c) => c.id));
+  // A search about a whole top category and no brand (all of Women) is too wide to offer "a bit of that".
+  const searches: RecentSearch[] = searchRows.flatMap((r) => {
+    const wide = r.categoryId !== null && roots.has(r.categoryId);
+    const categoryId = wide ? null : r.categoryId;
+    if (!categoryId && !r.brandId) return [];
+    return [
+      {
+        categoryId,
+        categoryIds: categoryId ? new Set(categorySubtreeIds(reference.categories, categoryId)) : null,
+        brandId: r.brandId,
+      },
+    ];
+  });
   const base = buildTaste(
     lines.map((l) => ({ feature: l.feature, key: l.featureKey, score: l.score, scoredAt: l.scoredAt })),
     roots,
@@ -195,6 +246,7 @@ async function loadTaste(
         r.listingId ? [[r.listingId, { shown: r.shown, opened: r.opened }] as const] : [],
       ),
     ),
+    searches,
   };
 }
 
@@ -288,7 +340,7 @@ export function scoreCandidate(
   c: Candidate,
   taste: Taste | null,
   ctx: ScoreContext,
-): { score: number; terms: Term[]; fresh: boolean } {
+): { score: number; terms: Term[]; fresh: boolean; searched: RecentSearch | null } {
   const terms: Term[] = [];
   const add = (value: number, kind: FeedReasonKind, ref: ReasonRef = null) => {
     if (value > 0) terms.push({ value, kind, ref });
@@ -425,6 +477,8 @@ export function scoreCandidate(
       (learned + chosen) * (opened ? OPENED_KEEP : seenKeep) + general - penalty + shuffleOf(ctx.seed, c.id),
     terms,
     fresh: publishedHours < FRESH_SLOT_HOURS && !lowered && !opened && match,
+    // What the person searched for lately may take a search spot (plan section 17.2), on the same terms.
+    searched: taste && !lowered && !opened ? searchedFor(c, taste.searches) : null,
   };
 }
 
@@ -630,7 +684,16 @@ async function loadCandidates(
     return inside.length >= EXPLORE_GROUP_MIN ? inside : select(exploreExtra, order, PILES.explore);
   };
 
-  const [tastePile, newPile, popularPile, explorePile] = await Promise.all([
+  // What the person searched for in the last 7 days, newest listings first, so the search spots have something to show.
+  const searchParts = (taste?.searches ?? []).map((s) =>
+    and(
+      s.brandId ? eq(listings.brandId, s.brandId) : undefined,
+      s.categoryIds ? inArray(listings.categoryId, [...s.categoryIds]) : undefined,
+    ),
+  );
+  const searchedAny = or(...searchParts);
+
+  const [tastePile, newPile, popularPile, explorePile, searchedPile] = await Promise.all([
     tasteConditions.length
       ? select(tasteConditions, [desc(listings.bumpedAt), desc(listings.id)], PILES.taste)
       : Promise.resolve([]),
@@ -646,10 +709,13 @@ async function loadCandidates(
     ),
     // The same surprises all day for one person, different between people.
     explore(),
+    searchedAny
+      ? select([searchedAny], [desc(listings.bumpedAt), desc(listings.id)], PILES.searched)
+      : Promise.resolve([]),
   ]);
 
   const byId = new Map<string, Candidate>();
-  for (const row of [...tastePile, ...newPile, ...popularPile]) {
+  for (const row of [...tastePile, ...newPile, ...popularPile, ...searchedPile]) {
     if (!byId.has(row.id)) byId.set(row.id, toCandidate(row, false));
   }
   for (const row of explorePile) {
@@ -708,7 +774,7 @@ async function createSnapshot(app: App, scope: FeedScope, reference: ReferenceDa
     .map((c) => ({ c, ...scoreCandidate(c, taste, ctx) }))
     .sort((a, b) => b.score - a.score || (a.c.id < b.c.id ? 1 : -1));
 
-  const items: ScoredItem[] = scored.map(({ c, score, fresh }) => ({
+  const items: ScoredItem[] = scored.map(({ c, score, fresh, searched }) => ({
     id: c.id,
     score,
     sellerId: c.sellerId,
@@ -717,6 +783,7 @@ async function createSnapshot(app: App, scope: FeedScope, reference: ReferenceDa
     isBumped: c.bumpedUntil !== null && c.bumpedUntil > now,
     isExplore: c.explore,
     isFresh: fresh,
+    isSearched: searched !== null,
   }));
   const arranged = arrangeFeed(items, SNAPSHOT_SIZE);
 
@@ -743,6 +810,29 @@ async function createSnapshot(app: App, scope: FeedScope, reference: ReferenceDa
     }
     if (a.explore) {
       reasons.push({ kind: "explore", name: null });
+      continue;
+    }
+    // A card in a search spot names the brand or the category the person searched for. There is no wording for
+    // "you searched for this" yet: a new kind of reason would break app versions that do not know it.
+    if (a.searched && entry.searched) {
+      const s = entry.searched;
+      const ref: ReasonRef =
+        s.brandId && entry.c.brandId
+          ? { type: "brand", id: entry.c.brandId }
+          : s.categoryId
+            ? { type: "category", id: s.categoryId }
+            : null;
+      reasons.push(
+        ref
+          ? await resolveReason(
+              ref.type === "brand" ? "like_brand" : "like_category",
+              ref,
+              entry.c,
+              reference,
+              usernames,
+            )
+          : null,
+      );
       continue;
     }
     // A card in a spot kept for new listings says so, whatever else it matches.
