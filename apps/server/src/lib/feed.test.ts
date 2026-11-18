@@ -1,4 +1,4 @@
-import { type AffinityFeature, OTHER_GROUP_MINUS, resolveGroups } from "@vinty/shared";
+import { type AffinityFeature, OPENED_KEEP, OTHER_GROUP_MINUS, resolveGroups } from "@vinty/shared";
 import { describe, expect, it } from "vitest";
 import { bestTerm, buildTaste, type Candidate, scoreCandidate, type Taste } from "./feed.js";
 
@@ -63,6 +63,8 @@ const candidate = (over: Partial<Candidate> = {}): Candidate => ({
   priceBand: 1,
   priceMinor: 7000,
   previousPriceMinor: null,
+  priceDropAgeDays: null,
+  lowestRecentPriceMinor: null,
   bumpedAt: daysAgo(10),
   bumpedUntil: null,
   publishedAt: daysAgo(10),
@@ -238,14 +240,101 @@ describe("scoreCandidate", () => {
     expect(opened).toBeCloseTo(clean);
   });
 
+  it("counts the taste of an item opened this week for half, and leaves the general score alone", () => {
+    const likes = { follows: new Set(["s1"]), chosenSizes: new Set(["m"]) };
+    const fresh = candidate({ bumpedAt: hoursAgo(0) });
+    const clean = scoreCandidate(fresh, taste(likes), ctx).score;
+    const opened = scoreCandidate(
+      fresh,
+      taste({ ...likes, seen: new Map([["i1", { shown: 2, opened: 1 }]]) }),
+      ctx,
+    ).score;
+    // Follows the seller (1) plus a chosen size (0.6): half of 1.6 goes, the freshness stays.
+    expect(OPENED_KEEP).toBe(0.5);
+    expect(clean - opened).toBeCloseTo(0.8);
+  });
+
+  it("offers a listing of the last 72 hours for the new listing spots, unless it was lowered for this person", () => {
+    const young = candidate({ publishedAt: hoursAgo(10) });
+    const seenAs = (shown: number, opened: number) => taste({ seen: new Map([["i1", { shown, opened }]]) });
+    expect(scoreCandidate(young, null, ctx).fresh).toBe(true);
+    expect(scoreCandidate(young, taste(), ctx).fresh).toBe(true);
+    expect(scoreCandidate(candidate({ publishedAt: hoursAgo(80) }), taste(), ctx).fresh).toBe(false);
+    expect(scoreCandidate(candidate({ publishedAt: null }), taste(), ctx).fresh).toBe(false);
+    // Already opened, or scrolled past three times: the spot goes to something they have not looked at.
+    expect(scoreCandidate(young, seenAs(1, 1), ctx).fresh).toBe(false);
+    expect(scoreCandidate(young, seenAs(3, 0), ctx).fresh).toBe(false);
+    expect(scoreCandidate(young, seenAs(2, 0), ctx).fresh).toBe(true);
+    // The shopping group alone is not a match: with nothing learned, a man's new listings lead through the general score.
+    const man = taste({ groups: new Set(["M"]) });
+    const under = (top: string) => ({ ...ctx, parentsOf: () => [top], groupRoots: new Set(["W", "M"]) });
+    expect(scoreCandidate(young, man, under("W")).fresh).toBe(false);
+    expect(scoreCandidate(young, man, under("M")).fresh).toBe(false);
+  });
+
+  it("keeps the new listing spots for the kind of thing the person looks at", () => {
+    const young = candidate({ publishedAt: hoursAgo(10) });
+    // Women > Dresses > Midi and Maxi, Women > Skirts > Mini.
+    const parents: Record<string, string[]> = {
+      midi: ["dresses", "W"],
+      maxi: ["dresses", "W"],
+      skirt: ["skirts", "W"],
+    };
+    const treeCtx = { ...ctx, parentsOf: (id: string) => parents[id] ?? [], groupRoots: new Set(["W", "M"]) };
+    const lines = [
+      line("category", "midi", 30),
+      line("parent_category", "dresses", 15),
+      line("parent_category", "W", 15),
+      line("brand", "zara", 20),
+      line("seller", "s9", 10),
+    ];
+    const her = taste({ ...buildTaste(lines, new Set(["W", "M"]), now), groups: new Set(["W"]) });
+    const fresh = (over: Partial<Candidate>, t: Taste = her) =>
+      scoreCandidate(candidate({ ...young, brandId: "mango", ...over }), t, treeCtx).fresh;
+    // Her category, the one next to it under the same parent, her brand, a seller she likes.
+    expect(fresh({ categoryId: "midi" })).toBe(true);
+    expect(fresh({ categoryId: "maxi" })).toBe(true);
+    expect(fresh({ categoryId: "skirt", brandId: "zara" })).toBe(true);
+    expect(fresh({ categoryId: "skirt", sellerId: "s9" })).toBe(true);
+    // Only the same shopping group, or only her size: not what she was looking for.
+    expect(fresh({ categoryId: "skirt" })).toBe(false);
+    expect(fresh({ categoryId: "skirt" }, { ...her, chosenSizes: new Set(["m"]) })).toBe(false);
+    // A seller she follows and a brand she picked count from the first day.
+    expect(fresh({ categoryId: "skirt" }, { ...her, follows: new Set(["s1"]) })).toBe(true);
+    expect(fresh({ categoryId: "skirt" }, { ...her, pickedBrands: new Set(["mango"]) })).toBe(true);
+  });
+
   it("adds a small boost for price drops, a running bump and a first chance", () => {
     const plain = scoreCandidate(candidate(), null, ctx).score;
-    const dropped = scoreCandidate(candidate({ previousPriceMinor: 9000 }), null, ctx).score;
+    const dropped = scoreCandidate(
+      candidate({ previousPriceMinor: 9000, lowestRecentPriceMinor: 9000, priceDropAgeDays: 1 }),
+      null,
+      ctx,
+    ).score;
     const bumped = scoreCandidate(candidate({ bumpedUntil: hoursAgo(-5) }), null, ctx).score;
     const first = scoreCandidate(candidate({ publishedAt: hoursAgo(10), viewCount: 3 }), null, ctx).score;
     expect(dropped - plain).toBeCloseTo(0.2);
     expect(bumped - plain).toBeCloseTo(0.3);
     expect(first - plain).toBeCloseTo(0.2);
+  });
+
+  it("lifts only a real and recent price drop", () => {
+    // The item costs 70 now. `was` is the price before, `lowest` the lowest price of the last 30 days.
+    const lift = (was: number, lowest: number | null, days: number | null) =>
+      scoreCandidate(
+        candidate({ previousPriceMinor: was, lowestRecentPriceMinor: lowest, priceDropAgeDays: days }),
+        null,
+        ctx,
+      ).score - scoreCandidate(candidate(), null, ctx).score;
+    expect(lift(9000, 9000, 6)).toBeCloseTo(0.2);
+    // One shekel off.
+    expect(lift(7100, 7100, 0)).toBeCloseTo(0);
+    // A drop from more than a week ago.
+    expect(lift(9000, 9000, 8)).toBeCloseTo(0);
+    // Raised to 90 and lowered back to 70: it was already 70 this month.
+    expect(lift(9000, 7000, 0)).toBeCloseTo(0);
+    // The Price drop badge without any price history (old data).
+    expect(lift(9000, null, null)).toBeCloseTo(0);
   });
 
   it("keeps the shuffle the same for the same seed and small", () => {

@@ -3,6 +3,7 @@ import {
   affinityDeltas,
   arrangeFeed,
   confidence,
+  countsAsPriceDrop,
   EVENT_WEIGHTS,
   effectiveScore,
   HALF_LIFE_DAYS,
@@ -103,6 +104,21 @@ describe("affinityDeltas", () => {
   });
 });
 
+describe("price drops", () => {
+  it("count for 7 days, from 10 percent under the lowest price of the last 30 days", () => {
+    const drop = (priceMinor: number, lowestRecentPriceMinor: number | null, ageDays: number | null) =>
+      countsAsPriceDrop({ priceMinor, lowestRecentPriceMinor, ageDays });
+    expect(drop(9000, 10_000, 0)).toBe(true);
+    expect(drop(9000, 10_000, 6.9)).toBe(true);
+    expect(drop(9000, 10_000, 7)).toBe(false);
+    expect(drop(9100, 10_000, 0)).toBe(false);
+    expect(drop(9900, 10_000, 0)).toBe(false);
+    expect(drop(9000, null, 0)).toBe(false);
+    expect(drop(9000, 10_000, null)).toBe(false);
+    expect(countsAsPriceDrop({ priceMinor: null, lowestRecentPriceMinor: 10_000, ageDays: 0 })).toBe(false);
+  });
+});
+
 describe("arrangeFeed", () => {
   const item = (n: number, over: Partial<ScoredItem> = {}): ScoredItem => ({
     id: `i${n}`,
@@ -112,6 +128,7 @@ describe("arrangeFeed", () => {
     categoryId: `c${n}`,
     isBumped: false,
     isExplore: false,
+    isFresh: false,
     ...over,
   });
   const count = <T>(list: T[], pick: (t: T) => string | null) => {
@@ -134,6 +151,40 @@ describe("arrangeFeed", () => {
     const explore = page.flatMap((p, i) => (p.explore ? [i] : []));
     expect(explore).toEqual([5, 12, 19]);
     expect(page[5]?.id).toBe("i100");
+  });
+
+  it("keeps 4 spots in 20 for new listings at positions 1, 6, 11 and 16, best first", () => {
+    expect(VARIETY.freshSlots).toEqual([1, 6, 11, 16]);
+    const sorted = [
+      ...Array.from({ length: 40 }, (_, n) => item(n)),
+      ...Array.from({ length: 6 }, (_, n) => item(200 + n, { isFresh: true, score: -1 - n })),
+    ];
+    const page = arrangeFeed(sorted, 40);
+    expect(page.slice(0, 20).flatMap((p, i) => (p.fresh ? [i] : []))).toEqual([1, 6, 11, 16]);
+    expect(page[1]?.id).toBe("i200");
+    expect(page[6]?.id).toBe("i201");
+    // The best card of all still opens the page.
+    expect(page[0]?.id).toBe("i0");
+    // Only 6 new listings: the second page has 2, then the spots go back to the next best card.
+    expect(page.slice(20).flatMap((p, i) => (p.fresh ? [i] : []))).toEqual([1, 6]);
+    expect(new Set(page.map((p) => p.id)).size).toBe(40);
+  });
+
+  it("gives a new listing spot to the next best card when nothing is new, and never to a seller already twice on the page", () => {
+    const plain = arrangeFeed(
+      Array.from({ length: 30 }, (_, n) => item(n)),
+      20,
+    );
+    expect(plain.map((p) => p.id)).toEqual(Array.from({ length: 20 }, (_, n) => `i${n}`));
+    expect(plain.some((p) => p.fresh)).toBe(false);
+
+    const oneSeller = [
+      ...Array.from({ length: 30 }, (_, n) => item(n)),
+      ...Array.from({ length: 6 }, (_, n) =>
+        item(200 + n, { isFresh: true, score: -1 - n, sellerId: "bulk" }),
+      ),
+    ];
+    expect(arrangeFeed(oneSeller, 20).filter((p) => p.fresh)).toHaveLength(2);
   });
 
   it("never puts more than 2 items of one seller, 4 of a brand or 6 of a category on a page", () => {

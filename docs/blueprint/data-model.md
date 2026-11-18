@@ -1909,7 +1909,7 @@ No index, the table holds a few hours of rows and is read by its primary key. Th
 
 ### `listing_popularity_7d` (materialized view)
 
-"Popular this week" per listing: opens count 1, a heart 4, a message to the seller 6, over the last 7 days of `user_events`. A materialized view is a saved query result the database re-counts on request. It is created by hand at the end of migration `0004` and refreshed every 15 minutes (`REFRESH MATERIALIZED VIEW CONCURRENTLY`, which needs the unique index `listing_popularity_7d_listing_uidx` on `listing_id`). Columns: `listing_id` uuid, `pop` integer.
+"Popular this week" per listing: opens count 1, a heart 4, a message to the seller 6, over the last 7 days of `user_events`. Each person counts once per listing and signal (`count(DISTINCT user_id)`, since migration `0016`), so one person hearting and unhearting the same item does not raise it. A materialized view is a saved query result the database re-counts on request. It is created by hand at the end of migration `0004`, made again in `0016`, and refreshed every 15 minutes (`REFRESH MATERIALIZED VIEW CONCURRENTLY`, which needs the unique index `listing_popularity_7d_listing_uidx` on `listing_id`). Columns: `listing_id` uuid, `pop` integer.
 
 ## Search
 

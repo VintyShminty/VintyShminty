@@ -461,3 +461,72 @@ Eden decided on 2026-10-16 that search should know the person: their groups, the
 - `apps/server/src/routes/events.ts`: save the onboarding answer as the setting.
 - App and website Settings, Shopping preferences: the groups row.
 
+
+## 12. New listings keep a place, opened items step back (2026-11-18)
+
+### Why
+
+An audit of the live feed on 2026-11-18 measured Home on the sample data for a person with a strong taste:
+
+- **New listings barely showed.** Being new is worth at most 0.8 in the score (freshness plus first chance, section 3.1) and a taste match up to about 7. A brand new dress in her best category and best brand landed at position 22. 12 of her first 20 cards were older than a week.
+- **Home was the same on every visit.** Two visits gave the same 20 cards in the same places. The cards she opened stayed at positions 1 to 5, because an open teaches "more like this", and the opened item is the closest match to itself.
+
+Visitors and new members were fine: new listings already lead their Home.
+
+### 12.1 Four cards in twenty are kept for new listings
+
+- Each page of 20 keeps up to 4 spots (cards 2, 7, 12 and 17) for listings published in the last 72 hours. `VARIETY.freshSlots` and `FRESH_SLOT_HOURS` in `packages/shared/src/recommendations.ts`.
+- A spot takes the best scoring new listing that is left, so the new listings closest to the person's taste come first. The score itself does not change. With no matching new listing, no spot is used and the page is as it was before.
+- A new listing cannot take a spot when it was lowered for this person: another shopping group (section 11.2), already opened (12.2), or shown three times and never opened (section 3.1).
+- **Only a real match takes a spot** (Eden, 2026-11-18: "we dont need to forcefully push many new listings, but new ones should still take a decent place - smartly"). The new listing must be in a category the person looks at or the one directly above it (a maxi dress for someone who looks at midi dresses), from a brand they like or picked, or from a seller they like or follow. Being in the person's shopping group is not enough, and neither is a matching size. A new bag does not take a spot on the Home of someone who only looks at dresses.
+- A visitor and a person the feed knows nothing about have no taste to match, so every new listing can take a spot. New listings already lead their Home through the general score.
+- The variety rules still apply. One seller gets at most 2 cards on a page, new or not.
+- The card's reason is "New in Dresses" (the wording that exists), whatever else it matches.
+
+### 12.2 An item opened this week counts for half
+
+- An item the person opened in the last 7 days keeps half of its taste score on Home (`OPENED_KEEP`). The general part (freshness, popularity) stays.
+- What the open taught the taste profile stays in full: similar items still rise, only the opened item steps back.
+- After 7 days without opening it again the item returns to its normal place.
+- Hearted items are in Favourites. Nothing else changes for them.
+
+### 12.3 Measured after the change (sample data, same person)
+
+Position on Home, 1 is the top. She looks at midi and mini dresses and at Zara.
+
+| | Before | After |
+|---|---|---|
+| New Zara midi dress (her category and brand), day 1 / day 2 / day 3 | 22 / 22 / 41 | 1 / 1 / 2 |
+| New maxi dress of another brand (next to her categories), day 1 / day 2 / day 3 | 33 / 53 / 73 | 12 / 17 / 17 |
+| New women's sneaker (her shopping group only), day 1 / day 2 / day 3 | 20 / 40 / 60 | 20 / 40 / 60 (no spot, on purpose) |
+| The 5 cards she opened, next visit | 1 to 5 | 25 to 64 |
+| Of her first 20 cards, still there on the next visit | 19 | 12 |
+
+Her first page after the change: 16 cards from her taste and the surprise cards, 3 new listings that match her.
+
+### 12.4 Not changed
+
+- The weight of freshness in the score, the surprise cards and the "shown three times" rule.
+- One seller listing many items at once still shows 2 per page (audit finding 3).
+- The two seller loopholes (audit finding 4) are closed in section 13.
+- The website builds a new list for every visit (audit finding 5).
+
+## 13. Two loopholes closed (2026-11-18)
+
+The audit found two ways a seller could lift an item without earning it. Measured on the sample data for a visitor, before the change:
+
+- Lowering the price by 1 shekel moved an old item from position 51 to 20, and the lift never ended.
+- One person hearting and unhearting the same item 10 times made it the most popular item in the shop and moved it from 68 to 11.
+
+### 13.1 A price drop has to be real and recent
+
+- The "price dropped" lift (0.2, section 3.1) counts for **7 days** after the price went down (`PRICE_DROP_DAYS`).
+- The new price has to be **at least 10 percent below the lowest price the item had in the last 30 days** (`PRICE_DROP_MIN_SHARE`, `PRICE_DROP_LOOKBACK_DAYS`). It is compared with the lowest price, not the last one, so raising the price and lowering it again earns nothing.
+- The feed reads this from `listing_price_history`, which every price change of a live listing already writes. `countsAsPriceDrop` in `packages/shared/src/recommendations.ts`.
+- The Price drop badge on the card does not change. It still shows whenever the price is lower than before.
+
+### 13.2 Each person counts once in "popular this week"
+
+- The count behind the popular pile (`listing_popularity_7d`) now counts each person once per item for opens, once for a heart and once for a message to the seller. Before, every heart counted, also the tenth by the same person.
+- This is a change to a saved count in the database (migration `0016`). The saved count holds no data of its own and is re-counted from the action diary. It has to be applied to the live database before this is merged (`pnpm db:migrate:online`).
+- A heart that was removed again still counts once for 7 days. One person, one time: not worth more rules.
