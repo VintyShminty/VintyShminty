@@ -127,11 +127,40 @@ export const GENERAL_WEIGHTS = {
 } as const;
 
 export const FRESHNESS_HOURS = 48;
+/** A price drop lifts an item on Home for this many days after the price went down (plan section 13.1). */
+export const PRICE_DROP_DAYS = 7;
+/** The new price has to be at least this share below every price the item had in the last PRICE_DROP_LOOKBACK_DAYS. */
+export const PRICE_DROP_MIN_SHARE = 0.1;
+export const PRICE_DROP_LOOKBACK_DAYS = 30;
+
+/**
+ * Whether a lowered price earns the "price dropped" lift on Home. One shekel off does not, a drop from long ago does
+ * not, and neither does raising the price and lowering it again: the price is compared with the lowest one the item
+ * had in the last 30 days, not with the last one.
+ */
+export function countsAsPriceDrop(drop: {
+  priceMinor: number | null;
+  /** The lowest price the item had before a change in the last 30 days. Null when the price did not change. */
+  lowestRecentPriceMinor: number | null;
+  /** Days since the price last went down. Null when it never did. */
+  ageDays: number | null;
+}): boolean {
+  const { priceMinor, lowestRecentPriceMinor, ageDays } = drop;
+  if (priceMinor === null || lowestRecentPriceMinor === null || ageDays === null) return false;
+  return ageDays < PRICE_DROP_DAYS && priceMinor <= lowestRecentPriceMinor * (1 - PRICE_DROP_MIN_SHARE);
+}
 export const FIRST_CHANCE_HOURS = 72;
 export const FIRST_CHANCE_MAX_VIEWS = 50;
 /** Shown this many times in 7 days and never opened: the item drops. */
 export const SEEN_PENALTY_AFTER = 3;
 export const SEEN_PENALTY = 0.5;
+/**
+ * An item the person opened in the last 7 days keeps only this share of its taste score on Home, so the same cards do
+ * not sit on top on every visit (plan section 12.2). What the open taught about their taste stays.
+ */
+export const OPENED_KEEP = 0.5;
+/** A listing counts as new for the reserved spots of a page for this long after it was published (plan section 12.1). */
+export const FRESH_SLOT_HOURS = 72;
 export const SHUFFLE_SIZE = 0.1;
 /**
  * Shopping groups (Women, Men, Kids, plan section 11). Items in a group the person does not shop for move this much
@@ -181,6 +210,8 @@ export const VARIETY = {
   maxPerCategory: 6,
   maxBumpedPerSix: 1,
   exploreSlots: [5, 12, 19],
+  /** Up to 4 cards in 20 go to new listings that match the person, best fit first (plan section 12.1). */
+  freshSlots: [1, 6, 11, 16],
 } as const;
 
 /** Raw actions are kept this long. Impressions ("card seen") are kept a shorter time. */
@@ -200,20 +231,26 @@ export type ScoredItem = {
   isBumped: boolean;
   /** Eligible for the surprise slots. */
   isExplore: boolean;
+  /** Eligible for the spots kept for new listings. */
+  isFresh: boolean;
 };
 
 /**
  * Cuts one sorted list into pages that follow the variety rules. Items that do not fit a page stay for the next one.
- * The surprise slots take the best unused explore item. When nothing fits, the rules give way rather than leave a hole.
- * Returns the item ids in order together with whether each one was placed in a surprise slot.
+ * The surprise slots take the best unused explore item and the new listing spots the best unused new one. When nothing
+ * fits, the rules give way rather than leave a hole.
+ * Returns the item ids in order together with whether each one was placed in a surprise slot or a new listing spot.
  */
 export function arrangeFeed(
   sorted: readonly ScoredItem[],
   limit: number,
-  variety: Omit<typeof VARIETY, "exploreSlots"> & { exploreSlots: readonly number[] } = VARIETY,
-): { id: string; explore: boolean }[] {
+  variety: Omit<typeof VARIETY, "exploreSlots" | "freshSlots"> & {
+    exploreSlots: readonly number[];
+    freshSlots: readonly number[];
+  } = VARIETY,
+): { id: string; explore: boolean; fresh: boolean }[] {
   const pool = [...sorted];
-  const out: { id: string; explore: boolean }[] = [];
+  const out: { id: string; explore: boolean; fresh: boolean }[] = [];
   const bumpedAt: number[] = [];
   while (out.length < limit && pool.length > 0) {
     const sellers = new Map<string, number>();
@@ -229,13 +266,16 @@ export function arrangeFeed(
         (!item.categoryId || (categories.get(item.categoryId) ?? 0) < variety.maxPerCategory) &&
         (!item.isBumped || bumpedAt.filter((p) => out.length - p < 6).length < variety.maxBumpedPerSix);
       const wantsExplore = variety.exploreSlots.includes(slot);
+      const wantsFresh = variety.freshSlots.includes(slot);
       let index = -1;
       if (wantsExplore) index = pool.findIndex((i) => i.isExplore && fits(i));
       const surprise = index !== -1;
-      if (!surprise) index = pool.findIndex(fits);
+      if (!surprise && wantsFresh) index = pool.findIndex((i) => i.isFresh && fits(i));
+      const fresh = !surprise && index !== -1;
+      if (index === -1) index = pool.findIndex(fits);
       if (index === -1) index = 0;
       const [item] = pool.splice(index, 1) as [ScoredItem];
-      out.push({ id: item.id, explore: surprise });
+      out.push({ id: item.id, explore: surprise, fresh });
       sellers.set(item.sellerId, (sellers.get(item.sellerId) ?? 0) + 1);
       bump(brands, item.brandId);
       bump(categories, item.categoryId);

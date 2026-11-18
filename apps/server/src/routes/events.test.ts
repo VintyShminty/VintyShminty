@@ -353,8 +353,11 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
   describe("the feed leans to what a person does", () => {
     it("lifts the brand a person hearts and keeps coming back to", async () => {
       const p = await newPersonWith("lean");
-      for (const item of itemsA.slice(0, 3)) await call("PUT", `/v1/listings/${item.id}/favourite`, p.token);
-      const dwells = itemsA.flatMap((item) =>
+      // Three of the four brand A items get a heart and time on the item. The fourth is never opened.
+      const known = itemsA.slice(0, 3);
+      const unseen = itemsA[3] as { id: string };
+      for (const item of known) await call("PUT", `/v1/listings/${item.id}/favourite`, p.token);
+      const dwells = known.flatMap((item) =>
         Array.from({ length: 5 }, () => ({
           clientEventId: uuid(),
           type: "listing_dwell",
@@ -362,18 +365,16 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
           data: { dwellMs: 15000 },
         })),
       );
-      for (let i = 0; i < dwells.length; i += 50) {
-        await call("POST", "/v1/events", p.token, { events: dwells.slice(i, i + 50) });
-      }
+      await call("POST", "/v1/events", p.token, { events: dwells });
       const page = await feed(p.token, `limit=40&categoryId=${sized.id}`);
       const index = (id: string) => page.items.findIndex((i) => i.id === id);
-      const a = itemsA.map((i) => index(i.id)).filter((n) => n >= 0);
-      const b = itemsB.map((i) => index(i.id)).filter((n) => n >= 0);
-      // Up to 4 of one brand fit on a page, and the liked brand comes first.
-      expect(a.length).toBeGreaterThanOrEqual(3);
-      expect(Math.max(...a.slice(0, 3))).toBeLessThan(Math.min(...b, 999));
-      const top = page.items.find((i) => itemsA.some((x) => x.id === i.id));
-      expect(top?.reason?.kind).toMatch(/like_brand|like_category/);
+      // The liked brand lifts the item they have not opened above the same seller's item of the other brand.
+      expect(index(unseen.id)).toBeGreaterThanOrEqual(0);
+      expect(index(unseen.id)).toBeLessThan(index((itemsB[3] as { id: string }).id));
+      expect(page.items[index(unseen.id)]?.reason?.kind).toMatch(/like_brand|like_category/);
+      // The three they opened this week are still on Home, behind the one they have not seen (plan section 12.2).
+      const opened = known.map((i) => index(i.id));
+      expect(Math.min(...opened)).toBeGreaterThan(index(unseen.id));
     });
 
     it("gives a new person the general feed with no taste reasons", async () => {
@@ -405,16 +406,23 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
         .from(listings)
         .where(
           and(
-            eq(listings.brandName, "Zara"),
             eq(listings.status, "active"),
-            sql`${listings.categoryId} in (select id from categories where slug like 'women-clothing-dresses%')`,
+            sql`(${listings.brandName} = 'Zara' or ${listings.categoryId} in (select id from categories where slug like 'women-clothing-dresses%'))`,
           ),
         );
+      // Zara and dresses are what her taste is made of. The Zara dresses she opened this week step back (plan
+      // section 12.2), so the lean is measured on the brand and the kind of item, not on those same few cards.
       const zaraDresses = new Set(rows.map((r) => r.id));
       const mine = await homeFeedPage(ctx.app, { viewerId: noa.id }, { cursor: undefined, limit: 20 });
       const visitor = await homeFeedPage(ctx.app, { viewerId: undefined }, { cursor: undefined, limit: 20 });
       expect(zara(mine, zaraDresses).length).toBeGreaterThanOrEqual(4);
-      expect(zara(mine, zaraDresses).length).toBeGreaterThan(zara(visitor, zaraDresses).length);
+      // Cards that are there because of her taste: several for her, none for a visitor.
+      const byTaste = (page: { items: { reason: { kind: string } | null }[] }) =>
+        page.items.filter((i) =>
+          ["like_brand", "like_category", "like_seller"].includes(i.reason?.kind ?? ""),
+        );
+      expect(byTaste(mine).length).toBeGreaterThanOrEqual(4);
+      expect(byTaste(visitor)).toHaveLength(0);
       expect(
         mine.items.some((i) => i.reason?.kind === "like_brand" || i.reason?.kind === "like_category"),
       ).toBe(true);
@@ -681,6 +689,53 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
         .from(listingPopularity7d)
         .where(eq(listingPopularity7d.listingId, target.id));
       expect(row?.pop).toBeGreaterThanOrEqual(5);
+    });
+
+    it("counts a person once in popular this week, however often they heart the same item", async () => {
+      const fan = await newPersonWith("fan");
+      const owner = await newPersonWith("popown");
+      const target = await publish(owner);
+      const popOf = async () => {
+        await refreshPopularity(ctx.app);
+        const [row] = await ctx.database.db
+          .select()
+          .from(listingPopularity7d)
+          .where(eq(listingPopularity7d.listingId, target.id));
+        return row?.pop ?? 0;
+      };
+      await call("PUT", `/v1/listings/${target.id}/favourite`, fan.token);
+      expect(await popOf()).toBe(4);
+      for (let i = 0; i < 5; i++) {
+        await call("DELETE", `/v1/listings/${target.id}/favourite`, fan.token);
+        await call("PUT", `/v1/listings/${target.id}/favourite`, fan.token);
+      }
+      expect(await eventRows(fan.id, "favourite")).toHaveLength(6);
+      expect(await popOf()).toBe(4);
+      // A second person does count.
+      const other = await newPersonWith("fan2");
+      await call("PUT", `/v1/listings/${target.id}/favourite`, other.token);
+      expect(await popOf()).toBe(8);
+    });
+
+    it("lifts a real price drop on Home and not one shekel off", async () => {
+      // Three new sellers with one item each, so the two cards per seller rule stays out of the way.
+      const [real, tiny, none] = await Promise.all(
+        ["pd1", "pd2", "pd3"].map(async (label) => {
+          const owner = await newPersonWith(label);
+          return { owner, item: await publish(owner) };
+        }),
+      );
+      const lower = (who: typeof real, priceMinor: number) =>
+        call("PATCH", `/v1/listings/${who?.item.id}`, who?.owner.token, { priceMinor });
+      expect((await lower(real, 9600)).statusCode).toBe(200);
+      expect((await lower(tiny, 11_900)).statusCode).toBe(200);
+      const page = await feed(undefined, `limit=40&categoryId=${sized.id}`);
+      const index = (who: typeof real) => page.items.findIndex((i) => i.id === who?.item.id);
+      expect(index(real)).toBeGreaterThanOrEqual(0);
+      expect(index(tiny)).toBeGreaterThanOrEqual(0);
+      // 20 percent off sits above both the item with one shekel off and the untouched one.
+      expect(index(real)).toBeLessThan(index(tiny));
+      expect(index(real)).toBeLessThan(index(none));
     });
 
     it("deletes old actions, faded taste and extra lines in the nightly cleanup", async () => {

@@ -5,6 +5,7 @@ import {
   follows,
   listingColours,
   listingPopularity7d,
+  listingPriceHistory,
   listings,
   userAffinities,
   userBrands,
@@ -19,6 +20,7 @@ import {
   type CategoryNode,
   CORNER_MIN,
   confidence,
+  countsAsPriceDrop,
   EXPLORE_GROUP_MIN,
   effectiveScore,
   type FeedCard,
@@ -28,14 +30,17 @@ import {
   type FeedReasonKind,
   FIRST_CHANCE_HOURS,
   FIRST_CHANCE_MAX_VIEWS,
+  FRESH_SLOT_HOURS,
   FRESHNESS_HOURS,
   findCategory,
   GENERAL_WEIGHTS,
   type HomeFeedPage,
   NEW_PILE_DAYS,
+  OPENED_KEEP,
   OTHER_GROUP_MINUS,
   PERSONAL_WEIGHTS,
   PILES,
+  PRICE_DROP_LOOKBACK_DAYS,
   priceBand,
   type ReferenceData,
   resolveGroups,
@@ -237,6 +242,10 @@ export type Candidate = {
   priceBand: number | null;
   priceMinor: number | null;
   previousPriceMinor: number | null;
+  /** Days since the price last went down, from the price history. Null when it never did. */
+  priceDropAgeDays: number | null;
+  /** The lowest price the item had before a change in the last 30 days. Null when the price did not change. */
+  lowestRecentPriceMinor: number | null;
   bumpedAt: Date;
   bumpedUntil: Date | null;
   publishedAt: Date | null;
@@ -269,12 +278,17 @@ const shuffleOf = (seed: string, id: string) =>
  * The score of section 3.1 of the plan. `score = confidence * learned + chosen on purpose + general - penalty + shuffle`.
  * What the person chose on purpose (a followed seller, a picked brand, a size) counts in full from the first day, as the
  * old feed did. Only what the feed learned from behaviour is scaled by the confidence.
+ * `fresh` says the item may take one of the page spots kept for new listings (plan section 12.1): published in the
+ * last 72 hours, not lowered for this person (already opened, scrolled past three times, another shopping group) and
+ * a real match for them: a category (or the one directly above it), a brand or a seller they like, follow or picked.
+ * The shopping group alone is not enough. A visitor and a person the feed knows nothing about have no taste to match,
+ * so for them every new listing may take a spot.
  */
 export function scoreCandidate(
   c: Candidate,
   taste: Taste | null,
   ctx: ScoreContext,
-): { score: number; terms: Term[] } {
+): { score: number; terms: Term[]; fresh: boolean } {
   const terms: Term[] = [];
   const add = (value: number, kind: FeedReasonKind, ref: ReasonRef = null) => {
     if (value > 0) terms.push({ value, kind, ref });
@@ -283,6 +297,9 @@ export function scoreCandidate(
   let personal = 0;
   let chosen = 0;
   let penalty = 0;
+  let opened = false;
+  /** Whether the item is the kind of thing this person looks at. True for a visitor and for someone the feed knows nothing about. */
+  let match = true;
   if (taste) {
     const conf = taste.confidence;
     const s = taste.scores;
@@ -317,6 +334,18 @@ export function scoreCandidate(
       type: "seller",
       id: c.sellerId,
     });
+    // What a new listing needs for one of the kept spots (plan section 12.1): a category the person looks at, the one
+    // directly above it (a maxi dress for someone who looks at midi dresses), a brand or a seller they like.
+    const parentsHere = c.categoryId ? ctx.parentsOf(c.categoryId) : [];
+    const above = parentsHere.length > 1 ? (parentsHere[0] ?? null) : null;
+    match =
+      (conf === 0 && taste.groups === null) ||
+      get("category", c.categoryId) > 0 ||
+      get("parent_category", above) > 0 ||
+      get("brand", c.brandId) > 0 ||
+      get("seller", c.sellerId) > 0 ||
+      taste.follows.has(c.sellerId) ||
+      (c.brandId !== null && taste.pickedBrands.has(c.brandId));
     personal += conf * W.priceBand * get("price_band", c.priceBand === null ? null : String(c.priceBand));
     personal += conf * W.colour * Math.max(0, ...c.colourIds.map((id) => get("colour", id)));
     personal += conf * W.style * Math.max(0, ...c.styles.map((s) => get("style", s)));
@@ -334,6 +363,8 @@ export function scoreCandidate(
 
     const seen = taste.seen.get(c.id);
     if (seen && seen.shown >= SEEN_PENALTY_AFTER && seen.opened === 0) penalty = SEEN_PENALTY;
+    // Already opened this week: its taste counts for less, so Home is not the same cards on every visit (plan section 12.2).
+    opened = seen !== undefined && seen.opened > 0;
 
     // Another shopping group moves a bit lower, unless the person opened this corner of it (plan section 11.2, 11.3).
     if (taste.groups && c.categoryId) {
@@ -353,8 +384,16 @@ export function scoreCandidate(
   const freshness = Math.max(0, 1 - ageHours / FRESHNESS_HOURS);
   const publishedHours = c.publishedAt ? (ctx.now.getTime() - c.publishedAt.getTime()) / HOUR_MS : Infinity;
   const first = publishedHours < FIRST_CHANCE_HOURS && c.viewCount < FIRST_CHANCE_MAX_VIEWS;
+  // A real and recent drop only (plan section 13.1): one shekel off, or a drop from months ago, lifts nothing.
   const dropped =
-    c.previousPriceMinor !== null && c.priceMinor !== null && c.previousPriceMinor > c.priceMinor;
+    c.previousPriceMinor !== null &&
+    c.priceMinor !== null &&
+    c.previousPriceMinor > c.priceMinor &&
+    countsAsPriceDrop({
+      priceMinor: c.priceMinor,
+      lowestRecentPriceMinor: c.lowestRecentPriceMinor,
+      ageDays: c.priceDropAgeDays,
+    });
   const bumped = c.bumpedUntil !== null && c.bumpedUntil > ctx.now;
   const general =
     add(
@@ -368,7 +407,11 @@ export function scoreCandidate(
     add(first ? G.firstChance : 0, "new");
 
   const learned = taste ? personal : 0;
-  return { score: learned + chosen + general - penalty + shuffleOf(ctx.seed, c.id), terms };
+  return {
+    score: (learned + chosen) * (opened ? OPENED_KEEP : 1) + general - penalty + shuffleOf(ctx.seed, c.id),
+    terms,
+    fresh: publishedHours < FRESH_SLOT_HOURS && penalty === 0 && !opened && match,
+  };
 }
 
 /** The term that added the most, if it added enough to be worth saying. */
@@ -390,6 +433,12 @@ const candidateColumns = {
   conditionId: listings.conditionId,
   priceMinor: listings.priceMinor,
   previousPriceMinor: listings.previousPriceMinor,
+  priceDropAgeDays: sql<
+    number | null
+  >`(select (extract(epoch from now() - max(${listingPriceHistory.changedAt})) / 86400)::float8 from ${listingPriceHistory} where ${listingPriceHistory.listingId} = ${listings.id} and ${listingPriceHistory.newPriceMinor} < ${listingPriceHistory.oldPriceMinor})`,
+  lowestRecentPriceMinor: sql<
+    number | null
+  >`(select min(${listingPriceHistory.oldPriceMinor}) from ${listingPriceHistory} where ${listingPriceHistory.listingId} = ${listings.id} and ${listingPriceHistory.changedAt} > now() - ${`${PRICE_DROP_LOOKBACK_DAYS} days`}::interval)`,
   bumpedAt: listings.bumpedAt,
   bumpedUntil: listings.bumpedUntil,
   publishedAt: listings.publishedAt,
@@ -476,6 +525,8 @@ type CandidateRow = {
   conditionId: string | null;
   priceMinor: number | null;
   previousPriceMinor: number | null;
+  priceDropAgeDays: number | null;
+  lowestRecentPriceMinor: number | null;
   bumpedAt: Date;
   bumpedUntil: Date | null;
   publishedAt: Date | null;
@@ -497,6 +548,8 @@ function toCandidate(r: CandidateRow, explore: boolean): Candidate {
     priceBand: priceBand(r.priceMinor),
     priceMinor: r.priceMinor,
     previousPriceMinor: r.previousPriceMinor,
+    priceDropAgeDays: r.priceDropAgeDays === null ? null : Number(r.priceDropAgeDays),
+    lowestRecentPriceMinor: r.lowestRecentPriceMinor === null ? null : Number(r.lowestRecentPriceMinor),
     bumpedAt: r.bumpedAt,
     bumpedUntil: r.bumpedUntil,
     publishedAt: r.publishedAt,
@@ -641,7 +694,7 @@ async function createSnapshot(app: App, scope: FeedScope, reference: ReferenceDa
     .map((c) => ({ c, ...scoreCandidate(c, taste, ctx) }))
     .sort((a, b) => b.score - a.score || (a.c.id < b.c.id ? 1 : -1));
 
-  const items: ScoredItem[] = scored.map(({ c, score }) => ({
+  const items: ScoredItem[] = scored.map(({ c, score, fresh }) => ({
     id: c.id,
     score,
     sellerId: c.sellerId,
@@ -649,6 +702,7 @@ async function createSnapshot(app: App, scope: FeedScope, reference: ReferenceDa
     categoryId: c.categoryId,
     isBumped: c.bumpedUntil !== null && c.bumpedUntil > now,
     isExplore: c.explore,
+    isFresh: fresh,
   }));
   const arranged = arrangeFeed(items, SNAPSHOT_SIZE);
 
@@ -675,6 +729,13 @@ async function createSnapshot(app: App, scope: FeedScope, reference: ReferenceDa
     }
     if (a.explore) {
       reasons.push({ kind: "explore", name: null });
+      continue;
+    }
+    // A card in a spot kept for new listings says so, whatever else it matches.
+    if (a.fresh) {
+      const kind = entry.c.categoryId ? "new_in_category" : "new";
+      const ref: ReasonRef = entry.c.categoryId ? { type: "category", id: entry.c.categoryId } : null;
+      reasons.push(await resolveReason(kind, ref, entry.c, reference, usernames));
       continue;
     }
     const best = bestTerm(entry.terms);
