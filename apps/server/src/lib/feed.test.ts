@@ -259,12 +259,13 @@ describe("scoreCandidate", () => {
     expect(clean - opened).toBeCloseTo(0.8);
   });
 
-  it("offers a listing of the last 72 hours for the new listing spots, unless it was lowered for this person", () => {
+  it("offers a listing of the last 7 days for the new listing spots, unless it was lowered for this person", () => {
     const young = candidate({ publishedAt: hoursAgo(10) });
     const seenAs = (shown: number, opened: number) => taste({ seen: new Map([["i1", { shown, opened }]]) });
     expect(scoreCandidate(young, null, ctx).fresh).toBe(true);
     expect(scoreCandidate(young, taste(), ctx).fresh).toBe(true);
-    expect(scoreCandidate(candidate({ publishedAt: hoursAgo(80) }), taste(), ctx).fresh).toBe(false);
+    expect(scoreCandidate(candidate({ publishedAt: hoursAgo(6 * 24) }), taste(), ctx).fresh).toBe(true);
+    expect(scoreCandidate(candidate({ publishedAt: hoursAgo(7 * 24 + 1) }), taste(), ctx).fresh).toBe(false);
     expect(scoreCandidate(candidate({ publishedAt: null }), taste(), ctx).fresh).toBe(false);
     // Already opened, or scrolled past three times: the spot goes to something they have not looked at.
     expect(scoreCandidate(young, seenAs(1, 1), ctx).fresh).toBe(false);

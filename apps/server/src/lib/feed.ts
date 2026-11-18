@@ -279,7 +279,7 @@ const shuffleOf = (seed: string, id: string) =>
  * What the person chose on purpose (a followed seller, a picked brand, a size) counts in full from the first day, as the
  * old feed did. Only what the feed learned from behaviour is scaled by the confidence.
  * `fresh` says the item may take one of the page spots kept for new listings (plan section 12.1): published in the
- * last 72 hours, not lowered for this person (already opened, scrolled past three times, another shopping group) and
+ * last 7 days, not lowered for this person (already opened, scrolled past three times, another shopping group) and
  * a real match for them: a category (or the one directly above it), a brand or a seller they like, follow or picked.
  * The shopping group alone is not enough. A visitor and a person the feed knows nothing about have no taste to match,
  * so for them every new listing may take a spot.
