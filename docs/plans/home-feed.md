@@ -120,12 +120,12 @@ on conflict (user_id, feature, feature_key) do update set
   event_count = user_affinities.event_count + 1;
 ```
 
-### 2.2 A score drops to half after 14 days with no new action
+### 2.2 A score drops to half after 30 days with no new action
 
 Nothing runs at night to fade scores. The math happens when a score is read or updated:
 
 ```ts
-export const HALF_LIFE_DAYS = 7; // Eden chose 7 (section 9)
+export const HALF_LIFE_DAYS = 30; // Eden chose 7 on 2026-10-13 (section 9) and 30 on 2026-11-18 (section 14)
 export const effectiveScore = (score: number, scoredAt: Date, now = new Date()) =>
   score * 0.5 ** ((now.getTime() - scoredAt.getTime()) / (HALF_LIFE_DAYS * 86_400_000));
 ```
@@ -377,7 +377,7 @@ Decided by Eden on 2026-10-13 (the chosen option is marked **Chosen**). These ov
 
 1. **How fast does old taste fade?**
    - Half in 14 days (taste of the last 2 to 4 weeks)
-   - **Chosen: half in 7 days** (follows a new style within a week)
+   - **Chosen: half in 7 days** (follows a new style within a week). Changed to half in 30 days on 2026-11-18 after a look at real use, see section 14
    - Half in 30 days (steady, slow to change)
 2. **How much surprise on each page?**
    - **Chosen: 3 cards in 20** (about 15 percent)
@@ -433,7 +433,7 @@ A "shopping group" is Women, Men or Kids, the top of the category tree. Today th
 
 - An action on an item outside the person's groups teaches the item's own category and the one directly above it (for example Women, Sports, Cycling), and nothing higher. The share for the group itself (Women) is 0 for that action.
 - In that corner the minus of 11.2 does not apply while its taste score is above a small threshold. So hearting women's cycling clothes brings more women's cycling clothes, never dresses.
-- The corner fades at the normal speed, half in 7 days (Eden, 2026-10-16). Coming back keeps it open.
+- The corner fades at the normal speed (Eden, 2026-10-16). That was half in 7 days then and is half in 30 days since section 14. Coming back keeps it open.
 - This needs an answer to "What do you shop for?". Without one, every action teaches as before, which is how the groups are worked out from behaviour.
 
 ### 11.4 Search order becomes personal
@@ -530,3 +530,34 @@ The audit found two ways a seller could lift an item without earning it. Measure
 - The count behind the popular pile (`listing_popularity_7d`) now counts each person once per item for opens, once for a heart and once for a message to the seller. Before, every heart counted, also the tenth by the same person.
 - This is a change to a saved count in the database (migration `0016`). The saved count holds no data of its own and is re-counted from the action diary. It has to be applied to the live database before this is merged (`pnpm db:migrate:online`).
 - A heart that was removed again still counts once for 7 days. One person, one time: not worth more rules.
+
+## 14. Taste fades to half in 30 days, not 7 (2026-11-18)
+
+### Why
+
+A read-only look at the live database on 2026-11-18 (totals only) showed how people really use the app five weeks after the feed went live:
+
+- 23 accounts, 16 with any recorded action, 4 active in the last 7 days.
+- On a day someone is active they earn about 11 points (the middle value). Home is fully personal at 30 (section 2.3).
+- The typical person was active on 2 days in 5 weeks.
+- So with "half in 7 days" Home had mostly forgotten a person by the time they came back. Nobody on live was even half personal. The strongest person stood at 46 percent.
+
+### 14.1 The options, rebuilt from what those 16 people actually did
+
+| Fades to half in | Fully personal | Half or more | A little | Almost nothing |
+|---|---|---|---|---|
+| 7 days (until now) | 0 | 0 | 4 | 12 |
+| 14 days | 2 | 2 | 2 | 10 |
+| **30 days (chosen by Eden)** | **3** | **3** | **2** | **8** |
+| 60 days | 5 | 2 | 2 | 7 |
+
+Rebuilding the 7 day row this way gives the same picture as what live had stored, so the method holds. Live has only five weeks of history, so 60 days cannot yet be told apart from never forgetting.
+
+### 14.2 What changes
+
+- `HALF_LIFE_DAYS` in `packages/shared/src/recommendations.ts` goes from 7 to 30. Nothing else.
+- A new interest still counts in full at once. What changes is how long an old one stays: something a person stopped looking at still counts half a month later.
+- The points needed for a fully personal Home stay at 30 (`CONFIDENCE_POINTS`). At 15, one visit would make Home about 70 percent personal, which is trusting thin evidence.
+- The corner outside a person's shopping groups (section 11.3) uses the same number, so it also stays open longer.
+- No database step and no rebuild. A score is stored as it was on its last action and the fading is worked out when it is read (section 2.2), so stored taste is read with the new number from the first request. Read that way, live shows 2 people fully personal and 4 at half or more.
+- The nightly cleanup deletes fewer lines, because a line now takes longer to fade below 0.05.

@@ -27,9 +27,9 @@ describe("buildTaste", () => {
     expect(taste.top.brands).toEqual(["zara", "mango"]);
   });
 
-  it("fades a line to half after 7 days", () => {
+  it("fades a line to half after 30 days", () => {
     const taste = buildTaste(
-      [line("category", "dress", 10, daysAgo(7)), line("category", "coat", 10, now)],
+      [line("category", "dress", 10, daysAgo(30)), line("category", "coat", 10, now)],
       new Set(),
       now,
     );
@@ -42,8 +42,8 @@ describe("buildTaste", () => {
     expect(
       buildTaste([line("category", "a", 20), line("category", "b", 20)], new Set(), now).confidence,
     ).toBe(1);
-    // The same points a week ago count half.
-    expect(buildTaste([line("category", "a", 30, daysAgo(7))], new Set(), now).confidence).toBeCloseTo(0.5);
+    // The same points 30 days ago count half.
+    expect(buildTaste([line("category", "a", 30, daysAgo(30))], new Set(), now).confidence).toBeCloseTo(0.5);
   });
 
   it("lets the onboarding picks give a small start", () => {

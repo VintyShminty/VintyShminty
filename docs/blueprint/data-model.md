@@ -1858,7 +1858,7 @@ Kept 180 days. `impression` rows are kept 30 days. The nightly cleanup deletes o
 
 ### `user_affinities`
 
-A short summary sheet per person: how much they like Dresses, Zara, a size or a price band. One action adds its weight times a share to each feature of the item. A score fades to half after 7 days without a new action: nothing runs at night to fade scores, the math happens when one is read or updated. Things chosen on purpose (sizes, followed brands and sellers) are not here, they stay in `user_sizes`, `user_brands` and `follows`.
+A short summary sheet per person: how much they like Dresses, Zara, a size or a price band. One action adds its weight times a share to each feature of the item. A score fades to half after 30 days (7 until 2026-11-18, `docs/plans/home-feed.md` section 14) without a new action: nothing runs at night to fade scores, the math happens when one is read or updated. Things chosen on purpose (sizes, followed brands and sellers) are not here, they stay in `user_sizes`, `user_brands` and `follows`.
 
 | Field | Type | Null | Notes |
 |---|---|---|---|
