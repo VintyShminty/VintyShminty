@@ -475,7 +475,7 @@ Visitors and new members were fine: new listings already lead their Home.
 
 ### 12.1 Four cards in twenty are kept for new listings
 
-- Each page of 20 keeps up to 4 spots (cards 2, 7, 12 and 17) for listings published in the last 72 hours. `VARIETY.freshSlots` and `FRESH_SLOT_HOURS` in `packages/shared/src/recommendations.ts`.
+- Each page of 20 keeps up to 4 spots (cards 2, 7, 12 and 17) for listings published in the last 72 hours (7 days since section 16). `VARIETY.freshSlots` and `FRESH_SLOT_HOURS` in `packages/shared/src/recommendations.ts`.
 - A spot takes the best scoring new listing that is left, so the new listings closest to the person's taste come first. The score itself does not change. With no matching new listing, no spot is used and the page is as it was before.
 - A new listing cannot take a spot when it was lowered for this person: another shopping group (section 11.2), already opened (12.2), or shown three times and never opened (section 3.1).
 - **Only a real match takes a spot** (Eden, 2026-11-18: "we dont need to forcefully push many new listings, but new ones should still take a decent place - smartly"). The new listing must be in a category the person looks at or the one directly above it (a maxi dress for someone who looks at midi dresses), from a brand they like or picked, or from a seller they like or follow. Being in the person's shopping group is not enough, and neither is a matching size. A new bag does not take a spot on the Home of someone who only looks at dresses.
@@ -602,3 +602,28 @@ Also tried and not chosen:
 
 - A bigger drop on the third view (taste halved plus 0.5): the same two identical visits, then 19 of 20 cards swapped.
 - Bigger steps (taste keeps 85 percent per view, 0.5 after three views): 12 to 16 of the 20 cards change on every visit, which is restless.
+
+## 16. A listing counts as new for 7 days, not 3 (2026-11-18)
+
+### Why
+
+The spots kept for new listings (section 12.1) covered the last 72 hours. The live shop on 2026-11-18 had 4 new listings in the last 7 days and none in the last 3, so the spots had nothing to show. Eden chose 7 days.
+
+### 16.1 What changes
+
+- `FRESH_SLOT_HOURS` goes from 72 to 7 days. Nothing else: still up to 4 spots in 20, still only for a real match (section 12.1), still given up after three views without an open (section 15.1).
+- The "new" pile already reaches back 7 days (`NEW_PILE_DAYS`), so every listing of the window is a candidate.
+- The freshness and first chance parts of the score (section 3.1) keep their 48 and 72 hours.
+
+### 16.2 Measured (sample data, the person who looks at Zara and midi dresses)
+
+| Position on Home | Day 1 | Day 2 | Day 3 | Day 5 | Day 7 | Day 8 |
+|---|---|---|---|---|---|---|
+| New Zara midi dress, 3 day window | 1 | 2 | 22 | 22 | 22 | 22 |
+| New Zara midi dress, 7 day window | 1 | 2 | 2 | 2 | 2 | 23 |
+| New maxi dress of another brand, 3 day window | 17 | 17 | 76 | 76 | 76 | 76 |
+| New maxi dress of another brand, 7 day window | 37 | 37 | 47 | 47 | 47 | 78 |
+
+- The best match keeps its place for the whole week instead of three days.
+- The weaker match does worse in its first days. The sample shop has about 20 listings a week, so a longer window means more new listings compete for the same 4 spots, and the best fit goes first.
+- On live that competition does not exist yet (4 new listings a week). When listings arrive every day, the window should come down again.

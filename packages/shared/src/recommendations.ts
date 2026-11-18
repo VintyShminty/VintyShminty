@@ -182,8 +182,12 @@ export function seenEffect(shown: number): { keep: number; minus: number } {
  * not sit on top on every visit (plan section 12.2). What the open taught about their taste stays.
  */
 export const OPENED_KEEP = 0.5;
-/** A listing counts as new for the reserved spots of a page for this long after it was published (plan section 12.1). */
-export const FRESH_SLOT_HOURS = 72;
+/**
+ * A listing counts as new for the reserved spots of a page for this long after it was published (plan section 12.1).
+ * 72 hours at first, 7 days since 2026-11-18: the live shop got 4 new listings in a week and none in the last 3 days,
+ * so the spots had nothing to show (plan section 16). Worth shortening again when listings arrive every day.
+ */
+export const FRESH_SLOT_HOURS = 7 * 24;
 export const SHUFFLE_SIZE = 0.1;
 /**
  * Shopping groups (Women, Men, Kids, plan section 11). Items in a group the person does not shop for move this much
