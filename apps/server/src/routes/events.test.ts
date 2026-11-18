@@ -750,7 +750,7 @@ describe.skipIf(!databaseUrl)("home feed learning", () => {
         { userId: p.id, type: "impression", listingId: target.id, occurredAt: at(10) },
       ]);
       await db.insert(userAffinities).values([
-        { userId: p.id, feature: "brand", featureKey: "old", score: 1, scoredAt: at(60) },
+        { userId: p.id, feature: "brand", featureKey: "old", score: 1, scoredAt: at(200) },
         { userId: p.id, feature: "brand", featureKey: "fresh", score: 5, scoredAt: at(0) },
         ...Array.from({ length: 55 }, (_, i) => ({
           userId: p.id,

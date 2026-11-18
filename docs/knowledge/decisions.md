@@ -84,7 +84,7 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Password reset, email confirmation and email change use 6 digit codes, not links | 2026-10-12 | Decided, `docs/blueprint/api.md` |
 | Boosts and bumps are free in version 1 | 2026-10-12 | Decided, see roadmap |
 | Offers belong to Milestone 5 because accepting leads to checkout | 2026-10-13 | Decided, see roadmap |
-| Home feed: taste fades by half in 7 days, 3 surprise cards in 20, sizes only push matches up, activity kept 180 days | 2026-10-13 | Decided, `docs/plans/home-feed.md` |
+| Home feed: taste fades by half in 30 days (7 until 2026-11-18, plan section 14), 3 surprise cards in 20, sizes only push matches up, activity kept 180 days | 2026-10-13 | Decided, `docs/plans/home-feed.md` |
 | Going online is Milestone 8, Extras move to 9 | 2026-10-13 | Decided, see roadmap |
 | Hosting: Vercel (Hobby for private testing, Pro before real users), Neon Postgres and Upstash Redis, all in Frankfurt. Photos on Cloudflare R2 | 2026-10-13 | Decided, see roadmap and `docs/going-online.md` |
 | Emails go to the server log (`MAIL_TRANSPORT=log`) until Resend and a domain exist | 2026-10-13 | Decided, temporary |

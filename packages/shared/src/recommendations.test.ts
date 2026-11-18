@@ -26,11 +26,13 @@ describe("weights", () => {
 describe("fading", () => {
   const now = new Date("2026-10-13T12:00:00Z");
   const daysAgo = (d: number) => new Date(now.getTime() - d * 86_400_000);
-  it("uses a 7 day half life", () => {
-    expect(HALF_LIFE_DAYS).toBe(7);
+  it("uses a 30 day half life", () => {
+    expect(HALF_LIFE_DAYS).toBe(30);
     expect(effectiveScore(8, now, now)).toBe(8);
-    expect(effectiveScore(8, daysAgo(7), now)).toBeCloseTo(4);
-    expect(effectiveScore(8, daysAgo(14), now)).toBeCloseTo(2);
+    expect(effectiveScore(8, daysAgo(30), now)).toBeCloseTo(4);
+    expect(effectiveScore(8, daysAgo(60), now)).toBeCloseTo(2);
+    // A week away costs little: about 15 percent.
+    expect(effectiveScore(8, daysAgo(7), now)).toBeCloseTo(6.8, 1);
   });
   it("never grows for a time in the future", () => {
     expect(effectiveScore(8, daysAgo(-1), now)).toBe(8);

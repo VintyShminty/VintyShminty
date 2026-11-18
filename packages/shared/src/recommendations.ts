@@ -31,8 +31,12 @@ export const FEATURE_SHARES: Record<AffinityFeature, number> = {
   style: 0.6,
 };
 
-/** A taste score drops to half after this many days without a new action (Eden chose 7). */
-export const HALF_LIFE_DAYS = 7;
+/**
+ * A taste score drops to half after this many days without a new action. Eden chose 7 on 2026-10-13 and 30 on
+ * 2026-11-18: on the live site people were active about 2 days in 5 weeks, so with 7 days Home had forgotten them by
+ * the time they came back (plan section 14).
+ */
+export const HALF_LIFE_DAYS = 30;
 const DAY_MS = 86_400_000;
 
 /** Scores below this are deleted by the nightly cleanup. */

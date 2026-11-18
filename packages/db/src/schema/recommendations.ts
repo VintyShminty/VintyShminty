@@ -71,7 +71,7 @@ export const userEvents = pgTable(
 
 /**
  * A short summary sheet per person: how much they like Dresses, Zara, a size, a price band. A score fades to half
- * after 7 days without a new action; the math happens when a score is read or updated (see `effectiveScore`).
+ * after 30 days without a new action; the math happens when a score is read or updated (see `effectiveScore`).
  * `feature_key` is a category id, brand id, seller id, size id, colour id, condition id or a price band "0" to "5".
  */
 export const userAffinities = pgTable(
