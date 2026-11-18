@@ -31,6 +31,7 @@ import {
   FIRST_CHANCE_HOURS,
   FIRST_CHANCE_MAX_VIEWS,
   FRESH_SLOT_HOURS,
+  FRESH_SLOT_MAX_VIEWS,
   FRESHNESS_HOURS,
   findCategory,
   GENERAL_WEIGHTS,
@@ -45,11 +46,10 @@ import {
   type ReferenceData,
   resolveGroups,
   type ScoredItem,
-  SEEN_PENALTY,
-  SEEN_PENALTY_AFTER,
   SHUFFLE_SIZE,
   SNAPSHOT_SIZE,
   SNAPSHOT_TTL_MS,
+  seenEffect,
 } from "@vinty/shared";
 import { and, desc, eq, inArray, isNull, notInArray, or, type SQL, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
@@ -298,6 +298,10 @@ export function scoreCandidate(
   let chosen = 0;
   let penalty = 0;
   let opened = false;
+  /** The share of its taste score a card keeps after being shown and not opened. */
+  let seenKeep = 1;
+  /** Lowered for this person in a way that also costs a new listing its kept spot. */
+  let lowered = false;
   /** Whether the item is the kind of thing this person looks at. True for a visitor and for someone the feed knows nothing about. */
   let match = true;
   if (taste) {
@@ -362,9 +366,15 @@ export function scoreCandidate(
       chosen += add(W.pickedBrand, "like_brand", { type: "brand", id: c.brandId });
 
     const seen = taste.seen.get(c.id);
-    if (seen && seen.shown >= SEEN_PENALTY_AFTER && seen.opened === 0) penalty = SEEN_PENALTY;
     // Already opened this week: its taste counts for less, so Home is not the same cards on every visit (plan section 12.2).
     opened = seen !== undefined && seen.opened > 0;
+    // Shown and never opened: it moves down a bit more with every view (plan section 15).
+    if (seen && !opened && seen.shown > 0) {
+      const effect = seenEffect(seen.shown);
+      penalty = effect.minus;
+      seenKeep = effect.keep;
+      lowered = seen.shown >= FRESH_SLOT_MAX_VIEWS;
+    }
 
     // Another shopping group moves a bit lower, unless the person opened this corner of it (plan section 11.2, 11.3).
     if (taste.groups && c.categoryId) {
@@ -374,7 +384,10 @@ export function scoreCandidate(
         const above = parents.length > 1 ? (parents[0] ?? null) : null;
         const corner =
           get("category", c.categoryId) >= CORNER_MIN || get("parent_category", above) >= CORNER_MIN;
-        if (!corner) penalty += OTHER_GROUP_MINUS;
+        if (!corner) {
+          penalty += OTHER_GROUP_MINUS;
+          lowered = true;
+        }
       }
     }
   }
@@ -408,9 +421,10 @@ export function scoreCandidate(
 
   const learned = taste ? personal : 0;
   return {
-    score: (learned + chosen) * (opened ? OPENED_KEEP : 1) + general - penalty + shuffleOf(ctx.seed, c.id),
+    score:
+      (learned + chosen) * (opened ? OPENED_KEEP : seenKeep) + general - penalty + shuffleOf(ctx.seed, c.id),
     terms,
-    fresh: publishedHours < FRESH_SLOT_HOURS && penalty === 0 && !opened && match,
+    fresh: publishedHours < FRESH_SLOT_HOURS && !lowered && !opened && match,
   };
 }
 

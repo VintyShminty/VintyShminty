@@ -178,7 +178,7 @@ general  = 0.6*freshness (fades over 48 hours)
          + 0.2*price dropped + 0.3*bumped now
          + 0.2*first chance (listed under 72 hours and seen by fewer than 50 people)
 score    = confidence * personal + general
-         - 0.5*(shown 3 or more times in 7 days and never opened)
+         - 0.5*(shown 3 or more times in 7 days and never opened)   (gradual since section 15)
          + 0.1*small shuffle (same all day)
 ```
 
@@ -561,3 +561,44 @@ Rebuilding the 7 day row this way gives the same picture as what live had stored
 - The corner outside a person's shopping groups (section 11.3) uses the same number, so it also stays open longer.
 - No database step and no rebuild. A score is stored as it was on its last action and the fading is worked out when it is read (section 2.2), so stored taste is read with the new number from the first request. Read that way, live shows 2 people fully personal and 4 at half or more.
 - The nightly cleanup deletes fewer lines, because a line now takes longer to fade below 0.05.
+
+## 15. Cards you scroll past move down gradually (2026-11-18)
+
+### Why
+
+Until now a card shown on Home and never opened did nothing for two views and lost a fixed 0.5 on the third. Measured on the sample data, a person who opens Home again and again and opens nothing saw this:
+
+| Same cards as on the visit before, out of the first 20 | Visit 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|
+| Active member, old rule | 20 | 20 | 5 | 20 | 20 |
+| Member Home knows little about, old rule | 20 | 20 | 2 | 20 | 20 |
+
+Two visits with exactly the same page, then nearly the whole page swapped at once, then the same again. On the live site this rule has real material: in the week before 2026-11-18 a person was shown the same card three or more times without opening it 18 times.
+
+### 15.1 The rule
+
+A card shown on Home in the last 7 days and never opened moves down a little more with every view:
+
+- It loses 0.05 per view outright, up to 0.5 after ten views (`SEEN_PENALTY`, `SEEN_PENALTY_VIEWS`). This is what moves a card for a person Home knows little about, where most scores are close together.
+- Its taste score counts 95 percent of what it did, per view, and never less than 40 percent (`SEEN_KEEP_PER_VIEW`, `SEEN_KEEP_MIN`). This is what moves a strong taste match, where a fixed 0.05 would be nothing.
+- An opened card follows the opened rule instead (section 12.2).
+- A new listing still gives up its kept spot after three views without an open (`FRESH_SLOT_MAX_VIEWS`, section 12.1).
+- It wears off as before: only the views of the last 7 days count.
+
+The steps are small on purpose. A card counts as shown when it is half visible for a second, so the first cards of Home are "shown" every time the app opens, also when the person went straight to their messages.
+
+### 15.2 Measured after the change
+
+Same test, same people. The second number is how many of the five best cards of the first visit are still on the page.
+
+| Same cards as on the visit before, out of the first 20 | Visit 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|
+| Active member | 14, 4 of 5 | 12, 3 of 5 | 10, 3 of 5 | 9, 1 of 5 | 7, 3 of 5 |
+| Member Home knows little about | 13, 4 of 5 | 14, 5 of 5 | 12, 5 of 5 | 10, 3 of 5 | 13, 4 of 5 |
+
+About a third of the page is new on the next visit, more when the person keeps ignoring it, and the best matches stay longest.
+
+Also tried and not chosen:
+
+- A bigger drop on the third view (taste halved plus 0.5): the same two identical visits, then 19 of 20 cards swapped.
+- Bigger steps (taste keeps 85 percent per view, 0.5 after three views): 12 to 16 of the 20 cards change on every visit, which is restless.
