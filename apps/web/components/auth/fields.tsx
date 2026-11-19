@@ -29,7 +29,8 @@ export function AuthShell({
 }
 
 type FieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> & {
-  label: string;
+  /** Words, or words with the sell form's required star. */
+  label: ReactNode;
   value: string;
   onChange: (value: string) => void;
   /** A translation key already turned into words. */

@@ -3,6 +3,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, TextInput, View } from "react-native";
 import { Icon } from "@/components/ui/icon";
+import { RequiredMark } from "@/components/ui/required-mark";
 import { Text } from "@/components/ui/text";
 import { inputDirectionStyle } from "@/lib/rtl";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,8 @@ type InputProps = Omit<React.ComponentProps<typeof TextInput>, "placeholderTextC
   labelEnd?: React.ReactNode;
   /** Inside a bottom sheet pass the sheet's own text box, so the sheet lifts above the keyboard. */
   inputComponent?: React.ElementType;
+  /** Must be filled: a red star after the label, and screen readers hear "required" (D-061). */
+  required?: boolean;
 };
 
 /**
@@ -41,6 +44,7 @@ function Input({
   containerClassName,
   labelEnd,
   inputComponent: Field = TextInput,
+  required,
   className,
   editable = true,
   multiline,
@@ -48,7 +52,7 @@ function Input({
   ref,
   ...props
 }: InputProps & { ref?: React.Ref<TextInput> }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isHe = i18n.language === "he";
   const [focused, setFocused] = React.useState(false);
   const [revealed, setRevealed] = React.useState(false);
@@ -56,19 +60,23 @@ function Input({
   // Follows what is typed, so Hebrew in an English app runs right to left (and the other way round).
   const direction = inputDirectionStyle(props.value ?? props.defaultValue, isHe);
 
+  const spokenLabel = required ? `${label}, ${t("common.required")}` : label;
+  const labelText = (
+    <Text variant="bodySmall" weight={500} className="text-text-2" accessibilityLabel={spokenLabel}>
+      {label}
+      {required ? <RequiredMark /> : null}
+    </Text>
+  );
+
   return (
     <View className={cn("gap-xs", containerClassName)}>
       {labelEnd ? (
         <View className="flex-row items-center justify-between gap-sm">
-          <Text variant="bodySmall" weight={500} className="text-text-2">
-            {label}
-          </Text>
+          {labelText}
           {labelEnd}
         </View>
       ) : (
-        <Text variant="bodySmall" weight={500} className="text-text-2">
-          {label}
-        </Text>
+        labelText
       )}
       <View
         className={cn(
@@ -90,7 +98,7 @@ function Input({
           secureTextEntry={isSecure}
           placeholderTextColor={colors.text4}
           selectionColor={colors.accent}
-          accessibilityLabel={label}
+          accessibilityLabel={spokenLabel}
           onFocus={(e: Parameters<NonNullable<React.ComponentProps<typeof TextInput>["onFocus"]>>[0]) => {
             setFocused(true);
             props.onFocus?.(e);
