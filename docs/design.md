@@ -708,7 +708,7 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 
 - **Date:** 2026-11-19
 - **Area:** Item page, app and website
-- **Status:** Built on branch feat/photo-zoom, waiting for Eden's review.
+- **Status:** Merged, 2026-11-19 (#168).
 - **Decision:** In the app, tapping a photo on a listing opens it full screen, the same viewer the sell form uses but without the crop and rotate buttons. Pinch or double tap zooms in (up to 4 times), one finger looks around while zoomed, swiping moves between photos, and dragging down or the cross closes it. On the website the photo already opened full screen. Eden picked click to zoom over a hover magnifier and zoom buttons: a click zooms in 2.5 times on the spot clicked, the mouse looks around (a finger drags on a phone), and a second click zooms out. Changing photo or closing goes back to normal size.
 - **Rationale:** Buyers want to check details such as stains, seams, labels and fabric before buying, and the photos were only shown at screen size.
 - **Implementation:** App: `apps/mobile/components/photo-carousel.tsx` opens `components/sell/photo-viewer.tsx`, so both item views (buyer and own listing) get it. Website: the full-screen dialog in `apps/web/components/photo-gallery.tsx`. Wording: `listing.openPhoto`, `web.item.zoomIn`, `web.item.zoomOut`.
@@ -822,7 +822,7 @@ Proposals, not rules, until explicitly promoted above.
 
 - **Date:** 2026-10-18
 - **Area:** Search, app and website (one server rule)
-- **Status:** Proposed, waiting for Eden's merge.
+- **Status:** Merged, 2026-10-18 (#131).
 - **Decision:** A search word keeps the marks that join its pieces: "H&M", "Levi's", "T-shirt", "A.P.C.", "ג'ינס" (also with the Hebrew ׳ and ״ marks) are each one word, and "h & m" typed with spaces is "H&M". Each word must appear in the item: as a word in the title, brand or description, inside a word of the title or brand (only for words of 3 letters or more, so "shirt" finds "tshirt" and "חולצה" finds "בחולצה"), or as the name of its category. A word of 1 or 2 letters ("hm", "xs", "38") matches whole words only, and a single letter never looks inside the brand name. The joined spellings meet: "levis" finds "Levi's", "גינס" finds "ג׳ינס" and "ג'ינס", "HM" finds "H&M". A whole search that only resembles a brand turns into that brand only when it has no more words than the brand name and is about as long: "nikee" is Nike, "nike air" and "zara xs" are not. In the default order, items with every word at the start of a word in the title or brand come first, then items with the words buried inside longer words, then the rest, newest first within each.
 - **Rationale:** The search used to cut "H&M" into "h" and "m" and accept any item with those letters anywhere, so "H&M" found Tommy Hilfiger jeans, and the same happened to "Levi's" and to Hebrew words with an apostrophe. Short pieces inside long words are noise, and the Hebrew spellings with and without the mark are the same word to the person typing.
 - **Trade-off:** A word of 3 letters still matches inside longer words, so "גינס" also finds a book by "היגינס" (now at the bottom, not the top). Real Hebrew prefixes need that, so it stays.
@@ -833,7 +833,7 @@ Proposals, not rules, until explicitly promoted above.
 
 - **Date:** 2026-10-18
 - **Area:** Welcome, first time on a phone
-- **Status:** Proposed, waiting for Eden's merge.
+- **Status:** Merged, 2026-10-18 (#135).
 - **Decision:** The first time the app opens on a phone (no language picked yet), the welcome photo shows a language step before anything else: "Choose your language" and "בחרו את השפה שלכם" one under the other, centred, then two big buttons, English and עברית, each written in its own language and font. Tapping one switches the whole app (and its direction) and the normal welcome screen appears. It is shown once per phone. The language can still be changed later in Settings.
 - **Rationale:** Eden wants people to start in the language they are comfortable with. The phone's own language guessed it before, which picks English for many Hebrew speakers whose phone is in English. Choosing first also gives a new account the right language for its emails and the welcome questions.
 - **Implementation:** `apps/mobile/app/(auth)/welcome.tsx` (`LanguageStep`, shown while the saved language is empty), wording `welcome.chooseLanguage` in both languages.
@@ -843,7 +843,7 @@ Proposals, not rules, until explicitly promoted above.
 
 - **Date:** 2026-10-18
 - **Area:** App, Explore tab and the category lists (Explore, Filters, the sell form)
-- **Status:** Proposed, waiting for Eden's merge.
+- **Status:** Merged, 2026-10-18 (#136).
 - **Decision:** Under the photo tiles, the Explore tab shows the whole category list as rows on the same page (Women, Men, Kids, Home...), each opening its category screen. The "All categories" button that opened a separate screen is gone. Every category row has an icon that fits it (a dress for Dresses, trousers for Jeans, a tie for Ties, perfume for Fragrance, a stroller for Strollers...), taken from Lucide and Lucide Lab (Lucide's official extra set, which has the clothes, shoes and hats). A category with no icon of its own keeps its section's icon.
 - **Rationale:** Eden found almost every row in a section using the same icon (a shirt for all of Clothing, a watch for all of Men's accessories) and wanted the list on Explore itself, not one tap away.
 - **Implementation:** `apps/mobile/lib/category-icons.ts` (icon by the end of the category's slug, longest match wins), `app/(app)/(tabs)/(shop)/browse/index.tsx` (the list). The website shows no category icons and its Explore page has no separate list screen, so nothing changes there.
@@ -863,7 +863,7 @@ Proposals, not rules, until explicitly promoted above.
 
 - **Date:** 2026-11-19
 - **Area:** Sell form, app and website
-- **Status:** Built on branch feat/required-marks, waiting for Eden's review.
+- **Status:** Merged, 2026-11-19 (#167).
 - **Decision:** Every part of the sell form the seller must fill before uploading has a small star in the error red after its name: Photos (on the section title), Title, Category and Price always, and Brand, Size, Condition, Colours, Material and Pattern only when the chosen category asks for them. Optional rows have no star. Parcel size has none because one is always chosen already. Screen readers hear "required" instead of the star.
 - **Rationale:** Eden saw the red messages only after pressing Upload. The star tells the seller up front what they cannot skip, in the way most forms already do it.
 - **Implementation:** App: `apps/mobile/components/ui/required-mark.tsx`, the `required` option on `Input` and `PickerRow`, used in `app/(app)/sell-form/index.tsx`. Website: `RequiredMark` in `apps/web/components/sell/sell-form.tsx`. Which category rows need it comes from the same rules as the check (`attributeMode` in `packages/shared/src/listing-rules.ts`). The word is `common.required`.

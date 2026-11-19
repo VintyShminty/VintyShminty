@@ -41,7 +41,9 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Account linking.** Connecting a Google or Apple login to an existing Vinty account with the same email.
 - **Coverage.** Our name for buyer protection (placeholder in one key, `protectionName`). The buyer is protected and we step in if the item does not arrive or is not as described.
 - **Boost / Boosted (הקפצה, מוקפצת).** A seller moves a listing to the top of the feed for a while ("Boost this listing", "להקפיץ את המודעה"). Free for now. The listing shows "Boosted" until it ends. Called Buzz until 2026-10-15, and still "buzz" and "bump" inside the code.
-- **Yadii.** The name the app shows now (#83). Still a candidate, not final (`docs/originality.md` G10).
+- **Basta.** The app's name since 2026-11-17, Hebrew slang for a market stall, written in Latin letters in both languages (D-060). The repo and code still say Vinty.
+- **Yadii.** The app's name from #83 (2026-10-15) until Basta. Superseded by Basta on 2026-11-17.
+- **Cobalt.** The lead colour, #2446A8, since D-060. It replaced espresso brown.
 - **Wordmark.** The app name written in bold as a logo, at the top of Home (D-047).
 - **Expense items.** Yearly and one time costs in the admin Expenses page, each with a "Paid by" name.
 - **Place suggestions.** Google's city and address guesses while you type a profile city or delivery address, fetched through our server.
@@ -54,10 +56,17 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Review list.** One page in the admin pages with user reports and the AI's listing flags, urgent first. Eden decides.
 - **Card copy / blur.** A small lighter copy of each uploaded photo and a soft colour blur shown while it loads.
 - **Bundle (באנדל).** Several items from one seller bought together, with the seller's discount steps and one postage fee. Was "Closet deal" (D-049).
-- **Bundle pill.** The rounded espresso bar that floats above the tab bar once you add something to a bundle (D-050).
+- **Bundle pill.** The rounded accent bar that floats above the tab bar once you add something to a bundle (D-050).
 - **Bundle steps.** A seller's discount ladder, for example 2 items 5% off, 3 items 10%, 5 items 15%. Set in Settings, Bundles.
 - **Over the air update (silent app update).** New screens, wording or fixes sent to installed apps without a TestFlight build (`pnpm update:live`). Native changes still need a build.
-- **Runtime version (native fingerprint).** A code that says which native parts an app build has. An over the air update only reaches builds with the same code (build 7 is `7f56999f`).
+- **Runtime version (native fingerprint).** A code that says which native parts an app build has. An over the air update only reaches builds with the same code (iPhone build 8 is `57beb23a`, the Android APK of 2026-11-19 is `06f768c4`).
 - **Explore, Chats, Saved.** The English names of the Browse tab, the Inbox tab and the Favourites list since 2026-10-17, so they no longer match Vinted's (#124). Inside the code they are still browse, inbox and favourites.
 - **Shopping groups.** Women, Men and Kids, the answer to "What do you shop for?". Home and search show your groups first (D-048).
+- **APK.** An Android app file that installs from a plain download link, without the Play Store. Made with the Expo build type `apk`.
+- **Closed test.** Google Play's test that counts toward going public: at least 12 testers who stay in for 14 days in a row.
+- **Turnstile (bot check).** Cloudflare's check that the person signing up or logging in is not a robot. Usually invisible, sometimes a small tick box.
+- **Neon Launch plan.** The paid database plan since 2026-10-24, paid by the hour the database is awake.
+- **Dependabot.** GitHub's robot that opens PRs to update outside add-ons.
+- **Accepted warning.** A known safety problem in an add-on with no usable fix, written down by name with a reason and a recheck date so the security check lets PRs through.
+- **Required star.** The small red star after a sell form field that must be filled (D-061).
 - **Corner.** A small part of another shopping group you showed interest in, for example women's cycling clothes. Only that corner moves up, not the whole group.
