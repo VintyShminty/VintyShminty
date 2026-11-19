@@ -47,3 +47,11 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Split parallel helpers by file, and wording keys count as files.** The website and app price helpers both added the same wording names with different placeholders, and git kept only one. Source: log 2026-10-17 (night).
 - **Look again at the Vinted gap after big design steps.** The look moved far away, but the words (tab names, Favourites) stayed Vinted's until a fresh comparison caught them. Words outlast looks. Source: log 2026-10-17 (Vinted renames), #124.
 - **Start a payments search from who gets paid.** PayMe looked best until it turned out to expect business sellers, and ours are private people. Source: log 2026-10-16 (late afternoon).
+- **Start from a clean worktree of main before reading code.** The first search fix was written on an old copy of the search file and had to be redone. Source: log 2026-10-18 (#131).
+- **Test a search change against real searches.** 244 searches built from the live listings caught 43 wrong answers in production and proved the fix. Source: log 2026-10-18 (#131).
+- **On Neon's free plan the hour cap runs out first, not the data.** Testing, the website and search engine visits kept the database awake. Source: log 2026-10-24.
+- **Before believing "nothing found", search for something known to exist.** Source: log 2026-10-19 (trademark checks).
+- **Merge small things often and look at Dependabot weekly.** Main stood still for a month, new warnings piled up and blocked every PR at once. Source: log 2026-11-17.
+- **A rename sweep must skip history notes.** The Basta swap rewrote what the knowledge files said was true on 15 October. History stays as written. Source: log 2026-11-17 (#154).
+- **Read the end of a failed build before rebuilding.** The build had succeeded, only opening the Simulator window failed. Source: log 2026-11-19.
+- **Check the native fingerprint before promising a silent update.** A rename changed it, so Android needed one new APK. Source: log 2026-10-18 (#130), log 2026-11-19.

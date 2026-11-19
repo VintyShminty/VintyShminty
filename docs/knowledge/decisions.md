@@ -1,6 +1,6 @@
 # Decisions index
 
-Last compiled: 2026-10-17 (night). Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections), `docs/log/2026-10-16.md` (all six sections, through bundles), `docs/log/2026-10-17.md` (morning and afternoon, plus the evening, night and Vinted renames sections from the open log PRs #125 and #126).
+Last compiled: 2026-11-19. Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections), `docs/log/2026-10-16.md` (all six sections, through bundles), `docs/log/2026-10-17.md` (morning and afternoon, plus the evening, night and Vinted renames sections from the open log PRs #125 and #126), `docs/log/2026-10-18.md` (all three sections), `docs/log/2026-10-19.md` (all four sections), `docs/log/2026-10-24.md`, `docs/log/2026-11-07.md`, `docs/log/2026-11-17.md` (both sections), `docs/log/2026-11-19.md`.
 
 An index only. The full text and reasoning live where the link points. When a decision is replaced, mark it "Superseded by" and keep the line.
 
@@ -13,7 +13,7 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-003 | Typeface is Aileron | Approved |
 | D-004 | Component library is React Native Reusables | Approved |
 | D-005 | Phone-app adaptations of the earlier rules | Approved |
-| D-006 | Colour palette: Espresso and cream | Approved |
+| D-006 | Colour palette: Espresso and cream | Superseded by D-060 (colours only, token names and roles stay) |
 | D-007 | ItemCard is Option C, Badge forward | Superseded in part by D-019 and D-032 |
 | D-008 | Chips and badges are Option B, hairline outline | Approved |
 | D-009 | Navigation is the bottom tab bar, with a Browse grid and pushed panels | Approved |
@@ -52,7 +52,7 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-043 | Help page answers questions only from our help articles | Merged, 2026-10-15 (#76) |
 | D-044 | Order problems reach the Review list with a facts only summary | Merged, 2026-10-15 (#77) |
 | D-045 | The app item page speaks the card's language | Merged, 2026-10-15 (#79) |
-| D-046 | The logo is a gently tilted price tag with a bold Y (for now, name not final) | Merged, 2026-10-15 (#89) |
+| D-046 | The logo is a gently tilted price tag with a bold Y (for now, name not final) | Merged, 2026-10-15 (#89). Superseded in part by D-060 (a B, in cobalt) |
 | D-047 | Home top is the wordmark, a bell and a bookmark, then a full width search that works in place | Merged, 2026-10-15 (#93) |
 | D-048 | Home and search show your shopping groups (Women, Men, Kids) first, other groups a bit lower, never hidden | Merged, 2026-10-16 (#106) |
 | D-049 | Closet deal is now Bundle: item page box, + Bundle on cards, bundle bar, postage saving shown, sellers' steps on by default (Hebrew: באנדל) | Merged, 2026-10-16 (#107) |
@@ -63,7 +63,12 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-054 | Website Browse panel: More shows four pictures and a count and opens inside the panel | Merged, 2026-10-17 (#119) |
 | D-055 | App Browse tab: Women and Men switch, listing covers, every category in one grid with no More | Merged, 2026-10-17 (#122) |
 | D-056 | Home gets a Price chip with quick picks and From and To boxes instead of Under ₪50, app and website | Merged, 2026-10-17 (#123) |
-| D-057 | Search words stay whole (H&M, Levi's, ג'ינס), short words match whole words only, word-start matches rank first | Proposed, 2026-10-18 |
+| D-057 | Search words stay whole (H&M, Levi's, ג'ינס), short words match whole words only, word-start matches rank first | Merged, 2026-10-18 (#131) |
+| D-058 | The first screen asks for the language, once per phone, before sign up | Merged, 2026-10-18 (#135) |
+| D-059 | Explore lists every category on the page, each category with a fitting icon (Lucide and Lucide Lab) | Merged, 2026-10-18 (#136). App only |
+| D-060 | The name is Basta (Latin letters in Hebrew too), the colour is Cobalt #2446A8, the tag logo has a B | Merged, 2026-11-17 (#154). Supersedes the colours of D-006 and the Y of D-046 |
+| D-061 | A red star marks the sell form fields that must be filled, screen readers say "required" | Merged, 2026-11-19 (#167) |
+| D-062 | Buyers can zoom into listing photos: app opens the full-screen viewer, website zooms on click | Merged, 2026-11-19 (#168) |
 | O-003 | Hebrew font pairing | Closed by D-011 |
 
 General rule: where a design question is not decided, follow the product spec (the Vinted UX deconstruction) for how things work only, never its names, wording, icons or looks. Source: `docs/design.md`, D-019, `docs/originality.md`.
@@ -89,7 +94,7 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Hosting: Vercel (Hobby for private testing, Pro before real users), Neon Postgres and Upstash Redis, all in Frankfurt. Photos on Cloudflare R2 | 2026-10-13 | Decided, see roadmap and `docs/going-online.md` |
 | Emails go to the server log (`MAIL_TRANSPORT=log`) until Resend and a domain exist | 2026-10-13 | Decided, temporary |
 | App ID `com.secondhand.marketplace`, Apple Team ID `DTT66N8N3D`, neutral on purpose | 2026-10-13 | Decided (Eden), see roadmap |
-| Working name on the App Store and home screen: Shminty, changeable. Text inside the app still says Vinty | 2026-10-13 | Decided (Eden), PR #26 |
+| Working name on the App Store and home screen: Shminty, changeable. Text inside the app still says Vinty | 2026-10-13 | Superseded: the app has said Basta since 2026-11-17 (D-060). Eden renames the App Store Connect and Play Console listings |
 | Google login lives in its own Google Cloud project (vintyshminty@gmail.com), testing mode with named test users | 2026-10-13 | Decided (Eden) |
 | An account with an unconfirmed email is never linked to Google or Apple automatically | 2026-10-13 | Kept on purpose (safety), D-023 |
 | Milestone 9 defaults: Buzz free with no daily cap, invite reward 50 shekels each, away mode at most 90 days ahead | 2026-10-14 | Decided (Claude defaults, Eden did not change), `docs/blueprint/api.md`, D-024, D-025 |
@@ -105,17 +110,17 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Should sellers be told when Eden hides or removes their listing? | 2026-10-14 | Open, default not yet |
 | Filter buttons on other website pages get the Home pill look? Sell, Sign up and Log in stay soft cornered? | 2026-10-15 | Open, defaults yes and no (log 2026-10-15) |
 | The paid boost is "Boost" ("Boost this listing", badge "Boosted"), Hebrew "להקפיץ את המודעה" (badge "מוקפצת"). Replaces the Buzz placeholder. Code names stay buzz and bump | 2026-10-15 | Decided (Eden), `docs/originality.md` row 7, #94 |
-| App name "Yadii", Hebrew spelling "יאדי" as lead candidate. A trademark lawyer checks the Yad2 question first | 2026-10-15 | Open, `docs/originality.md` G10, log 2026-10-15 |
+| App name "Yadii", Hebrew spelling "יאדי" as lead candidate. A trademark lawyer checks the Yad2 question first | 2026-10-15 | Superseded by Basta (D-060) on 2026-11-17 |
 | Expenses: yearly costs spread over 12 months, one time costs in their month, "Paid by" is free text with suggestions | 2026-10-15 | Decided (Eden), `docs/blueprint/data-model.md` (`expense_items`), #85 |
 | Address and city suggestions go through our server (one secret key, Israel only, signed in only, 300 an hour each) | 2026-10-15 | Decided, `docs/blueprint/api.md`, #86 |
 | The offer button reads "Send your offer", Hebrew "תשלח/י הצעה" | 2026-10-15 | Decided (Eden), #84 |
 | Admin batch upload: on the phone you tap photos then "Make item". The website keeps one drop is one item. The stand-in username is created on the spot per batch | 2026-10-15 | Decided (Eden), #88, #91 |
 | Builds are iPhone only, no iPad. Apple's reviewer gets a normal account, never an admin | 2026-10-15 | Decided (Eden), log 2026-10-15 |
 | Items 5 to 8, 11 to 19 (photo search, saved searches, brands, disputes, withdrawals, account deletion, seed passwords and more) | | Open, see data model |
-| Over the air updates (EAS Update): `pnpm update:live` sends screens, wording and fixes to installed apps on the `production` channel. Native changes still need a build. Works from TestFlight build 7 | 2026-10-16 | Merged (#101), `CLAUDE.md` |
+| Over the air updates (EAS Update): `pnpm update:live` sends screens, wording and fixes to installed apps on the `production` channel. Native changes still need a build. Works from TestFlight build 7, today build 8 (Basta). Since 2026-11-19 it sends to Android too (#169) | 2026-10-16 | Merged (#101), `CLAUDE.md` |
 | A search word that names a category also finds everything in that category, both languages, singular or plural | 2026-10-16 | Merged (#104) |
 | Bundle steps: the biggest parcel sets postage, an offer on the whole bundle comes later, the bar shows only on that seller's pages, 5/10/15% on by default | 2026-10-16 | Decided (Eden approved the mockup), `docs/plans/closet-deals.md` section 6 |
-| Face ID lock closes the sell form, welcome questions and Face ID offer while locked, rather than drawing the lock as its own native layer | 2026-10-16 | Merged (#96) |
+| Face ID lock closes the sell form, welcome questions and Face ID offer while locked, rather than drawing the lock as its own native layer | 2026-10-16 | Superseded on 2026-10-18, there is no lock on opening any more (#129) |
 | Face ID is for logging in, not a lock on opening: a signed in person goes straight in, and after a password login (not a new account) the app offers to keep the login behind Face ID | 2026-10-18 | Merged (#129) |
 | Help answers drop any answer with a link, an email address or a phone number | 2026-10-16 | Decided (Eden), merged (#96) |
 | Only the seller can send photos in chat, enforced by the server | 2026-10-16 | Merged (#99) |
@@ -137,6 +142,16 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Keep the brand line on item cards (slightly taller cards)? | 2026-10-17 | Open, default keep |
 | Women and Men switch on the website's full Browse page and phone menu too? | 2026-10-17 | Open, default add it next |
 | Live database moves from Neon's free plan to Launch (pay per use, about $13 to $20 a month), after the free 100 compute hours ran out and the app stopped working | 2026-10-24 | Done (Eden), log 2026-10-24 |
+| Server copies on Vercel open at most 2 database connections each (`DATABASE_POOL_MAX=2`), after Neon ran out of memory at about 110 connections | 2026-10-18 | Done, Vercel setting, log 2026-10-18 |
+| Explore tile covers come in one cached request per side (5 minutes at Vercel), reference lists kept 10 minutes, to stop the data drain | 2026-10-18 | Merged (#133) |
+| The name will not contain "yad" and the brand will not lead with orange, so nobody reads it as a Yad2 copy | 2026-10-19 | Decided (Eden), memory `avoid-yad2-look`, led to D-060 |
+| Bot check is Cloudflare Turnstile on sign up, log in, emailed codes and the Help question box, website and app (the app through a hidden web page). A missing answer is let through while `CAPTCHA_REQUIRED` is false. If Cloudflare is down, calls go through | 2026-10-19 | Merged (#138). Switch `CAPTCHA_REQUIRED` on once most phones have the build with the check |
+| Website security rules: only our own stamped scripts, always HTTPS, no framing by other sites | 2026-10-19 | Merged (#138) |
+| Android partners get an APK by link (Expo profile `apk`), the Play Store follows with a closed test of 12 or more testers for 14 days | 2026-10-19 | Merged (#137), memory `play-console-account` |
+| Accessibility statement contact, two-factor, offensive words, auto logout | 2026-10-19 | Open, defaults in log 2026-10-19 (Eden and the support email, email code on a new device, block and ask to rephrase, keep 30 days) |
+| Neon autoscaling from a quarter unit up to 1 unit when busy | 2026-10-24 | Open, default yes (log 2026-10-24) |
+| A fixed amount per order on top of the 5 percent fee, and a fee per category for cheap books | 2026-11-07 | Open, defaults in log 2026-11-07, decided with payments |
+| Silent app updates go to iPhone and Android (`update:live` uses every platform) | 2026-11-19 | Merged (#169) |
 
 ## Process (`docs/playbook/`)
 
@@ -146,21 +161,27 @@ Note: D-027 was never used. Two sessions once both took D-030, the categories de
 | Parallel agents use separate worktrees | 2026-10-12 | Active, `git-and-github.md` |
 | Daily log at end of each session, compile at end of each milestone | 2026-10-12 | Active, `how-we-work.md` |
 | New library versions must be 7 days old. CI blocks on serious vulnerabilities | 2026-10-12 | Active, `security-and-safety.md` |
-| Two serious build-tool findings accepted by name with a weekly recheck. Temporary version exceptions removed after 13 and 19 October | 2026-10-12 | Active, `pnpm-workspace.yaml` |
+| Safety warnings with no usable fix are accepted by name with a reason and a recheck date. Today: braces (weekly), decode-uri-component (2026-12-01, gone with Expo SDK 58), picomatch (2026-11-24). Add-ons we get through other add-ons are lifted with overrides, each with a reason | 2026-10-12, updated 2026-11-17 | Active, `pnpm-workspace.yaml` |
 | No git history rewrite, current files being clean is enough | 2026-10-12 | Decided (Eden) |
 | Big library upgrades by hand, Dependabot skips major versions | 2026-10-13 | Active, `.github/dependabot.yml` |
 | Agents' working copies live in `Homarim/VintyShminty-copies/`, hidden from Spotlight. One helper simulator at a time | 2026-10-13 | Active |
 | Merges into `main` go live by themselves (Vercel is connected to GitHub). To try a branch live before merging, deploy it by hand from a clean copy (`VintyShminty-copies/deploy`) | 2026-10-13 | Active, `docs/going-online.md` |
 | Eden pastes every secret himself. Claude never types passwords, keys or Apple or Google logins | 2026-10-13 | Active, `docs/playbook/security-and-safety.md` |
 | The product spec stays in `docs/` and is never committed | 2026-10-13 | Active, `.gitignore` |
-| TestFlight builds are made with local Xcode, not EAS. Build 7 went up on 2026-10-16, next is 8 | 2026-10-14 | Active (Eden), memory, `CLAUDE.md` |
+| TestFlight builds are made with local Xcode, not EAS. Build 8 (Basta) went up on 2026-11-18, next is 9 | 2026-10-14 | Active (Eden), memory, `CLAUDE.md` |
 | Use Sonnet helpers for work that does not need Opus | 2026-10-14 | Active (Eden), memory |
 | Run the online database step before calling a schema PR ready | 2026-10-14 | Active, memory `migrate-before-merge` |
 | Every note Eden gives applies to both the website and the app unless it cannot | 2026-10-17 | Active (Eden), memory `changes-apply-to-app-and-web` |
+| Kept back on purpose: `@lucide/lab` at 0.7.0 (0.12 drops the perfume icon Explore uses) and Biome at 2.5.15 (2.6 reformats the doc tables) | 2026-11-17 | Active, log 2026-11-17 (#156) |
+| Look at Dependabot's PRs about once a week, and merge small things often | 2026-11-17 | Active, log 2026-11-17 |
 | Over the air updates go out from a clean copy of the latest main, after checking the runtime version matches the installed build. When the permission system blocks the agent, Eden runs `pnpm update:live`. Live database changes the same way | 2026-10-17 | Active, memory `ota-update-eden-runs`, log 2026-10-17 |
 
 ## Superseded
 
+- "App name Yadii" (2026-10-15) and the orange Homebody idea (2026-10-19): superseded by Basta in Cobalt (D-060) on 2026-11-17.
+- D-006 Espresso and cream: superseded by Cobalt (D-060) on 2026-11-17. The token names and roles stay.
+- The Face ID lock on opening the app (#96, 2026-10-16): superseded on 2026-10-18 by Face ID for logging in only (#129).
+- "The Face ID permission sentence says to log you in" (#129): put back to the old sentence the same day (#130), because it changed the app's native fingerprint. Still to change with a future Xcode build.
 - "Stay on Neon's free plan for now" (2026-10-18): superseded on 2026-10-24, the database is on Launch.
 - "Keep the word Favourites" (2026-10-14, #52): superseded by Saved on 2026-10-17 (#124).
 - "Only Eden adds brands" (Milestone 2): superseded on 2026-10-17 by typed brands joining the list (#111).
