@@ -704,6 +704,16 @@ There is no hover on phones. Every hover rule becomes press feedback (D-005).
 - **Implementation:** `apps/mobile/app/(app)/(tabs)/(home)/index.tsx`. The page is `(home,inbox,profile,shop)/notifications.tsx`. The list lives in `components/inbox/notifications-list.tsx` and is shared with the Inbox tab (the empty, error and loading states are in `components/inbox/list-states.tsx`). The search under the bar is `components/search/search-panel.tsx` (the field, the save bookmark and the panel, plus `useSearchSession`), shared by Home and the Search page (`(home,inbox,profile,shop)/search/index.tsx`). `SearchBar` takes an `onPress` so Home can start the search in place while Browse keeps opening the page.
 - **References:** D-019, D-039
 
+### D-062 : Buyers can zoom into listing photos
+
+- **Date:** 2026-11-19
+- **Area:** Item page, app and website
+- **Status:** Built on branch feat/photo-zoom, waiting for Eden's review.
+- **Decision:** In the app, tapping a photo on a listing opens it full screen, the same viewer the sell form uses but without the crop and rotate buttons. Pinch or double tap zooms in (up to 4 times), one finger looks around while zoomed, swiping moves between photos, and dragging down or the cross closes it. On the website the photo already opened full screen. Eden picked click to zoom over a hover magnifier and zoom buttons: a click zooms in 2.5 times on the spot clicked, the mouse looks around (a finger drags on a phone), and a second click zooms out. Changing photo or closing goes back to normal size.
+- **Rationale:** Buyers want to check details such as stains, seams, labels and fabric before buying, and the photos were only shown at screen size.
+- **Implementation:** App: `apps/mobile/components/photo-carousel.tsx` opens `components/sell/photo-viewer.tsx`, so both item views (buyer and own listing) get it. Website: the full-screen dialog in `apps/web/components/photo-gallery.tsx`. Wording: `listing.openPhoto`, `web.item.zoomIn`, `web.item.zoomOut`.
+- **References:** D-030
+
 ## Open decisions
 
 Proposals, not rules, until explicitly promoted above.

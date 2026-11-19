@@ -3,16 +3,21 @@ import { Image } from "expo-image";
 import { ImageOff } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, useWindowDimensions, View } from "react-native";
+import { FlatList, Pressable, useWindowDimensions, View } from "react-native";
+import { PhotoViewer } from "@/components/sell/photo-viewer";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 
-/** Swipeable full-width photos at 3:4 with a "2 / 5" counter (docs/components.md, PhotoCarousel). */
+/**
+ * Swipeable full-width photos at 3:4 with a "2 / 5" counter (docs/components.md, PhotoCarousel). Tapping a photo opens
+ * it full screen, where the buyer can pinch or double tap to zoom in on details (D-062).
+ */
 function PhotoCarousel({ photos, onSwipe }: { photos: Photo[]; onSwipe?: () => void }) {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const height = Math.round((width * 4) / 3);
   const [index, setIndex] = useState(0);
+  const [open, setOpen] = useState<number | null>(null);
 
   if (photos.length === 0) {
     return (
@@ -43,15 +48,20 @@ function PhotoCarousel({ photos, onSwipe }: { photos: Photo[]; onSwipe?: () => v
             setIndex(next);
           }}
           renderItem={({ item, index: i }) => (
-            <Image
-              source={{ uri: item.url }}
-              placeholder={item.placeholder ?? undefined}
-              style={{ width, height }}
-              contentFit="cover"
-              transition={200}
-              accessibilityLabel={t("listing.photoLabel", { n: i + 1, total: photos.length })}
-              accessibilityIgnoresInvertColors
-            />
+            <Pressable
+              onPress={() => setOpen(i)}
+              role="button"
+              accessibilityLabel={`${t("listing.photoLabel", { n: i + 1, total: photos.length })}. ${t("listing.openPhoto")}`}
+            >
+              <Image
+                source={{ uri: item.url }}
+                placeholder={item.placeholder ?? undefined}
+                style={{ width, height }}
+                contentFit="cover"
+                transition={200}
+                accessibilityIgnoresInvertColors
+              />
+            </Pressable>
           )}
         />
       </View>
@@ -63,6 +73,11 @@ function PhotoCarousel({ photos, onSwipe }: { photos: Photo[]; onSwipe?: () => v
           </Text>
         </View>
       ) : null}
+      <PhotoViewer
+        photos={photos.map((p) => ({ id: p.key, uri: p.url }))}
+        startIndex={open}
+        onClose={() => setOpen(null)}
+      />
     </View>
   );
 }

@@ -2,15 +2,21 @@
 
 import type { Photo } from "@vinty/shared";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { type KeyboardEvent, useRef, useState } from "react";
+import { type KeyboardEvent, type MouseEvent, type PointerEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PHOTO_SWIPE_EVENT } from "@/components/item-dwell";
 import { cn } from "@/lib/utils";
+
+/** How far a click zooms in on the full-screen photo (D-062). */
+const ZOOM = 2.5;
+
+const clamp = (n: number) => Math.min(100, Math.max(0, n));
 
 /**
  * The item photos (D-030, 4): the big photo with the small ones beside it on a laptop (below it on a phone). A small
  * photo switches the big one, the arrow keys and the arrow buttons step through, swiping works on a phone, and a click
  * on the big photo opens them full screen (the browser's own modal dialog: Escape closes it, focus stays inside).
+ * There a click zooms in on that spot, the mouse (or a dragging finger) looks around, and a second click zooms out (D-062).
  * The first photo is in the HTML from the server. `sold` washes the photos out like the item card.
  */
 export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: string; sold: boolean }) {
@@ -19,15 +25,57 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
   const [index, setIndex] = useState(0);
   const viewer = useRef<HTMLDialogElement>(null);
   const touchStart = useRef<number | null>(null);
+  // The zoomed spot in percent of the photo, null at normal size.
+  const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
+  const press = useRef<{ x: number; y: number; zoomX: number; zoomY: number; moved: boolean } | null>(null);
   const total = photos.length;
   const current = photos[index];
 
   const go = (to: number) => {
+    setZoom(null);
     setIndex(((to % total) + total) % total);
     // The feed learns from photos looked at (time on an item, see ItemDwell).
     window.dispatchEvent(new Event(PHOTO_SWIPE_EVENT));
   };
   const step = (direction: 1 | -1) => go(index + direction);
+  // The button keeps the photo's size at normal zoom (the zoom is only a transform), so its box maps the pointer to a
+  // spot on the photo.
+  const spotAt = (e: { clientX: number; clientY: number; currentTarget: HTMLElement }) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    return {
+      x: clamp(((e.clientX - box.left) / box.width) * 100),
+      y: clamp(((e.clientY - box.top) / box.height) * 100),
+    };
+  };
+  const onZoomPointerDown = (e: PointerEvent<HTMLButtonElement>) => {
+    press.current = { x: e.clientX, y: e.clientY, zoomX: zoom?.x ?? 50, zoomY: zoom?.y ?? 50, moved: false };
+    if (zoom && e.pointerType !== "mouse") e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onZoomPointerMove = (e: PointerEvent<HTMLButtonElement>) => {
+    const start = press.current;
+    if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6) start.moved = true;
+    if (!zoom) return;
+    // A mouse looks where it points. A finger drags the photo along with it.
+    if (e.pointerType === "mouse") {
+      setZoom(spotAt(e));
+      return;
+    }
+    if (!start) return;
+    const box = e.currentTarget.getBoundingClientRect();
+    setZoom({
+      x: clamp(start.zoomX - ((e.clientX - start.x) / ((ZOOM - 1) * box.width)) * 100),
+      y: clamp(start.zoomY - ((e.clientY - start.y) / ((ZOOM - 1) * box.height)) * 100),
+    });
+  };
+  const onZoomClick = (e: MouseEvent<HTMLButtonElement>) => {
+    const dragged = press.current?.moved;
+    press.current = null;
+    if (dragged) return;
+    if (zoom) setZoom(null);
+    // From the keyboard (no pointer) it zooms in on the middle.
+    else setZoom(e.detail === 0 ? { x: 50, y: 50 } : spotAt(e));
+  };
+
   const alt = (n: number) => `${title}. ${t("listing.photoLabel", { n: n + 1, total })}`;
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -148,16 +196,35 @@ export function PhotoGallery({ photos, title, sold }: { photos: Photo[]; title: 
       <dialog
         ref={viewer}
         aria-label={t("web.item.photosLabel")}
+        onClose={() => setZoom(null)}
         className="m-0 h-dvh max-h-none w-dvw max-w-none border-0 bg-background p-0 backdrop:bg-backdrop"
       >
-        <div className="relative flex h-full w-full items-center justify-center p-lg">
-          {/* biome-ignore lint/performance/noImgElement: listing photos come ready sized, no image optimisation on purpose */}
-          <img src={current.url} alt={alt(index)} className="max-h-full max-w-full object-contain" />
+        <div className="relative flex h-full w-full items-center justify-center overflow-hidden p-lg">
+          <button
+            type="button"
+            onPointerDown={onZoomPointerDown}
+            onPointerMove={onZoomPointerMove}
+            onClick={onZoomClick}
+            aria-label={zoom ? t("web.item.zoomOut") : t("web.item.zoomIn")}
+            aria-pressed={zoom !== null}
+            className={cn("block", zoom ? "cursor-zoom-out touch-none" : "cursor-zoom-in")}
+          >
+            {/* biome-ignore lint/performance/noImgElement: listing photos come ready sized, no image optimisation on purpose */}
+            <img
+              src={current.url}
+              alt={alt(index)}
+              draggable={false}
+              style={
+                zoom ? { transform: `scale(${ZOOM})`, transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined
+              }
+              className="max-h-[calc(100dvh-32px)] max-w-[calc(100dvw-32px)] select-none object-contain transition-transform duration-200 ease-out motion-reduce:transition-none"
+            />
+          </button>
           <button
             type="button"
             onClick={() => viewer.current?.close()}
             aria-label={t("web.item.closeViewer")}
-            className="absolute end-md top-md flex h-11 w-11 items-center justify-center rounded-full bg-pressed text-text-1 hover:bg-border"
+            className="absolute end-md top-md z-10 flex h-11 w-11 items-center justify-center rounded-full bg-pressed text-text-1 hover:bg-border"
           >
             <X size={22} aria-hidden />
           </button>
