@@ -1,6 +1,14 @@
 import { type AffinityFeature, OPENED_KEEP, OTHER_GROUP_MINUS, resolveGroups } from "@vinty/shared";
 import { describe, expect, it } from "vitest";
-import { bestTerm, buildTaste, type Candidate, scoreCandidate, type Taste } from "./feed.js";
+import {
+  bestTerm,
+  buildTaste,
+  type Candidate,
+  type RecentSearch,
+  scoreCandidate,
+  searchedFor,
+  type Taste,
+} from "./feed.js";
 
 const now = new Date("2026-10-13T12:00:00Z");
 const daysAgo = (d: number) => new Date(now.getTime() - d * 86_400_000);
@@ -83,6 +91,7 @@ const taste = (over: Partial<Taste> = {}): Taste => ({
   pickedBrands: new Set(),
   chosenSizes: new Set(),
   seen: new Map(),
+  searches: [],
   ...over,
 });
 
@@ -308,6 +317,38 @@ describe("scoreCandidate", () => {
     // A seller she follows and a brand she picked count from the first day.
     expect(fresh({ categoryId: "skirt" }, { ...her, follows: new Set(["s1"]) })).toBe(true);
     expect(fresh({ categoryId: "skirt" }, { ...her, pickedBrands: new Set(["mango"]) })).toBe(true);
+  });
+
+  it("offers what the person searched for lately for the search spots", () => {
+    const nikeSneakers: RecentSearch = {
+      categoryId: "shoes",
+      categoryIds: new Set(["shoes", "sneakers"]),
+      brandId: "nike",
+    };
+    const anyDress: RecentSearch = { categoryId: "dress", categoryIds: new Set(["dress"]), brandId: null };
+    const anyAdidas: RecentSearch = { categoryId: null, categoryIds: null, brandId: "adidas" };
+    const searches = [nikeSneakers, anyDress, anyAdidas];
+    // The brand and the category both have to fit when the search had both.
+    expect(searchedFor({ categoryId: "sneakers", brandId: "nike" }, searches)).toBe(nikeSneakers);
+    expect(searchedFor({ categoryId: "sneakers", brandId: "puma" }, searches)).toBeNull();
+    expect(searchedFor({ categoryId: "coat", brandId: "nike" }, searches)).toBeNull();
+    expect(searchedFor({ categoryId: "dress", brandId: "zara" }, searches)).toBe(anyDress);
+    expect(searchedFor({ categoryId: "coat", brandId: "adidas" }, searches)).toBe(anyAdidas);
+    expect(searchedFor({ categoryId: null, brandId: null }, searches)).toBeNull();
+
+    const searched = (over: Partial<Taste> = {}) =>
+      scoreCandidate(candidate(), taste({ searches: [anyDress], ...over }), ctx).searched;
+    expect(searched()).toBe(anyDress);
+    expect(scoreCandidate(candidate(), taste(), ctx).searched).toBeNull();
+    expect(scoreCandidate(candidate(), null, ctx).searched).toBeNull();
+    // Already opened, or scrolled past three times: the spot goes to something else they searched for.
+    expect(searched({ seen: new Map([["i1", { shown: 1, opened: 1 }]]) })).toBeNull();
+    expect(searched({ seen: new Map([["i1", { shown: 3, opened: 0 }]]) })).toBeNull();
+    expect(searched({ seen: new Map([["i1", { shown: 2, opened: 0 }]]) })).toBe(anyDress);
+    // A search does not change the score itself.
+    expect(scoreCandidate(candidate(), taste({ searches: [anyDress] }), ctx).score).toBeCloseTo(
+      scoreCandidate(candidate(), taste(), ctx).score,
+    );
   });
 
   it("adds a small boost for price drops, a running bump and a first chance", () => {

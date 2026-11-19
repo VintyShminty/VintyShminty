@@ -38,6 +38,7 @@ import { ApiError } from "../lib/errors.js";
 import { recordEvents } from "../lib/events.js";
 import { notifyUser } from "../lib/notify.js";
 import { type ReportSorter, sortReportInBackground } from "../lib/report-sort.js";
+import { searchAbout, searchEvents } from "../lib/search-intent.js";
 
 const idParams = z.object({ id: idSchema });
 const WRITE_LIMIT = { rateLimit: { max: 60, timeWindow: "1 minute" } };
@@ -271,14 +272,12 @@ const engagementRoutes: FastifyPluginAsyncZod<{ reportSorter: ReportSorter }> = 
         .insert(savedSearches)
         .values({ userId, queryText, filters, notifyOnNew })
         .returning();
-      await recordEvents(app, userId, [
-        {
-          type: "save_search",
-          categoryId: filters.categoryId,
-          brandId: filters.brandIds?.length === 1 ? filters.brandIds[0] : undefined,
-          data: queryText ? { q: queryText.slice(0, 100) } : {},
-        },
-      ]);
+      const about = await searchAbout(app, await app.reference.get(), userId, queryText, filters);
+      await recordEvents(
+        app,
+        userId,
+        searchEvents("save_search", about, queryText ? { q: queryText.slice(0, 100) } : {}),
+      );
       reply.code(201);
       return savedView(row as typeof savedSearches.$inferSelect);
     },
@@ -387,14 +386,9 @@ const engagementRoutes: FastifyPluginAsyncZod<{ reportSorter: ReportSorter }> = 
           ),
         );
       });
-      await recordEvents(app, userId, [
-        {
-          type: "search",
-          categoryId: filters.categoryId,
-          brandId: filters.brandIds?.length === 1 ? filters.brandIds[0] : undefined,
-          data: { q: queryText.slice(0, 100) },
-        },
-      ]);
+      // What the search was about, so Home learns from the words too and not only from picked filters (plan section 17.1).
+      const about = await searchAbout(app, await app.reference.get(), userId, queryText, filters);
+      await recordEvents(app, userId, searchEvents("search", about, { q: queryText.slice(0, 100) }));
       return reply.code(204).send(null);
     },
   );

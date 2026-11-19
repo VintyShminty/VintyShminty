@@ -9,6 +9,7 @@ import {
   HALF_LIFE_DAYS,
   priceBand,
   type ScoredItem,
+  searchIntent,
   seenEffect,
   VARIETY,
 } from "./recommendations.js";
@@ -107,6 +108,63 @@ describe("affinityDeltas", () => {
   });
 });
 
+describe("what a search was about", () => {
+  const result = (trail: string[], kinds: string[], brandId: string | null) => ({ trail, kinds, brandId });
+  const sneaker = (group = "men", brandId: string | null = "nike") =>
+    result([group, `${group}-shoes`, `${group}-sneakers`], ["", "Shoes", "Shoes > Sneakers"], brandId);
+  const boot = (brandId: string | null = "nike") =>
+    result(["men", "men-shoes", "men-boots"], ["", "Shoes", "Shoes > Boots"], brandId);
+  const dress = (brandId: string | null = "zara") =>
+    result(["women", "women-dresses"], ["", "Dresses"], brandId);
+
+  it("is the brand and the category most of the results share", () => {
+    const results = [sneaker(), sneaker(), sneaker(), sneaker("men", "adidas"), boot()];
+    // 4 of 5 are men's sneakers and 4 of 5 are Nike.
+    expect(searchIntent(results)).toEqual({ categoryIds: ["men-sneakers"], brandId: "nike" });
+  });
+
+  it("goes up to the wider category when the results spread over the narrow ones", () => {
+    // Half sneakers, half boots: the search was about men's shoes.
+    expect(searchIntent([sneaker(), sneaker(), boot(), boot()])).toEqual({
+      categoryIds: ["men-shoes"],
+      brandId: "nike",
+    });
+  });
+
+  it("recognises the same kind of item under several groups", () => {
+    // "sneakers" from someone whose group is unknown: women's, men's and kids' sneakers, most often men's.
+    const results = [sneaker("men", "a"), sneaker("men", "b"), sneaker("women", "c"), sneaker("kids", "d")];
+    expect(searchIntent(results)).toEqual({
+      categoryIds: ["men-sneakers", "women-sneakers", "kids-sneakers"],
+      brandId: null,
+    });
+    // One brand over different kinds of item: about the brand only. A category needs four in five.
+    expect(searchIntent([sneaker(), sneaker(), dress("nike"), boot()])).toEqual({
+      categoryIds: [],
+      brandId: "nike",
+    });
+    expect(searchIntent([sneaker(), sneaker(), dress("nike"), dress("nike")])).toEqual({
+      categoryIds: [],
+      brandId: "nike",
+    });
+  });
+
+  it("is about nothing when there are no results or a bit of everything", () => {
+    expect(searchIntent([])).toEqual({ categoryIds: [], brandId: null });
+    const mixed = [
+      sneaker("men", "a"),
+      dress(),
+      result(["home", "home-lamps"], ["", "Lamps"], "b"),
+      result([], [], null),
+    ];
+    expect(searchIntent(mixed)).toEqual({ categoryIds: [], brandId: null });
+  });
+
+  it("reads a single result as what the search was about", () => {
+    expect(searchIntent([sneaker()])).toEqual({ categoryIds: ["men-sneakers"], brandId: "nike" });
+  });
+});
+
 describe("cards shown and not opened", () => {
   it("lose a little per view, in small steps", () => {
     expect(seenEffect(0)).toEqual({ keep: 1, minus: 0 });
@@ -145,6 +203,7 @@ describe("arrangeFeed", () => {
     isBumped: false,
     isExplore: false,
     isFresh: false,
+    isSearched: false,
     ...over,
   });
   const count = <T>(list: T[], pick: (t: T) => string | null) => {
@@ -201,6 +260,27 @@ describe("arrangeFeed", () => {
       ),
     ];
     expect(arrangeFeed(oneSeller, 20).filter((p) => p.fresh)).toHaveLength(2);
+  });
+
+  it("keeps 2 spots in 20 for what the person searched for, at positions 3 and 9", () => {
+    expect(VARIETY.searchSlots).toEqual([3, 9]);
+    const sorted = [
+      ...Array.from({ length: 40 }, (_, n) => item(n)),
+      ...Array.from({ length: 3 }, (_, n) => item(300 + n, { isSearched: true, score: -1 - n })),
+    ];
+    const page = arrangeFeed(sorted, 40);
+    expect(page.slice(0, 20).flatMap((p, i) => (p.searched ? [i] : []))).toEqual([3, 9]);
+    expect(page[3]?.id).toBe("i300");
+    expect(page[9]?.id).toBe("i301");
+    // Three matching items: the second page has one, then the spot goes back to the next best card.
+    expect(page.slice(20).flatMap((p, i) => (p.searched ? [i] : []))).toEqual([3]);
+    // With nothing searched the page is the plain order.
+    const plain = arrangeFeed(
+      Array.from({ length: 30 }, (_, n) => item(n)),
+      20,
+    );
+    expect(plain.some((p) => p.searched)).toBe(false);
+    expect(plain.map((p) => p.id)).toEqual(Array.from({ length: 20 }, (_, n) => `i${n}`));
   });
 
   it("never puts more than 2 items of one seller, 4 of a brand or 6 of a category on a page", () => {
