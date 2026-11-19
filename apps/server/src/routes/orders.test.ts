@@ -12,7 +12,7 @@ import {
   walletEntries,
 } from "@vinty/db";
 import type { ReferenceData } from "@vinty/shared";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { runOrderJobs } from "../lib/order-jobs.js";
 import {
@@ -914,7 +914,12 @@ describe.skipIf(!databaseUrl)("checkout and orders", () => {
       expect(b).toMatchObject({ status: "cancelled", cancelReason: "shipping_timeout" });
       const [c] = await db().select().from(orders).where(eq(orders.id, delivered.id));
       expect(c?.status).toBe("completed");
-      const events = await db().select().from(orderEvents).where(eq(orderEvents.orderId, delivered.id));
+      // Oldest first on purpose: without an order the database may hand the rows back in any order.
+      const events = await db()
+        .select()
+        .from(orderEvents)
+        .where(eq(orderEvents.orderId, delivered.id))
+        .orderBy(asc(orderEvents.createdAt));
       expect(events.at(-1)).toMatchObject({ event: "auto_complete", actorRole: "system" });
       const [listing] = await db().select().from(listings).where(eq(listings.id, unshipped.listingId));
       expect(listing?.status).toBe("active");
