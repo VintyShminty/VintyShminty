@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accent colour options</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+@font-face { font-family: Aileron; font-weight: 300; src: url(../../packages/design/fonts/Aileron-300.ttf); }
+@font-face { font-family: Aileron; font-weight: 400; src: url(../../packages/design/fonts/Aileron-400.ttf); }
+@font-face { font-family: Aileron; font-weight: 600; src: url(../../packages/design/fonts/Aileron-600.ttf); }
+@font-face { font-family: Aileron; font-weight: 700; src: url(../../packages/design/fonts/Aileron-700.ttf); }
+* { box-sizing: border-box; }
+body { margin: 0; background: #F6F5F2; color: #241811; font-family: Aileron, -apple-system, sans-serif; }
+main { max-width: 1180px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-weight: 300; font-size: 36px; letter-spacing: -1px; margin: 0 0 6px; }
+.lead { color: #54443A; margin: 0 0 8px; max-width: 640px; line-height: 1.5; }
+h2 { font-weight: 600; font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: #695A4F; margin: 40px 0 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 24px; }
+.phone { background: #fff; border: 1px solid #E4DACA; border-radius: 28px; padding: 16px 14px 12px; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.word { font-size: 24px; font-weight: 700; letter-spacing: -0.6px; }
+.icons { display: flex; gap: 10px; font-size: 20px; }
+.hello { font-size: 22px; font-weight: 300; line-height: 1.1; margin: 10px 0; }
+.chips { display: flex; gap: 6px; margin-bottom: 12px; overflow: hidden; }
+.chip { font-size: 12px; padding: 5px 10px; border-radius: 99px; border: 1px solid #7A6B60; white-space: nowrap; }
+.cards { display: flex; gap: 10px; }
+.card { flex: 1; min-width: 0; }
+.photo { height: 96px; border-radius: 12px; position: relative; }
+.save { position: absolute; top: 6px; inset-inline-end: 6px; width: 24px; height: 24px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.tag { position: absolute; bottom: 6px; inset-inline-start: 6px; background: #fff; border: 1px solid #E4DACA; border-radius: 6px; padding: 2px 6px; font-size: 12px; font-weight: 600; }
+.tag s { color: #7A6B60; font-weight: 400; }
+.name { font-size: 12px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meta { font-size: 11px; color: #695A4F; }
+.buy { color: #fff; text-align: center; border-radius: 12px; padding: 10px; font-size: 14px; font-weight: 600; margin: 12px 0 8px; }
+.link { font-size: 13px; text-align: center; margin-bottom: 10px; font-weight: 600; }
+.bar { border: 1px solid #E4DACA; border-radius: 32px; display: flex; justify-content: space-around; align-items: center; padding: 6px 4px; font-size: 19px; color: #54443A; }
+.active { border-radius: 99px; padding: 2px 12px; }
+.sell { color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.inbox { position: relative; }
+.count { position: absolute; top: -5px; inset-inline-end: -9px; color: #fff; font-size: 10px; border-radius: 99px; padding: 0 5px; line-height: 15px; font-weight: 600; }
+.label { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; padding: 0 4px; }
+.label b { font-weight: 600; font-size: 15px; }
+.label span { font-size: 13px; color: #695A4F; }
+.hex { font-size: 12px; color: #7A6B60; padding: 2px 4px 0; }
+.current .phone { border-style: dashed; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Accent colour options</h1>
+  <p class="lead">Each phone is the home screen with one accent colour. The accent goes on the wordmark, selected chip, prices, Buy button, Sell button and the active tab. Greens and teals are left out because they sit too close to Vinted.</p>
+  <div id="groups"></div>
+</main>
+<script>
+const groups = [
+  ["Today", [
+    { n: "Espresso", d: "What we have now", a: "#4B2E22", t: "#F7EEDC", c: "#EFE0C3", o: "#3A2218", current: true },
+  ]],
+  ["Blues", [
+    { n: "Ink navy", d: "Trusted, classic", a: "#243263", t: "#EAEDF6", c: "#D3DAEE", o: "#161F42" },
+    { n: "Cobalt", d: "Bright, confident", a: "#2446A8", t: "#E9EEFA", c: "#D0DBF4", o: "#172D70" },
+    { n: "Slate blue", d: "Cool, calm, modern", a: "#3D5368", t: "#EBF0F4", c: "#D3DEE7", o: "#243444" },
+  ]],
+  ["Purples and pinks", [
+    { n: "Plum", d: "Fashion, a bit bold", a: "#5E2A52", t: "#F6EAF2", c: "#EBD3E3", o: "#3F1A37" },
+    { n: "Violet", d: "Playful, creative", a: "#55438F", t: "#EFEBFA", c: "#DCD4F2", o: "#352A5E" },
+    { n: "Mauve rose", d: "Gentle, romantic", a: "#94485F", t: "#F9ECF0", c: "#F0D4DD", o: "#5E2A3B" },
+  ]],
+  ["Reds and warm tones", [
+    { n: "Burgundy", d: "Rich, wine, autumn", a: "#6E1F2E", t: "#F7E9EB", c: "#EDD0D5", o: "#4A1420" },
+    { n: "Terracotta", d: "Warm, lively", a: "#A2442A", t: "#FBEDE6", c: "#F4D6C7", o: "#6B2915" },
+    { n: "Caramel", d: "Lighter brown", a: "#8A4B22", t: "#FAEFE5", c: "#F2DAC6", o: "#5A2F12" },
+    { n: "Ochre", d: "Golden, retro", a: "#80600F", t: "#FAF3DF", c: "#F1E2B5", o: "#523D08" },
+  ]],
+  ["Neutral", [
+    { n: "Charcoal", d: "Photos lead", a: "#1F1F1F", t: "#F3F3F1", c: "#E3E3DF", o: "#1F1F1F" },
+  ]],
+];
+
+const card = (o, price, old) => `
+  <div class="card">
+    <div class="photo" style="background:${o.t}">
+      <div class="save" style="color:${o.a}"><i class="ti ti-bookmark"></i></div>
+      <div class="tag">${old ? `<s>${old}</s> ` : ""}<span style="color:${o.a}">${price}</span></div>
+    </div>
+    <div class="name">Linen midi dress</div>
+    <div class="meta">M · Very good</div>
+  </div>`;
+
+const phone = (o) => `
+  <div class="${o.current ? "current" : ""}">
+    <div class="phone">
+      <div class="top">
+        <span class="word" style="color:${o.a}">Yadii</span>
+        <span class="icons" style="color:${o.a}"><i class="ti ti-bell"></i><i class="ti ti-bookmark"></i></span>
+      </div>
+      <div class="hello">Good morning,<br>Eden</div>
+      <div class="chips">
+        <span class="chip" style="background:${o.c};border-color:${o.c};color:${o.o};font-weight:600">For you</span>
+        <span class="chip">New today</span>
+        <span class="chip">Under ₪50</span>
+      </div>
+      <div class="cards">${card(o, "₪120")}${card(o, "₪80", "₪95")}</div>
+      <div class="buy" style="background:${o.a}">Buy now</div>
+      <div class="link" style="color:${o.a}">Or make your price</div>
+      <div class="bar">
+        <span class="active" style="background:${o.t};color:${o.a}"><i class="ti ti-home"></i></span>
+        <i class="ti ti-search"></i>
+        <span class="sell" style="background:${o.a}"><i class="ti ti-tag"></i></span>
+        <span class="inbox"><i class="ti ti-message"></i><span class="count" style="background:${o.a}">2</span></span>
+        <i class="ti ti-user"></i>
+      </div>
+    </div>
+    <div class="label"><b>${o.n}</b><span>${o.d}</span></div>
+    <div class="hex">${o.a}</div>
+  </div>`;
+
+document.getElementById("groups").innerHTML = groups
+  .map(([title, opts]) => `<h2>${title}</h2><div class="grid">${opts.map(phone).join("")}</div>`)
+  .join("");
+</script>
+</body>
+</html>
