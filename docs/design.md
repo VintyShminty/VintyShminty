@@ -849,6 +849,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `packages/design/tokens.js` (all colours), `packages/design/brand/logo-mark.svg`, `apps/web/components/logo-mark.tsx`, `apps/web/app/opengraph-image.tsx`, the icons in `apps/mobile/assets/images/` and `apps/web/app/`, `apps/mobile/app.json` (name, Face ID text, Android icon background), the emails and server pages in `apps/server/src/lib/`, the wording in `packages/locales/`. The App Store Connect and Play Console listing names are changed by Eden in those sites.
 - **References:** D-006, D-046, D-047, `docs/originality.md` G10
 
+### D-061 : A red star marks what the sell form needs
+
+- **Date:** 2026-11-19
+- **Area:** Sell form, app and website
+- **Status:** Built on branch feat/required-marks, waiting for Eden's review.
+- **Decision:** Every part of the sell form the seller must fill before uploading has a small star in the error red after its name: Photos (on the section title), Title, Category and Price always, and Brand, Size, Condition, Colours, Material and Pattern only when the chosen category asks for them. Optional rows have no star. Parcel size has none because one is always chosen already. Screen readers hear "required" instead of the star.
+- **Rationale:** Eden saw the red messages only after pressing Upload. The star tells the seller up front what they cannot skip, in the way most forms already do it.
+- **Implementation:** App: `apps/mobile/components/ui/required-mark.tsx`, the `required` option on `Input` and `PickerRow`, used in `app/(app)/sell-form/index.tsx`. Website: `RequiredMark` in `apps/web/components/sell/sell-form.tsx`. Which category rows need it comes from the same rules as the check (`attributeMode` in `packages/shared/src/listing-rules.ts`). The word is `common.required`.
+- **References:** D-019
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13

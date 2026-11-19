@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import { PickerRow } from "@/components/ui/picker-row";
+import { RequiredMark } from "@/components/ui/required-mark";
 import { Screen, ScreenScroll } from "@/components/ui/screen";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
@@ -56,11 +57,26 @@ function useDebounced<T>(value: T, ms = 300): T {
   return debounced;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  required,
+  children,
+}: {
+  title: string;
+  /** The whole section must be filled (Photos): a red star after the title (D-061). */
+  required?: boolean;
+  children: React.ReactNode;
+}) {
+  const { t } = useTranslation();
   return (
     <View className="gap-md pt-xl">
-      <Text variant="sectionLabel" accessibilityRole="header">
+      <Text
+        variant="sectionLabel"
+        accessibilityRole="header"
+        accessibilityLabel={required ? `${title}, ${t("common.required")}` : undefined}
+      >
         {title}
+        {required ? <RequiredMark /> : null}
       </Text>
       {children}
     </View>
@@ -294,7 +310,7 @@ export default function SellForm() {
     <Screen bottomInset={false}>
       <TopBar leading="close" onBack={onClose} title={editingLive ? t("sell.editTitle") : t("sell.title")} />
       <ScreenScroll contentContainerClassName="pb-lg">
-        <Section title={t("sell.photos.title")}>
+        <Section title={t("sell.photos.title")} required>
           <PhotoUploader maxPhotos={limits.maxPhotos} error={err("photos")} />
           <PhotoTips />
           {/* The "made or touched up with AI" checkbox (values.usedAiPhotos, t("sell.aiPhotos")) is hidden for now.
@@ -304,6 +320,7 @@ export default function SellForm() {
         <Section title={t("sell.about")}>
           <Input
             label={t("sell.titleLabel")}
+            required
             placeholder={t("sell.titlePlaceholder")}
             value={values.title}
             onChangeText={(title) => {
@@ -335,6 +352,7 @@ export default function SellForm() {
         <Section title={t("sell.details")}>
           <PickerRow
             label={t("sell.category")}
+            required
             value={trail.length ? name(trail.at(-1)?.name) : null}
             onPress={() => router.push({ pathname: "/sell-form/category", params: { depth: "1" } })}
             error={err("categoryId")}
@@ -343,6 +361,7 @@ export default function SellForm() {
           {category && mode("brand") !== "hidden" ? (
             <PickerRow
               label={t("sell.brand")}
+              required={mode("brand") === "required"}
               value={values.brand?.name}
               onPress={() => openSheet(brandRef)}
               error={err("brandId")}
@@ -351,6 +370,7 @@ export default function SellForm() {
           {category && mode("size") !== "hidden" ? (
             <PickerRow
               label={t("sell.size")}
+              required={mode("size") === "required"}
               value={sizeLabel}
               onPress={() => openSheet(sizeRef)}
               error={err("sizeId")}
@@ -358,8 +378,17 @@ export default function SellForm() {
           ) : null}
           {category && mode("condition") !== "hidden" ? (
             <View className="gap-sm">
-              <Text variant="smallLabel" weight={600}>
+              <Text
+                variant="smallLabel"
+                weight={600}
+                accessibilityLabel={
+                  mode("condition") === "required"
+                    ? `${t("sell.condition")}, ${t("common.required")}`
+                    : undefined
+                }
+              >
                 {t("sell.condition")}
+                {mode("condition") === "required" ? <RequiredMark /> : null}
               </Text>
               {conditionGuess ? (
                 <Chip
@@ -391,6 +420,7 @@ export default function SellForm() {
           {category && mode("colour") !== "hidden" ? (
             <PickerRow
               label={t("sell.colours")}
+              required={mode("colour") === "required"}
               value={colourNames}
               onPress={() => openSheet(colourRef)}
               error={err("colourIds")}
@@ -399,6 +429,7 @@ export default function SellForm() {
           {category && mode("material") !== "hidden" ? (
             <PickerRow
               label={mode("material") === "optional" ? t("sell.materialRecommended") : t("sell.material")}
+              required={mode("material") === "required"}
               value={name(material?.name)}
               onPress={() => openSheet(materialRef)}
               error={err("materialId")}
@@ -409,6 +440,7 @@ export default function SellForm() {
         <Section title={t("sell.pricing")}>
           <Input
             label={t("sell.price")}
+            required
             prefix="₪"
             placeholder="0"
             keyboardType="decimal-pad"

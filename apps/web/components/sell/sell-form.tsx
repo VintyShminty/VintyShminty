@@ -59,10 +59,26 @@ import { cn } from "@/lib/utils";
 type Lang = "en" | "he";
 type PickerKey = "category" | "brand" | "size" | "colour" | "material" | "pattern";
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/** The small red star after a label the seller must fill (D-061). Screen readers hear "required" instead. */
+function RequiredMark() {
+  const { t } = useTranslation();
+  return (
+    <>
+      <span aria-hidden className="text-error">
+        {" *"}
+      </span>
+      <span className="sr-only">, {t("common.required")}</span>
+    </>
+  );
+}
+
+function Section({ title, required, children }: { title: string; required?: boolean; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-md pt-xl first:pt-0">
-      <h2 className="text-section-label font-bold uppercase text-text-3">{title}</h2>
+      <h2 className="text-section-label font-bold uppercase text-text-3">
+        {title}
+        {required ? <RequiredMark /> : null}
+      </h2>
       {children}
     </section>
   );
@@ -74,12 +90,14 @@ function PickerRow({
   value,
   hint,
   error,
+  required,
   onClick,
 }: {
   label: string;
   value?: string | null;
   hint?: string;
   error?: string;
+  required?: boolean;
   onClick: () => void;
 }) {
   const id = useId();
@@ -101,6 +119,7 @@ function PickerRow({
             className={value || hint ? "text-card-meta font-semibold text-text-3" : "text-body text-text-3"}
           >
             {label}
+            {required ? <RequiredMark /> : null}
           </span>
           {value ? (
             <span className="truncate text-body text-text-1">{value}</span>
@@ -456,7 +475,7 @@ export function SellForm({
           }}
           className="flex min-w-0 flex-col"
         >
-          <Section title={t("sell.photos.title")}>
+          <Section title={t("sell.photos.title")} required>
             <PhotoUploader
               photos={values.photos}
               setPhotos={setPhotos}
@@ -491,7 +510,12 @@ export function SellForm({
 
           <Section title={t("sell.about")}>
             <Field
-              label={t("sell.titleLabel")}
+              label={
+                <>
+                  {t("sell.titleLabel")}
+                  <RequiredMark />
+                </>
+              }
               placeholder={t("sell.titlePlaceholder")}
               value={values.title}
               maxLength={LISTING_TITLE_MAX}
@@ -513,6 +537,7 @@ export function SellForm({
           <Section title={t("sell.details")}>
             <PickerRow
               label={t("sell.category")}
+              required
               value={trail.length ? name(trail.at(-1)?.name) : null}
               hint={
                 categoryGuess ? t("sell.assist.guess", { name: name(categoryGuess.node.name) }) : undefined
@@ -558,6 +583,7 @@ export function SellForm({
             {category && mode("brand") !== "hidden" ? (
               <PickerRow
                 label={t("sell.brand")}
+                required={mode("brand") === "required"}
                 value={values.brand?.name}
                 error={err("brandId")}
                 onClick={() => openPicker("brand")}
@@ -566,6 +592,7 @@ export function SellForm({
             {category && mode("size") !== "hidden" ? (
               <PickerRow
                 label={t("sell.size")}
+                required={mode("size") === "required"}
                 value={sizeLabel}
                 error={err("sizeId")}
                 onClick={() => openPicker("size")}
@@ -573,7 +600,10 @@ export function SellForm({
             ) : null}
             {category && mode("condition") !== "hidden" ? (
               <div className="flex flex-col gap-sm">
-                <span className="text-body-sm font-semibold text-text-2">{t("sell.condition")}</span>
+                <span className="text-body-sm font-semibold text-text-2">
+                  {t("sell.condition")}
+                  {mode("condition") === "required" ? <RequiredMark /> : null}
+                </span>
                 {conditionGuess ? (
                   <div>
                     <GuessChip
@@ -599,6 +629,7 @@ export function SellForm({
             {category && mode("colour") !== "hidden" ? (
               <PickerRow
                 label={t("sell.colours")}
+                required={mode("colour") === "required"}
                 value={colourNames}
                 error={err("colourIds")}
                 onClick={() => openPicker("colour")}
@@ -607,6 +638,7 @@ export function SellForm({
             {category && mode("material") !== "hidden" ? (
               <PickerRow
                 label={mode("material") === "optional" ? t("sell.materialRecommended") : t("sell.material")}
+                required={mode("material") === "required"}
                 value={name(material?.name)}
                 error={err("materialId")}
                 onClick={() => openPicker("material")}
@@ -615,6 +647,7 @@ export function SellForm({
             {category && mode("pattern") !== "hidden" ? (
               <PickerRow
                 label={t("sell.pattern")}
+                required={mode("pattern") === "required"}
                 value={name(pattern?.name)}
                 error={err("patternId")}
                 onClick={() => openPicker("pattern")}
@@ -624,7 +657,12 @@ export function SellForm({
 
           <Section title={t("sell.pricing")}>
             <PriceField
-              label={t("sell.price")}
+              label={
+                <>
+                  {t("sell.price")}
+                  <RequiredMark />
+                </>
+              }
               value={values.priceText}
               onChange={(priceText) => set({ priceText: priceText.replace(/[^\d.,]/g, "") }, "priceMinor")}
               error={err("priceMinor")}
@@ -841,7 +879,7 @@ function PriceField({
   onChange,
   error,
 }: {
-  label: string;
+  label: ReactNode;
   value: string;
   onChange: (v: string) => void;
   error?: string;
