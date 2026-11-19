@@ -84,7 +84,7 @@
     "android": "expo run:android",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "update:live": "EXPO_PUBLIC_API_URL=https://vinty-shminty.vercel.app npx eas-cli@latest update --channel production --platform ios --auto"
+    "update:live": "EXPO_PUBLIC_API_URL=https://vinty-shminty.vercel.app npx eas-cli@latest update --channel production --platform all --auto"
   },
   "private": true
 }
