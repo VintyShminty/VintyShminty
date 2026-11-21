@@ -1,6 +1,6 @@
 # Decisions index
 
-Last compiled: 2026-11-19. Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections), `docs/log/2026-10-16.md` (all six sections, through bundles), `docs/log/2026-10-17.md` (morning and afternoon, plus the evening, night and Vinted renames sections from the open log PRs #125 and #126), `docs/log/2026-10-18.md` (all three sections), `docs/log/2026-10-19.md` (all four sections), `docs/log/2026-10-24.md`, `docs/log/2026-11-07.md`, `docs/log/2026-11-17.md` (both sections), `docs/log/2026-11-19.md`.
+Last compiled: 2026-11-19. Logs covered: `docs/log/2026-10-12.md`, `docs/log/2026-10-13.md` (through the night entry), `docs/log/2026-10-14.md` (all four sections), `docs/log/2026-10-15.md` (all twelve sections), `docs/log/2026-10-16.md` (all six sections, through bundles), `docs/log/2026-10-17.md` (morning and afternoon, plus the evening, night and Vinted renames sections from the open log PRs #125 and #126), `docs/log/2026-10-18.md` (all three sections), `docs/log/2026-10-19.md` (all four sections), `docs/log/2026-10-24.md`, `docs/log/2026-11-07.md`, `docs/log/2026-11-17.md` (both sections), `docs/log/2026-11-19.md` (both sections, the later one added 2026-11-21).
 
 An index only. The full text and reasoning live where the link points. When a decision is replaced, mark it "Superseded by" and keep the line.
 
