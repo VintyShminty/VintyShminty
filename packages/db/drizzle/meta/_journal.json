@@ -120,6 +120,13 @@
       "when": 1794998202194,
       "tag": "0016_popularity_once_per_person",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795363007352,
+      "tag": "0017_talented_skaar",
+      "breakpoints": true
     }
   ]
 }

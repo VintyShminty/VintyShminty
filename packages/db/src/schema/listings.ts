@@ -1,6 +1,7 @@
 import { BUNDLE_STATUSES, LISTING_STATUSES, LISTING_STYLES } from "@vinty/shared";
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
   boolean,
   char,
   check,
@@ -34,6 +35,9 @@ import {
 export const listingStatusEnum = pgEnum("listing_status", LISTING_STATUSES);
 export const listingStyleEnum = pgEnum("listing_style", LISTING_STYLES);
 export const bundleStatusEnum = pgEnum("bundle_status", BUNDLE_STATUSES);
+
+/** The listings a buyer can browse. Must match BROWSABLE_STATUSES in apps/server/src/lib/discovery.ts. */
+const browsable = (t: { status: AnyPgColumn }) => sql`${t.status} in ('active', 'reserved')`;
 
 export const listings = pgTable(
   "listings",
@@ -94,18 +98,16 @@ export const listings = pgTable(
       sql`${t.status} in ('draft', 'removed') or (${t.priceMinor} is not null and ${t.categoryId} is not null)`,
     ),
     // Full-text search over live listings only.
-    index("listings_search_idx").using("gin", t.searchVector).where(sql`${t.status} = 'active'`),
+    index("listings_search_idx").using("gin", t.searchVector).where(browsable(t)),
     // Home feed and "newest": active listings by bump order, with id as the cursor tie breaker.
-    index("listings_feed_idx").on(t.bumpedAt.desc(), t.id.desc()).where(sql`${t.status} = 'active'`),
+    index("listings_feed_idx").on(t.bumpedAt.desc(), t.id.desc()).where(browsable(t)),
     // Category pages. Subtree filters use category_id IN (...) so category leads.
-    index("listings_category_feed_idx")
-      .on(t.categoryId, t.bumpedAt.desc(), t.id.desc())
-      .where(sql`${t.status} = 'active'`),
-    index("listings_price_idx").on(t.priceMinor, t.id).where(sql`${t.status} = 'active'`),
-    index("listings_brand_idx").on(t.brandId, t.bumpedAt.desc()).where(sql`${t.status} = 'active'`),
-    index("listings_size_idx").on(t.sizeId, t.bumpedAt.desc()).where(sql`${t.status} = 'active'`),
-    index("listings_condition_idx").on(t.conditionId).where(sql`${t.status} = 'active'`),
-    index("listings_material_idx").on(t.materialId).where(sql`${t.status} = 'active'`),
+    index("listings_category_feed_idx").on(t.categoryId, t.bumpedAt.desc(), t.id.desc()).where(browsable(t)),
+    index("listings_price_idx").on(t.priceMinor, t.id).where(browsable(t)),
+    index("listings_brand_idx").on(t.brandId, t.bumpedAt.desc()).where(browsable(t)),
+    index("listings_size_idx").on(t.sizeId, t.bumpedAt.desc()).where(browsable(t)),
+    index("listings_condition_idx").on(t.conditionId).where(browsable(t)),
+    index("listings_material_idx").on(t.materialId).where(browsable(t)),
     // A member's own page: Active and Sold chips, newest first.
     index("listings_seller_idx").on(t.sellerId, t.status, t.createdAt.desc()),
     index("listings_reserved_idx").on(t.reservedUntil).where(sql`${t.status} = 'reserved'`),
