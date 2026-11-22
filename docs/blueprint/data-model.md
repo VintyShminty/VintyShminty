@@ -1028,20 +1028,20 @@ Constraints:
 
 Indexes:
 
-- `listings_brand_idx`: btree on (brand_id, bumped_at DESC NULLS LAST), only where status = 'active'
-- `listings_category_feed_idx`: btree on (category_id, bumped_at DESC NULLS LAST, id DESC NULLS LAST), only where status = 'active'
-- `listings_condition_idx`: btree on (condition_id), only where status = 'active'
-- `listings_feed_idx`: btree on (bumped_at DESC NULLS LAST, id DESC NULLS LAST), only where status = 'active'
-- `listings_material_idx`: btree on (material_id), only where status = 'active'
-- `listings_price_idx`: btree on (price_minor, id), only where status = 'active'
+- `listings_brand_idx`: btree on (brand_id, bumped_at DESC NULLS LAST), only where status in ('active', 'reserved')
+- `listings_category_feed_idx`: btree on (category_id, bumped_at DESC NULLS LAST, id DESC NULLS LAST), only where status in ('active', 'reserved')
+- `listings_condition_idx`: btree on (condition_id), only where status in ('active', 'reserved')
+- `listings_feed_idx`: btree on (bumped_at DESC NULLS LAST, id DESC NULLS LAST), only where status in ('active', 'reserved')
+- `listings_material_idx`: btree on (material_id), only where status in ('active', 'reserved')
+- `listings_price_idx`: btree on (price_minor, id), only where status in ('active', 'reserved')
 - `listings_reserved_idx`: btree on (reserved_until), only where status = 'reserved'
-- `listings_search_idx`: gin on (search_vector), only where status = 'active'
+- `listings_search_idx`: gin on (search_vector), only where status in ('active', 'reserved')
 - `listings_seller_idx`: btree on (seller_id, status, created_at DESC NULLS LAST)
-- `listings_size_idx`: btree on (size_id, bumped_at DESC NULLS LAST), only where status = 'active'
+- `listings_size_idx`: btree on (size_id, bumped_at DESC NULLS LAST), only where status in ('active', 'reserved')
 
 Why `simple`: Postgres has no Hebrew dictionary. The simple configuration lowercases and splits words without stemming, which works for Hebrew and English. Prefix search (`word:*`) covers Hebrew prefixes written as separate letters poorly, for example a word starting with the letter for "the" or "in". That is an open decision (see the end).
 
-Feed and filter queries are served by partial indexes that only contain active listings: feed order, category and feed order, price, brand, size, condition and material. Full text search uses a partial GIN index. Cursor pagination uses `(bumped_at, id)` as the cursor.
+Feed and filter queries are served by partial indexes that only contain active and reserved listings (the same two statuses the server's browse queries ask for, `BROWSABLE_STATUSES`: Postgres only uses a partial index when the query's status condition fits inside the index's, so `status = 'active'` indexes were never used by them, fixed in migration 0017): feed order, category and feed order, price, brand, size, condition and material. Full text search uses a partial GIN index. Cursor pagination uses `(bumped_at, id)` as the cursor.
 
 ### `listing_photos`
 
@@ -1915,8 +1915,8 @@ No index, the table holds a few hours of rows and is read by its primary key. Th
 
 Search at launch is Postgres full text search plus filters, no separate search server.
 
-- **Text.** `listings.search_vector` is a generated column built with the `simple` configuration from title and brand name (weight A) and description (weight B). The query is turned into a prefix query (`word:*` for each word joined by `&`) and ranked with `ts_rank`. A partial GIN index (`listings_search_idx`, only active listings) serves it.
-- **Filters.** Category (subtree by path prefix), brand, size, condition, colour, material, pattern, price range. Each has a partial index on active listings or a join index (`listing_colours_colour_idx`).
+- **Text.** `listings.search_vector` is a generated column built with the `simple` configuration from title and brand name (weight A) and description (weight B). The query is turned into a prefix query (`word:*` for each word joined by `&`) and ranked with `ts_rank`. A partial GIN index (`listings_search_idx`, only active and reserved listings) serves it.
+- **Filters.** Category (subtree by path prefix), brand, size, condition, colour, material, pattern, price range. Each has a partial index on active and reserved listings or a join index (`listing_colours_colour_idx`).
 - **Sort.** Relevance (rank, then newest), newest (`bumped_at`), price low to high, price high to low. The cursor carries the sort key and the id.
 - **Members search.** `users_username_prefix_idx` on the lower case username.
 - **Brand search.** `brands_name_prefix_idx`.
