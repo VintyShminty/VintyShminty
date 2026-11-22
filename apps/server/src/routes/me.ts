@@ -43,6 +43,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { likePattern } from "../lib/admin.js";
 import { isAway } from "../lib/away.js";
+import { runInBackground } from "../lib/background.js";
 import { ApiError } from "../lib/errors.js";
 import { deleteAllFeedData, resetLearnedTaste } from "../lib/events.js";
 import { loadMe } from "../lib/profiles.js";
@@ -427,6 +428,13 @@ const meRoutes: FastifyPluginAsyncZod = async (app) => {
           .remove(before.avatarKey)
           .catch((err) => request.log.warn({ err }, "could not delete avatar"));
       }
+      // Chat connections that are still open outlive the sessions deleted above, so close them now. With the Redis
+      // adapter this reaches every copy of the server. A failure here never fails the request.
+      runInBackground(
+        Promise.resolve()
+          .then(() => app.realtime.toUser(userId).disconnectSockets(true))
+          .catch((err) => request.log.warn({ err }, "could not close chat connections")),
+      );
       return reply.code(204).send(null);
     },
   );

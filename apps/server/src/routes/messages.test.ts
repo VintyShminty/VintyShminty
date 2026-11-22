@@ -1,4 +1,4 @@
-import { blocks, conversations, messages } from "@vinty/db";
+import { blocks, conversations, messages, profiles } from "@vinty/db";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
@@ -402,5 +402,34 @@ describe.skipIf(!databaseUrl)("conversations and messages", () => {
     expect(wait).toBeGreaterThanOrEqual(1);
     expect(wait).toBeLessThanOrEqual(60);
     await ctx.database.db.delete(conversations).where(eq(conversations.id, chat));
+  });
+
+  it("refuses sending to, and from, a closed account, but keeps the chat readable", async () => {
+    const [a, b] = (await Promise.all([
+      signUpTestUser(ctx, "closea", createdIds),
+      signUpTestUser(ctx, "closeb", createdIds),
+    ])) as Person[];
+    const listing = await publishTestListing(ctx, b, `Chat ${stamp} closed`);
+    const chat = (await call("POST", "/v1/conversations", a.token, { listingId: listing })).json()
+      .id as string;
+    expect((await send(a.token, chat, "Still open")).statusCode).toBe(201);
+    const retryId = crypto.randomUUID();
+    expect((await send(b.token, chat, "Hi", retryId)).statusCode).toBe(201);
+
+    // The seller closes the account (the profile is marked, the buyer's session stays valid).
+    const db = ctx.database.db;
+    await db.update(profiles).set({ deletedAt: new Date() }).where(eq(profiles.userId, b.id));
+    const toClosed = await send(a.token, chat, "Anyone there?");
+    expect(toClosed.statusCode).toBe(403);
+    expect(toClosed.json().error.code).toBe("blocked");
+    // A repeat of a message that was already stored is still answered with the first result.
+    expect((await send(b.token, chat, "Hi", retryId)).statusCode).toBe(200);
+    expect((await call("GET", `/v1/conversations/${chat}/messages`, a.token)).statusCode).toBe(200);
+
+    // And the closed account cannot send, even with a connection or token that is still around.
+    const fromClosed = await send(b.token, chat, "I am still here");
+    expect(fromClosed.statusCode).toBe(403);
+    expect(fromClosed.json().error.code).toBe("forbidden");
+    await db.delete(conversations).where(eq(conversations.id, chat));
   });
 });

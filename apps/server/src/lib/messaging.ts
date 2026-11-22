@@ -21,7 +21,7 @@ import {
   type UnreadCounts,
   type UserSummary,
 } from "@vinty/shared";
-import { and, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { checkChatInBackground } from "./chat-check.js";
 import { loadSellerSummaries } from "./discovery.js";
@@ -382,6 +382,13 @@ export async function sendMessage(
   if (existing) return { message: (await presentMessages(app, [existing]))[0] as Message, created: false };
 
   const otherId = otherPersonId(conversation, userId);
+  // A closed account cannot send (an open chat connection outlives its sessions) and cannot be written to.
+  const closed = await app.db
+    .select({ userId: profiles.userId })
+    .from(profiles)
+    .where(and(inArray(profiles.userId, [userId, otherId]), isNotNull(profiles.deletedAt)));
+  if (closed.some((p) => p.userId === userId)) throw ApiError.forbidden("This account is closed");
+  if (closed.length > 0) throw new ApiError(403, "blocked", "You cannot message this person");
   if (await isBlockedBetween(app, userId, otherId)) {
     throw new ApiError(403, "blocked", "You cannot message this person");
   }

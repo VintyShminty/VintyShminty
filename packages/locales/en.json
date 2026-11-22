@@ -1954,6 +1954,11 @@
       "allTopics": "All help topics",
       "breadcrumb": "You are here"
     },
+    "error": {
+      "title": "Something went wrong",
+      "body": "We could not load this page. Please try again in a moment.",
+      "home": "Back to Home"
+    },
     "notFound": {
       "title": "We could not find that page",
       "body": "It may have moved, or the seller may have taken it down.",
