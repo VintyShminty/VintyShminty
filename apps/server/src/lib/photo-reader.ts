@@ -47,6 +47,8 @@ const rawPhotoIssuesSchema = z
  */
 export const rawReadingSchema = z.object({
   categories: z.array(z.object({ code: z.string().nullish(), confidence: z.number().nullish() })).nullish(),
+  /** Where the brand was read: "tag", "logo" or "none". Never leaves the server, it only decides if the brand is kept. */
+  brandSeenOn: z.string().nullish(),
   brandText: z.string().nullish(),
   colours: z.array(z.string()).nullish(),
   /** Photos with a clear problem (D-036). Missing or empty means nothing was flagged. */
@@ -99,11 +101,13 @@ const READING_JSON_SCHEMA = {
         additionalProperties: false,
       },
     },
+    // Asked before the brand itself, so the model first decides whether there is anything to read.
+    brandSeenOn: { type: "string", enum: ["tag", "logo", "none"] },
     brandText: { type: ["string", "null"] },
     colours: { type: "array", items: { type: "string" } },
     photoIssues: PHOTO_ISSUES_JSON_SCHEMA,
   },
-  required: ["categories", "brandText", "colours", "photoIssues"],
+  required: ["categories", "brandSeenOn", "brandText", "colours", "photoIssues"],
   additionalProperties: false,
 } as const;
 
@@ -125,7 +129,8 @@ const INSTRUCTIONS = `You help a seller list one second-hand clothing item for s
 
 Rules:
 - categories: your 3 most likely leaf categories from the list below, the most likely first, each with a confidence from 0 to 1. Codes look like C12. Give fewer than 3 only if the item is so unclear that fewer fit. Think carefully about the exact type of item (for footwear: boots vs sneakers vs sandals vs heels vs flats, ankle height, sole, laces), about the gender and age group it is made for (women, men, girls, boys, baby), and about the cut. If the photos could fit both a men's and a women's category, include both. Never copy the same type three times when the type itself is unsure.
-- brandText: the brand exactly as printed on a clothing tag, label, logo or the item itself. null if you cannot read one. Never guess a brand from the style of the item.
+- brandSeenOn: where in the photos you can read a brand name with your own eyes. "tag" for a sewn-in tag, label or hang tag of this item. "logo" for a brand name or logo printed, stitched or embossed on the item itself. "none" when no brand is readable. A sporty, classic or designer look is not a brand. Text on other things in the photo (other clothes, bags, shop signs, the background) does not count. When in doubt, "none". Most photos without a close-up of a tag are "none".
+- brandText: the brand exactly as written on that tag or logo, letter for letter. null when brandSeenOn is "none". Never guess a brand from the style or type of the item.
 - colours: the codes of the 1 or 2 main colours of the item (codes look like K3), most dominant first. Empty if unclear.
 - photoIssues: a list of photos with a problem, each as the photo number and the issues found. Empty list when nothing is wrong.
 ${PHOTO_ISSUE_RULES}

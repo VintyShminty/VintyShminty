@@ -175,19 +175,19 @@ describe.skipIf(!databaseUrl)("photo helper", () => {
     }[];
     const target = all[0] as { id: string; name: string };
     const shout = target.name.toUpperCase().replace(/E/g, "É");
-    const t = await withApp({ brandText: shout });
+    const t = await withApp({ brandSeenOn: "tag", brandText: shout });
     contexts.push(t.ctx);
     const body = (await t.suggest()).json() as PhotoSuggestion;
     expect(body.brand).toEqual({ id: target.id, name: target.name });
 
     // A tag that says a bit more than the brand still finds it.
-    const longer = await withApp({ brandText: `${target.name} Basic` });
+    const longer = await withApp({ brandSeenOn: "tag", brandText: `${target.name} Basic` });
     contexts.push(longer.ctx);
     expect(((await longer.suggest()).json() as PhotoSuggestion).brand?.id).toBe(target.id);
   });
 
   it("keeps an unknown brand as text only", async () => {
-    const t = await withApp({ brandText: "Zzyzx Unheard Of" });
+    const t = await withApp({ brandSeenOn: "logo", brandText: "Zzyzx Unheard Of" });
     contexts.push(t.ctx);
     const body = (await t.suggest()).json() as PhotoSuggestion;
     expect(body.brand).toEqual({ id: null, name: "Zzyzx Unheard Of" });
