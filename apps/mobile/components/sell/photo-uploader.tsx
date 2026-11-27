@@ -1,13 +1,14 @@
 import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Camera, Images, Plus, TriangleAlert, X } from "lucide-react-native";
+import { Camera, Images, Plus, Shirt, Smartphone, Sun, TriangleAlert, X } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, Pressable, useWindowDimensions, View } from "react-native";
 import Animated, { useAnimatedRef, useReducedMotion } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Sortable from "react-native-sortables";
+import { PhotoGuide } from "@/components/sell/photo-guide";
 import { PhotoViewer } from "@/components/sell/photo-viewer";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -33,6 +34,13 @@ import { cn } from "@/lib/utils";
 const GAP = 8;
 const SIDE = 16;
 
+/** The three photo tips a first time seller sees in the empty box (D-067). */
+const FIRST_TIPS = [
+  { key: "upright", icon: Smartphone },
+  { key: "wholeItem", icon: Shirt },
+  { key: "light", icon: Sun },
+] as const;
+
 /** Shrinks then uploads one photo, keeping its tile up to date. */
 async function sendPhoto(id: string, picked: PickedPhoto) {
   const { updatePhoto } = useSellStore.getState();
@@ -51,8 +59,17 @@ async function sendPhoto(id: string, picked: PickedPhoto) {
  * The photo tiles of the sell form (docs/components.md, PhotoUploader): an empty dashed box, then square tiles with
  * a remove cross, a Cover tag on the first photo, upload progress and a retry state. Press and hold a tile, then
  * drag it to move it (the first place is the cover). A tap opens the photo full screen. Up to the platform limit.
+ * `firstTips` adds three short photo tips inside the empty box, for someone who has never posted (D-067).
  */
-function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string }) {
+function PhotoUploader({
+  maxPhotos,
+  error,
+  firstTips = false,
+}: {
+  maxPhotos: number;
+  error?: string;
+  firstTips?: boolean;
+}) {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const rtl = useIsRtl();
@@ -89,10 +106,24 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
     }
   };
 
+  // A first time seller sees the photo example once per visit to the form before the photo choices (D-067).
+  const [guide, setGuide] = useState<"hidden" | "showing" | "seen">("hidden");
   const chooseSource = () => {
     if (remaining <= 0) return;
+    if (firstTips && guide === "hidden") {
+      setGuide("showing");
+      return;
+    }
     sourceRef.current?.present();
   };
+  const guideDone = () => {
+    setGuide("seen");
+    // Let the example slide away before the photo choices come up.
+    setTimeout(() => sourceRef.current?.present(), 350);
+  };
+  const photoGuide = firstTips ? (
+    <PhotoGuide visible={guide === "showing"} onDone={guideDone} onClose={() => setGuide("seen")} />
+  ) : null;
 
   // Our own sheet, not the system alert, so it looks the same on iPhone and Android.
   const pickFrom = (source: "library" | "camera") => {
@@ -201,7 +232,8 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
       <View className="gap-xs">
         <View
           className={cn(
-            "h-[156px] items-center justify-center gap-md rounded-window border-[1.5px] border-dashed bg-surface",
+            "items-center justify-center gap-md rounded-window border-[1.5px] border-dashed bg-surface",
+            firstTips ? "py-xl" : "h-[156px]",
             error ? "border-error" : "border-text-4",
           )}
         >
@@ -210,6 +242,25 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
             <Icon as={Plus} size={18} />
             <Text>{t("sell.photos.upload")}</Text>
           </Button>
+          {firstTips ? (
+            <View
+              className="mt-xs gap-sm"
+              accessible
+              accessibilityLabel={[
+                t("sell.photos.firstTips.label"),
+                ...FIRST_TIPS.map((tip) => t(`sell.photos.firstTips.${tip.key}`)),
+              ].join(". ")}
+            >
+              {FIRST_TIPS.map((tip) => (
+                <View key={tip.key} className="flex-row items-center gap-sm">
+                  <Icon as={tip.icon} size={16} className="text-text-3" />
+                  <Text variant="cardDesc" className="text-text-2">
+                    {t(`sell.photos.firstTips.${tip.key}`)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
         </View>
         {error ? (
           <Text variant="cardDesc" className="text-error" accessibilityLiveRegion="polite">
@@ -221,6 +272,7 @@ function PhotoUploader({ maxPhotos, error }: { maxPhotos: number; error?: string
           </Text>
         )}
         {sourceSheet}
+        {photoGuide}
       </View>
     );
   }

@@ -44,6 +44,7 @@ import { PhotoUploader } from "@/components/sell/photo-uploader";
 import { BrandDialog, ColourDialog, type Option, OptionDialog } from "@/components/sell/pickers";
 import { clientApi } from "@/lib/api-client";
 import { describeApiError } from "@/lib/describe-api-error";
+import { useFirstListing } from "@/lib/own-listing-queries";
 import {
   categoryChoicePatch,
   EMPTY_SELL_VALUES,
@@ -193,6 +194,7 @@ export function SellForm({
   dirtyRef.current = dirty;
   const listingId = existing?.id;
   const editingLive = Boolean(existing) && existing?.status !== "draft";
+  const firstListing = useFirstListing(!admin && !editingLive);
 
   const set = useCallback((patch: Partial<SellValues>, field?: ListingField) => {
     setValues((v) => ({ ...v, ...patch }));
@@ -485,6 +487,7 @@ export function SellForm({
               onChanged={() => setDirty(true)}
               adminListingId={admin && listingId ? listingId : undefined}
               uploadPath={admin && listingId ? `/v1/admin/listings/${listingId}/uploads` : undefined}
+              firstTips={firstListing}
             />
             {tipRows.length > 0 ? (
               <ul className="flex flex-col gap-xs">
