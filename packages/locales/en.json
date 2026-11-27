@@ -716,7 +716,13 @@
     "groups": {
       "women": "Women",
       "men": "Men",
-      "kids": "Kids"
+      "kids": "Kids",
+      "home": "Home",
+      "electronics": "Electronics",
+      "media": "Books and media",
+      "hobbies": "Hobbies",
+      "sports": "Sports",
+      "designer": "Designer"
     },
     "tiles": {
       "dresses": "Dresses",

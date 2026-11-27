@@ -879,6 +879,26 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** The wording is `objectCondition` in `packages/locales`. The server sends it with each condition as `forObjects` next to `forBooks` (`apps/server/src/lib/reference.ts`). `conditionKind`, `sharedConditionKind`, `conditionWords` and `conditionWordsOf` in `packages/shared/src/listing-rules.ts` pick the words from the category path. Filters: `apps/mobile/app/(app)/filters/[kind].tsx`, `apps/mobile/lib/filter-labels.ts`, `buildFilterOptions` in `apps/web/lib/filters.ts`. Website cards: `getConditionNames` in `apps/web/lib/reference.ts` and `useConditionName`.
 - **References:** D-019, D-051
 
+### D-064 : The language menu sits in the website top bar again
+
+- **Date:** 2026-11-27
+- **Area:** Website, top bar, language
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** On laptops the globe language menu (D-035) sits at the end of the top bar, right before Sell (to its left in English, to its right in Hebrew). It is the same menu as in the footer and the phone drawer and opens downwards. The phone layout is unchanged (the drawer already has it). The app has no top bar with Sell (Sell is a tab), so it keeps the language switch in Settings.
+- **Rationale:** Eden wanted the language switch easy to find at the top, not only in the footer.
+- **Implementation:** `apps/web/components/top-bar.tsx`, reusing `apps/web/components/language-menu.tsx`.
+- **References:** D-030, D-035
+
+### D-065 : The Explore panel follows the account, lists every main category and animates
+
+- **Date:** 2026-11-27
+- **Area:** Website Explore panel, app Explore tab
+- **Status:** Proposed, waiting for Eden's merge. Changes D-052, D-054 and D-055.
+- **Decision:** (1) There is no gender on an account, so the order follows the "What do you shop for?" answer: when it is only Men, Men comes before Women, on the website panel and the app's Explore tab, and Men is the side shown until a choice is remembered. Anything else (both, none, Kids only, logged out) keeps Women first. The last choice in this browser or phone still wins. (2) On the website the chip row goes on after Women and Men with the other main categories, in our category order: Kids, Home, Electronics, Books and media, Hobbies, Sports, Designer. They are the same pill chips as Women and Men, wrapping onto a second line when needed, not a row of text tabs with an underline. Each shows that category's item types as photo tiles (the stock picture of each type, no extra server calls because the top bar is on every page) and an All tile, and a tile opens the results already on that type. Since they have their own chips now, Kids, Home, Designer and the others no longer sit behind Women's and Men's More. That leaves only Bags behind Men's More, so Men shows Bags as a tile and has no More. The app keeps its Women and Men chips only, since its Explore tab already lists every main category as rows under the tiles. (3) The panel fades in and slides down 8px with a slight grow from its top edge over 200ms, and leaves the same way. With reduced motion it simply appears and disappears. The arrow on the Explore button turns with it.
+- **Rationale:** Eden wanted a man's account to see Men first, every main category reachable from Explore, and the panel to open and close softly instead of snapping. Category trees are free to share (`docs/originality.md`), so the list itself is fine. The look (pills, not underlined tabs), the order and the names are ours.
+- **Implementation:** `BROWSE_ROOT_SIDES` in `packages/shared/src/browse-tiles.ts`, `apps/web/components/browse-panel.tsx`, `BrowseRootTiles` in `apps/web/components/browse-tiles.tsx`, `apps/web/components/top-bar.tsx`, `apps/mobile/app/(app)/(tabs)/(shop)/browse/index.tsx`, `browse.groups` in `packages/locales`.
+- **References:** D-030, D-052, D-054, D-055, D-064
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13

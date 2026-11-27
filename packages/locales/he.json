@@ -732,7 +732,13 @@
     "groups": {
       "women": "נשים",
       "men": "גברים",
-      "kids": "ילדים"
+      "kids": "ילדים",
+      "home": "בית",
+      "electronics": "אלקטרוניקה",
+      "media": "ספרים ומדיה",
+      "hobbies": "תחביבים",
+      "sports": "ספורט",
+      "designer": "מעצבים"
     },
     "tiles": {
       "dresses": "שמלות",

@@ -1,9 +1,11 @@
+import { BROWSE_GENDERS, BROWSE_ROOT_SIDES } from "@vinty/shared";
 import { Bookmark } from "lucide-react";
 import Link from "next/link";
 import { AccountMenu } from "@/components/auth/account-menu";
 import { BrowsePanel } from "@/components/browse-panel";
-import { BrowseTiles } from "@/components/browse-tiles";
+import { BrowseRootTiles, BrowseTiles } from "@/components/browse-tiles";
 import { BellLink, InboxLink } from "@/components/inbox/inbox-link";
+import { LanguageMenu } from "@/components/language-menu";
 import { LogoMark } from "@/components/logo-mark";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { SearchField } from "@/components/search-field";
@@ -18,7 +20,7 @@ const iconLink =
 /**
  * The top bar of D-030, in the language layout so every page has it. On a laptop: the wordmark, one Browse button that
  * opens the photo tiles, the search field (a plain form that opens `/[lang]/search?q=`), then Log in and Sign up, or
- * inbox, hearts and your photo when logged in, and Sell. Below `md` it shrinks to the wordmark, the search field and a
+ * inbox, hearts and your photo when logged in, the language menu and Sell. Below `md` it shrinks to the wordmark, the search field and a
  * menu button (the drawer holds Sell, the tiles and the links).
  */
 export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) {
@@ -39,44 +41,44 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
         </Link>
         <div className="hidden md:block">
           <BrowsePanel
-            women={
-              <BrowseTiles
-                lang={lang}
-                gender="women"
-                withMore
-                className="grid-cols-4"
-                tileClassName="h-[120px]"
-                sizes="170px"
-              />
-            }
-            men={
-              <BrowseTiles
-                lang={lang}
-                gender="men"
-                withMore
-                className="grid-cols-4"
-                tileClassName="h-[120px]"
-                sizes="170px"
-              />
-            }
-            womenRest={
-              <BrowseTiles
-                lang={lang}
-                rest="women"
-                className="grid-cols-5 pt-sm"
-                tileClassName="h-[88px]"
-                sizes="130px"
-              />
-            }
-            menRest={
-              <BrowseTiles
-                lang={lang}
-                rest="men"
-                className="grid-cols-5 pt-sm"
-                tileClassName="h-[88px]"
-                sizes="130px"
-              />
-            }
+            sides={[
+              ...BROWSE_GENDERS.map((gender) => ({
+                key: gender,
+                label: t(`browse.groups.${gender}`),
+                tiles: (
+                  <BrowseTiles
+                    lang={lang}
+                    gender={gender}
+                    withMore
+                    className="grid-cols-4"
+                    tileClassName="h-[120px]"
+                    sizes="170px"
+                  />
+                ),
+                rest: (
+                  <BrowseTiles
+                    lang={lang}
+                    rest={gender}
+                    className="grid-cols-5 pt-sm"
+                    tileClassName="h-[88px]"
+                    sizes="130px"
+                  />
+                ),
+              })),
+              ...BROWSE_ROOT_SIDES.map((side) => ({
+                key: side.key,
+                label: t(`browse.groups.${side.key}`),
+                tiles: (
+                  <BrowseRootTiles
+                    lang={lang}
+                    side={side}
+                    className="grid-cols-4"
+                    tileClassName="h-[120px]"
+                    sizes="170px"
+                  />
+                ),
+              })),
+            ]}
           />
         </div>
         <search className="relative order-last flex h-10 w-full items-center gap-sm rounded-full border border-border bg-background focus-within:border-primary md:order-none md:max-w-[560px] md:flex-1">
@@ -108,7 +110,8 @@ export function TopBar({ lang, viewer }: { lang: Lang; viewer: Viewer | null }) 
               </Link>
             </>
           )}
-          <SellButton lang={lang} className="ms-sm" />
+          <LanguageMenu lang={lang} />
+          <SellButton lang={lang} />
         </div>
         <div className="ms-auto md:hidden">
           <MobileDrawer lang={lang}>
