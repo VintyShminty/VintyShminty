@@ -754,14 +754,14 @@ Arriving already worked (section 11.3). Leaving did not: a corner faded by the c
 For a person who answered "What do you shop for?", the taste lines for categories outside their groups:
 
 - **fade to half in 7 days**, not 30 (`CORNER_HALF_LIFE_DAYS`). Their own groups, brands, sellers, sizes and the rest keep 30 days, so Home still knows them after a break.
-- **shrink when they look at their own groups.** Every point of a liking action on something in their own groups (an open is 1, a heart 4, a search 1) leaves those lines 90 percent of what they were (`CORNER_KEEP_PER_POINT`). Ten opens leave about a third.
+- **shrink when they look at their own groups.** Every point of a liking action on something in their own groups leaves those lines 90 percent of what they were (`CORNER_KEEP_PER_POINT`). Opening an item is 1 point, staying on it adds 1, coming back to it on another day is 2, a heart is 4. Ten points leave about a third. In a batch of actions the shrinking comes first, so a look at the corner in the same batch counts in full.
 - **come straight back** when the person looks at that kind again: the action adds its points as always.
 
 Without an answer nothing is a corner and nothing changes. Search order uses the same taste, so it follows.
 
 ### 19.2 Measured (sample data, a man who shops for Men and has opened 8 men's items)
 
-Where the 5 items of one women's category sit on Home (card numbers, first 50). "Gone" means none in the first 20.
+Where the 5 items of one women's category sit on Home (card numbers, first 50). Each "open" here is 1 point. A real visit to an item where the person stays a while is 2, so in real use the drift is up to twice as fast as the table. "Gone" means none in the first 20.
 
 | | Before | After |
 |---|---|---|

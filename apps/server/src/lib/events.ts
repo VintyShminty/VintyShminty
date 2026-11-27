@@ -354,9 +354,8 @@ export async function recordEvents(app: App, userId: string, inputs: EventInput[
     const insertedIds = new Set(inserted.map((r) => r.id));
     skipped += prepared.length - insertedIds.size;
     const counted = prepared.filter((p) => insertedIds.has(p.id));
-    const deltas = counted.flatMap((p) => p.deltas);
-    if (deltas.length > 0) await applyAffinityDeltas(app.db, userId, deltas, new Set(cornerIds));
-    // Looking at your own groups lets the corners outside them drift away (plan section 19).
+    // Looking at your own groups lets the corners outside them drift away (plan section 19). It comes before the
+    // new points, so a look at a corner in the same batch counts in full.
     const ownPoints = counted.reduce((n, p) => n + p.ownPoints, 0);
     if (ownPoints > 0 && cornerIds.length > 0) {
       await app.db
@@ -370,6 +369,8 @@ export async function recordEvents(app: App, userId: string, inputs: EventInput[
           ),
         );
     }
+    const deltas = counted.flatMap((p) => p.deltas);
+    if (deltas.length > 0) await applyAffinityDeltas(app.db, userId, deltas, new Set(cornerIds));
     return { recorded: insertedIds.size, skipped };
   } catch (err) {
     app.log.error({ err }, "could not record events");

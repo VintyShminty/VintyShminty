@@ -832,5 +832,33 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: womensItem.id }]);
       expect(await corner()).toBeGreaterThan(before * CORNER_KEEP_PER_POINT);
     });
+
+    it("fades that corner to half in 7 days and the person's own group in 30, when the next look is written", async () => {
+      const read = async () => {
+        const rows = await ctx.database.db
+          .select({ key: userAffinities.featureKey, score: userAffinities.score })
+          .from(userAffinities)
+          .where(and(eq(userAffinities.userId, frank.id), eq(userAffinities.feature, "category")));
+        const top = (key: string) => categoryTrail(reference.categories, key)[0]?.id;
+        return {
+          women: rows.find((r) => top(r.key) === womenId)?.score ?? 0,
+          men: rows.find((r) => top(r.key) !== womenId)?.score ?? 0,
+        };
+      };
+      const before = await read();
+      expect(before.men).toBeGreaterThan(0);
+      // Everything frank learned was a week ago.
+      await ctx.database.db
+        .update(userAffinities)
+        .set({ scoredAt: new Date(Date.now() - 7 * 86_400_000) })
+        .where(eq(userAffinities.userId, frank.id));
+      // One more look at each, the women's one first so the men's look does not shrink what is being measured.
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: mensItem.id }]);
+      const shrunk = before.women * CORNER_KEEP_PER_POINT;
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: womensItem.id }]);
+      const after = await read();
+      expect(after.women).toBeCloseTo(shrunk * 0.5 + 1, 1);
+      expect(after.men).toBeCloseTo(before.men * 0.5 ** (7 / 30) + 1, 1);
+    });
   });
 });
