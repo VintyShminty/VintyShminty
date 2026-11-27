@@ -433,7 +433,7 @@ A "shopping group" is Women, Men or Kids, the top of the category tree. Today th
 
 - An action on an item outside the person's groups teaches the item's own category and the one directly above it (for example Women, Sports, Cycling), and nothing higher. The share for the group itself (Women) is 0 for that action.
 - In that corner the minus of 11.2 does not apply while its taste score is above a small threshold. So hearting women's cycling clothes brings more women's cycling clothes, never dresses.
-- The corner fades at the normal speed (Eden, 2026-10-16). That was half in 7 days then and is half in 30 days since section 14. Coming back keeps it open.
+- The corner fades at the normal speed (Eden, 2026-10-16). That was half in 7 days then and is half in 30 days since section 14. Coming back keeps it open. Since section 19 a corner fades to half in 7 days again and also shrinks when the person looks at their own groups.
 - This needs an answer to "What do you shop for?". Without one, every action teaches as before, which is how the groups are worked out from behaviour.
 
 ### 11.4 Search order becomes personal
@@ -739,3 +739,41 @@ In the first 50 cards after the change: all 29 men's items and 2 or 3 women's, i
 - Items with no group (books, home, electronics) are not lowered, by section 11.2. A person who has scrolled past all of their group's items and has no taste yet for any of them sees those no-group items next, with their group's items between them, and the other groups after that. Opening or saving an item of their group lifts that kind again.
 - The variety rules: one seller still gets 2 cards in 20.
 - Groups worked out from behaviour (no answer) delete nothing.
+
+## 19. Interest outside your groups breathes (2026-11-27)
+
+### Why
+
+> in vinted for example - i can start seeing women clothing after knowingly looking for them, not before and then i can continue looking for men stuff and women will drift away and will only come back if again im knowingly searching for them, its a constant breathing change
+> (Eden)
+
+Arriving already worked (section 11.3). Leaving did not: a corner faded by the calendar only, half in 30 days since section 14, whatever the person did in between. Measured on the sample data, a man who hearted one women's item and opened three kept that kind at card 1 of Home through 18 opens of men's items.
+
+### 19.1 The rule
+
+For a person who answered "What do you shop for?", the taste lines for categories outside their groups:
+
+- **fade to half in 7 days**, not 30 (`CORNER_HALF_LIFE_DAYS`). Their own groups, brands, sellers, sizes and the rest keep 30 days, so Home still knows them after a break.
+- **shrink when they look at their own groups.** Every point of a liking action on something in their own groups (an open is 1, a heart 4, a search 1) leaves those lines 90 percent of what they were (`CORNER_KEEP_PER_POINT`). Ten opens leave about a third.
+- **come straight back** when the person looks at that kind again: the action adds its points as always.
+
+Without an answer nothing is a corner and nothing changes. Search order uses the same taste, so it follows.
+
+### 19.2 Measured (sample data, a man who shops for Men and has opened 8 men's items)
+
+Where the 5 items of one women's category sit on Home (card numbers, first 50). "Gone" means none in the first 20.
+
+| | Before | After |
+|---|---|---|
+| He hearts one and opens three | cards 1, 2, 3, 23, 29 | cards 1, 2, 3, 23, 25 |
+| then opens 6 men's items | 1, 3, 4, 14, 30 | 2, 4, 21, 27, 32 |
+| then 12 men's items | 1, 5, 21, 25, 31 | gone (21, 43) |
+| then 18 men's items | 1, 3, 4, 27, 30 | one card left (a brand he hearted) |
+| A single open instead | cards 25 to 36 | cards 25 to 36 |
+| then opens 6 men's items | 16, 23, 36 | gone, none in the first 50 |
+
+### 19.3 Not changed
+
+- What opens a corner and how big it has to be to count (`CORNER_MIN`). A person with a lot of taste in their own group needs more than one open for a corner to reach the first cards. A search still gets its 2 cards in 20 for a week (section 17).
+- Other groups stay on Home, lower down, never hidden (section 11.2).
+- The nightly cleanup still uses 30 days to decide when a line is small enough to delete. A corner line is read at its quick speed, so it only lives a little longer in storage than it counts.

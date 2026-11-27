@@ -45,6 +45,18 @@ describe("buildTaste", () => {
     expect(taste.scores.category.get("dress")).toBeCloseTo(0.5);
   });
 
+  it("fades a category outside the person's groups to half after 7 days", () => {
+    const t = buildTaste(
+      [line("category", "dresses", 8, daysAgo(7)), line("category", "shirts", 8, daysAgo(7))],
+      new Set(),
+      now,
+      new Set(["dresses"]),
+    );
+    // Shirts lost little in a week and is the best line. Dresses is at half of its 8.
+    expect(t.scores.category.get("shirts")).toBe(1);
+    expect(t.scores.category.get("dresses")).toBeCloseTo(4 / (8 * 0.5 ** (7 / 30)));
+  });
+
   it("grows the confidence with recent activity, up to 1 at 30 points", () => {
     expect(buildTaste([line("category", "a", 15)], new Set(), now).confidence).toBeCloseTo(0.5);
     expect(

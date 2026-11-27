@@ -13,6 +13,8 @@ import {
   type AffinityDelta,
   affinityDeltas,
   type CategoryNode,
+  CORNER_HALF_LIFE_DAYS,
+  CORNER_KEEP_PER_POINT,
   categoryTrail,
   EVENT_WEIGHTS,
   type FeedSurface,
@@ -83,6 +85,16 @@ export async function personalisationOn(app: Pick<App, "db">, userId: string): P
 export function groupRootIds(tree: readonly CategoryNode[]): Map<string, string> {
   const slugs = new Set<string>(ONBOARDING_PICKS);
   return new Map(tree.filter((n) => slugs.has(n.slug)).map((n) => [n.slug, n.id]));
+}
+
+/**
+ * Every category of the groups the person did not pick, the groups' own top categories included. Empty without an
+ * answer: there are no "other groups" until the person says what they shop for.
+ */
+export function otherGroupCategoryIds(tree: readonly CategoryNode[], shopsFor: readonly string[]): string[] {
+  if (shopsFor.length === 0) return [];
+  const others = [...groupRootIds(tree)].flatMap(([slug, id]) => (shopsFor.includes(slug) ? [] : [id]));
+  return [...new Set(others.flatMap((id) => categorySubtreeIds(tree, id)))];
 }
 
 /** The shopping group (its top category id) a category belongs to. Null outside Women, Men and Kids. */
@@ -181,6 +193,8 @@ export async function applyAffinityDeltas(
   db: App["db"],
   userId: string,
   deltas: AffinityDelta[],
+  /** Category ids outside the person's groups: their lines fade at the quick corner speed (plan section 19). */
+  cornerKeys: ReadonlySet<string> = new Set(),
 ): Promise<void> {
   const merged = new Map<string, AffinityDelta>();
   for (const d of deltas) {
@@ -195,7 +209,22 @@ export async function applyAffinityDeltas(
       items.map((d) => sql`(${d.feature}::affinity_feature, ${d.key}::text, ${d.delta}::real)`),
       sql`, `,
     );
-  const fade = sql`power(0.5, extract(epoch from now() - user_affinities.scored_at) / (${HALF_LIFE_DAYS} * 86400))`;
+  // Only the lines written now matter, so only their keys are checked.
+  const quick = [
+    ...new Set(
+      list
+        .filter((d) => (d.feature === "category" || d.feature === "parent_category") && cornerKeys.has(d.key))
+        .map((d) => d.key),
+    ),
+  ];
+  const halfLife =
+    quick.length > 0
+      ? sql`(case when user_affinities.feature in ('category', 'parent_category') and user_affinities.feature_key in (${sql.join(
+          quick.map((k) => sql`${k}`),
+          sql`, `,
+        )}) then ${sql.raw(String(CORNER_HALF_LIFE_DAYS))} else ${sql.raw(String(HALF_LIFE_DAYS))} end)`
+      : sql`${HALF_LIFE_DAYS}`;
+  const fade = sql`power(0.5, extract(epoch from now() - user_affinities.scored_at) / (${halfLife} * 86400))`;
   const up = list.filter((d) => d.delta > 0);
   const down = list.filter((d) => d.delta < 0);
   if (up.length > 0) {
@@ -240,11 +269,23 @@ export async function recordEvents(app: App, userId: string, inputs: EventInput[
       const group = groupOf(reference.categories, categoryId);
       return group !== null && !mine.has(group);
     };
+    const inside = (categoryId: string | null | undefined) => {
+      if (mine.size === 0 || !categoryId) return false;
+      const group = groupOf(reference.categories, categoryId);
+      return group !== null && mine.has(group);
+    };
+    const cornerIds = otherGroupCategoryIds(reference.categories, settings.shopsFor);
     const features = await loadListingFeatures(app, [
       ...new Set(inputs.flatMap((i) => (i.listingId ? [i.listingId] : [])).filter(Boolean)),
     ]);
 
-    type Prepared = { id: string; deltas: AffinityDelta[]; row: typeof userEvents.$inferInsert };
+    type Prepared = {
+      id: string;
+      deltas: AffinityDelta[];
+      /** Points of liking inside the person's own groups. */
+      ownPoints: number;
+      row: typeof userEvents.$inferInsert;
+    };
     const prepared: Prepared[] = [];
     let skipped = 0;
     for (const input of inputs) {
@@ -287,6 +328,7 @@ export async function recordEvents(app: App, userId: string, inputs: EventInput[
       prepared.push({
         id,
         deltas,
+        ownPoints: weight > 0 && inside(copied.categoryId) ? weight : 0,
         row: {
           id,
           userId,
@@ -311,8 +353,23 @@ export async function recordEvents(app: App, userId: string, inputs: EventInput[
       .returning({ id: userEvents.id });
     const insertedIds = new Set(inserted.map((r) => r.id));
     skipped += prepared.length - insertedIds.size;
-    const deltas = prepared.filter((p) => insertedIds.has(p.id)).flatMap((p) => p.deltas);
-    if (deltas.length > 0) await applyAffinityDeltas(app.db, userId, deltas);
+    const counted = prepared.filter((p) => insertedIds.has(p.id));
+    const deltas = counted.flatMap((p) => p.deltas);
+    if (deltas.length > 0) await applyAffinityDeltas(app.db, userId, deltas, new Set(cornerIds));
+    // Looking at your own groups lets the corners outside them drift away (plan section 19).
+    const ownPoints = counted.reduce((n, p) => n + p.ownPoints, 0);
+    if (ownPoints > 0 && cornerIds.length > 0) {
+      await app.db
+        .update(userAffinities)
+        .set({ score: sql`${userAffinities.score} * ${CORNER_KEEP_PER_POINT ** ownPoints}::real` })
+        .where(
+          and(
+            eq(userAffinities.userId, userId),
+            inArray(userAffinities.feature, ["category", "parent_category"]),
+            inArray(userAffinities.featureKey, cornerIds),
+          ),
+        );
+    }
     return { recorded: insertedIds.size, skipped };
   } catch (err) {
     app.log.error({ err }, "could not record events");
@@ -374,8 +431,7 @@ export async function forgetOtherGroups(
   tree: readonly CategoryNode[],
   shopsFor: readonly string[],
 ): Promise<void> {
-  const others = [...groupRootIds(tree)].flatMap(([slug, id]) => (shopsFor.includes(slug) ? [] : [id]));
-  const ids = [...new Set(others.flatMap((id) => categorySubtreeIds(tree, id)))];
+  const ids = otherGroupCategoryIds(tree, shopsFor);
   if (ids.length === 0) return;
   await db
     .delete(userAffinities)

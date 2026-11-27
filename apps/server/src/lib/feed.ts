@@ -18,6 +18,7 @@ import {
   type AffinityFeature,
   arrangeFeed,
   type CategoryNode,
+  CORNER_HALF_LIFE_DAYS,
   CORNER_MIN,
   confidence,
   countsAsPriceDrop,
@@ -35,6 +36,7 @@ import {
   FRESHNESS_HOURS,
   findCategory,
   GENERAL_WEIGHTS,
+  HALF_LIFE_DAYS,
   type HomeFeedPage,
   NEW_PILE_DAYS,
   OPENED_KEEP,
@@ -66,7 +68,7 @@ import {
   toCards,
   visibilityConditions,
 } from "./discovery.js";
-import { feedSettings, groupRootIds, parentCategoryIds } from "./events.js";
+import { feedSettings, groupRootIds, otherGroupCategoryIds, parentCategoryIds } from "./events.js";
 
 type App = Pick<FastifyInstance, "db" | "storage" | "reference" | "log">;
 
@@ -126,9 +128,15 @@ export function buildTaste(
   lines: { feature: AffinityFeature; key: string; score: number; scoredAt: Date }[],
   rootCategoryIds: ReadonlySet<string>,
   now = new Date(),
+  /** Category ids outside the person's groups: their lines fade at the quick corner speed (plan section 19). */
+  cornerKeys: ReadonlySet<string> = new Set(),
 ): Pick<Taste, "confidence" | "scores" | "top" | "knownCategories" | "rootTotals"> {
+  const halfLife = (l: { feature: AffinityFeature; key: string }) =>
+    (l.feature === "category" || l.feature === "parent_category") && cornerKeys.has(l.key)
+      ? CORNER_HALF_LIFE_DAYS
+      : HALF_LIFE_DAYS;
   const effective = lines
-    .map((l) => ({ ...l, eff: effectiveScore(l.score, l.scoredAt, now) }))
+    .map((l) => ({ ...l, eff: effectiveScore(l.score, l.scoredAt, now, halfLife(l)) }))
     .filter((l) => l.eff > 0);
   const scores = Object.fromEntries(AFFINITY_FEATURES.map((f) => [f, new Map<string, number>()])) as Record<
     AffinityFeature,
@@ -234,6 +242,8 @@ async function loadTaste(
   const base = buildTaste(
     lines.map((l) => ({ feature: l.feature, key: l.featureKey, score: l.score, scoredAt: l.scoredAt })),
     roots,
+    new Date(),
+    new Set(otherGroupCategoryIds(reference.categories, settings.shopsFor)),
   );
   return {
     ...base,

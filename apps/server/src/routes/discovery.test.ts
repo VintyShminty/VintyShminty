@@ -1,7 +1,8 @@
 import { blocks, favourites, follows, listings, listingViews, profiles, userAffinities } from "@vinty/db";
-import { type CategoryNode, categoryTrail, type ReferenceData } from "@vinty/shared";
+import { type CategoryNode, CORNER_KEEP_PER_POINT, categoryTrail, type ReferenceData } from "@vinty/shared";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { recordEvents } from "../lib/events.js";
 import {
   bearer,
   buildTestApp,
@@ -812,6 +813,24 @@ describe.skipIf(!databaseUrl)("discovery", () => {
         .where(eq(userAffinities.userId, frank.id));
       expect(lines.some((l) => l.feature === "category")).toBe(true);
       expect(lines.some((l) => l.feature === "parent_category" && l.key === womenId)).toBe(false);
+    });
+
+    it("lets that corner drift away when the person looks at their own group again", async () => {
+      const corner = async () => {
+        const rows = await ctx.database.db
+          .select({ key: userAffinities.featureKey, score: userAffinities.score })
+          .from(userAffinities)
+          .where(and(eq(userAffinities.userId, frank.id), eq(userAffinities.feature, "category")));
+        return rows.find((r) => categoryTrail(reference.categories, r.key)[0]?.id === womenId)?.score ?? 0;
+      };
+      const before = await corner();
+      expect(before).toBeGreaterThan(0);
+      // An open is worth 1 point: the corner keeps CORNER_KEEP_PER_POINT of what it was.
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: mensItem.id }]);
+      expect(await corner()).toBeCloseTo(before * CORNER_KEEP_PER_POINT, 2);
+      // Looking at the women's item again does not shrink it.
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: womensItem.id }]);
+      expect(await corner()).toBeGreaterThan(before * CORNER_KEEP_PER_POINT);
     });
   });
 });

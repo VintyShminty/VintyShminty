@@ -45,8 +45,23 @@ export const AFFINITY_FLOOR = 0.05;
 export const AFFINITIES_PER_FEATURE = 50;
 
 /** A score as it is worth right now. Nothing runs at night to fade scores, the math happens when one is read. */
-export const effectiveScore = (score: number, scoredAt: Date, now: Date = new Date()): number =>
-  score * 0.5 ** (Math.max(0, now.getTime() - scoredAt.getTime()) / (HALF_LIFE_DAYS * DAY_MS));
+export const effectiveScore = (
+  score: number,
+  scoredAt: Date,
+  now: Date = new Date(),
+  halfLifeDays: number = HALF_LIFE_DAYS,
+): number => score * 0.5 ** (Math.max(0, now.getTime() - scoredAt.getTime()) / (halfLifeDays * DAY_MS));
+
+/**
+ * Interest in a category outside the person's own shopping groups (a "corner", plan section 11.3) comes and goes
+ * quickly (plan section 19, Eden 2026-11-27: "a constant breathing change"). It fades to half in 7 days instead of 30...
+ */
+export const CORNER_HALF_LIFE_DAYS = 7;
+/**
+ * ...and every point of a liking action inside the person's own groups (an open is 1, a heart 4) leaves it this share
+ * of what it was. Looking at that corner again adds to it as usual.
+ */
+export const CORNER_KEEP_PER_POINT = 0.9;
 
 /** 0 for a new person, 1 after about 30 points of recent activity. The feed becomes personal as this grows. */
 export const CONFIDENCE_POINTS = 30;
