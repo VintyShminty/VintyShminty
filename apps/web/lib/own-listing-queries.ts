@@ -1,6 +1,12 @@
 "use client";
 
-import { infiniteQueryOptions, queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  queryOptions,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   type Bump,
   type BumpPlans,
@@ -9,7 +15,9 @@ import {
   type ListingDetail,
   listingDetailSchema,
   type MyBumpsPage,
+  type MyListingsPage,
   myBumpsPageSchema,
+  myListingsPageSchema,
   type UpdateListingStatusInput,
 } from "@vinty/shared";
 import { clientApi } from "@/lib/api-client";
@@ -34,6 +42,28 @@ export const myBumpsQuery = () =>
       ),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
+
+/**
+ * True once we know the person has never posted anything (no listing for sale, reserved, sold or hidden), so the
+ * sell form shows the first time photo tips (D-066). False while loading, so a seasoned seller never sees them flash.
+ * Same key and address as the For sale list on the profile.
+ */
+export function useFirstListing(enabled: boolean): boolean {
+  const { data } = useInfiniteQuery({
+    queryKey: ["my-listings", "active"],
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      clientApi<MyListingsPage>(
+        `/v1/me/listings?status=active&limit=20${pageParam ? `&cursor=${encodeURIComponent(pageParam)}` : ""}`,
+        { schema: myListingsPageSchema },
+      ),
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
+    enabled,
+  });
+  const counts = data?.pages[0]?.counts;
+  if (!enabled || !counts) return false;
+  return counts.active + counts.reserved + counts.sold + counts.hidden === 0;
+}
 
 /** After any change to a listing, the own lists, the feed and the numbers on the profile are asked for again. */
 function useRefreshListings() {

@@ -1,10 +1,23 @@
 "use client";
 
 import { movePhoto } from "@vinty/shared";
-import { Camera, ChevronLeft, ChevronRight, Crop, Plus, RotateCcw, RotateCw, X } from "lucide-react";
+import {
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  Crop,
+  Plus,
+  RotateCcw,
+  RotateCw,
+  Shirt,
+  Smartphone,
+  Sun,
+  X,
+} from "lucide-react";
 import { type Dispatch, type SetStateAction, useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PhotoCropper } from "@/components/sell/photo-cropper";
+import { PhotoGuide } from "@/components/sell/photo-guide";
 import {
   type CropRect,
   cropLocalPhoto,
@@ -158,6 +171,13 @@ function PhotoViewer({
  * a remove cross, a Cover tag on the first photo, upload progress and a retry state. Drag a tile to reorder (the first
  * place is the cover), or use the move earlier and later buttons. A click on the picture opens it full size.
  */
+/** The three photo tips a first time seller sees in the empty box (D-066). */
+const FIRST_TIPS = [
+  { key: "upright", icon: Smartphone },
+  { key: "wholeItem", icon: Shirt },
+  { key: "light", icon: Sun },
+] as const;
+
 export function PhotoUploader({
   photos,
   setPhotos,
@@ -167,6 +187,7 @@ export function PhotoUploader({
   onChanged,
   uploadPath,
   adminListingId,
+  firstTips = false,
 }: {
   photos: SellPhoto[];
   setPhotos: SetPhotos;
@@ -180,6 +201,8 @@ export function PhotoUploader({
   uploadPath?: string;
   /** Set when an admin edits this listing: turning and cropping then go through the admin routes. */
   adminListingId?: string;
+  /** Three short photo tips inside the empty box, for someone who has never posted (D-066). */
+  firstTips?: boolean;
 }) {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
@@ -188,6 +211,12 @@ export function PhotoUploader({
   const [viewing, setViewing] = useState<number | null>(null);
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [over, setOver] = useState<number | "area" | null>(null);
+  // A first time seller sees the photo example once per visit to the form before the file picker (D-066).
+  const [guide, setGuide] = useState<"hidden" | "showing" | "seen">("hidden");
+  const pickFiles = () => {
+    if (firstTips && guide === "hidden") setGuide("showing");
+    else input.current?.click();
+  };
   const [announce, setAnnounce] = useState("");
   const remaining = maxPhotos - photos.length;
 
@@ -318,10 +347,20 @@ export function PhotoUploader({
   return (
     <div className="flex flex-col gap-sm">
       {fileInput}
+      {firstTips ? (
+        <PhotoGuide
+          open={guide === "showing"}
+          onDone={() => {
+            setGuide("seen");
+            input.current?.click();
+          }}
+          onClose={() => setGuide("seen")}
+        />
+      ) : null}
       {photos.length === 0 ? (
         <button
           type="button"
-          onClick={() => input.current?.click()}
+          onClick={pickFiles}
           onDragOver={(e) => {
             if (e.dataTransfer.types.includes("Files")) {
               e.preventDefault();
@@ -332,7 +371,8 @@ export function PhotoUploader({
           onDrop={onDropFiles}
           aria-describedby={hintId}
           className={cn(
-            "flex h-[156px] flex-col items-center justify-center gap-md rounded-window border-[1.5px] border-dashed bg-surface hover:bg-pressed",
+            "flex flex-col items-center justify-center gap-md rounded-window border-[1.5px] border-dashed bg-surface hover:bg-pressed",
+            firstTips ? "py-xl" : "h-[156px]",
             over === "area" ? "border-primary bg-pressed" : error ? "border-error" : "border-text-4",
           )}
         >
@@ -342,6 +382,17 @@ export function PhotoUploader({
             {t("sell.photos.upload")}
           </span>
           <span className="text-card-desc text-text-3">{t("web.sell.photos.dropHint")}</span>
+          {firstTips ? (
+            <span className="mt-xs flex flex-col gap-sm">
+              <span className="sr-only">{t("sell.photos.firstTips.label")}</span>
+              {FIRST_TIPS.map((tip) => (
+                <span key={tip.key} className="flex items-center gap-sm text-card-desc text-text-2">
+                  <tip.icon size={16} aria-hidden className="shrink-0 text-text-3" />
+                  {t(`sell.photos.firstTips.${tip.key}`)}
+                </span>
+              ))}
+            </span>
+          ) : null}
         </button>
       ) : (
         <ul

@@ -899,6 +899,17 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** `BROWSE_ROOT_SIDES` in `packages/shared/src/browse-tiles.ts`, `apps/web/components/browse-panel.tsx`, `BrowseRootTiles` in `apps/web/components/browse-tiles.tsx`, `apps/web/components/top-bar.tsx`, `apps/mobile/app/(app)/(tabs)/(shop)/browse/index.tsx`, `browse.groups` in `packages/locales`.
 - **References:** D-030, D-052, D-054, D-055, D-064
 
+### D-066 : First time sellers get three photo tips and a drawn photo example
+
+- **Date:** 2026-11-27
+- **Area:** Sell form on the app and the website
+- **Status:** Proposed, waiting for Eden's merge
+- **Decision:** While someone has never posted anything (nothing for sale, reserved, sold or hidden), the empty photo box of a new listing shows three short tips under the Add button, each with a small icon: "Hold your phone upright" (phone), "Fit the whole item in the frame" (shirt), "Daylight and a plain background" (sun). No title, no extra tap, no close button. The box simply grows to fit them. They go away once a photo is added, and never show when editing a live listing or in the admin pages. While the app is still asking how many listings the person has, nothing shows, so a seasoned seller never sees them flash. The first time such a seller taps Add your photos in a visit to the form, a full screen example comes first (on the website a window): the title "Photos that sell", the line "Buyers see your item tall, so take it standing up", two drawn frames side by side (an upright frame with the whole shirt inside, marked with a green tick and "Like this", and a sideways frame where the shirt is too big and cut off at the corner, marked with a red cross and "Not like this"), the same three tips and a Got it button. Got it opens the photo choices (on the website the file picker), the cross closes it. After that, Add goes straight to the photos. Eden picked this own screen over putting the example inside the photo choices panel, for more attention at the cost of one tap.
+- **Rationale:** Eden saw new sellers taking photos sideways or cutting the item off. Listings show photos tall (3 by 4), so an upright photo fills the card. A tip before the first photo prevents the problem, the AI tips of D-036 only point it out afterwards (and nothing there catches sideways photos).
+- **Trade-off:** It shows to everyone who has not posted yet, also someone with only drafts, which is fine since they have not posted either. It uses the existing own listings call, so no server change.
+- **Implementation:** `firstTips` on `PhotoUploader` in `apps/mobile/components/sell/photo-uploader.tsx` and `apps/web/components/sell/photo-uploader.tsx`, `useFirstListing` in `apps/mobile/lib/queries.ts` and `apps/web/lib/own-listing-queries.ts`, `PhotoGuide` in `apps/mobile/components/sell/photo-guide.tsx` and `apps/web/components/sell/photo-guide.tsx`, `sell.photos.firstTips` and `sell.photos.guide` in `packages/locales`. The drawings are Lucide icons in plain frames, no picture files.
+- **References:** D-036
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13

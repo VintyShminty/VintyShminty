@@ -2,6 +2,7 @@ import {
   type InfiniteData,
   infiniteQueryOptions,
   queryOptions,
+  useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -216,6 +217,17 @@ export const myListingsQuery = (status: MyListingStatus) =>
       ),
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
+
+/**
+ * True once we know the person has never posted anything (no listing for sale, reserved, sold or hidden), so the
+ * sell form shows the first time photo tips (D-066). False while loading, so a seasoned seller never sees them flash.
+ */
+export function useFirstListing(): boolean {
+  const { data } = useInfiniteQuery(myListingsQuery("active"));
+  const counts = data?.pages[0]?.counts;
+  if (!counts) return false;
+  return counts.active + counts.reserved + counts.sold + counts.hidden === 0;
+}
 
 export const ownListingQuery = (id: string) =>
   queryOptions({

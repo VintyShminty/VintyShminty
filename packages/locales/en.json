@@ -557,6 +557,20 @@
       "library": "Pick from your photos",
       "camera": "Use the camera",
       "hint": "Show it off with up to {{max}} photos. The first is its cover",
+      "firstTips": {
+        "label": "Tips for photos that sell",
+        "upright": "Hold your phone upright",
+        "wholeItem": "Fit the whole item in the frame",
+        "light": "Daylight and a plain background"
+      },
+      "guide": {
+        "title": "Photos that sell",
+        "subtitle": "Buyers see your item tall, so take it standing up",
+        "good": "Like this",
+        "bad": "Not like this",
+        "gotIt": "Got it",
+        "close": "Close"
+      },
       "count": "{{count}} of {{max}} photos. The first is the cover. Hold and drag to reorder, tap to view",
       "failed": "A photo did not upload. Tap it to try again",
       "retry": "Upload failed, tap to try again",

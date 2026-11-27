@@ -43,7 +43,7 @@ import { ApiClientError } from "@/lib/api";
 import { describeApiError } from "@/lib/auth-errors";
 import { categoryGuesses } from "@/lib/category-guesses";
 import { formatMoney, priceTextToMinor } from "@/lib/money";
-import { ownListingQuery, pricePreviewQuery, useSaveListing } from "@/lib/queries";
+import { ownListingQuery, pricePreviewQuery, useFirstListing, useSaveListing } from "@/lib/queries";
 import { useLocalName, useReference } from "@/lib/reference";
 import { currentGuesses, usePhotoAssist, usePhotoTipCheck, useTextAssist } from "@/lib/sell-assist";
 import { toListingInput, useSellStore } from "@/lib/sell-store";
@@ -117,6 +117,7 @@ export default function SellForm() {
   const reference = useReference();
   const existing = useQuery({ ...ownListingQuery(id ?? ""), enabled: Boolean(id) });
   const save = useSaveListing();
+  const firstListing = useFirstListing();
 
   const values = useSellStore((s) => s.values);
   const errors = useSellStore((s) => s.errors);
@@ -311,7 +312,11 @@ export default function SellForm() {
       <TopBar leading="close" onBack={onClose} title={editingLive ? t("sell.editTitle") : t("sell.title")} />
       <ScreenScroll contentContainerClassName="pb-lg">
         <Section title={t("sell.photos.title")} required>
-          <PhotoUploader maxPhotos={limits.maxPhotos} error={err("photos")} />
+          <PhotoUploader
+            maxPhotos={limits.maxPhotos}
+            error={err("photos")}
+            firstTips={firstListing && !editingLive}
+          />
           <PhotoTips />
           {/* The "made or touched up with AI" checkbox (values.usedAiPhotos, t("sell.aiPhotos")) is hidden for now.
               The field and the server support stay, it simply stays false until the row comes back. */}
