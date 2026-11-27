@@ -1,4 +1,4 @@
-import { type CategoryNode, isReadingCategory, type ReferenceData, referenceDataSchema } from "@vinty/shared";
+import { type CategoryNode, conditionKind, type ReferenceData, referenceDataSchema } from "@vinty/shared";
 import { serverApi } from "@/lib/api";
 import type { Lang } from "@/lib/i18n";
 
@@ -12,23 +12,38 @@ export function getFreshReference(lang: Lang): Promise<ReferenceData> {
   return serverApi("/v1/reference", { lang, schema: referenceDataSchema, anonymous: true });
 }
 
-/** Condition names for the card's BRAND · SIZE · CONDITION line, with the reading words books and magazines use. */
+/** Condition names for the card's BRAND · SIZE · CONDITION line: wearing words, reading words and use words. */
 export type ConditionNames = {
-  /** Condition slug to its name in the page language. */
+  /** Condition slug to its name in the page language, in the wearing words ("Unworn"). */
   names: Record<string, string>;
   /** The same for books and magazines ("Well read"). */
   forBooks: Record<string, string>;
+  /** The same for things that are not worn ("Unused"). */
+  forObjects: Record<string, string>;
   /** Every category whose items use the reading words. */
   readingCategoryIds: string[];
+  /** Every category whose items use the wearing words. Any other category uses the use words. */
+  wornCategoryIds: string[];
+};
+
+const NO_CONDITION_NAMES: ConditionNames = {
+  names: {},
+  forBooks: {},
+  forObjects: {},
+  readingCategoryIds: [],
+  wornCategoryIds: [],
 };
 
 export async function getConditionNames(lang: Lang): Promise<ConditionNames> {
   try {
     const reference = await getReference(lang);
     const readingCategoryIds: string[] = [];
+    const wornCategoryIds: string[] = [];
     const walk = (nodes: CategoryNode[]) => {
       for (const node of nodes) {
-        if (isReadingCategory(node)) readingCategoryIds.push(node.id);
+        const kind = conditionKind(node);
+        if (kind === "reading") readingCategoryIds.push(node.id);
+        if (kind === "worn") wornCategoryIds.push(node.id);
         walk(node.children);
       }
     };
@@ -36,9 +51,13 @@ export async function getConditionNames(lang: Lang): Promise<ConditionNames> {
     return {
       names: Object.fromEntries(reference.conditions.map((c) => [c.slug, c.name[lang]])),
       forBooks: Object.fromEntries(reference.conditions.map((c) => [c.slug, (c.forBooks ?? c).name[lang]])),
+      forObjects: Object.fromEntries(
+        reference.conditions.map((c) => [c.slug, (c.forObjects ?? c).name[lang]]),
+      ),
       readingCategoryIds,
+      wornCategoryIds,
     };
   } catch {
-    return { names: {}, forBooks: {}, readingCategoryIds: [] };
+    return NO_CONDITION_NAMES;
   }
 }

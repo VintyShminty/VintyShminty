@@ -1,3 +1,4 @@
+import { conditionWords, findCategory } from "@vinty/shared";
 import { useTranslation } from "react-i18next";
 import { formatMoney } from "@/lib/money";
 import { useLocalName, useReference } from "@/lib/reference";
@@ -20,10 +21,11 @@ export function useFilterSummary(scope: Scope) {
 
   const brands = (f.brandIds ?? []).map((id) => ({ id, label: state.brandNames[id] ?? t("filters.brand") }));
   const sizes = (f.sizeIds ?? []).map((id) => ({ id, label: sizeLabels.get(id) ?? t("filters.size") }));
-  const conditions = (f.conditionIds ?? []).map((id) => ({
-    id,
-    label: lookup(reference?.conditions, id),
-  }));
+  const category = f.categoryId && reference ? findCategory(reference.categories, f.categoryId) : null;
+  const conditions = (f.conditionIds ?? []).map((id) => {
+    const condition = reference?.conditions.find((c) => c.id === id);
+    return { id, label: condition ? name(conditionWords(condition, category).name) : "" };
+  });
   const colours = (f.colourIds ?? []).map((id) => ({ id, label: lookup(reference?.colours, id) }));
   const materials = (f.materialIds ?? []).map((id) => ({ id, label: lookup(reference?.materials, id) }));
   const patterns = (f.patternIds ?? []).map((id) => ({ id, label: lookup(reference?.patterns, id) }));

@@ -119,7 +119,7 @@ async function Items({ lang, q, sp, asked }: { lang: Lang; q: string; sp: Search
     getReference(lang).catch(() => null),
   ]);
   const options = reference
-    ? buildFilterOptions(reference, lang, null)
+    ? buildFilterOptions(reference, lang, null, categoryIds)
     : { sizeGroups: [], sizeLabels: {}, conditions: [], colours: [] };
   const count = firstPage
     ? firstPage.totalCapped

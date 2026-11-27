@@ -1,8 +1,11 @@
 import {
+  conditionWordsOf,
+  findCategory,
   LISTING_SORTS,
   type ListingSort,
   type ReferenceData,
   type SearchFilters,
+  sharedConditionKind,
   TILE_GROUPS,
   type TileGroup,
 } from "@vinty/shared";
@@ -128,12 +131,17 @@ export type FilterOptions = {
   colours: { id: string; name: string; swatch: string }[];
 };
 
-/** `sizeGroupIds` limits the size groups to those a category uses. Without it (search) every group is offered. */
+/**
+ * `sizeGroupIds` limits the size groups to those a category uses. Without it (search) every group is offered.
+ * `categoryIds` are the categories the page shows: the condition names use their words (wearing, reading or use words).
+ */
 export function buildFilterOptions(
   reference: ReferenceData,
   lang: Lang,
   sizeGroupIds?: string[] | null,
+  categoryIds: readonly string[] = [],
 ): FilterOptions {
+  const kind = sharedConditionKind(categoryIds.flatMap((id) => findCategory(reference.categories, id) ?? []));
   const label = (s: { label: string; name: { en: string; he: string } }) => s.label || s.name[lang];
   const wanted = sizeGroupIds?.length ? new Set(sizeGroupIds) : null;
   return {
@@ -147,7 +155,7 @@ export function buildFilterOptions(
     sizeLabels: Object.fromEntries(reference.sizeGroups.flatMap((g) => g.sizes.map((s) => [s.id, label(s)]))),
     conditions: [...reference.conditions]
       .sort((a, b) => a.rank - b.rank)
-      .map((c) => ({ id: c.id, name: c.name[lang] })),
+      .map((c) => ({ id: c.id, name: conditionWordsOf(c, kind).name[lang] })),
     colours: reference.colours.map((c) => ({ id: c.id, name: c.name[lang], swatch: c.swatchHex })),
   };
 }

@@ -29,19 +29,20 @@ const PUBLIC_SETTINGS = [
   "single_market",
 ];
 
-type BookCondition = Record<string, { name: string; description: string } | undefined>;
+type ConditionWording = Record<string, { name: string; description: string } | undefined>;
 
-/** The reading words for a condition level (books and magazines), from the shared wording. */
-function bookWords(slug: string) {
-  const inEn = (en.bookCondition as BookCondition)[slug];
-  const inHe = (he.bookCondition as BookCondition)[slug];
-  if (!inEn || !inHe) return {};
-  return {
-    forBooks: {
-      name: { en: inEn.name, he: inHe.name },
-      description: { en: inEn.description, he: inHe.description },
-    },
-  };
+function wording(inEn: ConditionWording, inHe: ConditionWording, slug: string) {
+  const a = inEn[slug];
+  const b = inHe[slug];
+  if (!a || !b) return undefined;
+  return { name: { en: a.name, he: b.name }, description: { en: a.description, he: b.description } };
+}
+
+/** The other words for a condition level, from the shared wording: reading words (books and magazines) and use words (things that are not worn). */
+function otherWords(slug: string) {
+  const forBooks = wording(en.bookCondition, he.bookCondition, slug);
+  const forObjects = wording(en.objectCondition, he.objectCondition, slug);
+  return { ...(forBooks ? { forBooks } : {}), ...(forObjects ? { forObjects } : {}) };
 }
 
 /** Reads every reference table and shapes it the way GET /v1/reference answers. Names always carry both languages. */
@@ -146,7 +147,7 @@ export async function buildReferenceData(db: Db): Promise<ReferenceData> {
       name: { en: c.nameEn, he: c.nameHe },
       description: { en: c.descriptionEn, he: c.descriptionHe },
       rank: c.rank,
-      ...bookWords(c.slug),
+      ...otherWords(c.slug),
     })),
     colours: colourRows.map((c) => ({
       id: c.id,

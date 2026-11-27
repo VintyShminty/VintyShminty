@@ -99,12 +99,48 @@ export function isReadingCategory(category: Pick<CategoryNode, "path"> | null | 
   return !!category && /^media\/(books|magazines)(\/|$)/.test(category.path);
 }
 
+/** Clothes, shoes, bags and accessories are worn. The few worn branches inside Sports count too. */
+const WORN_PATH =
+  /^((women|men|kids|designer)(\/|$)|sports\/(cycling\/clothing|football\/(shirts|boots)|combat\/uniforms)(\/|$))/;
+/** The branches under Women, Men and Kids that hold things nobody wears (makeup, toys, strollers, cots). */
+const NOT_WORN_PATH = /^(women\/beauty|men\/grooming|kids\/(toys|gear|nursery|school))(\/|$)/;
+
+export type ConditionKind = "worn" | "reading" | "object";
+
+/**
+ * Which words describe the condition of items in a category: wearing words for clothes, reading words for books and
+ * magazines, plain use words for everything else. With no category (a search across everything) the use words,
+ * because they fit any item.
+ */
+export function conditionKind(category: Pick<CategoryNode, "path"> | null | undefined): ConditionKind {
+  if (!category) return "object";
+  if (isReadingCategory(category)) return "reading";
+  return WORN_PATH.test(category.path) && !NOT_WORN_PATH.test(category.path) ? "worn" : "object";
+}
+
+/** The kind every one of the categories shares (a filter over one section). Mixed or none: the use words. */
+export function sharedConditionKind(categories: readonly Pick<CategoryNode, "path">[]): ConditionKind {
+  const kinds = new Set(categories.map(conditionKind));
+  const [only] = kinds;
+  return kinds.size === 1 && only ? only : "object";
+}
+
+/** The name and description of a condition level in the given kind of words. */
+export function conditionWordsOf(
+  condition: Condition,
+  kind: ConditionKind,
+): Pick<Condition, "name" | "description"> {
+  if (kind === "reading") return condition.forBooks ?? condition;
+  if (kind === "object") return condition.forObjects ?? condition;
+  return condition;
+}
+
 /** The name and description of a condition level as the given category shows it. */
 export function conditionWords(
   condition: Condition,
   category: Pick<CategoryNode, "path"> | null | undefined,
 ): Pick<Condition, "name" | "description"> {
-  return isReadingCategory(category) && condition.forBooks ? condition.forBooks : condition;
+  return conditionWordsOf(condition, conditionKind(category));
 }
 
 export function findCategory(tree: readonly CategoryNode[], id: string): CategoryNode | null {
