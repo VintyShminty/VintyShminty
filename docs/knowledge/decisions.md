@@ -54,7 +54,7 @@ An index only. The full text and reasoning live where the link points. When a de
 | D-045 | The app item page speaks the card's language | Merged, 2026-10-15 (#79) |
 | D-046 | The logo is a gently tilted price tag with a bold Y (for now, name not final) | Merged, 2026-10-15 (#89). Superseded in part by D-060 (a B, in cobalt) |
 | D-047 | Home top is the wordmark, a bell and a bookmark, then a full width search that works in place | Merged, 2026-10-15 (#93) |
-| D-048 | Home and search show your shopping groups (Women, Men, Kids) first, other groups a bit lower, never hidden | Merged, 2026-10-16 (#106) |
+| D-048 | Home and search show your shopping groups (Women, Men, Kids) first, other groups a bit lower, never hidden (lower still since 2026-11-27, home feed plan section 18) | Merged, 2026-10-16 (#106) |
 | D-049 | Closet deal is now Bundle: item page box, + Bundle on cards, bundle bar, postage saving shown, sellers' steps on by default (Hebrew: באנדל) | Merged, 2026-10-16 (#107) |
 | D-050 | The bundle pill floats above the tab bar, appears after an add tap, leaves when the bundle is empty, and the bundle box moves smoothly | Merged, 2026-10-17 (#109). App only, the website bar is an open question |
 | D-051 | Books and magazines describe the same five condition levels in reading words | Merged, 2026-10-17 (#112) |

@@ -46,7 +46,7 @@ function Example({ good }: { good: boolean }) {
 }
 
 /**
- * The photo example a first time seller sees after clicking Add your photos (D-066): a drawn right and wrong photo,
+ * The photo example a first time seller sees after clicking Add your photos (D-067): a drawn right and wrong photo,
  * the three tips and Got it. Got it opens the file picker, the cross or Escape closes it without adding photos.
  */
 export function PhotoGuide({

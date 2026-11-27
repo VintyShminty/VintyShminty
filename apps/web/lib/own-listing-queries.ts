@@ -45,7 +45,7 @@ export const myBumpsQuery = () =>
 
 /**
  * True once we know the person has never posted anything (no listing for sale, reserved, sold or hidden), so the
- * sell form shows the first time photo tips (D-066). False while loading, so a seasoned seller never sees them flash.
+ * sell form shows the first time photo tips (D-067). False while loading, so a seasoned seller never sees them flash.
  * Same key and address as the For sale list on the profile.
  */
 export function useFirstListing(enabled: boolean): boolean {

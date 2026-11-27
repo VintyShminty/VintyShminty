@@ -45,8 +45,23 @@ export const AFFINITY_FLOOR = 0.05;
 export const AFFINITIES_PER_FEATURE = 50;
 
 /** A score as it is worth right now. Nothing runs at night to fade scores, the math happens when one is read. */
-export const effectiveScore = (score: number, scoredAt: Date, now: Date = new Date()): number =>
-  score * 0.5 ** (Math.max(0, now.getTime() - scoredAt.getTime()) / (HALF_LIFE_DAYS * DAY_MS));
+export const effectiveScore = (
+  score: number,
+  scoredAt: Date,
+  now: Date = new Date(),
+  halfLifeDays: number = HALF_LIFE_DAYS,
+): number => score * 0.5 ** (Math.max(0, now.getTime() - scoredAt.getTime()) / (halfLifeDays * DAY_MS));
+
+/**
+ * Interest in a category outside the person's own shopping groups (a "corner", plan section 11.3) comes and goes
+ * quickly (plan section 19, Eden 2026-11-27: "a constant breathing change"). It fades to half in 7 days instead of 30...
+ */
+export const CORNER_HALF_LIFE_DAYS = 7;
+/**
+ * ...and every point of a liking action inside the person's own groups (an open is 1, a heart 4) leaves it this share
+ * of what it was. Looking at that corner again adds to it as usual.
+ */
+export const CORNER_KEEP_PER_POINT = 0.9;
 
 /** 0 for a new person, 1 after about 30 points of recent activity. The feed becomes personal as this grows. */
 export const CONFIDENCE_POINTS = 30;
@@ -191,9 +206,11 @@ export const FRESH_SLOT_HOURS = 7 * 24;
 export const SHUFFLE_SIZE = 0.1;
 /**
  * Shopping groups (Women, Men, Kids, plan section 11). Items in a group the person does not shop for move this much
- * lower on Home, never hidden (Eden: "a bit lower"). A strong taste match is worth about 1.
+ * lower on Home, never hidden. 0.3 at first (Eden: "a bit lower"), 1 since 2026-11-27: a price drop, a popular week
+ * or a card of the person's own group that was scrolled past (up to 0.5) each outweighed 0.3, so on a shop that is
+ * mostly women's items a man's Home stayed women's (plan section 18.2).
  */
-export const OTHER_GROUP_MINUS = 0.3;
+export const OTHER_GROUP_MINUS = 1;
 /** Without an answer, a group counts as the person's own when it holds this share of their learned group taste... */
 export const INFERRED_GROUP_SHARE = 0.6;
 /** ...and only once there is this much of it (points, after fading). */
@@ -224,7 +241,11 @@ export function resolveGroups(
 /** Newest items in the last 7 days make up the "new" pile. */
 export const NEW_PILE_DAYS = 7;
 
-export const PILES = { taste: 300, new: 150, popular: 100, explore: 50, searched: 60 } as const;
+/**
+ * `group` is the newest items of the person's own shopping groups (plan section 18.1). Without it, choosing Men only
+ * lowered the rest: an older men's item nobody looked at lately was never considered for Home at all.
+ */
+export const PILES = { taste: 300, new: 150, popular: 100, explore: 50, searched: 60, group: 200 } as const;
 
 /** How many of a search's best results are read to work out what it was about (plan section 17.1). */
 export const SEARCH_INTENT_SAMPLE = 20;

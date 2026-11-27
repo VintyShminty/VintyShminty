@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 const GAP = 8;
 const SIDE = 16;
 
-/** The three photo tips a first time seller sees in the empty box (D-066). */
+/** The three photo tips a first time seller sees in the empty box (D-067). */
 const FIRST_TIPS = [
   { key: "upright", icon: Smartphone },
   { key: "wholeItem", icon: Shirt },
@@ -59,7 +59,7 @@ async function sendPhoto(id: string, picked: PickedPhoto) {
  * The photo tiles of the sell form (docs/components.md, PhotoUploader): an empty dashed box, then square tiles with
  * a remove cross, a Cover tag on the first photo, upload progress and a retry state. Press and hold a tile, then
  * drag it to move it (the first place is the cover). A tap opens the photo full screen. Up to the platform limit.
- * `firstTips` adds three short photo tips inside the empty box, for someone who has never posted (D-066).
+ * `firstTips` adds three short photo tips inside the empty box, for someone who has never posted (D-067).
  */
 function PhotoUploader({
   maxPhotos,
@@ -106,7 +106,7 @@ function PhotoUploader({
     }
   };
 
-  // A first time seller sees the photo example once per visit to the form before the photo choices (D-066).
+  // A first time seller sees the photo example once per visit to the form before the photo choices (D-067).
   const [guide, setGuide] = useState<"hidden" | "showing" | "seen">("hidden");
   const chooseSource = () => {
     if (remaining <= 0) return;

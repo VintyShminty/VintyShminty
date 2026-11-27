@@ -171,7 +171,7 @@ function PhotoViewer({
  * a remove cross, a Cover tag on the first photo, upload progress and a retry state. Drag a tile to reorder (the first
  * place is the cover), or use the move earlier and later buttons. A click on the picture opens it full size.
  */
-/** The three photo tips a first time seller sees in the empty box (D-066). */
+/** The three photo tips a first time seller sees in the empty box (D-067). */
 const FIRST_TIPS = [
   { key: "upright", icon: Smartphone },
   { key: "wholeItem", icon: Shirt },
@@ -201,7 +201,7 @@ export function PhotoUploader({
   uploadPath?: string;
   /** Set when an admin edits this listing: turning and cropping then go through the admin routes. */
   adminListingId?: string;
-  /** Three short photo tips inside the empty box, for someone who has never posted (D-066). */
+  /** Three short photo tips inside the empty box, for someone who has never posted (D-067). */
   firstTips?: boolean;
 }) {
   const { t } = useTranslation();
@@ -211,7 +211,7 @@ export function PhotoUploader({
   const [viewing, setViewing] = useState<number | null>(null);
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [over, setOver] = useState<number | "area" | null>(null);
-  // A first time seller sees the photo example once per visit to the form before the file picker (D-066).
+  // A first time seller sees the photo example once per visit to the form before the file picker (D-067).
   const [guide, setGuide] = useState<"hidden" | "showing" | "seen">("hidden");
   const pickFiles = () => {
     if (firstTips && guide === "hidden") setGuide("showing");

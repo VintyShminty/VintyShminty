@@ -45,7 +45,7 @@ function Example({ good }: { good: boolean }) {
 }
 
 /**
- * The photo example a first time seller sees after tapping Add your photos (D-066): a drawn right and wrong photo,
+ * The photo example a first time seller sees after tapping Add your photos (D-067): a drawn right and wrong photo,
  * the three tips and Got it. Got it goes on to the photo choices, the cross closes it without adding photos.
  */
 function PhotoGuide({

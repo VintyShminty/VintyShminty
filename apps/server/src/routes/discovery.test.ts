@@ -1,7 +1,8 @@
 import { blocks, favourites, follows, listings, listingViews, profiles, userAffinities } from "@vinty/db";
-import { type CategoryNode, categoryTrail, type ReferenceData } from "@vinty/shared";
+import { type CategoryNode, CORNER_KEEP_PER_POINT, categoryTrail, type ReferenceData } from "@vinty/shared";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { recordEvents } from "../lib/events.js";
 import {
   bearer,
   buildTestApp,
@@ -733,6 +734,72 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(seen.indexOf(mensItem.id)).toBeLessThan(seen.indexOf(womensItem.id));
     });
 
+    it("considers an old item of the person's own group for Home, ahead of a new one of another group", async () => {
+      // Three months old and nobody looked at it: no pile but the person's own group would bring it along.
+      await ctx.database.db
+        .update(listings)
+        .set({ bumpedAt: new Date(Date.now() - 90 * 86_400_000) })
+        .where(eq(listings.id, mensItem.id));
+      const seen: string[] = [];
+      let cursor: string | null = null;
+      for (let page = 0; page < 10 && !(seen.includes(mensItem.id) && seen.includes(womensItem.id)); page++) {
+        const res = await get(`/v1/feed?limit=50${cursor ? `&cursor=${cursor}` : ""}`, frank.token);
+        const body = res.json() as { items: { id: string }[]; nextCursor: string | null };
+        seen.push(...body.items.map((i) => i.id));
+        cursor = body.nextCursor;
+        if (!cursor) break;
+      }
+      expect(seen).toContain(womensItem.id);
+      expect(seen.indexOf(mensItem.id)).toBeGreaterThanOrEqual(0);
+      expect(seen.indexOf(mensItem.id)).toBeLessThan(seen.indexOf(womensItem.id));
+    });
+
+    it("forgets the category taste of the other groups on a first answer, and only then", async () => {
+      const gili = await signUpTestUser(ctx, "gili", createdIds);
+      const heart = () =>
+        ctx.app.inject({
+          method: "PUT",
+          url: `/v1/listings/${womensItem.id}/favourite`,
+          headers: bearer(gili.token),
+        });
+      const answer = (shopsFor: string[]) =>
+        ctx.app.inject({
+          method: "PUT",
+          url: "/v1/me/personalisation/shops-for",
+          headers: bearer(gili.token),
+          payload: { shopsFor },
+        });
+      const lines = () =>
+        ctx.database.db
+          .select({ feature: userAffinities.feature, key: userAffinities.featureKey })
+          .from(userAffinities)
+          .where(eq(userAffinities.userId, gili.id));
+      const inWomen = (l: { feature: string; key: string }) =>
+        (l.feature === "category" || l.feature === "parent_category") &&
+        (l.key === womenId || categoryTrail(reference.categories, l.key)[0]?.id === womenId);
+
+      // No answer yet: a heart on a women's item teaches the category and the whole group.
+      expect((await heart()).statusCode).toBeLessThan(300);
+      expect((await lines()).some((l) => l.feature === "parent_category" && l.key === womenId)).toBe(true);
+
+      // The first answer: what was learned about women's categories goes, the brand stays.
+      expect((await answer(["men"])).statusCode).toBe(200);
+      const after = await lines();
+      expect(after.some(inWomen)).toBe(false);
+      expect(after.some((l) => l.feature === "brand")).toBe(true);
+
+      // A corner opened after answering survives a later change of the answer.
+      await ctx.app.inject({
+        method: "DELETE",
+        url: `/v1/listings/${womensItem.id}/favourite`,
+        headers: bearer(gili.token),
+      });
+      expect((await heart()).statusCode).toBeLessThan(300);
+      expect((await lines()).some(inWomen)).toBe(true);
+      expect((await answer(["men", "kids"])).statusCode).toBe(200);
+      expect((await lines()).some(inWomen)).toBe(true);
+    });
+
     it("learns only the corner when the person hearts something outside their groups", async () => {
       const res = await ctx.app.inject({
         method: "PUT",
@@ -746,6 +813,52 @@ describe.skipIf(!databaseUrl)("discovery", () => {
         .where(eq(userAffinities.userId, frank.id));
       expect(lines.some((l) => l.feature === "category")).toBe(true);
       expect(lines.some((l) => l.feature === "parent_category" && l.key === womenId)).toBe(false);
+    });
+
+    it("lets that corner drift away when the person looks at their own group again", async () => {
+      const corner = async () => {
+        const rows = await ctx.database.db
+          .select({ key: userAffinities.featureKey, score: userAffinities.score })
+          .from(userAffinities)
+          .where(and(eq(userAffinities.userId, frank.id), eq(userAffinities.feature, "category")));
+        return rows.find((r) => categoryTrail(reference.categories, r.key)[0]?.id === womenId)?.score ?? 0;
+      };
+      const before = await corner();
+      expect(before).toBeGreaterThan(0);
+      // An open is worth 1 point: the corner keeps CORNER_KEEP_PER_POINT of what it was.
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: mensItem.id }]);
+      expect(await corner()).toBeCloseTo(before * CORNER_KEEP_PER_POINT, 2);
+      // Looking at the women's item again does not shrink it.
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: womensItem.id }]);
+      expect(await corner()).toBeGreaterThan(before * CORNER_KEEP_PER_POINT);
+    });
+
+    it("fades that corner to half in 7 days and the person's own group in 30, when the next look is written", async () => {
+      const read = async () => {
+        const rows = await ctx.database.db
+          .select({ key: userAffinities.featureKey, score: userAffinities.score })
+          .from(userAffinities)
+          .where(and(eq(userAffinities.userId, frank.id), eq(userAffinities.feature, "category")));
+        const top = (key: string) => categoryTrail(reference.categories, key)[0]?.id;
+        return {
+          women: rows.find((r) => top(r.key) === womenId)?.score ?? 0,
+          men: rows.find((r) => top(r.key) !== womenId)?.score ?? 0,
+        };
+      };
+      const before = await read();
+      expect(before.men).toBeGreaterThan(0);
+      // Everything frank learned was a week ago.
+      await ctx.database.db
+        .update(userAffinities)
+        .set({ scoredAt: new Date(Date.now() - 7 * 86_400_000) })
+        .where(eq(userAffinities.userId, frank.id));
+      // One more look at each, the women's one first so the men's look does not shrink what is being measured.
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: mensItem.id }]);
+      const shrunk = before.women * CORNER_KEEP_PER_POINT;
+      await recordEvents(ctx.app, frank.id, [{ type: "listing_open", listingId: womensItem.id }]);
+      const after = await read();
+      expect(after.women).toBeCloseTo(shrunk * 0.5 + 1, 1);
+      expect(after.men).toBeCloseTo(before.men * 0.5 ** (7 / 30) + 1, 1);
     });
   });
 });
