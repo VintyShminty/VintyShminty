@@ -1499,6 +1499,8 @@
     "listedAt": "מחיר המודעה {{price}}",
     "percentOff": "{{percent}}% הנחה",
     "yourPrice": "המחיר שלכם",
+    "note": "הודעה (לא חובה)",
+    "notePlaceholder": "כמה מילים שיצורפו להצעה",
     "placeholder": "0",
     "send": "שליחת הצעה",
     "sendAmount": "הצעה של {{amount}}",

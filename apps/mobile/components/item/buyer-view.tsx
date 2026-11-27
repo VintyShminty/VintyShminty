@@ -26,7 +26,9 @@ import { StarRating } from "@/components/ui/star-rating";
 import { Text } from "@/components/ui/text";
 import { TopBar } from "@/components/ui/top-bar";
 import { api } from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
 import { useSellerBundle } from "@/lib/bundle-queries";
+import { sendNewMessage } from "@/lib/chat-send";
 import { similarQuery } from "@/lib/item-queries";
 import { useStartConversation } from "@/lib/messaging-queries";
 import { formatMoney } from "@/lib/money";
@@ -106,6 +108,7 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   const bundleSeller = useSellerBundle(listing.seller.id);
   const dwell = useDwell(listing.id);
   const startChat = useStartConversation();
+  const me = authClient.useSession().data?.user.id;
   const existingChat = listing.viewer.conversationId;
   // A new chat about a sold item is refused by the server, an old one stays open.
   const canMessage = Boolean(existingChat) || listing.status !== "sold";
@@ -145,9 +148,11 @@ function BuyerView({ listing }: { listing: ListingDetail }) {
   };
 
   // The offer goes into the chat about this item (made first when there is none), then the chat opens.
-  const makeOffer = async (amountMinor: number) => {
+  const makeOffer = async (amountMinor: number, note: string) => {
     const chatId = existingChat ?? (await startChat.mutateAsync(listing.id)).id;
     await sendOffer.mutateAsync({ conversationId: chatId, amountMinor });
+    // The note follows the offer as a normal message, so it sits right under the offer card.
+    if (note && me) sendNewMessage({ conversationId: chatId, senderId: me, kind: "text", body: note });
     setTimeout(() => router.push({ pathname: "/conversation/[id]", params: { id: chatId } }), 250);
   };
   const sold = listing.status === "sold";

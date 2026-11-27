@@ -10,6 +10,7 @@ import { OfferDialog } from "@/components/offer/offer-dialog";
 import { useViewer } from "@/components/site-context";
 import { clientApi } from "@/lib/api-client";
 import { ApiClientError } from "@/lib/api-error";
+import { sendNewMessage } from "@/lib/chat-send";
 import { useStartConversation } from "@/lib/messaging-queries";
 import { useSendOffer } from "@/lib/order-flow-queries";
 import { cn } from "@/lib/utils";
@@ -77,9 +78,12 @@ export function BuyButtons({
     }
   };
 
-  const makeOffer = async (amountMinor: number) => {
+  const makeOffer = async (amountMinor: number, note: string) => {
     const chatId = conversationId ?? (await startChat.mutateAsync(listingId)).id;
     await sendOffer.mutateAsync({ conversationId: chatId, amountMinor });
+    // The note follows the offer as a normal message, so it sits right under the offer card.
+    if (note && viewer)
+      sendNewMessage({ conversationId: chatId, senderId: viewer.id, kind: "text", body: note });
     router.push(`/${lang}/inbox/${chatId}`);
   };
   const openOffer = () => (viewer ? setOfferOpen(true) : ask());

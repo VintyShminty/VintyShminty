@@ -1470,6 +1470,8 @@
     "listedAt": "Listed at {{price}}",
     "percentOff": "{{percent}}% off",
     "yourPrice": "Your price",
+    "note": "Message (optional)",
+    "notePlaceholder": "A short note to go with your offer",
     "placeholder": "0",
     "send": "Send offer",
     "sendAmount": "Offer {{amount}}",
