@@ -1,6 +1,16 @@
-import { blocks, favourites, follows, listings, listingViews, profiles, userAffinities } from "@vinty/db";
+import { readFileSync } from "node:fs";
+import {
+  blocks,
+  favourites,
+  follows,
+  listings,
+  listingViews,
+  profiles,
+  userAffinities,
+  userSettings,
+} from "@vinty/db";
 import { type CategoryNode, CORNER_KEEP_PER_POINT, categoryTrail, type ReferenceData } from "@vinty/shared";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { recordEvents } from "../lib/events.js";
 import {
@@ -859,6 +869,69 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       const after = await read();
       expect(after.women).toBeCloseTo(shrunk * 0.5 + 1, 1);
       expect(after.men).toBeCloseTo(before.men * 0.5 ** (7 / 30) + 1, 1);
+    });
+
+    it("the one-time cleanup forgets the other groups for people who answered before the rule, and nobody else", async () => {
+      const cleanup = readFileSync(
+        new URL("../../../../packages/db/drizzle/0018_forget_other_groups_once.sql", import.meta.url),
+        "utf8",
+      );
+      const [early, both, silent] = (await Promise.all(
+        ["early", "both", "silent"].map((n) => signUpTestUser(ctx, n, createdIds)),
+      )) as Person[];
+      // Everyone learns from a women's and a men's item before any answer.
+      for (const p of [early, both, silent]) {
+        await recordEvents(ctx.app, p.id, [
+          { type: "favourite", listingId: womensItem.id },
+          { type: "favourite", listingId: mensItem.id },
+        ]);
+      }
+      // The answer saved the old way: nothing was forgotten.
+      for (const [p, shopsFor] of [
+        [early, ["men"]],
+        [both, ["women", "men"]],
+      ] as const) {
+        await ctx.database.db
+          .insert(userSettings)
+          .values({ userId: p.id, shopsFor: [...shopsFor] })
+          .onConflictDoUpdate({ target: userSettings.userId, set: { shopsFor: [...shopsFor] } });
+      }
+
+      const top = (key: string) => categoryTrail(reference.categories, key)[0]?.slug;
+      class Undo extends Error {}
+      const seen: Record<string, { women: number; men: number; brand: number }> = {};
+      // Inside a transaction that is rolled back, so the other test files' people keep their taste.
+      await ctx.database.db
+        .transaction(async (tx) => {
+          for (const when of ["before", "after"]) {
+            if (when === "after") await tx.execute(sql.raw(cleanup));
+            for (const [name, p] of Object.entries({ early, both, silent })) {
+              const rows = await tx
+                .select({ feature: userAffinities.feature, key: userAffinities.featureKey })
+                .from(userAffinities)
+                .where(eq(userAffinities.userId, p.id));
+              const cats = rows.filter((r) => r.feature === "category" || r.feature === "parent_category");
+              seen[`${name} ${when}`] = {
+                women: cats.filter((r) => top(r.key) === "women").length,
+                men: cats.filter((r) => top(r.key) === "men").length,
+                brand: rows.filter((r) => r.feature === "brand").length,
+              };
+            }
+          }
+          throw new Undo();
+        })
+        .catch((e) => {
+          if (!(e instanceof Undo)) throw e;
+        });
+
+      expect(seen["early before"]?.women).toBeGreaterThan(1);
+      // Answered Men before the rule: the women's lines go, the men's lines and the brand stay.
+      expect(seen["early after"]).toEqual({ ...seen["early before"], women: 0 });
+      expect(seen["early after"]?.men).toBeGreaterThan(0);
+      expect(seen["early after"]?.brand).toBeGreaterThan(0);
+      // Picked both groups, or never answered: untouched.
+      expect(seen["both after"]).toEqual(seen["both before"]);
+      expect(seen["silent after"]).toEqual(seen["silent before"]);
     });
   });
 });
