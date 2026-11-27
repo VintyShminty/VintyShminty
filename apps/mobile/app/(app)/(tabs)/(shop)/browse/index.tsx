@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useRouter, useScrollToTop } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,13 +13,17 @@ import { Text } from "@/components/ui/text";
 import { useTileCovers } from "@/lib/browse-covers";
 import { type BrowseGender, restFor, type SideTile, tilesFor } from "@/lib/browse-tiles";
 import { categoryIcon } from "@/lib/category-icons";
+import { shopsForQuery } from "@/lib/feed-queries";
 import { useLocalName, useReference } from "@/lib/reference";
 import { readPref, writePref } from "@/lib/secure-prefs";
 
 const GENDER_PREF = "browse.gender";
-const GENDERS: BrowseGender[] = ["women", "men"];
 
-const savedGender = (): BrowseGender => (readPref(GENDER_PREF) === "men" ? "men" : "women");
+/** The side chosen last on this phone, or null when nothing is remembered yet. */
+const savedGender = (): BrowseGender | null => {
+  const saved = readPref(GENDER_PREF);
+  return saved === "women" || saved === "men" ? saved : null;
+};
 
 /** Rows of two tiles with their covers. A single tile keeps its half width. */
 function TileGrid({
@@ -58,7 +63,7 @@ function TileGrid({
 }
 
 /**
- * The Browse tab: the search bar, a Women and Men switch and every category of that side as photo tiles, the main ten
+ * The Browse tab: the search bar, a Women and Men switch (Men first for an account that shops only for men) and every category of that side as photo tiles, the main ten
  * first, each showing the newest listing's cover (stock photo until it arrives). No More on a phone: the screen scrolls,
  * so everything is simply there (D-055). Under the grid the whole category list follows as rows, on the same page (D-059).
  */
@@ -72,7 +77,12 @@ export default function Browse() {
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef);
 
-  const [gender, setGender] = useState<BrowseGender>(savedGender);
+  // Men comes first when the account shops only for men, and is the side shown until a choice is remembered (D-065).
+  const picks = useQuery(shopsForQuery()).data?.shopsFor ?? [];
+  const menFirst = picks.includes("men") && !picks.includes("women");
+  const genders: BrowseGender[] = menFirst ? ["men", "women"] : ["women", "men"];
+  const [saved, setSaved] = useState<BrowseGender | null>(savedGender);
+  const gender = saved ?? genders[0] ?? "women";
   const tiles = useMemo(() => tilesFor(gender), [gender]);
   const rest = useMemo(() => restFor(gender), [gender]);
   // The main ten first, then the rest, in one list so covers never repeat.
@@ -80,7 +90,7 @@ export default function Browse() {
   const covers = useTileCovers(gender, all, true);
 
   const choose = useCallback((next: BrowseGender) => {
-    setGender(next);
+    setSaved(next);
     writePref(GENDER_PREF, next);
   }, []);
   const open = (tile: SideTile) =>
@@ -103,7 +113,7 @@ export default function Browse() {
         </Text>
         <SearchBar />
         <View className="flex-row gap-sm">
-          {GENDERS.map((g) => (
+          {genders.map((g) => (
             <Chip key={g} label={t(`browse.groups.${g}`)} selected={gender === g} onPress={() => choose(g)} />
           ))}
         </View>

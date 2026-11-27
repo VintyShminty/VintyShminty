@@ -3,17 +3,22 @@ import {
   BROWSE_MORE_TILES,
   BROWSE_TILES,
   type BrowseGender,
+  type BrowseRootSide,
   type BrowseTile,
   browseCoversSchema,
   browseRestFor,
   browseTilesFor,
   type CoverSide,
+  findBrowseTile,
 } from "@vinty/shared";
 import { BrowseMoreTile } from "@/components/browse-more";
 import { PhotoTile } from "@/components/photo-tile";
 import { serverApi } from "@/lib/api";
 import { tilePhoto } from "@/lib/browse-photos";
+import { subTypePhoto } from "@/lib/browse-sub-photos";
 import { getT, type Lang } from "@/lib/i18n";
+import { getReference } from "@/lib/reference";
+import { subTypesOf } from "@/lib/tile-types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -31,6 +36,9 @@ async function coversOf(lang: Lang, side: CoverSide): Promise<Record<string, str
   }).catch(() => null);
   return page?.covers ?? {};
 }
+
+/** Behind More in the Explore panel: only that side's own tiles. Kids, Home, Designer and the rest have their own chips there (D-065). */
+const sideRest = (gender: BrowseGender) => browseRestFor(gender).filter((tile) => tile.group);
 
 /**
  * The photo tiles of D-019 row 5, each linking to `/[lang]/browse/[tileKey]`. A server component, so the links are
@@ -62,10 +70,16 @@ export async function BrowseTiles({
   sizes?: string;
 }) {
   const t = getT(lang);
+  // A More that would hide a single tile (Bags for Men) shows that tile in its place instead.
+  const lone = (g: BrowseGender) => sideRest(g).length === 1;
+  if (rest && lone(rest)) return null;
   const tiles: (BrowseTile & { group?: BrowseGender })[] = rest
-    ? browseRestFor(rest)
+    ? sideRest(rest)
     : gender
-      ? browseTilesFor(gender).map((tile) => ({ ...tile, group: gender }))
+      ? [...browseTilesFor(gender), ...(lone(gender) ? sideRest(gender) : [])].map((tile) => ({
+          ...tile,
+          group: gender,
+        }))
       : more
         ? BROWSE_MORE_TILES
         : BROWSE_TILES;
@@ -78,7 +92,7 @@ export async function BrowseTiles({
     if (url) taken.add(url);
     return url;
   });
-  const behindMore = gender ? browseRestFor(gender) : [];
+  const behindMore = gender ? sideRest(gender) : [];
   const previews = behindMore.flatMap((tile) => {
     const image = tilePhoto(tile.photo);
     return image ? [image] : [];
@@ -96,7 +110,7 @@ export async function BrowseTiles({
           className={tileClassName}
         />
       ))}
-      {withMore && gender ? (
+      {withMore && gender && lone(gender) ? null : withMore && gender ? (
         <BrowseMoreTile
           href={`/${lang}/browse`}
           label={t("browse.more")}
@@ -116,6 +130,58 @@ export async function BrowseTiles({
           className={tileClassName}
         />
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * One main category's chip in the Explore panel (D-065): its item types as photo tiles (the stock picture of each
+ * type, no extra calls, the top bar is on every page), each opening that type's results, then an All tile for the
+ * whole category. Empty when the reference data cannot be loaded, the All tile still shows.
+ */
+export async function BrowseRootTiles({
+  lang,
+  side,
+  className,
+  tileClassName = "h-[120px]",
+  sizes,
+}: {
+  lang: Lang;
+  side: BrowseRootSide;
+  className?: string;
+  tileClassName?: string;
+  sizes?: string;
+}) {
+  const t = getT(lang);
+  const tile = findBrowseTile(side.tile);
+  if (!tile) return null;
+  const reference = await getReference(lang).catch(() => null);
+  const subs = reference ? subTypesOf(reference.categories, { slugs: [side.slug] }) : [];
+  const base = `/${lang}/browse/${tile.key}`;
+  return (
+    <div className={cn("grid gap-md", className)}>
+      {subs.map((sub) => {
+        const image = subTypePhoto(sub.key);
+        return (
+          <PhotoTile
+            key={sub.key}
+            href={`${base}?type=${sub.key}`}
+            label={sub.name[lang]}
+            image={image}
+            photo={image ? undefined : tile.photo}
+            sizes={sizes}
+            className={tileClassName}
+          />
+        );
+      })}
+      <PhotoTile
+        href={base}
+        label={t("browse.all")}
+        accessibleName={t("filters.allIn", { name: t(`browse.groups.${side.key}`) })}
+        photo={tile.photo}
+        sizes={sizes}
+        className={tileClassName}
+      />
     </div>
   );
 }

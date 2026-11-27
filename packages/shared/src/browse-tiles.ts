@@ -157,6 +157,21 @@ export const BROWSE_MORE_PHOTO = "20-t-shirt.jpg";
 export const BROWSE_GENDERS = ["women", "men"] as const;
 export type BrowseGender = (typeof BROWSE_GENDERS)[number];
 
+/**
+ * The other main categories of the website's Explore panel, as chips after Women and Men (D-065). Each lists the item
+ * types of its category (`slug`) as photo tiles, and they open the results of `tile` on that type (`?type=`).
+ */
+export const BROWSE_ROOT_SIDES = [
+  { key: "kids", tile: "kids", slug: "kids" },
+  { key: "home", tile: "home", slug: "home" },
+  { key: "electronics", tile: "electronics", slug: "electronics" },
+  { key: "media", tile: "media", slug: "media" },
+  { key: "hobbies", tile: "hobbies", slug: "hobbies" },
+  { key: "sports", tile: "sportswear", slug: "sports" },
+  { key: "designer", tile: "designer", slug: "designer" },
+] as const;
+export type BrowseRootSide = (typeof BROWSE_ROOT_SIDES)[number];
+
 /** Men's tiles that need their own fallback picture, because the shared one shows a woman or a woman's item. */
 const MEN_PHOTOS: Record<string, string> = {
   coats: "24-coat.jpg",
