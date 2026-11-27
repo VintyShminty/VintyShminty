@@ -362,8 +362,16 @@ export async function resolveSuggestion(
   /** The upload keys of the photos that were sent, in order, to place the photo tips. */
   sentKeys: string[] = [],
 ): Promise<PhotoSuggestion> {
+  // A brand counts only when the model says where it read it (a tag or a logo on the item). A brand with no place is
+  // a guess from the look of the item, and is dropped. The place itself never leaves the server.
+  const seenOn = (raw.brandSeenOn ?? "").trim().toLowerCase();
+  const brandWasRead = seenOn === "tag" || seenOn === "logo";
   // Up to 3 real leaf categories in the order the model gave them. Made up codes and repeats are dropped.
-  const { categories, colourIds, brand } = await resolveCommon(raw, catalog, brandMatcher);
+  const { categories, colourIds, brand } = await resolveCommon(
+    brandWasRead ? raw : { ...raw, brandText: null },
+    catalog,
+    brandMatcher,
+  );
 
   const suggestion: PhotoSuggestion = {
     categories,

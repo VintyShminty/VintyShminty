@@ -118,6 +118,7 @@ describe("resolveSuggestion", () => {
           { code: " c2 ", confidence: 0.7 },
           { code: "C1", confidence: 0.2 },
         ],
+        brandSeenOn: "tag",
         brandText: "ZARA",
         colours: ["K1", "K3"],
       },
@@ -160,8 +161,21 @@ describe("resolveSuggestion", () => {
   });
 
   it("keeps a brand we do not know as text only", async () => {
-    const s = await resolveSuggestion({ brandText: "Obscure Label" }, catalog, matcher);
+    const s = await resolveSuggestion({ brandSeenOn: "logo", brandText: "Obscure Label" }, catalog, matcher);
     expect(s.brand).toEqual({ id: null, name: "Obscure Label" });
+  });
+
+  it("drops a brand the model could not place on a tag or logo", async () => {
+    const guessed = await resolveSuggestion({ brandSeenOn: "none", brandText: "Zara" }, catalog, matcher);
+    expect(guessed.brand).toBeNull();
+    const noPlace = await resolveSuggestion({ brandText: "Zara" }, catalog, matcher);
+    expect(noPlace.brand).toBeNull();
+    const madeUpPlace = await resolveSuggestion(
+      { brandSeenOn: "style", brandText: "Zara" },
+      catalog,
+      matcher,
+    );
+    expect(madeUpPlace.brand).toBeNull();
   });
 
   it("copes with an empty answer", async () => {
