@@ -5,6 +5,7 @@ import {
   formatClock,
   formatPrice,
   minorToPriceText,
+  OFFER_NOTE_MAX,
   offerAmountProblem,
   pricePreviewSchema,
   priceTextToMinor,
@@ -23,8 +24,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * The dialog to make or counter an offer (D-019 row 8, the app's offer sheet): quick tiles with the price they work
- * out to, a price field, what the buyer would pay with protection, the offers left today and the Send button that
- * repeats the amount. A buyer has a daily limit, a seller's counters are not counted so they show no limit line.
+ * out to, a price field, what the buyer would pay with protection, an optional short message, the offers left today and
+ * the Send button that repeats the amount. A buyer has a daily limit, a seller's counters are not counted so they show no limit line.
  */
 export function OfferDialog({
   open,
@@ -41,13 +42,15 @@ export function OfferDialog({
   listingPriceMinor: number;
   currency: string;
   showQuota: boolean;
-  /** Sends the amount. Throws when the server says no, the dialog shows why. */
-  onSend: (amountMinor: number) => Promise<void>;
+  /** Sends the amount, then the note (trimmed, empty when none) as a chat message. Throws when the server says no to the offer, the dialog shows why. */
+  onSend: (amountMinor: number, note: string) => Promise<void>;
   onClose: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const fieldId = useId();
+  const noteId = useId();
   const [text, setText] = useState("");
+  const [note, setNote] = useState("");
   const [touched, setTouched] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -56,6 +59,7 @@ export function OfferDialog({
   useEffect(() => {
     if (open) {
       setText("");
+      setNote("");
       setTouched(false);
       setServerError(null);
       setBusy(false);
@@ -79,7 +83,7 @@ export function OfferDialog({
     setBusy(true);
     setServerError(null);
     try {
-      await onSend(amount);
+      await onSend(amount, note.trim());
       onClose();
     } catch (err) {
       setServerError(offerErrorKey(err));
@@ -176,6 +180,20 @@ export function OfferDialog({
               currency={preview.data.currency}
             />
           ) : null}
+        </div>
+        <div className="flex flex-col gap-xs">
+          <label htmlFor={noteId} className="text-body-sm font-semibold text-text-2">
+            {t("offer.note")}
+          </label>
+          <textarea
+            id={noteId}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            maxLength={OFFER_NOTE_MAX}
+            rows={2}
+            placeholder={t("offer.notePlaceholder")}
+            className="resize-none rounded-control border border-border bg-background px-md py-sm text-body text-text-1 outline-none placeholder:text-text-4 focus:border-primary"
+          />
         </div>
         {serverError ? <Notice kind="error">{t(serverError)}</Notice> : null}
         {showQuota && quota.data ? (

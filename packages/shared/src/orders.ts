@@ -41,6 +41,9 @@ export const offerSchema = z.object({
 });
 export type Offer = z.infer<typeof offerSchema>;
 
+/** The most characters of the short note that can go with an offer. It is sent as a normal chat message right after the offer. */
+export const OFFER_NOTE_MAX = 200;
+
 /** POST /v1/conversations/:id/offers and POST /v1/offers/:id/counter */
 export const offerInputSchema = z.object({ amountMinor: amountSchema });
 export type OfferInput = z.infer<typeof offerInputSchema>;

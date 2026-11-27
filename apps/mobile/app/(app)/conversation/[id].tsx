@@ -295,9 +295,11 @@ function ConversationScreen() {
             listingPriceMinor={counterOf?.listingPriceMinor ?? conversation.listing.priceMinor}
             currency={conversation.listing.currency}
             showQuota={conversation.role === "buyer"}
-            onSend={async (amountMinor) => {
+            onSend={async (amountMinor, note) => {
               if (counterOf) await counterOffer.mutateAsync({ offerId: counterOf.id, amountMinor });
               else await sendOffer.mutateAsync({ conversationId: id, amountMinor });
+              // The note follows the offer as a normal message, so it sits right under the offer card.
+              if (note && me) sendNewMessage({ conversationId: id, senderId: me, kind: "text", body: note });
             }}
           />
         ) : null}

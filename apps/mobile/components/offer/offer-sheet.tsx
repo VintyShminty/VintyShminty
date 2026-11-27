@@ -1,6 +1,6 @@
 import { type BottomSheetModal, BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useQuery } from "@tanstack/react-query";
-import { QUICK_OFFER_PERCENT, quickOfferAmount } from "@vinty/shared";
+import { OFFER_NOTE_MAX, QUICK_OFFER_PERCENT, quickOfferAmount } from "@vinty/shared";
 import { type Ref, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
@@ -25,8 +25,8 @@ type OfferSheetProps = {
   mode: "make" | "counter";
   listingPriceMinor: number;
   currency: string;
-  /** Sends the amount. Throws when the server says no, the sheet shows why. */
-  onSend: (amountMinor: number) => Promise<void>;
+  /** Sends the amount, then the note (trimmed, empty when none) as a chat message. Throws when the server says no to the offer, the sheet shows why. */
+  onSend: (amountMinor: number, note: string) => Promise<void>;
   /** Buyers have a daily limit. Counters from a seller are not counted, so they show no limit line. */
   showQuota: boolean;
 };
@@ -48,14 +48,15 @@ function errorKeyFor(err: unknown): string {
 
 /**
  * The sheet to make or counter an offer (docs/components.md, OfferSheet): quick tiles with the price they work out to,
- * a price field, what the buyer would pay with protection, the offers left today, and the Send button that repeats
- * the amount.
+ * a price field, what the buyer would pay with protection, an optional short message, the offers left today, and the
+ * Send button that repeats the amount.
  */
 function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota }: OfferSheetProps) {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const isHe = i18n.language === "he";
   const [text, setText] = useState("");
+  const [note, setNote] = useState("");
   const [touched, setTouched] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -78,6 +79,7 @@ function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota 
 
   const reset = () => {
     setText("");
+    setNote("");
     setTouched(false);
     setServerError(null);
     setBusy(false);
@@ -88,7 +90,7 @@ function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota 
     setBusy(true);
     setServerError(null);
     try {
-      await onSend(amount);
+      await onSend(amount, note.trim());
       if (ref && typeof ref === "object") ref.current?.dismiss();
     } catch (err) {
       setServerError(errorKeyFor(err));
@@ -166,11 +168,14 @@ function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota 
                 keyboardType="decimal-pad"
                 accessibilityLabel={t("offer.yourPrice")}
                 maxLength={9}
-                className={cn(
-                  "flex-1 text-heading text-text-1",
-                  isHe ? "font-heebo-700" : "font-aileron-700",
-                )}
-                style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+                // No lineHeight on a one-line box: iOS puts the text at the bottom of it (the English font showed it most).
+                className={cn("flex-1 text-[18px] text-text-1", isHe ? "font-heebo-700" : "font-aileron-700")}
+                textAlignVertical="center"
+                style={{
+                  textAlign: isHe ? "right" : "left",
+                  writingDirection: isHe ? "rtl" : "ltr",
+                  paddingVertical: 0,
+                }}
               />
             </View>
             {touched && fieldError ? (
@@ -184,6 +189,28 @@ function OfferSheet({ ref, mode, listingPriceMinor, currency, onSend, showQuota 
                 currency={preview.data.currency}
               />
             ) : null}
+          </View>
+
+          <View className="gap-xs">
+            <Text variant="bodySmall" weight={500} className="text-text-2">
+              {t("offer.note")}
+            </Text>
+            <BottomSheetTextInput
+              value={note}
+              onChangeText={setNote}
+              placeholder={t("offer.notePlaceholder")}
+              placeholderTextColor={colors.text4}
+              selectionColor={colors.accent}
+              accessibilityLabel={t("offer.note")}
+              maxLength={OFFER_NOTE_MAX}
+              multiline
+              textAlignVertical="top"
+              className={cn(
+                "min-h-[72px] rounded-control border border-border bg-background px-md pb-sm pt-sm text-body text-text-1",
+                isHe ? "font-heebo-400" : "font-aileron-400",
+              )}
+              style={{ textAlign: isHe ? "right" : "left", writingDirection: isHe ? "rtl" : "ltr" }}
+            />
           </View>
 
           {serverError ? <Banner variant="error">{t(serverError)}</Banner> : null}
