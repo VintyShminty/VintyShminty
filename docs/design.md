@@ -909,6 +909,7 @@ Proposals, not rules, until explicitly promoted above.
 - **Rationale:** Eden's Home was women's items first, and choosing Men changed almost nothing: the shop is mostly women's items, the minus was smaller than a price drop, and taste learned before the answer was exempt from it. Eden on the model he wants: "i can start seeing women clothing after knowingly looking for them, not before and then i can continue looking for men stuff and women will drift away [...] its a constant breathing change".
 - **Trade-off:** This replaces the 2026-10-16 choice that a corner fades at the normal speed. Someone who shops two groups and answered only one has to keep showing interest in the other, or switch it on in Shopping preferences. With few items in a person's group, the top of Home repeats more.
 - **Implementation:** `docs/plans/home-feed.md` sections 18 and 19 (with measurements). `PILES.group`, `OTHER_GROUP_MINUS`, `CORNER_HALF_LIFE_DAYS` and `CORNER_KEEP_PER_POINT` in `packages/shared/src/recommendations.ts`, `apps/server/src/lib/feed.ts`, `lib/events.ts` (`forgetOtherGroups`, `recordEvents`), `routes/events.ts`.
+- **Update 2026-11-27:** The first answer rule never ran for people who answered before it went live, so a one-time cleanup (migration `0018_forget_other_groups_once.sql`, `docs/plans/home-feed.md` section 20) does it once for everyone with an answer.
 - **References:** D-048, D-022
 
 ### D-067 : First time sellers get three photo tips and a drawn photo example

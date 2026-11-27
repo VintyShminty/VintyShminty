@@ -777,3 +777,30 @@ Where the 5 items of one women's category sit on Home (card numbers, first 50). 
 - What opens a corner and how big it has to be to count (`CORNER_MIN`). A person with a lot of taste in their own group needs more than one open for a corner to reach the first cards. A search still gets its 2 cards in 20 for a week (section 17).
 - Other groups stay on Home, lower down, never hidden (section 11.2).
 - The nightly cleanup still uses 30 days to decide when a line is small enough to delete. A corner line is read at its quick speed, so it only lives a little longer in storage than it counts.
+
+## 20. One-time cleanup for people who answered early (2026-11-27)
+
+### Why
+
+Section 18.3 forgets the other groups' category taste at the moment of a first answer. Everyone who answered "What do you shop for?" before that rule went live never had it run. Eden's own account showed it the same evening: Men switched on, yet the first seven cards of Home were women's, with the reasons "you like this seller" and "you like Women".
+
+Measured on the sample data, a person with 40 opens of women's items and Men saved the old way:
+
+| Step | Men's in the first 20 | Women's in the first 20 |
+|---|---|---|
+| Men picked, nothing else | 2 | 17 |
+| After 12 opens of men's items | 15 | 4 |
+| After switching Men off and on (the first answer rule runs) | 19 | 0 |
+
+With 8 hearts on top, 12 opens of men's items still left 10 women's in the first 20. The drift of section 19 is sized for a corner, not for a whole history.
+
+### 20.1 The rule
+
+Migration `0018_forget_other_groups_once.sql` runs once per database and does for every person with an answer what a first answer does now: it deletes their category and parent category taste lines under Women, Men or Kids when that group is not in their answer.
+
+- Brands, sellers, sizes, prices, colours and every other line stay.
+- People without an answer, and groups a person did pick, are not touched.
+- A corner someone opened on purpose before the cleanup goes too. It comes back when they look again (section 19).
+- It cannot be undone. Nothing in the app or the website changes, and no phone update is needed.
+
+Test: `discovery.test.ts`, "the one-time cleanup forgets the other groups".
