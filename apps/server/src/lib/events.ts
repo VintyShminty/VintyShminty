@@ -24,8 +24,9 @@ import {
   type ReferenceData,
   type UserEventType,
 } from "@vinty/shared";
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { categorySubtreeIds } from "./discovery.js";
 
 type App = Pick<FastifyInstance, "db" | "reference" | "log">;
 
@@ -359,6 +360,32 @@ export async function resetLearnedTaste(db: Tx, userId: string): Promise<void> {
   await db.delete(userEvents).where(eq(userEvents.userId, userId));
   await db.delete(userAffinities).where(eq(userAffinities.userId, userId));
   await db.delete(feedSnapshots).where(eq(feedSnapshots.userId, userId));
+}
+
+/**
+ * A first answer to "What do you shop for?" forgets the category taste learned in the other groups (plan section 18.3).
+ * Before the answer every tap taught as usual, and with a shop that is mostly one group that taste kept the whole
+ * group on top after the person said it is not theirs. Brands, sellers, sizes and the rest stay. A corner the person
+ * opens after answering is learned as before.
+ */
+export async function forgetOtherGroups(
+  db: Tx,
+  userId: string,
+  tree: readonly CategoryNode[],
+  shopsFor: readonly string[],
+): Promise<void> {
+  const others = [...groupRootIds(tree)].flatMap(([slug, id]) => (shopsFor.includes(slug) ? [] : [id]));
+  const ids = [...new Set(others.flatMap((id) => categorySubtreeIds(tree, id)))];
+  if (ids.length === 0) return;
+  await db
+    .delete(userAffinities)
+    .where(
+      and(
+        eq(userAffinities.userId, userId),
+        inArray(userAffinities.feature, ["category", "parent_category"]),
+        inArray(userAffinities.featureKey, ids),
+      ),
+    );
 }
 
 /** Everything the feed keeps about a person, hides included. Used when an account is closed. */

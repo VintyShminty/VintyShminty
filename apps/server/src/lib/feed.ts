@@ -693,7 +693,12 @@ async function loadCandidates(
   );
   const searchedAny = or(...searchParts);
 
-  const [tastePile, newPile, popularPile, explorePile, searchedPile] = await Promise.all([
+  // The person's own groups always come along, old or new, so there is something of theirs to put first (section 18.1).
+  const ownGroupIds = [
+    ...new Set([...(taste?.groups ?? [])].flatMap((id) => categorySubtreeIds(reference.categories, id))),
+  ];
+
+  const [tastePile, newPile, popularPile, explorePile, searchedPile, groupPile] = await Promise.all([
     tasteConditions.length
       ? select(tasteConditions, [desc(listings.bumpedAt), desc(listings.id)], PILES.taste)
       : Promise.resolve([]),
@@ -712,10 +717,17 @@ async function loadCandidates(
     searchedAny
       ? select([searchedAny], [desc(listings.bumpedAt), desc(listings.id)], PILES.searched)
       : Promise.resolve([]),
+    ownGroupIds.length
+      ? select(
+          [inArray(listings.categoryId, ownGroupIds)],
+          [desc(listings.bumpedAt), desc(listings.id)],
+          PILES.group,
+        )
+      : Promise.resolve([]),
   ]);
 
   const byId = new Map<string, Candidate>();
-  for (const row of [...tastePile, ...newPile, ...popularPile, ...searchedPile]) {
+  for (const row of [...tastePile, ...newPile, ...popularPile, ...searchedPile, ...groupPile]) {
     if (!byId.has(row.id)) byId.set(row.id, toCandidate(row, false));
   }
   for (const row of explorePile) {

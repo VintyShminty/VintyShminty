@@ -191,9 +191,11 @@ export const FRESH_SLOT_HOURS = 7 * 24;
 export const SHUFFLE_SIZE = 0.1;
 /**
  * Shopping groups (Women, Men, Kids, plan section 11). Items in a group the person does not shop for move this much
- * lower on Home, never hidden (Eden: "a bit lower"). A strong taste match is worth about 1.
+ * lower on Home, never hidden. 0.3 at first (Eden: "a bit lower"), 1 since 2026-11-27: a price drop, a popular week
+ * or a card of the person's own group that was scrolled past (up to 0.5) each outweighed 0.3, so on a shop that is
+ * mostly women's items a man's Home stayed women's (plan section 18.2).
  */
-export const OTHER_GROUP_MINUS = 0.3;
+export const OTHER_GROUP_MINUS = 1;
 /** Without an answer, a group counts as the person's own when it holds this share of their learned group taste... */
 export const INFERRED_GROUP_SHARE = 0.6;
 /** ...and only once there is this much of it (points, after fading). */
@@ -224,7 +226,11 @@ export function resolveGroups(
 /** Newest items in the last 7 days make up the "new" pile. */
 export const NEW_PILE_DAYS = 7;
 
-export const PILES = { taste: 300, new: 150, popular: 100, explore: 50, searched: 60 } as const;
+/**
+ * `group` is the newest items of the person's own shopping groups (plan section 18.1). Without it, choosing Men only
+ * lowered the rest: an older men's item nobody looked at lately was never considered for Home at all.
+ */
+export const PILES = { taste: 300, new: 150, popular: 100, explore: 50, searched: 60, group: 200 } as const;
 
 /** How many of a search's best results are read to work out what it was about (plan section 17.1). */
 export const SEARCH_INTENT_SAMPLE = 20;

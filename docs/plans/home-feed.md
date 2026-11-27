@@ -424,7 +424,7 @@ A "shopping group" is Women, Men or Kids, the top of the category tree. Today th
 
 ### 11.2 Other groups move a bit lower, never hidden
 
-- Items in a group the person does not shop for get a small minus in the Home score: **a bit lower** (Eden, 2026-10-16). Starting value: -0.3 on a score where a strong taste match is about 1. It lives with the other weights in `packages/shared/src/recommendations.ts`.
+- Items in a group the person does not shop for get a small minus in the Home score: **a bit lower** (Eden, 2026-10-16). Starting value: -0.3 on a score where a strong taste match is about 1 (1 since section 18.2). It lives with the other weights in `packages/shared/src/recommendations.ts`.
 - Nothing is filtered out. While stock is small (today it is mostly women's items) a man still sees a full Home: the few men's items first, then the rest.
 - Items with no group (a category outside Women, Men and Kids) are never lowered.
 - Surprise cards (pile D) are picked only inside the person's groups. When those have too few recent items, the surprise slots fall back to the whole site.
@@ -684,3 +684,58 @@ Matching cards among the first 20 on Home, before and after one search:
 | "blazer" | the same active member | women's blazers | 1 (card 10) | 2 (cards 4, 10) |
 
 The effect is clearest where it matters: a person whose Home was led by something else now sees two cards of what they just searched for.
+
+## 18. Your own group leads Home (2026-11-27)
+
+### Why
+
+> how does it make sense that still my homepage first shows women clothing? [...] now i changed it to men - and i refreshed and home page didn't change much
+> (Eden)
+
+The live shop had 20 men's items and 177 women's out of 287 (public catalog, 2026-11-27). Reproduced on the sample data with a man whose history is mostly women's items (3 hearts and 20 opens on women's items, 2 opens on men's, 8 visits to Home, every men's item scrolled past 10 times): 20 women's cards out of the first 20, and after choosing Men still 17 women's and 0 men's. Three things caused it:
+
+- **Choosing Men brought nothing in.** The answer only lowered the other groups. An older men's item nobody looked at lately was in none of the piles of section 3.1, so it was never considered.
+- **The minus was too small.** 0.3, against 0.2 for a price drop, up to 0.4 for a popular week and up to 0.5 lost by a card of the person's own group they scrolled past (section 15).
+- **Taste learned before the answer counted as corners.** Every women's category the person had tapped while unanswered was exempt from the minus (section 11.3), and "Women" itself was learned as a liked parent category.
+
+### 18.1 The person's own groups always come along
+
+A fifth pile: the newest 200 items of the person's own shopping groups, whatever their age (`PILES.group`). Only for a person whose groups are known (answered or worked out). The score does not change, the items are just there to be ranked.
+
+### 18.2 Other groups move 1 lower, not 0.3
+
+`OTHER_GROUP_MINUS` is 1. Still never hidden, items with no group are still never lowered, and a corner the person opened is still exempt. Search has its own points (section 11.4) and did not change. The Shopping preferences note still says "a little lower", the wording did not change.
+
+### 18.3 A first answer forgets the other groups' category taste
+
+- When the answer goes from nothing to something (the question after sign up, or the first pick in Shopping preferences), the taste lines for categories of the groups that were not picked are deleted, the groups' own lines included (`forgetOtherGroups`). Brands, sellers, sizes, colours, price and style stay.
+- Only a first answer does this. The settings screens save on every tap, so changing an answer never deletes anything: a group that was dropped fades at the normal speed.
+- A corner opened after answering is learned and kept as before (section 11.3).
+- Someone who answered before this change keeps their old lines. Clearing the answer and picking it again runs it for them.
+
+### 18.4 Measured (sample data, the man above, after he chooses Men)
+
+The sample shop has 29 men's items, 70 women's and 51 in no group or in Kids.
+
+| First 20 cards on Home | Before | After |
+|---|---|---|
+| Every men's item scrolled past 10 times | 0 men's, 17 women's, 3 other | 4 men's, 0 women's, 16 other |
+| Every men's item scrolled past 3 times | | 5 men's, 0 women's, 15 other |
+| Men's items not seen before | | 17 men's, 0 women's, 3 other |
+
+The table sets "scrolled past" by hand. Visiting Home again and again after choosing Men, with every card of the first 20 counted as seen each time and none of the men's items seen before, gives this (men's cards in the first 20, never a women's card):
+
+| Visit | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| Opens nothing | 15 | 11 | 14 | 13 | 13 | 12 | 12 | 14 |
+| Opens 3 men's items on visit 2 | 13 | 11 | 19 | 20 | 16 | 14 | 12 | 13 |
+
+The live shop cannot reach these numbers yet: one seller gets 2 cards in 20 and its 20 men's items come from 6 sellers, so about 11 of the first 20.
+
+In the first 50 cards after the change: all 29 men's items and 2 or 3 women's, in each of the three cases. With the minus left at 0.3 and the other two changes, the worst case had 14 men's and 17 women's in the first 50, which is why the minus went up too.
+
+### 18.5 Not changed, and one thing to know
+
+- Items with no group (books, home, electronics) are not lowered, by section 11.2. A person who has scrolled past all of their group's items and has no taste yet for any of them sees those no-group items next, with their group's items between them, and the other groups after that. Opening or saving an item of their group lifts that kind again.
+- The variety rules: one seller still gets 2 cards in 20.
+- Groups worked out from behaviour (no answer) delete nothing.

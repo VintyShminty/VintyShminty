@@ -733,6 +733,72 @@ describe.skipIf(!databaseUrl)("discovery", () => {
       expect(seen.indexOf(mensItem.id)).toBeLessThan(seen.indexOf(womensItem.id));
     });
 
+    it("considers an old item of the person's own group for Home, ahead of a new one of another group", async () => {
+      // Three months old and nobody looked at it: no pile but the person's own group would bring it along.
+      await ctx.database.db
+        .update(listings)
+        .set({ bumpedAt: new Date(Date.now() - 90 * 86_400_000) })
+        .where(eq(listings.id, mensItem.id));
+      const seen: string[] = [];
+      let cursor: string | null = null;
+      for (let page = 0; page < 10 && !(seen.includes(mensItem.id) && seen.includes(womensItem.id)); page++) {
+        const res = await get(`/v1/feed?limit=50${cursor ? `&cursor=${cursor}` : ""}`, frank.token);
+        const body = res.json() as { items: { id: string }[]; nextCursor: string | null };
+        seen.push(...body.items.map((i) => i.id));
+        cursor = body.nextCursor;
+        if (!cursor) break;
+      }
+      expect(seen).toContain(womensItem.id);
+      expect(seen.indexOf(mensItem.id)).toBeGreaterThanOrEqual(0);
+      expect(seen.indexOf(mensItem.id)).toBeLessThan(seen.indexOf(womensItem.id));
+    });
+
+    it("forgets the category taste of the other groups on a first answer, and only then", async () => {
+      const gili = await signUpTestUser(ctx, "gili", createdIds);
+      const heart = () =>
+        ctx.app.inject({
+          method: "PUT",
+          url: `/v1/listings/${womensItem.id}/favourite`,
+          headers: bearer(gili.token),
+        });
+      const answer = (shopsFor: string[]) =>
+        ctx.app.inject({
+          method: "PUT",
+          url: "/v1/me/personalisation/shops-for",
+          headers: bearer(gili.token),
+          payload: { shopsFor },
+        });
+      const lines = () =>
+        ctx.database.db
+          .select({ feature: userAffinities.feature, key: userAffinities.featureKey })
+          .from(userAffinities)
+          .where(eq(userAffinities.userId, gili.id));
+      const inWomen = (l: { feature: string; key: string }) =>
+        (l.feature === "category" || l.feature === "parent_category") &&
+        (l.key === womenId || categoryTrail(reference.categories, l.key)[0]?.id === womenId);
+
+      // No answer yet: a heart on a women's item teaches the category and the whole group.
+      expect((await heart()).statusCode).toBeLessThan(300);
+      expect((await lines()).some((l) => l.feature === "parent_category" && l.key === womenId)).toBe(true);
+
+      // The first answer: what was learned about women's categories goes, the brand stays.
+      expect((await answer(["men"])).statusCode).toBe(200);
+      const after = await lines();
+      expect(after.some(inWomen)).toBe(false);
+      expect(after.some((l) => l.feature === "brand")).toBe(true);
+
+      // A corner opened after answering survives a later change of the answer.
+      await ctx.app.inject({
+        method: "DELETE",
+        url: `/v1/listings/${womensItem.id}/favourite`,
+        headers: bearer(gili.token),
+      });
+      expect((await heart()).statusCode).toBeLessThan(300);
+      expect((await lines()).some(inWomen)).toBe(true);
+      expect((await answer(["men", "kids"])).statusCode).toBe(200);
+      expect((await lines()).some(inWomen)).toBe(true);
+    });
+
     it("learns only the corner when the person hearts something outside their groups", async () => {
       const res = await ctx.app.inject({
         method: "PUT",

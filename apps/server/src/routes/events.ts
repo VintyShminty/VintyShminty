@@ -28,7 +28,7 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 import { ApiError } from "../lib/errors.js";
-import { type EventInput, recordEvents, resetLearnedTaste } from "../lib/events.js";
+import { type EventInput, forgetOtherGroups, recordEvents, resetLearnedTaste } from "../lib/events.js";
 import { WindowLimiter } from "../lib/limiter.js";
 
 const idParams = z.object({ id: idSchema });
@@ -285,10 +285,21 @@ const eventRoutes: FastifyPluginAsyncZod = async (app) => {
 
   const saveShopsFor = async <T extends string>(userId: string, picks: readonly T[]): Promise<T[]> => {
     const shopsFor = [...new Set(picks)];
+    const [before] = await db
+      .select({ shopsFor: userSettings.shopsFor })
+      .from(userSettings)
+      .where(eq(userSettings.userId, userId))
+      .limit(1);
     await db
       .insert(userSettings)
       .values({ userId, shopsFor })
       .onConflictDoUpdate({ target: userSettings.userId, set: { shopsFor } });
+    // Only a first answer forgets. Each tap on the settings screen saves, so changing an answer must not erase a
+    // group's taste by a slip of the finger: a group that was dropped fades by itself.
+    if ((before?.shopsFor.length ?? 0) === 0 && shopsFor.length > 0) {
+      const reference = await app.reference.get();
+      await forgetOtherGroups(db, userId, reference.categories, shopsFor);
+    }
     // The next Home starts a fresh list with the new groups.
     await db.delete(feedSnapshots).where(eq(feedSnapshots.userId, userId));
     return shopsFor;
