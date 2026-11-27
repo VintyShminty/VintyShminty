@@ -126,6 +126,11 @@ const envSchema = z
     // Google Places (API New) for city and address suggestions. Empty key means no suggestions, typing works as before.
     GOOGLE_MAPS_API_KEY: optionalText,
 
+    // A Telegram message to the owner for every new sign up and log in (lib/telegram.ts). The token comes from
+    // BotFather, the chat ID is the owner's own Telegram ID. Off unless both are set (only the live server has them).
+    TELEGRAM_BOT_TOKEN: optionalText,
+    TELEGRAM_CHAT_ID: optionalText,
+
     // Object storage (MinIO in development, Cloudflare R2 online)
     S3_ENDPOINT: z.string().url().default("http://localhost:9000"),
     S3_REGION: z.string().default("us-east-1"),

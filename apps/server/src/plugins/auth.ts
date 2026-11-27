@@ -8,6 +8,7 @@ import { ApiError } from "../lib/errors.js";
 import { WindowLimiter } from "../lib/limiter.js";
 import type { Mailer } from "../lib/mail.js";
 import type { Storage } from "../lib/storage.js";
+import { telegramAlert } from "../lib/telegram.js";
 import { authRequestBase, WEB_ORIGIN_HEADER } from "../lib/web-origin.js";
 
 type Db = NonNullable<Database["db"]>;
@@ -42,7 +43,7 @@ const CODE_REQUEST =
 
 export default fp<AuthPluginOptions>(
   async (app, { env, db, mailer, storage }) => {
-    const auth = createAuth({ env, db, mailer });
+    const auth = createAuth({ env, db, mailer, ownerAlert: telegramAlert(env, app.log) });
     app.decorate("auth", auth);
     app.decorate("db", db);
     app.decorate("mailer", mailer);

@@ -24,11 +24,13 @@ import {
 import { betterAuth } from "better-auth";
 import { createAuthMiddleware } from "better-auth/api";
 import { admin, bearer, emailOTP, oAuthProxy, username } from "better-auth/plugins";
-import { eq, sql } from "drizzle-orm";
+import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { type Env, webOrigins } from "../env.js";
+import { runInBackground } from "./background.js";
 import { type CodeEmailKind, codeEmail } from "./emails.js";
 import type { Mailer } from "./mail.js";
 import { buildSocialProviders, socialProvidersOn } from "./social.js";
+import { isLogInPath, logInAlertText, type OwnerAlert, signInMethod, signUpAlertText } from "./telegram.js";
 import { generateUsername, usernameSource } from "./username.js";
 
 type Db = NonNullable<Database["db"]>;
@@ -48,7 +50,10 @@ export function authErrorUrl(env: Env): string {
   return `${env.BETTER_AUTH_URL.replace(/\/+$/, "")}/v1/auth/error`;
 }
 
-export type AuthDeps = { env: Env; db: Db; mailer: Mailer };
+export type AuthDeps = { env: Env; db: Db; mailer: Mailer; ownerAlert?: OwnerAlert };
+
+/** A log in this soon after the account was made is the sign up's own, which already sent its alert. */
+const SIGN_UP_GRACE_MS = 2 * 60 * 1000;
 
 /**
  * Better Auth, wired to our tables.
@@ -59,7 +64,7 @@ export type AuthDeps = { env: Env; db: Db; mailer: Mailer };
  *   phone with an ID token whose audience is the app's bundle id. Google opens the browser (redirect flow) with the
  *   web client. Both give a verified email, so no confirmation code is asked.
  */
-export function createAuth({ env, db, mailer }: AuthDeps) {
+export function createAuth({ env, db, mailer, ownerAlert }: AuthDeps) {
   const { apple: appleOn } = socialProvidersOn(env);
   const dev = env.NODE_ENV !== "production";
 
@@ -78,6 +83,23 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
       .where(eq(users.email, email.toLowerCase()))
       .limit(1);
     await mailer.send(codeEmail(email, kind, code, pickLocale(row?.language, acceptLanguage)));
+  };
+
+  /** The provider of the person's most recently used Google or Apple account, if any. */
+  const lastSocialProvider = async (userId: string) => {
+    const [row] = await db
+      .select({ providerId: accounts.providerId })
+      .from(accounts)
+      .where(and(eq(accounts.userId, userId), ne(accounts.providerId, "credential")))
+      .orderBy(desc(accounts.updatedAt))
+      .limit(1);
+    return row?.providerId;
+  };
+
+  /** Telegram note to the owner (lib/telegram.ts). Runs after the response, so it never slows a sign up or log in. */
+  const alertOwner = (makeText: () => Promise<string | null>) => {
+    if (!ownerAlert) return;
+    runInBackground(makeText().then((text) => (text ? ownerAlert(text) : undefined)));
   };
 
   return betterAuth({
@@ -139,6 +161,57 @@ export function createAuth({ env, db, mailer }: AuthDeps) {
               .where(eq(standInSellers.userId, session.userId))
               .limit(1);
             return standIn ? false : { data: session };
+          },
+          // Owner alert for a log in. Only for real log in addresses (not a password change or an admin viewing as
+          // someone), and not for the log in that comes with a new account (the sign up alert covers it).
+          after: async (session, ctx) => {
+            if ((session as { impersonatedBy?: string | null }).impersonatedBy) return;
+            const path = ctx?.path;
+            if (!isLogInPath(path)) return;
+            alertOwner(async () => {
+              const [user] = await db
+                .select({ username: users.username, name: users.name, createdAt: users.createdAt })
+                .from(users)
+                .where(eq(users.id, session.userId))
+                .limit(1);
+              if (!user || Date.now() - user.createdAt.getTime() < SIGN_UP_GRACE_MS) return null;
+              const method = signInMethod(path, await lastSocialProvider(session.userId));
+              return logInAlertText(user.username ?? user.name, method);
+            });
+          },
+        },
+      },
+      // Owner alert for a new account. It hangs on the sign in method being saved (not on the user) because only then
+      // is it known whether this was email, Google or Apple. A Google or Apple account added later by an existing person
+      // is not a sign up, so only a new person's first sign in method counts.
+      account: {
+        create: {
+          after: async (account) => {
+            alertOwner(async () => {
+              const [user] = await db
+                .select({
+                  username: users.username,
+                  name: users.name,
+                  email: users.email,
+                  createdAt: users.createdAt,
+                })
+                .from(users)
+                .where(eq(users.id, account.userId))
+                .limit(1);
+              if (!user || Date.now() - user.createdAt.getTime() > SIGN_UP_GRACE_MS) return null;
+              // Stand-in sellers made in the admin pages are not real sign ups.
+              if (user.email.endsWith(`@${STAND_IN_EMAIL_DOMAIN}`)) return null;
+              const [{ count } = { count: 0 }] = await db
+                .select({ count: sql<number>`count(*)::int` })
+                .from(accounts)
+                .where(eq(accounts.userId, account.userId));
+              if (count > 1) return null;
+              const method = signInMethod(
+                undefined,
+                account.providerId === "credential" ? undefined : account.providerId,
+              );
+              return signUpAlertText(user.username ?? user.name, method);
+            });
           },
         },
       },
