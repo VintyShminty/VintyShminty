@@ -869,6 +869,16 @@ Proposals, not rules, until explicitly promoted above.
 - **Implementation:** App: `apps/mobile/components/ui/required-mark.tsx`, the `required` option on `Input` and `PickerRow`, used in `app/(app)/sell-form/index.tsx`. Website: `RequiredMark` in `apps/web/components/sell/sell-form.tsx`. Which category rows need it comes from the same rules as the check (`attributeMode` in `packages/shared/src/listing-rules.ts`). The word is `common.required`.
 - **References:** D-019
 
+### D-063 : Things that are not worn describe condition in use words
+
+- **Date:** 2026-11-27
+- **Area:** Sell form, item page, item cards, filters, admin upload (app and website)
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** The five condition levels stay the same for every item, but the words follow what the item is. Clothes, shoes, bags, jewellery and accessories keep the wearing words (Unworn with tags, Unworn, Like new, Worn, Well loved). Books and magazines keep the reading words (D-051). Everything else (home, electronics, music and films, hobbies, sports gear, toys, strollers, nursery, beauty and grooming) reads Brand new, Unused, Like new, Used and Well loved, in Hebrew חדש באריזה, לא היה בשימוש, כמו חדש, משומש and אהוב ומשומש, each with a line about using instead of wearing ("Never used, still sealed or in its box"). The condition filter now follows the section too: wearing words inside a clothing section, reading words inside books, and the use words in a search across everything, because they fit any item. This changes the last sentence of D-051.
+- **Rationale:** Eden saw a vase listed as "Unworn with tags". Wearing words read oddly on a vase, a lamp or a phone. Keeping the same five levels means the filter, search and the AI helper keep working across all items, and none of the names are Vinted's (New with tags, New without tags, Very good, Good, Satisfactory).
+- **Implementation:** The wording is `objectCondition` in `packages/locales`. The server sends it with each condition as `forObjects` next to `forBooks` (`apps/server/src/lib/reference.ts`). `conditionKind`, `sharedConditionKind`, `conditionWords` and `conditionWordsOf` in `packages/shared/src/listing-rules.ts` pick the words from the category path. Filters: `apps/mobile/app/(app)/filters/[kind].tsx`, `apps/mobile/lib/filter-labels.ts`, `buildFilterOptions` in `apps/web/lib/filters.ts`. Website cards: `getConditionNames` in `apps/web/lib/reference.ts` and `useConditionName`.
+- **References:** D-019, D-051
+
 ### D-026 : Welcome turns into Log in and Sign up
 
 - **Date:** 2026-10-13

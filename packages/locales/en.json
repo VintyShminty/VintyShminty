@@ -2512,5 +2512,27 @@
       "name": "Well read",
       "description": "Read many times, notes, stains or a loose cover are shown in the photos"
     }
+  },
+  "objectCondition": {
+    "new-with-tags": {
+      "name": "Brand new",
+      "description": "Never used, still sealed or in its box"
+    },
+    "new-without-tags": {
+      "name": "Unused",
+      "description": "Never used, but opened or without the box"
+    },
+    "very-good": {
+      "name": "Like new",
+      "description": "Used a few times, nothing you would notice"
+    },
+    "good": {
+      "name": "Used",
+      "description": "Used properly, small signs of use are noted in the listing"
+    },
+    "satisfactory": {
+      "name": "Well loved",
+      "description": "Has lived a full life, any flaws are shown in the photos"
+    }
   }
 }

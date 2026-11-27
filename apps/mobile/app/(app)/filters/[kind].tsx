@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Brand } from "@vinty/shared";
+import { type Brand, conditionWords, findCategory } from "@vinty/shared";
 import { useLocalSearchParams } from "expo-router";
 import { Search } from "lucide-react-native";
 import { useState } from "react";
@@ -106,10 +106,16 @@ function OptionsBody({ scope, kind }: { scope: Scope; kind: Exclude<ListKind, "s
   const name = useLocalName();
   const insets = useSafeAreaInsets();
   const { on, toggle } = useToggle(scope, kind);
+  const categoryId = useSearchStore((s) => s.scopes[scope].filters.categoryId);
   if (!reference) return <Spinner size="large" />;
+  // Wearing words inside a clothing category, reading words inside books, use words anywhere else.
+  const category = categoryId ? findCategory(reference.categories, categoryId) : null;
   const options: Option[] =
     kind === "condition"
-      ? reference.conditions.map((o) => ({ id: o.id, label: name(o.name), detail: name(o.description) }))
+      ? reference.conditions.map((o) => {
+          const words = conditionWords(o, category);
+          return { id: o.id, label: name(words.name), detail: name(words.description) };
+        })
       : kind === "colour"
         ? reference.colours.map((o) => ({ id: o.id, label: name(o.name), swatch: o.swatchHex }))
         : (kind === "material" ? reference.materials : reference.patterns).map((o) => ({

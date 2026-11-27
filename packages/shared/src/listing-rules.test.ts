@@ -3,6 +3,7 @@ import { VALIDATION_MESSAGES } from "./auth.js";
 import {
   allowedSizeIds,
   categoryTrail,
+  conditionKind,
   conditionWords,
   findCategory,
   isReadingCategory,
@@ -200,13 +201,17 @@ describe("listing rules", () => {
 describe("condition words", () => {
   const level = {
     id: "c1",
-    slug: "satisfactory",
-    rank: 5,
-    name: { en: "Well loved", he: "אהוב ומשומש" },
-    description: { en: "Has lived a full life", he: "עבר הרבה" },
+    slug: "good",
+    rank: 4,
+    name: { en: "Worn", he: "נלבש" },
+    description: { en: "Worn properly", he: "נלבש כמו שצריך" },
     forBooks: {
-      name: { en: "Well read", he: "נקרא הרבה" },
-      description: { en: "Read many times", he: "נקרא" },
+      name: { en: "Good", he: "מצב טוב" },
+      description: { en: "Clearly read", he: "נקרא לא מעט" },
+    },
+    forObjects: {
+      name: { en: "Used", he: "משומש" },
+      description: { en: "Used properly", he: "היה בשימוש כמו שצריך" },
     },
   };
 
@@ -215,9 +220,46 @@ describe("condition words", () => {
     expect(isReadingCategory({ path: "media/magazines" })).toBe(true);
     expect(isReadingCategory({ path: "media/music/vinyl" })).toBe(false);
     expect(isReadingCategory({ path: "women/clothing/books-print-tees" })).toBe(false);
-    expect(conditionWords(level, { path: "media/books/kids" }).name.en).toBe("Well read");
-    expect(conditionWords(level, { path: "women/clothing/dresses" }).name.en).toBe("Well loved");
-    expect(conditionWords(level, null).name.en).toBe("Well loved");
+    expect(conditionWords(level, { path: "media/books/kids" }).name.en).toBe("Good");
+    expect(conditionWords(level, { path: "women/clothing/dresses" }).name.en).toBe("Worn");
+  });
+
+  it("uses wearing words only for things that are worn", () => {
+    for (const path of [
+      "women",
+      "women/clothing/dresses/midi",
+      "women/bags/totes",
+      "men/shoes/boots",
+      "men/accessories/watches",
+      "kids/baby/bodysuits",
+      "designer/women/jewellery",
+      "sports/football/boots",
+    ]) {
+      expect(conditionKind({ path }), path).toBe("worn");
+      expect(conditionWords(level, { path }).name.en, path).toBe("Worn");
+    }
+    for (const path of [
+      "home/decor/vases",
+      "home/lighting/lamps",
+      "electronics/phones/smartphones",
+      "media/music/vinyl",
+      "hobbies/games/board",
+      "sports/cycling/bikes",
+      "women/beauty/makeup",
+      "men/grooming/tools",
+      "kids/toys/building",
+      "kids/gear/strollers",
+    ]) {
+      expect(conditionKind({ path }), path).toBe("object");
+      expect(conditionWords(level, { path }).name.en, path).toBe("Used");
+    }
+    expect(conditionWords(level, null).name.en).toBe("Used");
+  });
+
+  it("falls back to the usual words when a server does not send the others yet", () => {
+    const { forObjects: _o, forBooks: _b, ...plain } = level;
+    expect(conditionWords(plain, { path: "home/decor/vases" }).name.en).toBe("Worn");
+    expect(conditionWords(plain, { path: "media/books" }).name.en).toBe("Worn");
   });
 });
 

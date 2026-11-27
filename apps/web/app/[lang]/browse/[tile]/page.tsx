@@ -110,6 +110,7 @@ export default async function TilePage({
     reference,
     lang,
     sizeGroupIdsFor(reference.categories, pageCategoryIds(reference.categories, tile, group, undefined)),
+    categoryIds,
   );
 
   const base = `/${lang}/browse/${tile.key}`;
