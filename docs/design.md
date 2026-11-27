@@ -733,6 +733,7 @@ Proposals, not rules, until explicitly promoted above.
 - **Decision:** The answer to "What do you shop for?" (Women, Men, Kids) is a lasting setting, shown at the top of Shopping preferences as three switches with the note "Home and search show these first. Everything else still shows, just a little lower". Items from other groups move a bit lower on Home and are never hidden. Surprise cards stay inside the person's groups, or come from the whole site while those have too few items. Liking something outside your groups lifts only that corner (women's cycling clothes, not dresses), fading at the normal speed. The default order of a word search puts, among items that match the words about as well, the person's groups first, then their taste, then their set sizes. A picked sort (Cheapest, Newest) stays exact. Visitors and people with "Tailor Home to what I do" off see the same order as everyone.
 - **Rationale:** A man mostly does not want women's clothes on Home unless he went looking for them, and then only the kind he looked at. Lowering instead of hiding keeps Home full while stock is small.
 - **Trade-off:** Without an answer, the groups are worked out from behaviour only once one group holds 60 percent of it, so a mixed shopper sees nothing lowered.
+- **Update 2026-11-27:** The strength of the lowering and how interest outside the groups fades changed in D-066. The note's wording did not change.
 - **Implementation:** `docs/plans/home-feed.md` section 11. `user_settings.shops_for`, `GET` and `PUT /v1/me/personalisation/shops-for`, `resolveGroups` and the group values in `packages/shared/src/recommendations.ts`, `apps/server/src/lib/feed.ts` (score, surprise pile, `searchPersonal`), `lib/events.ts` (corners), `lib/discovery.ts` (`sortSpec`).
 - **References:** D-022, D-042, `docs/plans/home-feed.md`
 
@@ -898,6 +899,18 @@ Proposals, not rules, until explicitly promoted above.
 - **Rationale:** Eden wanted a man's account to see Men first, every main category reachable from Explore, and the panel to open and close softly instead of snapping. Category trees are free to share (`docs/originality.md`), so the list itself is fine. The look (pills, not underlined tabs), the order and the names are ours.
 - **Implementation:** `BROWSE_ROOT_SIDES` in `packages/shared/src/browse-tiles.ts`, `apps/web/components/browse-panel.tsx`, `BrowseRootTiles` in `apps/web/components/browse-tiles.tsx`, `apps/web/components/top-bar.tsx`, `apps/mobile/app/(app)/(tabs)/(shop)/browse/index.tsx`, `browse.groups` in `packages/locales`.
 - **References:** D-030, D-052, D-054, D-055, D-064
+
+
+### D-066 : Your own shopping group leads Home, and interest outside it comes and goes
+
+- **Date:** 2026-11-27
+- **Area:** Home feed, search order (server only, app and website)
+- **Status:** Proposed, waiting for Eden's merge.
+- **Decision:** Builds on D-048. For a person who said what they shop for: the newest items of their own groups are always considered for Home, other groups move 1 lower instead of 0.3, and a first answer forgets the category taste learned in the other groups. Interest in a category outside their groups fades to half in 7 days instead of 30 and shrinks each time they open or save something in their own groups, and comes back when they look at it again. Other groups are still never hidden, and items with no group are still never lowered.
+- **Rationale:** Eden's Home was women's items first, and choosing Men changed almost nothing: the shop is mostly women's items, the minus was smaller than a price drop, and taste learned before the answer was exempt from it. Eden on the model he wants: "i can start seeing women clothing after knowingly looking for them, not before and then i can continue looking for men stuff and women will drift away [...] its a constant breathing change".
+- **Trade-off:** This replaces the 2026-10-16 choice that a corner fades at the normal speed. Someone who shops two groups and answered only one has to keep showing interest in the other, or switch it on in Shopping preferences. With few items in a person's group, the top of Home repeats more.
+- **Implementation:** `docs/plans/home-feed.md` sections 18 and 19 (with measurements). `PILES.group`, `OTHER_GROUP_MINUS`, `CORNER_HALF_LIFE_DAYS` and `CORNER_KEEP_PER_POINT` in `packages/shared/src/recommendations.ts`, `apps/server/src/lib/feed.ts`, `lib/events.ts` (`forgetOtherGroups`, `recordEvents`), `routes/events.ts`.
+- **References:** D-048, D-022
 
 ### D-026 : Welcome turns into Log in and Sign up
 
