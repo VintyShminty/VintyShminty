@@ -390,13 +390,12 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
   const { t } = useTranslation();
   const router = useRouter();
   const [tab, setTab] = useState<TabKey>("listings");
-  const [status, setStatus] = useState<"active" | "sold">("active");
   const [ownStatus, setOwnStatus] = useState<MyListingStatus>("active");
 
   const profileQ = useQuery(profileQuery(userId));
   const bundleSeller = useSellerBundle(userId);
   const listingsQ = useInfiniteQuery({
-    ...userListingsQuery(userId, status),
+    ...userListingsQuery(userId, "active"),
     enabled: tab === "listings" && !isSelf,
   });
   // Your own page shows every state of your listings, with views and favourites (spec, Own profile).
@@ -424,9 +423,7 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
       if (!listingsQ.data) return [{ kind: "loading" }];
       const items = listingsQ.data.pages.flatMap((p) => p.items);
       if (items.length === 0) {
-        return [
-          { kind: "empty", message: status === "active" ? t("profile.noListings") : t("profile.noSold") },
-        ];
+        return [{ kind: "empty", message: t("profile.noListings") }];
       }
       const pairs: Row[] = [];
       for (let i = 0; i < items.length; i += 2) {
@@ -443,7 +440,6 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
     return [{ kind: "reviewSummary", summary: reviewsQ.data.pages[0]?.summary ?? null }, ...body];
   }, [
     tab,
-    status,
     isSelf,
     ownStatus,
     ownQ.data,
@@ -551,20 +547,6 @@ function ProfileView({ userId, isSelf }: { userId: string; isSelf: boolean }) {
                   />
                 ))}
               </ScrollView>
-            ) : null}
-            {tab === "listings" && !isSelf ? (
-              <View className="flex-row gap-sm px-lg pt-lg">
-                <Chip
-                  label={t("profile.active")}
-                  selected={status === "active"}
-                  onPress={() => setStatus("active")}
-                />
-                <Chip
-                  label={t("profile.sold")}
-                  selected={status === "sold"}
-                  onPress={() => setStatus("sold")}
-                />
-              </View>
             ) : null}
           </View>
         }

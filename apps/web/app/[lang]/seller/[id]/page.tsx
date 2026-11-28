@@ -46,8 +46,8 @@ export async function generateMetadata({
     title: { absolute: title },
     description,
     alternates: alternatesFor(lang, path),
-    // The base page is the one for Google. The Sold and Reviews views are the same seller again.
-    robots: first(sp.tab) || first(sp.status) ? { index: false, follow: true } : undefined,
+    // The base page is the one for Google. The Reviews view is the same seller again.
+    robots: first(sp.tab) ? { index: false, follow: true } : undefined,
     openGraph: {
       title,
       description,
@@ -68,7 +68,7 @@ export async function generateMetadata({
 
 /**
  * A seller's page (D-019 row 13, same content as the app profile): the header with the rating, stamps, numbers and
- * Follow, then the Listings and Reviews tabs. The tab is `?tab=reviews`, Active or Sold is `?status=sold`.
+ * Follow, then the Listings and Reviews tabs. The tab is `?tab=reviews`. Listings shows only what is for sale.
  * About lives in the header here (bio, city, last seen), so there is no About tab.
  */
 export default async function SellerPage({
@@ -83,10 +83,9 @@ export default async function SellerPage({
   const sp = await searchParams;
   const t = getT(lang);
   const tab = first(sp.tab) === "reviews" ? "reviews" : "listings";
-  const status = first(sp.status) === "sold" ? "sold" : "active";
 
   // The profile, the first page of items or reviews and the viewer do not depend on each other, so ask all at once.
-  const endpoint = `/v1/users/${encodeURIComponent(id)}/listings?status=${status}`;
+  const endpoint = `/v1/users/${encodeURIComponent(id)}/listings?status=active`;
   const profileRequest = getProfile(lang, id);
   profileRequest.catch(() => undefined);
   const [listingsFirst, reviewsFirst, me] = await Promise.all([
@@ -113,7 +112,6 @@ export default async function SellerPage({
 
   const base = `/${lang}/seller/${id}`;
   const tabHref = (key: "listings" | "reviews") => (key === "reviews" ? `${base}?tab=reviews` : base);
-  const statusHref = (key: "active" | "sold") => (key === "sold" ? `${base}?status=sold` : base);
 
   return (
     <main className="mx-auto max-w-[1280px] px-lg pb-2xl pt-xl md:px-xl lg:px-[48px] xl:px-[80px]">
@@ -158,35 +156,15 @@ export default async function SellerPage({
 
       <div className="mt-lg">
         {tab === "listings" ? (
-          <>
-            <nav aria-label={t("web.seller.statusLabel")} className="mb-lg flex gap-sm">
-              <Chip
-                href={statusHref("active")}
-                replace
-                scroll={false}
-                selected={status === "active"}
-                label={t("profile.active")}
-              />
-              <Chip
-                href={statusHref("sold")}
-                replace
-                scroll={false}
-                selected={status === "sold"}
-                label={t("profile.sold")}
-              />
-            </nav>
-            <InfiniteItemGrid
-              key={endpoint}
-              endpoint={endpoint}
-              kind="plain"
-              firstPage={listingsFirst}
-              hideSaves={isSelf}
-              saveOnSold={false}
-              empty={
-                <EmptyState title={status === "active" ? t("profile.noListings") : t("profile.noSold")} />
-              }
-            />
-          </>
+          <InfiniteItemGrid
+            key={endpoint}
+            endpoint={endpoint}
+            kind="plain"
+            firstPage={listingsFirst}
+            hideSaves={isSelf}
+            saveOnSold={false}
+            empty={<EmptyState title={t("profile.noListings")} />}
+          />
         ) : (
           <ReviewsList userId={profile.id} firstPage={reviewsFirst} />
         )}
