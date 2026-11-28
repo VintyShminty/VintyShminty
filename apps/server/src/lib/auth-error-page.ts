@@ -85,13 +85,13 @@ export const PAGE_STYLE = `
 *{box-sizing:border-box}
 body{margin:0;background:#F6F8FD;color:#1F1D1C;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
 main{max-width:480px;margin:0 auto;padding:32px 16px}
-.brand{font-size:28px;font-weight:300;letter-spacing:-0.5px;margin:0 0 24px;color:#2446A8}
+.brand{font-size:28px;font-weight:300;letter-spacing:-0.5px;margin:0 0 24px;color:#1E3B8F}
 section{background:#FFFFFF;border:1px solid #DADFEC;border-radius:20px;padding:24px;margin:0 0 16px}
 h1{font-size:22px;line-height:1.25;margin:0 0 8px;font-weight:700}
 p{margin:0 0 20px;color:#4A4644;font-size:16px}
-a.btn{display:block;text-align:center;background:#2446A8;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:16px;padding:14px 16px;border-radius:12px}
+a.btn{display:block;text-align:center;background:#1E3B8F;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:16px;padding:14px 16px;border-radius:12px}
 a.btn:active{opacity:.85}
-.code{font-size:32px;font-weight:700;letter-spacing:4px;text-align:center;background:#E3E9F7;border-radius:12px;padding:16px;margin:0 0 20px;color:#2446A8;direction:ltr}
+.code{font-size:32px;font-weight:700;letter-spacing:4px;text-align:center;background:#E3E9F7;border-radius:12px;padding:16px;margin:0 0 20px;color:#1E3B8F;direction:ltr}
 `.trim();
 
 /** Hash of the inline style, so the page's policy allows exactly this style and nothing else. */
