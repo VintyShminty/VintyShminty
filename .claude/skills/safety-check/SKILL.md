@@ -34,7 +34,7 @@ Full reasoning is in `docs/playbook/security-and-safety.md`. This is the quick r
 
 ## Before a pull request or merge
 
-CI is green, branch is up to date, description says what was and was not checked. Run `pnpm audit:prod` before a release. Agents do not merge.
+CI is green, branch is up to date, description says what was and was not checked. Run `pnpm audit:prod` before a release. Agents merge only when Eden asks for that pull request in chat.
 
 ## Stop and ask Eden first
 

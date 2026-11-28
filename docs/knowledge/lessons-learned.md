@@ -33,7 +33,7 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Check a PR is unmerged before sending it more work.** Three PRs got improvements after merge and needed new PRs (#36 to #38). Source: log 2026-10-14. Also in `docs/playbook/git-and-github.md`.
 - **Do the online database step before calling a schema PR ready.** Source: log 2026-10-14 (#42), memory `migrate-before-merge`. Also in `docs/playbook/git-and-github.md`.
 - **For motion bugs, record a frame by frame video.** Stills hid the real problem. The bundle pill took three rounds, each fixed from the frame timings. Source: log 2026-10-14 (#38), log 2026-10-17 (morning, #109).
-- **Two sessions can pick the same decision number.** Check `docs/design.md` before taking the next id, and renumber on merge, keeping both sides. Source: log 2026-10-14 (D-030, D-026, D-024).
+- **Two sessions can pick the same decision number.** Find the next free id by sorting every heading in `docs/design.md` (the file is not in number order, the last heading is not the highest), check `main` again right before merging, and renumber on merge, keeping both sides. Source: log 2026-10-14 (D-030, D-026, D-024), log 2026-11-27 (D-062 and D-063, D-066 and D-067).
 - **Check the Mac's load before blaming the code.** Slow uploads and a frozen emulator were the Mac at load 400. Source: log 2026-10-15 (#88).
 - **When an AI guess looks biased, check what it was given.** The "Women jeans" guess was not about the seller, the AI only saw photos. The real fault was a list that hid Men. Source: log 2026-10-15 (#91).
 - **After an interruption, check what actually happened before redoing it.** A commit and push had gone through, only the PR was missing. Source: log 2026-10-15 (#73).
@@ -54,4 +54,6 @@ Short rules with the reason. Add Vinty's own as they happen, each with a source 
 - **Merge small things often and look at Dependabot weekly.** Main stood still for a month, new warnings piled up and blocked every PR at once. Source: log 2026-11-17.
 - **A rename sweep must skip history notes.** The Basta swap rewrote what the knowledge files said was true on 15 October. History stays as written. Source: log 2026-11-17 (#154).
 - **Read the end of a failed build before rebuilding.** The build had succeeded, only opening the Simulator window failed. Source: log 2026-11-19.
+- **A fix that acts "at the moment of X" misses everyone for whom X already happened.** The Home fix cleared old interest only at a first answer, and Eden had answered before it went live. Every measurement started from a fresh answer, so none could show it. Check the existing people too. Source: log 2026-11-27 (#179, #181).
+- **Real data turns a guess into proof.** Eden logging in to the website in Chrome allowed a read only look at his real Home, which showed the fix had not reached him. Source: log 2026-11-27 (night).
 - **Check the native fingerprint before promising a silent update.** A rename changed it, so Android needed one new APK. Source: log 2026-10-18 (#130), log 2026-11-19.

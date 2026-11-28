@@ -69,4 +69,8 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Dependabot.** GitHub's robot that opens PRs to update outside add-ons.
 - **Accepted warning.** A known safety problem in an add-on with no usable fix, written down by name with a reason and a recheck date so the security check lets PRs through.
 - **Required star.** The small red star after a sell form field that must be filled (D-061).
+- **Owner alerts.** A Telegram message to Eden from his own bot for every new sign up (🆕) and log in (🔑), with the username and how they signed in. Only the live server sends them (#182).
+- **BotFather.** Telegram's official bot for making bots. It gives the bot's secret token.
+- **Breathing (Home drift).** Interest in a shopping group you did not pick shows up after you knowingly look at it and fades again as you go back to your own (D-066).
+- **Photo tips.** Three short tips in the empty photo box for someone who has never posted, plus the drawn "Photos that sell" example on their first tap (D-067).
 - **Corner.** A small part of another shopping group you showed interest in, for example women's cycling clothes. Only that corner moves up, not the whole group.
