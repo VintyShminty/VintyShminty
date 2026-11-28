@@ -88,7 +88,7 @@ Moved to `docs/knowledge/decisions-product.md` on 2026-11-28 to keep this file s
 
 | Decision | Date | Status |
 |---|---|---|
-| Never commit straight to `main`, work in branches and pull requests, Eden merges | 2026-10-12 | Active, `git-and-github.md` |
+| Never commit straight to `main`, work in branches and pull requests, Eden merges | 2026-10-12 | Changed 2026-11-28, see the Claude may merge row |
 | Parallel agents use separate worktrees | 2026-10-12 | Active, `git-and-github.md` |
 | Daily log at end of each session, compile at end of each milestone | 2026-10-12 | Active, `how-we-work.md` |
 | New library versions must be 7 days old. CI blocks on serious vulnerabilities | 2026-10-12 | Active, `security-and-safety.md` |
@@ -105,7 +105,7 @@ Moved to `docs/knowledge/decisions-product.md` on 2026-11-28 to keep this file s
 | Every note Eden gives applies to both the website and the app unless it cannot | 2026-10-17 | Active (Eden), memory `changes-apply-to-app-and-web` |
 | Kept back on purpose: `@lucide/lab` at 0.7.0 (0.12 drops the perfume icon Explore uses) and Biome at 2.5.15 (2.6 reformats the doc tables) | 2026-11-17 | Active, log 2026-11-17 (#156) |
 | Look at Dependabot's PRs about once a week, and merge small things often | 2026-11-17 | Active, log 2026-11-17 |
-| Claude may merge a pull request when Eden asks for it in chat (first #181, 2026-11-27). The repository does not allow merging by itself once checks pass | 2026-11-27 | Active (Eden), log 2026-11-27. `CLAUDE.md` and `git-and-github.md` still say "Eden merges", see the 2026-11-28 compile report |
+| Claude may merge a pull request when Eden asks for that pull request in chat, once every check is green (first #181, 2026-11-27). The repository does not allow merging by itself once checks pass | 2026-11-27 | Active (Eden, 2026-11-28), `CLAUDE.md`, `git-and-github.md` |
 | Over the air updates go out from a clean copy of the latest main, after checking the runtime version matches the installed build. When the permission system blocks the agent, Eden runs `pnpm update:live`. Live database changes the same way | 2026-10-17 | Active, memory `ota-update-eden-runs`, log 2026-10-17 |
 
 ## Superseded

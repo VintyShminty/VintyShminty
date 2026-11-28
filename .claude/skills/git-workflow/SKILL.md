@@ -29,7 +29,7 @@ Full rules are in `docs/playbook/git-and-github.md`. Repo: `VintyShminty/VintySh
 1. `git push -u origin <branch>`. Never force push a shared branch.
 2. Open a PR with `gh pr create` only when Eden asks. Title says the outcome. Body says what changed, why, what was checked, what was not, what Eden must decide. Agent PR bodies end with the attribution line from the session instructions.
 3. Wait for CI. Fix red.
-4. Eden merges. Agents never merge.
+4. Eden merges. Agents merge only when Eden asks for that pull request in chat, once every check is green (GitHub cannot merge by itself in this repository).
 
 ## After merges
 

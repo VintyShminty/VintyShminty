@@ -186,4 +186,4 @@ How we work lives in `docs/playbook/`: `how-we-work.md`, `git-and-github.md`, `s
 - `safety-check`: before committing, opening a PR, adding a dependency, or touching auth, uploads or data.
 - `git-workflow`: starting a branch or worktree, committing, opening a PR.
 
-Never commit straight to `main`. Eden merges.
+Never commit straight to `main`. Eden merges, or Claude when Eden asks for that pull request in chat (once every check is green).

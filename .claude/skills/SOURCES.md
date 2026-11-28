@@ -36,3 +36,5 @@ Vercel skill:
 ## Authored in-repo
 
 `daily-log`, `compile-memory`, `safety-check`, `git-workflow`. Written for Vinty on 2026-10-12. The matching docs are in `docs/playbook/`.
+
+2026-11-28: `git-workflow` and `safety-check` now let an agent merge when Eden asks for that pull request in chat (Eden).

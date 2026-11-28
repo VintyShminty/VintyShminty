@@ -23,7 +23,7 @@ Pull request required, the `check` job from `.github/workflows/ci.yml` required,
 5. Push the branch.
 6. Open a pull request with `gh pr create`, only when Eden asks.
 7. CI runs. Fix anything red.
-8. Eden reviews and merges. Agents do not merge.
+8. Eden reviews and merges. Agents merge only when Eden asks for that pull request in chat, once every check is green (GitHub cannot merge by itself in this repository).
 9. Remove the worktree: `git worktree remove <path>`.
 
 ## Commits
@@ -54,7 +54,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 
 ## Merging
 
-- Eden merges. Squash merge is the default for small branches so one PR is one commit on `main`.
+- Eden merges, or an agent when he asks for that pull request in chat. Squash merge is the default for small branches so one PR is one commit on `main`.
 - For stacked branches merge the lower one first, then retarget the next PR to `main` before merging it. A stacked PR merged into a dead branch says MERGED on GitHub but never reaches `main`. Verify with `git cat-file -e origin/main:<a file only that PR adds>`.
 - Merged is not live. A merged PR still needs its deploy step.
 - Local `main` after a squash merge: `git fetch && git reset --hard origin/main`, only on a clean local `main` with no work on it.
