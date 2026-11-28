@@ -315,7 +315,7 @@ export default function Home() {
             >
               <Icon as={Bell} size={22} />
               {notificationsUnread ? (
-                <View className="absolute end-2.5 top-2.5 h-2 w-2 rounded-full bg-primary" />
+                <View className="absolute bottom-1 h-[5px] w-[5px] rounded-full bg-primary" />
               ) : null}
             </Pressable>
             <Pressable

@@ -1,7 +1,7 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Bell, Inbox } from "lucide-react";
+import { Bell, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
@@ -36,7 +36,7 @@ export function InboxLink({ lang, className }: { lang: string; className: string
       aria-label={messages > 0 ? t("web.inbox.iconUnread", { count: messages }) : t("tabs.inbox")}
       className={`relative ${className}`}
     >
-      <Inbox size={20} aria-hidden />
+      <MessageCircle size={20} aria-hidden />
       <UnreadCount count={messages} className="absolute end-[3px] top-[3px] ring-2 ring-background" />
     </Link>
   );
@@ -112,7 +112,12 @@ export function BellLink({ lang, className }: { lang: string; className: string 
         className={`relative ${className}`}
       >
         <Bell size={20} aria-hidden />
-        <UnreadCount count={notifications} className="absolute end-[3px] top-[3px] ring-2 ring-background" />
+        {notifications > 0 ? (
+          <span
+            aria-hidden
+            className="absolute inset-x-0 bottom-[3px] mx-auto h-[5px] w-[5px] rounded-full bg-primary"
+          />
+        ) : null}
       </button>
       <section
         id={panelId}

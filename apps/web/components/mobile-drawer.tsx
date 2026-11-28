@@ -1,6 +1,6 @@
 "use client";
 
-import { Inbox, LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, MessageCircle, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useEffect, useRef } from "react";
@@ -75,7 +75,7 @@ export function MobileDrawer({ lang, children }: { lang: Lang; children: ReactNo
           {viewer ? (
             <>
               <Link href={`/${lang}/inbox`} className={linkClass}>
-                <Inbox size={18} aria-hidden />
+                <MessageCircle size={18} aria-hidden />
                 {t("tabs.inbox")}
                 <UnreadCount count={unread.messages + unread.notifications} className="ms-auto" />
               </Link>
