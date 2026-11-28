@@ -13,7 +13,7 @@ const colors = {
   text2: "#4A4644",
   text3: "#615C59",
   text4: "#736E6A",
-  accent: "#2446A8",
+  accent: "#1E3B8F",
   onAccent: "#FFFFFF",
   accentTint: "#E9EEFA",
   chipSelected: "#D6E0F5",
