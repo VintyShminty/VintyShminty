@@ -41,7 +41,7 @@ Palette: Cobalt (D-060, replacing Espresso and cream from D-006). Light mode onl
 | text-2 | #4A4644 | Secondary text |
 | text-3 | #615C59 | Muted text |
 | text-4 | #736E6A | Faint text |
-| accent | #2446A8 | Primary button fill, links, prices, active tab, outline button |
+| accent | #1E3B8F | Primary button fill, links, prices, active tab, outline button |
 | on-accent | #FFFFFF | Text and icons on the accent fill |
 | accent-tint | #E9EEFA | Info banners, "New" badge |
 | chip-selected | #D6E0F5 | Promo banner fill (no longer the selected chip fill, see D-008) |
@@ -922,6 +922,17 @@ Proposals, not rules, until explicitly promoted above.
 - **Trade-off:** It shows to everyone who has not posted yet, also someone with only drafts, which is fine since they have not posted either. It uses the existing own listings call, so no server change.
 - **Implementation:** `firstTips` on `PhotoUploader` in `apps/mobile/components/sell/photo-uploader.tsx` and `apps/web/components/sell/photo-uploader.tsx`, `useFirstListing` in `apps/mobile/lib/queries.ts` and `apps/web/lib/own-listing-queries.ts`, `PhotoGuide` in `apps/mobile/components/sell/photo-guide.tsx` and `apps/web/components/sell/photo-guide.tsx`, `sell.photos.firstTips` and `sell.photos.guide` in `packages/locales`. The drawings are Lucide icons in plain frames, no picture files.
 - **References:** D-036
+
+### D-068 : The cobalt goes a step darker, and the bell shows a dot
+
+- **Date:** 2026-11-28
+- **Area:** Colours, top bar (app and website)
+- **Status:** Proposed, waiting for Eden's merge
+- **Decision:** The lead colour changes from #2446A8 to the slightly darker #1E3B8F (same hue, less light). Everything that uses the accent follows: buttons, selected chips, prices, links, the unread dots, the login code emails and the server's own pages. The tints, the chip colours and the text colours stay as they are. In the same round: the bell shows a small dot under it when there is unread news instead of a number, and the website's chats icon is a speech bubble like the app's tab bar.
+- **Rationale:** Eden asked for a slightly darker blue after seeing it side by side with the old one.
+- **Trade-off:** The website tab icon and home screen icon are recoloured. The app icon, the splash screen and the Android icon background keep #2446A8 until the next Xcode build: they are part of the app's version code (fingerprint), so changing them now would stop over the air updates reaching the builds people have. Recolour `apps/mobile/assets/images` (icon, splash-icon, favicon, android-icon-background) and `android.adaptiveIcon.backgroundColor` in `app.json` together with that build.
+- **Implementation:** `accent` in `packages/design/tokens.js`, `apps/server/src/lib/emails.ts`, `apps/server/src/lib/auth-error-page.ts`, `apps/web/app/icon.png` and `apple-icon.png`. Bell dot in `apps/web/components/inbox/inbox-link.tsx` and `apps/mobile/app/(app)/(tabs)/(home)/index.tsx`.
+- **References:** D-060, D-053
 
 ### D-026 : Welcome turns into Log in and Sign up
 

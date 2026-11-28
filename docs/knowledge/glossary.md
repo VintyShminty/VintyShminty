@@ -43,7 +43,7 @@ Plain-words meanings. Added by the `compile-memory` skill.
 - **Boost / Boosted (הקפצה, מוקפצת).** A seller moves a listing to the top of the feed for a while ("Boost this listing", "להקפיץ את המודעה"). Free for now. The listing shows "Boosted" until it ends. Called Buzz until 2026-10-15, and still "buzz" and "bump" inside the code.
 - **Basta.** The app's name since 2026-11-17, Hebrew slang for a market stall, written in Latin letters in both languages (D-060). The repo and code still say Vinty.
 - **Yadii.** The app's name from #83 (2026-10-15) until Basta. Superseded by Basta on 2026-11-17.
-- **Cobalt.** The lead colour, #2446A8, since D-060. It replaced espresso brown.
+- **Cobalt.** The lead colour, #1E3B8F since D-068 (#2446A8 in D-060). It replaced espresso brown.
 - **Wordmark.** The app name written in bold as a logo, at the top of Home (D-047).
 - **Expense items.** Yearly and one time costs in the admin Expenses page, each with a "Paid by" name.
 - **Place suggestions.** Google's city and address guesses while you type a profile city or delivery address, fetched through our server.
